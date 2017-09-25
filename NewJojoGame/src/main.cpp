@@ -5,8 +5,16 @@
 #include <commctrl.h>
 #include <string>
 
+extern "C" {
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
+#include "lua/lua_tinker.h"
 
 HINSTANCE g_hInstance;
+lua_State *lua;
 
 namespace jojogame {
 	namespace usercontrol {
@@ -112,11 +120,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	// Jojo Control 클래스 등록
 	jojogame::usercontrol::registerJojoControl();
 
+	lua = luaL_newstate();
+
 
 	while (GetMessage(&Message, 0, 0, 0)) {
 		TranslateMessage(&Message);
 		DispatchMessage(&Message);
 	}
+
+	lua_close(lua);
 
 	return (int)Message.wParam;
 }
