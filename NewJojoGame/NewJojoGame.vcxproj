@@ -120,11 +120,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\lua\lua_tinker.cpp" />
+    <ClCompile Include="src\control\Control.cpp" />
+    <ClCompile Include="src\lua\JojoLua.cpp" />
+    <ClCompile Include="src\lua\LuaTinker.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\lua\lua_tinker.h" />
+    <ClInclude Include="src\control\Control.h" />
+    <ClInclude Include="src\lua\JojoLua.h" />
+    <ClInclude Include="src\lua\LuaTinker.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

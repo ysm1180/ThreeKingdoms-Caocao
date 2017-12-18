@@ -1,30 +1,41 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Lua">
+      <UniqueIdentifier>{f9d4a8ed-13ea-4023-bfd6-1ddcb3f1dafa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Control">
+      <UniqueIdentifier>{de0fd07a-5535-4c67-b9b0-39d9cda21f7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua\Function">
+      <UniqueIdentifier>{f62f1668-5f67-48bc-a9c6-a66c179b8721}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="src\lua\LuaTinker.cpp">
+      <Filter>Lua</Filter>
     </ClCompile>
-    <ClCompile Include="src\lua\lua_tinker.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="src\lua\JojoLua.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\control\Control.cpp">
+      <Filter>Control</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\lua\lua_tinker.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="src\lua\LuaTinker.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\JojoLua.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\control\Control.h">
+      <Filter>Control</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

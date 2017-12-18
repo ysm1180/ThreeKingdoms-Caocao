@@ -11,13 +11,11 @@ extern "C" {
 #include <lauxlib.h>
 }
 
-#include "lua/lua_tinker.h"
+#include "lua/LuaTinker.h"
 
 HINSTANCE g_hInstance;
-lua_State *lua;
 
 namespace jojogame {
-	namespace usercontrol {
 		LRESULT CALLBACK procForm(HWND hwnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			switch (iMessage) {
 			case WM_CREATE:
@@ -93,7 +91,7 @@ namespace jojogame {
 			wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 			wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 			wndClass.hInstance = g_hInstance;
-			wndClass.lpfnWndProc = (WNDPROC)jojogame::usercontrol::procForm;
+			wndClass.lpfnWndProc = (WNDPROC)jojogame::procForm;
 			wndClass.lpszClassName = "jojo_form";
 			wndClass.lpszMenuName = nullptr;
 			wndClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -104,7 +102,6 @@ namespace jojogame {
 			registerFormClass();
 		}
 
-	} // namespace usercontrol
 } // namespace jojogame
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
@@ -118,17 +115,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	InitCommonControlsEx(&stylesStruct);
 
 	// Jojo Control 클래스 등록
-	jojogame::usercontrol::registerJojoControl();
-
-	lua = luaL_newstate();
+	jojogame::registerJojoControl();
 
 
 	while (GetMessage(&Message, 0, 0, 0)) {
 		TranslateMessage(&Message);
 		DispatchMessage(&Message);
 	}
-
-	lua_close(lua);
 
 	return (int)Message.wParam;
 }

@@ -16,7 +16,7 @@ extern "C"
 #include <lauxlib.h>
 };
 
-#include "lua_tinker.h"
+#include "LuaTinker.h"
 
 /*---------------------------------------------------------------------------*/
 /* init                                                                      */
