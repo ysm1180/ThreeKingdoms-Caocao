@@ -1,4 +1,6 @@
 #include "LuaControl.h"
+#include "../LuaJojo.h"
+#include "../LuaTinker.h"
 
 #include <WindowsX.h>
 
@@ -41,6 +43,70 @@ namespace jojogame {
 	inline wchar_t * LuaControl::destroyFunction() const { return _destroyFunction; }
 	
 	inline wchar_t * LuaControl::clickFunction() const { return _clickFunction; }
+
+	void LuaControl::registerToLua()
+	{
+		lua_State* lua = LuaJojo::getInstance()->getLuaState();
+
+		lua_tinker::class_add<LuaControl>(lua, "__control__");
+
+		lua_tinker::class_def<LuaControl>(lua, "setVisible",
+			&LuaControl::setVisible);
+		lua_tinker::class_def<LuaControl>(lua, "setEnabled",
+			&LuaControl::setEnabled);
+		lua_tinker::class_def<LuaControl>(lua, "setParentHwnd",
+			&LuaControl::setParentHwnd);
+		lua_tinker::class_def<LuaControl>(lua, "setWidth",
+			&LuaControl::setWidth);
+		lua_tinker::class_def<LuaControl>(lua, "setHeight",
+			&LuaControl::setHeight);
+		lua_tinker::class_def<LuaControl>(lua, "setTop",
+			&LuaControl::setTop);
+		lua_tinker::class_def<LuaControl>(lua, "setLeft",
+			&LuaControl::setLeft);
+		lua_tinker::class_def<LuaControl>(lua, "setStyle",
+			&LuaControl::setStyle);
+		lua_tinker::class_def<LuaControl>(lua, "visible",
+			&LuaControl::visible);
+		lua_tinker::class_def<LuaControl>(lua, "enabled",
+			&LuaControl::enabled);
+		lua_tinker::class_def<LuaControl>(lua, "width",
+			&LuaControl::width);
+		lua_tinker::class_def<LuaControl>(lua, "height",
+			&LuaControl::height);
+		lua_tinker::class_def<LuaControl>(lua, "top",
+			&LuaControl::top);
+		lua_tinker::class_def<LuaControl>(lua, "left",
+			&LuaControl::left);
+		lua_tinker::class_def<LuaControl>(lua, "style",
+			&LuaControl::style);
+		lua_tinker::class_def<LuaControl>(lua, "show",
+			&LuaControl::show);
+		lua_tinker::class_def<LuaControl>(lua, "hide",
+			&LuaControl::hide);
+		lua_tinker::class_def<LuaControl>(lua, "moveToCenter",
+			&LuaControl::moveToCenter);
+		lua_tinker::class_def<LuaControl>(lua, "setItalic",
+			&LuaControl::setItalic);
+		lua_tinker::class_def<LuaControl>(lua, "setUnderline",
+			&LuaControl::setUnderline);
+		lua_tinker::class_def<LuaControl>(lua, "setBold",
+			&LuaControl::setBold);
+		lua_tinker::class_def<LuaControl>(lua, "setFontSize",
+			&LuaControl::setFontSize);
+		lua_tinker::class_def<LuaControl>(lua, "setFontName",
+			&LuaControl::setFontName);
+		lua_tinker::class_def<LuaControl>(lua, "italic",
+			&LuaControl::italic);
+		lua_tinker::class_def<LuaControl>(lua, "underline",
+			&LuaControl::underline);
+		lua_tinker::class_def<LuaControl>(lua, "bold",
+			&LuaControl::bold);
+		lua_tinker::class_def<LuaControl>(lua, "fondSize",
+			&LuaControl::fontSize);
+		lua_tinker::class_def<LuaControl>(lua, "fontName",
+			&LuaControl::fontName);
+	}
 
 	void LuaControl::resetFont()
 	{

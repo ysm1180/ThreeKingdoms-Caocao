@@ -53,6 +53,8 @@ namespace jojogame {
 		virtual void create() = 0;
 		virtual void destroy() = 0;
 
+		static void registerToLua();
+
 	protected:
 		void resetFont();
 

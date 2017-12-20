@@ -28,6 +28,7 @@ namespace jojogame {
 		void end();
 
 		static LuaJojo* getInstance();
+
 	protected:
 		lua_State* _lua;
 		LuaWindow* _window;
