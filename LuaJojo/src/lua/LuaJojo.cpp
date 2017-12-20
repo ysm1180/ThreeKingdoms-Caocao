@@ -1,6 +1,10 @@
 #include "LuaJojo.h"
 #include "LuaTinker.h"
+
 #include "class/LuaWindow.h"
+#include "class/LuaGame.h"
+#include "class/LuaTime.h"
+#include "class/LuaColor.h"
 
 namespace jojogame {
 	// Shared lua class pointer
@@ -19,6 +23,9 @@ namespace jojogame {
 		luaL_openlibs(_lua);
 
 		_window = LuaWindow::getInstance();
+		_game = LuaGame::getInstance();
+		_time = LuaTime::getInstance();
+		_color = LuaColor::getInstance();
 	}
 
 	LuaJojo::~LuaJojo() {
@@ -30,6 +37,9 @@ namespace jojogame {
 	{
 		lua_State* lua = LuaJojo::getInstance()->getLuaState();
 		lua_tinker::set(lua, "Window", _window);
+		lua_tinker::set(lua, "Game", _game);
+		lua_tinker::set(lua, "Time", _time);
+		lua_tinker::set(lua, "Color", _color);
 	}
 
 	lua_State* LuaJojo::getLuaState()
@@ -38,6 +48,11 @@ namespace jojogame {
 	}
 
 	void LuaJojo::end() {
-		delete this;
+		_window->release();
+		_game->release();
+		_time->release();
+		_color->release();
+
+		release();
 	}
 }

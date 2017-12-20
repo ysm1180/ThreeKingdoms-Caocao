@@ -21,6 +21,8 @@ namespace jojogame {
 			DispatchMessage(&message);
 		}
 
+		luaJojo->end();
+
 		return (int)message.wParam;
 	}
 }

@@ -19,12 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\lua\class\LuaColor.cpp" />
+    <ClCompile Include="src\lua\class\LuaGame.cpp" />
+    <ClCompile Include="src\lua\class\LuaTime.cpp" />
     <ClCompile Include="src\lua\class\LuaWindow.cpp" />
     <ClCompile Include="src\lua\control\LuaControl.cpp" />
     <ClCompile Include="src\lua\LuaJojo.cpp" />
     <ClCompile Include="src\lua\LuaTinker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\lua\class\LuaColor.h" />
+    <ClInclude Include="src\lua\class\LuaGame.h" />
+    <ClInclude Include="src\lua\class\LuaTime.h" />
     <ClInclude Include="src\lua\class\LuaWindow.h" />
     <ClInclude Include="src\lua\control\LuaControl.h" />
     <ClInclude Include="src\lua\LuaJojo.h" />

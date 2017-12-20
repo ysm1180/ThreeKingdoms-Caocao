@@ -2,13 +2,11 @@
 
 #include "base/Ref.h"
 
-#include <utility>
-#include <vector>
-
 namespace jojogame {
 	class __declspec(dllexport) LuaWindow : public Ref {
 	public:
 		LuaWindow();
+		~LuaWindow();
 
 		int getDesktopWidth();
 		int getDesktopHeight();

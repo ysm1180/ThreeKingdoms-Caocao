@@ -1,5 +1,7 @@
 #pragma once
 
+#include "base/Ref.h"
+
 #include <windows.h>
 
 extern "C" {
@@ -10,8 +12,11 @@ extern "C" {
 
 namespace jojogame {
 	class LuaWindow;
+	class LuaGame;
+	class LuaTime;
+	class LuaColor;
 
-	class __declspec(dllexport) LuaJojo {
+	class __declspec(dllexport) LuaJojo : public Ref {
 	public:
 		LuaJojo();
 		~LuaJojo();
@@ -26,6 +31,9 @@ namespace jojogame {
 	protected:
 		lua_State* _lua;
 		LuaWindow* _window;
+		LuaGame* _game;
+		LuaTime* _time;
+		LuaColor* _color;
 
 		static LuaJojo* s_sharedJojoLua;
 	};

@@ -20,6 +20,13 @@ namespace jojogame {
 		lua_State* lua = LuaJojo::getInstance()->getLuaState();
 		lua_tinker::class_add<LuaWindow>(lua, "__window__");
 		lua_tinker::class_def<LuaWindow>(lua, "getDesktopWidth", &LuaWindow::getDesktopWidth);
+		lua_tinker::class_def<LuaWindow>(lua, "getDesktopHeight", &LuaWindow::getDesktopHeight);
+
+	}
+
+	LuaWindow::~LuaWindow()
+	{
+		s_sharedWindow = nullptr;
 	}
 
 	int LuaWindow::getDesktopWidth()
@@ -28,6 +35,7 @@ namespace jojogame {
 		GetWindowRect(GetDesktopWindow(), &rect);
 		return rect.right - rect.left;
 	}
+
 	int LuaWindow::getDesktopHeight()
 	{
 		RECT rect;
