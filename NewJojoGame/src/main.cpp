@@ -11,9 +11,8 @@ extern "C" {
 #include <lauxlib.h>
 }
 
+#include "Application.h"
 #include "lua/LuaTinker.h"
-
-HINSTANCE g_hInstance;
 
 namespace jojogame {
 		LRESULT CALLBACK procForm(HWND hwnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
@@ -82,31 +81,32 @@ namespace jojogame {
 			return DefWindowProc(hwnd, iMessage, wParam, lParam);
 		}
 
-		void registerFormClass() {
-			// WNDCLASS 초기화
-			WNDCLASS wndClass;
-			wndClass.cbClsExtra = 0;
-			wndClass.cbWndExtra = 0;
-			wndClass.hbrBackground = (HBRUSH)GetSysColorBrush(COLOR_3DFACE);
-			wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-			wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-			wndClass.hInstance = g_hInstance;
-			wndClass.lpfnWndProc = (WNDPROC)jojogame::procForm;
-			wndClass.lpszClassName = "jojo_form";
-			wndClass.lpszMenuName = nullptr;
-			wndClass.style = CS_HREDRAW | CS_VREDRAW;
-			RegisterClass(&wndClass);
-		}
+		//void registerFormClass() {
+		//	// WNDCLASS 초기화
+		//	WNDCLASS wndClass;
+		//	wndClass.cbClsExtra = 0;
+		//	wndClass.cbWndExtra = 0;
+		//	wndClass.hbrBackground = (HBRUSH)GetSysColorBrush(COLOR_3DFACE);
+		//	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+		//	wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+		//	wndClass.hInstance = g_hInstance;
+		//	wndClass.lpfnWndProc = (WNDPROC)jojogame::procForm;
+		//	wndClass.lpszClassName = "jojo_form";
+		//	wndClass.lpszMenuName = nullptr;
+		//	wndClass.style = CS_HREDRAW | CS_VREDRAW;
+		//	RegisterClass(&wndClass);
+		//}
 
-		void registerJojoControl() {
-			registerFormClass();
-		}
+		//void registerJojoControl() {
+		//	registerFormClass();
+		//}
 
 } // namespace jojogame
 
+using namespace jojogame;
+
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
-	MSG Message;
-	g_hInstance = hInstance;
+	Application App(hInstance);
 
 	// Control 초기화
 	INITCOMMONCONTROLSEX stylesStruct;
@@ -114,14 +114,5 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	stylesStruct.dwICC = ICC_STANDARD_CLASSES;
 	InitCommonControlsEx(&stylesStruct);
 
-	// Jojo Control 클래스 등록
-	jojogame::registerJojoControl();
-
-
-	while (GetMessage(&Message, 0, 0, 0)) {
-		TranslateMessage(&Message);
-		DispatchMessage(&Message);
-	}
-
-	return (int)Message.wParam;
+	return Application::getInstance()->run();
 }

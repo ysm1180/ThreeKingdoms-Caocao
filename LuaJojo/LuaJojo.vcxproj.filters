@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="lua">
+      <UniqueIdentifier>{45b1c4e2-4acb-4dcd-8ab1-269f63495b27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua\class">
+      <UniqueIdentifier>{3dac7369-dd98-436a-a7b4-8451da8866ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua\control">
+      <UniqueIdentifier>{95bee5c1-8a24-4f24-9a7d-5dad7fe9e0a3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\lua\LuaJojo.cpp">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua\LuaTinker.cpp">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua\class\LuaWindow.cpp">
+      <Filter>lua\class</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua\control\LuaControl.cpp">
+      <Filter>lua\control</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\lua\class\LuaWindow.h">
+      <Filter>lua\class</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\LuaJojo.h">
+      <Filter>lua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\LuaTinker.h">
+      <Filter>lua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\control\LuaControl.h">
+      <Filter>lua\control</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>

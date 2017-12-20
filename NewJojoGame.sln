@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.8
+VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NewJojoGame", "NewJojoGame\NewJojoGame.vcxproj", "{D1852D6C-C934-442B-AF92-197381B48ACA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libluajojo", "LuaJojo\LuaJojo.vcxproj", "{5DE74912-B622-4938-9A12-B42861DE40D4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjojo", "libjojo\libjojo.vcxproj", "{576E5E04-6A11-4B95-9899-17A5EA2955C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,22 @@ Global
 		{D1852D6C-C934-442B-AF92-197381B48ACA}.Release|x64.Build.0 = Release|x64
 		{D1852D6C-C934-442B-AF92-197381B48ACA}.Release|x86.ActiveCfg = Release|Win32
 		{D1852D6C-C934-442B-AF92-197381B48ACA}.Release|x86.Build.0 = Release|Win32
+		{5DE74912-B622-4938-9A12-B42861DE40D4}.Debug|x64.ActiveCfg = Debug|x64
+		{5DE74912-B622-4938-9A12-B42861DE40D4}.Debug|x64.Build.0 = Debug|x64
+		{5DE74912-B622-4938-9A12-B42861DE40D4}.Debug|x86.ActiveCfg = Debug|Win32
+		{5DE74912-B622-4938-9A12-B42861DE40D4}.Debug|x86.Build.0 = Debug|Win32
+		{5DE74912-B622-4938-9A12-B42861DE40D4}.Release|x64.ActiveCfg = Release|x64
+		{5DE74912-B622-4938-9A12-B42861DE40D4}.Release|x64.Build.0 = Release|x64
+		{5DE74912-B622-4938-9A12-B42861DE40D4}.Release|x86.ActiveCfg = Release|Win32
+		{5DE74912-B622-4938-9A12-B42861DE40D4}.Release|x86.Build.0 = Release|Win32
+		{576E5E04-6A11-4B95-9899-17A5EA2955C5}.Debug|x64.ActiveCfg = Debug|x64
+		{576E5E04-6A11-4B95-9899-17A5EA2955C5}.Debug|x64.Build.0 = Debug|x64
+		{576E5E04-6A11-4B95-9899-17A5EA2955C5}.Debug|x86.ActiveCfg = Debug|Win32
+		{576E5E04-6A11-4B95-9899-17A5EA2955C5}.Debug|x86.Build.0 = Debug|Win32
+		{576E5E04-6A11-4B95-9899-17A5EA2955C5}.Release|x64.ActiveCfg = Release|x64
+		{576E5E04-6A11-4B95-9899-17A5EA2955C5}.Release|x64.Build.0 = Release|x64
+		{576E5E04-6A11-4B95-9899-17A5EA2955C5}.Release|x86.ActiveCfg = Release|Win32
+		{576E5E04-6A11-4B95-9899-17A5EA2955C5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
