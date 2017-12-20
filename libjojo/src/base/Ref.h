@@ -1,7 +1,7 @@
 #pragma once
 
 namespace jojogame {
-	class Ref {
+	class __declspec(dllexport) Ref {
 	public:
 		Ref();
 		virtual ~Ref();

@@ -3,12 +3,14 @@
 #include <windows.h>
 
 namespace jojogame {
-	class Application {
+	class __declspec(dllexport) Application {
 	public:
 		Application(HINSTANCE);
-		~Application();
+		virtual ~Application();
 
-		int run();
+		HINSTANCE getHInstance();
+
+		virtual int run() = 0;
 
 		static Application* getInstance();
 	protected:

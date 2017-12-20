@@ -11,8 +11,7 @@ extern "C" {
 #include <lauxlib.h>
 }
 
-#include "Application.h"
-#include "lua/LuaTinker.h"
+#include "AppDelegate.h"
 
 namespace jojogame {
 		LRESULT CALLBACK procForm(HWND hwnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
@@ -106,7 +105,7 @@ namespace jojogame {
 using namespace jojogame;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
-	Application App(hInstance);
+	AppDelegate app(hInstance);
 
 	// Control √ ±‚»≠
 	INITCOMMONCONTROLSEX stylesStruct;
