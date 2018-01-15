@@ -1,80 +1,92 @@
 #pragma once
 
 #include <Windows.h>
+#include <string>
 
 namespace jojogame {
-	class __declspec(dllexport) LuaControl {
-	public:
-		LuaControl();
-		virtual ~LuaControl();
+class __declspec(dllexport) LuaControl
+{
+public:
+    LuaControl();
+    virtual ~LuaControl();
 
-		LuaControl(const LuaControl&) = delete;
-		LuaControl& operator=(const LuaControl&) = delete;
+    LuaControl(const LuaControl&) = delete;
+    LuaControl& operator=(const LuaControl&) = delete;
 
-		bool bold() const;
-		bool enabled() const;
-		bool italic() const;
-		bool underline() const;
-		bool visible() const;
-		wchar_t *fontName() const;
-		int fontSize() const;
-		int width() const;
-		int height() const;
-		int left() const;
-		int top() const;
-		LONG style() const;
-		wchar_t* createFunction() const;
-		wchar_t* destroyFunction() const;
-		wchar_t* clickFunction() const;
+    bool bold() const;
+    bool enabled() const;
+    bool italic() const;
+    bool underline() const;
+    bool visible() const;
+    std::wstring fontName() const;
+    int fontSize() const;
+    int width() const;
+    int height() const;
+    int x() const;
+    int y() const;
+    LONG style() const;
+    std::wstring createFunction() const;
+    std::wstring destroyFunction() const;
+    std::wstring clickFunction() const;
+    HWND parentHwnd() const;
 
-		void setParentHwnd(HWND parentHwnd);
-		void setBold(bool bold);
-		void setItalic(bool italic);
-		void setUnderline(bool underline);
-		void setFontName(wchar_t *fontName);
-		void setFontSize(int fontSize);
-		void setStyle(LONG style);
-		void setVisible(bool visible);
-		void setEnabled(bool enabled);
-		void setTop(int top);
-		void setLeft(int left);
-		void setWidth(int width);
-		void setHeight(int height);
-		void setCreateFunction(wchar_t *createFunction);
-		void setDestroyFunction(wchar_t *destroyFunction);
-		void setClickFunction(wchar_t *clickFunction);
+    void setBold(bool bold);
+    void setItalic(bool italic);
+    void setUnderline(bool underline);
+    void setFontName(std::wstring fontName);
+    void setFontSize(int fontSize);
+    void setStyle(LONG style);
+    void setVisible(bool visible);
+    void setEnabled(bool enabled);
+    void setY(int top);
+    void setX(int left);
+    void setWidth(int width);
+    void setHeight(int height);
+    void setCreateFunction(std::wstring createFunction);
+    void setDestroyFunction(std::wstring destroyFunction);
+    void setClickFunction(std::wstring clickFunction);
 
-		void show();
+    /**
+     * \brief Control 를 나타냅니다.
+     */
+    void show();
 
-		void hide();
+    /**
+     * \brief Control 을 숨깁니다.
+     */
+    void hide();
 
-		void moveToCenter();
+    /**
+     * \brief parentControl 의 가운데로 위치를 옮깁니다.
+     */
+    void moveToCenter();
 
-		virtual void create() = 0;
-		virtual void destroy() = 0;
+    virtual void destroy() = 0;
 
-		static void registerToLua();
+    /**
+     * \brief Lua 에 등록합니다.
+     */
+    static void registerToLua();
 
-	protected:
-		void resetFont();
+protected:
+    void resetFont();
 
-		bool _visible = false;
-		bool _enabled = true;
-		HWND _hwnd = nullptr;
-		HWND _parentHwnd = nullptr;
-		SIZE _size;
-		POINT _position;
-		LONG _style = 0;
-		HFONT _font = nullptr;
-		bool _bold = false;
-		bool _italic = false;
-		bool _underline = false;
-		int _fontSize = 12;
+    bool _visible = false;
+    bool _enabled = true;
+    HWND _hwnd = nullptr;
+    HWND _parentHwnd = nullptr;
+    SIZE _size;
+    POINT _position;
+    LONG _style = 0;
+    HFONT _font = nullptr;
+    bool _bold = false;
+    bool _italic = false;
+    bool _underline = false;
+    int _fontSize = 12;
 
-		wchar_t *_fontName;
-		wchar_t *_createFunction;
-		wchar_t *_destroyFunction;
-		wchar_t *_clickFunction;
-	protected:
-	};
+    std::wstring _fontName = L"굴림";
+    std::wstring _createFunction = L"";
+    std::wstring _destroyFunction = L"";
+    std::wstring _clickFunction = L"";
+};
 }

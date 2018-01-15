@@ -2,27 +2,28 @@
 #include "lua/LuaJojo.h"
 
 namespace jojogame {
-	AppDelegate::AppDelegate(HINSTANCE hInstance)
-		: Application(hInstance)
-	{
-	}
+AppDelegate::AppDelegate(HINSTANCE hInstance)
+    : Application(hInstance)
+{
+}
 
-	AppDelegate::~AppDelegate()
-	{
-	}
+AppDelegate::~AppDelegate()
+= default;
 
-	int AppDelegate::run()
-	{
-		MSG message;
-		LuaJojo* luaJojo = LuaJojo::getInstance();
+int AppDelegate::run()
+{
+    MSG message;
+    auto luaJojo = LuaJojo::getInstance();
 
-		while (GetMessage(&message, 0, 0, 0)) {
-			TranslateMessage(&message);
-			DispatchMessage(&message);
-		}
+    luaJojo->run("main.lua");
+    while (GetMessage(&message, 0, 0, 0))
+    {
+        TranslateMessage(&message);
+        DispatchMessage(&message);
+    }
 
-		luaJojo->end();
+    luaJojo->end();
 
-		return (int)message.wParam;
-	}
+    return (int)message.wParam;
+}
 }

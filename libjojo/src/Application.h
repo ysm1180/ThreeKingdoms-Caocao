@@ -3,18 +3,19 @@
 #include <windows.h>
 
 namespace jojogame {
-	class __declspec(dllexport) Application {
-	public:
-		Application(HINSTANCE);
-		virtual ~Application();
+class __declspec(dllexport) Application
+{
+public:
+    Application(HINSTANCE);
+    virtual ~Application();
 
-		HINSTANCE getHInstance();
+    HINSTANCE getHInstance();
 
-		virtual int run() = 0;
+    virtual int run() = 0;
 
-		static Application* getInstance();
-	protected:
-		HINSTANCE _hInstance;
-		static Application* s_sharedApplication;
-	};
+    static Application* getInstance();
+protected:
+    HINSTANCE _hInstance;
+    static Application* s_sharedApplication;
+};
 }

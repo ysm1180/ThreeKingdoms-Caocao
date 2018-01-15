@@ -1,41 +1,45 @@
 #pragma once
 
 #include "base/Ref.h"
+#include "class/LuaMenuManager.h"
 
-#include <windows.h>
-
-extern "C" {
+extern "C"
+{
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
 }
 
 namespace jojogame {
-	class LuaWindow;
-	class LuaGame;
-	class LuaTime;
-	class LuaColor;
+class LuaWindow;
+class LuaGame;
+class LuaTime;
+class LuaColor;
 
-	class __declspec(dllexport) LuaJojo : public Ref {
-	public:
-		LuaJojo();
-		~LuaJojo();
+class __declspec(dllexport) LuaJojo : public Ref
+{
+public:
+    LuaJojo();
+    ~LuaJojo();
 
-		void init();
+    void init();
 
-		lua_State* getLuaState();
-		
-		void end();
+    lua_State* getLuaState();
 
-		static LuaJojo* getInstance();
+    void run(const char* fileName);
 
-	protected:
-		lua_State* _lua;
-		LuaWindow* _window;
-		LuaGame* _game;
-		LuaTime* _time;
-		LuaColor* _color;
+    void end();
 
-		static LuaJojo* s_sharedJojoLua;
-	};
+    static LuaJojo* getInstance();
+
+protected:
+    lua_State* _lua;
+    LuaWindow* _window;
+    LuaGame* _game;
+    LuaTime* _time;
+    LuaColor* _color;
+    LuaMenuManager* _menuManager;
+
+    static LuaJojo* s_sharedJojoLua;
+};
 }

@@ -9,12 +9,19 @@
     <ClCompile Include="src\base\Ref.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Application.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\base\Ref.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Application.h">
+      <Filter>base</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

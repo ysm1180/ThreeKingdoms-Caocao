@@ -125,9 +125,6 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\libjojo\libjojo.vcxproj">
       <Project>{576e5e04-6a11-4b95-9899-17a5ea2955c5}</Project>
     </ProjectReference>
@@ -138,6 +135,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AppDelegate.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,17 +3,18 @@
 #include "base/Ref.h"
 
 namespace jojogame {
-	class __declspec(dllexport) LuaWindow : public Ref {
-	public:
-		LuaWindow();
-		~LuaWindow();
+class __declspec(dllexport) LuaWindow : public Ref
+{
+public:
+    LuaWindow();
+    ~LuaWindow();
 
-		int getDesktopWidth();
-		int getDesktopHeight();
+    int getDesktopWidth();
+    int getDesktopHeight();
 
-		static LuaWindow* getInstance();
-	private:
-		
-		static LuaWindow* s_sharedWindow;
-	};
+    static LuaWindow* getInstance();
+private:
+
+    static LuaWindow* s_sharedWindow;
+};
 }

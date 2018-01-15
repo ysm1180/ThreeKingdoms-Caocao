@@ -1,14 +1,15 @@
 #pragma once
 
 namespace jojogame {
-	class __declspec(dllexport) Ref {
-	public:
-		Ref();
-		virtual ~Ref();
+class __declspec(dllexport) Ref
+{
+public:
+    Ref();
+    virtual ~Ref();
 
-		void release();
+    void release();
 
-	protected:
-		unsigned int _referenceCount;
-	};
+protected:
+    unsigned int _referenceCount;
+};
 }

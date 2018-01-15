@@ -2,10 +2,16 @@
 //#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version = '6.0.0.0' processorArchitecture = '*' publicKeyToken = '6595b64144ccf1df' language = '*'\"")
 
 #include <windows.h>
-#include <commctrl.h>
+#include <CommCtrl.h>
 #include <string>
+#include <crtdbg.h>
 
-extern "C" {
+#ifdef _DEBUG
+#define new new(_CLIENT_BLOCK, __FILE__, __LINE__)
+#endif
+
+extern "C"
+{
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
@@ -13,105 +19,19 @@ extern "C" {
 
 #include "AppDelegate.h"
 
-namespace jojogame {
-		LRESULT CALLBACK procForm(HWND hwnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
-			switch (iMessage) {
-			case WM_CREATE:
-			{
-				return 0;
-			}
-
-			case WM_SETCURSOR:
-			{
-				break;
-			}
-
-			case WM_NOTIFY:
-				break;
-
-
-			case WM_LBUTTONUP:
-			{
-				break;
-			}
-
-			case WM_ACTIVATEAPP:
-			{
-				if (wParam == TRUE) {
-				}
-			}
-
-			case WM_COMMAND:
-			{
-				break;
-			}
-
-			case WM_SIZE:
-			{
-				break;
-			}
-
-			case WM_MOVE:
-			{
-				break;
-			}
-
-			case WM_CLOSE:
-			{
-				break;
-			}
-
-			case WM_DESTROY:
-			{
-				return 0;
-			}
-
-			case WM_PAINT:
-			{
-				return 0;
-			}
-
-			case WM_ERASEBKGND:
-			{
-				return TRUE;
-			}
-			}
-
-			return DefWindowProc(hwnd, iMessage, wParam, lParam);
-		}
-
-		//void registerFormClass() {
-		//	// WNDCLASS 초기화
-		//	WNDCLASS wndClass;
-		//	wndClass.cbClsExtra = 0;
-		//	wndClass.cbWndExtra = 0;
-		//	wndClass.hbrBackground = (HBRUSH)GetSysColorBrush(COLOR_3DFACE);
-		//	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-		//	wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-		//	wndClass.hInstance = g_hInstance;
-		//	wndClass.lpfnWndProc = (WNDPROC)jojogame::procForm;
-		//	wndClass.lpszClassName = "jojo_form";
-		//	wndClass.lpszMenuName = nullptr;
-		//	wndClass.style = CS_HREDRAW | CS_VREDRAW;
-		//	RegisterClass(&wndClass);
-		//}
-
-		//void registerJojoControl() {
-		//	registerFormClass();
-		//}
-
-} // namespace jojogame
-
 using namespace jojogame;
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
-	AppDelegate app(hInstance);
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
+{
+    AppDelegate app(hInstance);
 
-	// Control 초기화
-	INITCOMMONCONTROLSEX stylesStruct;
-	stylesStruct.dwSize = sizeof(stylesStruct);
-	stylesStruct.dwICC = ICC_STANDARD_CLASSES;
-	InitCommonControlsEx(&stylesStruct);
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	return Application::getInstance()->run();
+    // Control 초기화
+    INITCOMMONCONTROLSEX stylesStruct;
+    stylesStruct.dwSize = sizeof(stylesStruct);
+    stylesStruct.dwICC = ICC_STANDARD_CLASSES;
+    InitCommonControlsEx(&stylesStruct);
+
+    return Application::getInstance()->run();
 }

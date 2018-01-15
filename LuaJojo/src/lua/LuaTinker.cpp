@@ -279,23 +279,12 @@ const char* lua_tinker::read(lua_State *L, int index) {
 }
 
 template<>
-wchar_t* lua_tinker::read(lua_State *L, int index) {
-  char *original = (char *)lua_tostring(L, index);
-  wchar_t *unicode;
-  int len = MultiByteToWideChar(CP_UTF8, 0, original, -1, nullptr, 0);
-  unicode = new wchar_t[len];
-  MultiByteToWideChar(CP_UTF8, 0, original, -1, unicode, len);
-  return unicode;
-}
-
-template<>
-const wchar_t* lua_tinker::read(lua_State *L, int index) {
-  char *original = (char *)lua_tostring(L, index);
-  wchar_t *unicode;
-  int len = MultiByteToWideChar(CP_UTF8, 0, original, -1, nullptr, 0);
-  unicode = new wchar_t[len];
-  MultiByteToWideChar(CP_UTF8, 0, original, -1, unicode, len);
-  return (const wchar_t *)unicode;
+std::wstring lua_tinker::read(lua_State *L, int index) {
+    const auto original = const_cast<char *>(lua_tostring(L, index));
+    const auto len = MultiByteToWideChar(CP_UTF8, 0, original, -1, nullptr, 0);
+    std::wstring unicode(len, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, original, -1, &unicode[0], len);
+    return unicode;
 }
 
 template<>

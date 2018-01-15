@@ -33,6 +33,18 @@
     <ClCompile Include="src\lua\class\LuaTime.cpp">
       <Filter>lua\class</Filter>
     </ClCompile>
+    <ClCompile Include="src\lua\control\LuaForm.cpp">
+      <Filter>lua\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua\control\LuaMovie.cpp">
+      <Filter>lua\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua\control\LuaMenu.cpp">
+      <Filter>lua\control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua\class\LuaMenuManager.cpp">
+      <Filter>lua\class</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\lua\class\LuaWindow.h">
@@ -54,6 +66,18 @@
       <Filter>lua\class</Filter>
     </ClInclude>
     <ClInclude Include="src\lua\class\LuaTime.h">
+      <Filter>lua\class</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\control\LuaForm.h">
+      <Filter>lua\control</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\control\LuaMovie.h">
+      <Filter>lua\control</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\control\LuaMenu.h">
+      <Filter>lua\control</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\class\LuaMenuManager.h">
       <Filter>lua\class</Filter>
     </ClInclude>
   </ItemGroup>
