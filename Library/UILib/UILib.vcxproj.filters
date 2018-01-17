@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Control.cpp" />
+    <ClCompile Include="LuaMenu.cpp" />
+    <ClCompile Include="LuaMovie.cpp" />
+    <ClCompile Include="Window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Control.h" />
+    <ClInclude Include="LuaMenu.h" />
+    <ClInclude Include="LuaMovie.h" />
+    <ClInclude Include="Window.h" />
+  </ItemGroup>
+</Project>
