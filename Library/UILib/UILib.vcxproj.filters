@@ -2,16 +2,22 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Control.cpp" />
-    <ClCompile Include="LuaMenu.cpp" />
-    <ClCompile Include="LuaMovie.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="WindowControl.cpp" />
+    <ClCompile Include="BaseControl.cpp" />
+    <ClCompile Include="ControlManager.cpp" />
+    <ClCompile Include="TextFont.cpp" />
+    <ClCompile Include="ButtonControl.cpp" />
+    <ClCompile Include="MenuControl.cpp" />
+    <ClCompile Include="MoviePlayerControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Control.h" />
-    <ClInclude Include="LuaMenu.h" />
-    <ClInclude Include="LuaMovie.h" />
-    <ClInclude Include="Window.h" />
+    <ClInclude Include="WindowControl.h" />
+    <ClInclude Include="BaseControl.h" />
+    <ClInclude Include="ControlManager.h" />
+    <ClInclude Include="TextFont.h" />
+    <ClInclude Include="ButtonControl.h" />
+    <ClInclude Include="MenuControl.h" />
+    <ClInclude Include="MoviePlayerControl.h" />
   </ItemGroup>
 </Project>

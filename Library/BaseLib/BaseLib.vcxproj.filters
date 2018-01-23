@@ -2,12 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Ref.h" />
-    <ClInclude Include="Application.h" />
+    <ClInclude Include="MemoryPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Ref.cpp" />
-    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="MemoryPool.cpp" />
   </ItemGroup>
 </Project>

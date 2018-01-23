@@ -21,6 +21,9 @@ extern "C"
 #include <new>
 #include <string>
 
+namespace jojogame {
+class CWindowControl;
+}
 
 namespace lua_tinker {
 // init LuaTinker
@@ -365,6 +368,8 @@ T read(lua_State *L, int index) {
     return lua2type<T>(L, index);
 }
 
+
+
 template<>	char*				read(lua_State *L, int index);
 template<>	const char*			read(lua_State *L, int index);
 template<>	std::wstring		read(lua_State *L, int index);
@@ -383,6 +388,7 @@ template<>	void				read(lua_State *L, int index);
 template<>	long long			read(lua_State *L, int index);
 template<>	unsigned long long	read(lua_State *L, int index);
 template<>	table				read(lua_State *L, int index);
+template<>	::jojogame::CWindowControl*		read(lua_State *L, int index);
 
 // push a value to lua stack
 template<typename T>

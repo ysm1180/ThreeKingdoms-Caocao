@@ -1,17 +1,13 @@
 ﻿#pragma once
 
-#include "BaseLib/Ref.h"
-
-#include <windows.h>
-#include <string>
-
 namespace jojogame {
-
-class  LuaMenuItem
+class  CMenuItem
 {
 public:
-    LuaMenuItem();
-    virtual ~LuaMenuItem();
+    static void RegisterFunctions(lua_State *L);
+
+    CMenuItem();
+    virtual ~CMenuItem();
 
     HMENU item();
     std::wstring text();
@@ -20,9 +16,7 @@ public:
     void setText(std::wstring text);
     void setClickFunction(std::wstring clickFunction);
 
-    void setChildMenuItem(LuaMenuItem *child);
-
-    static void registerToLua();
+    void setChildMenuItem(CMenuItem *child);
 private:
     HMENU _item = nullptr;
     int _index = 0;
@@ -30,17 +24,16 @@ private:
     std::wstring _clickFunction = L"";
 };
 
-class __declspec(dllexport) LuaMenubar
+class CMenubar
 {
 public:
-    LuaMenubar();
-    virtual ~LuaMenubar();
+    static void RegisterFunctions(lua_State *L);
 
-    void addMenuItem(LuaMenuItem* menuItem);
+    CMenubar();
+    virtual ~CMenubar();
 
-    static void registerToLua();
+    void AddMenuItem(CMenuItem* menuItem);
 private:
     HMENU _menu = nullptr;
 };
-
 }
