@@ -2,6 +2,8 @@
 
 #define WM_STOP_DELAY (WM_USER + 1)
 
+#include "LuaLib\/LuaTinker.h"
+
 namespace jojogame {
 class CGameManager
 {

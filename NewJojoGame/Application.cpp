@@ -1,8 +1,9 @@
 #include "Application.h"
 
+#include "BaseLib\MemoryPool.h"
+#include "CommonLib\GameManager.h"
 #include "LuaLib\LuaTinker.h"
 #include "UILib\ControlManager.h"
-#include "CommonLib\GameManager.h"
 
 namespace jojogame {
 Application* Application::s_sharedApplication = nullptr;
@@ -49,6 +50,9 @@ int Application::Run()
         TranslateMessage(&message);
         DispatchMessage(&message);
     }
+
+    CMemoryPool<CGameManager>::GetInstance();
+    CMemoryPoolManager::GetInstance().DestroyAllMemoryPool();
 
     return (int)message.wParam;
 }

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ControlManager.h"
 
+
 #include "BaseControl.h"
 #include "WindowControl.h"
 #include "MoviePlayerControl.h"
@@ -36,9 +37,7 @@ void CControlManager::Init(HINSTANCE hInstance)
 
 CWindowControl* CControlManager::CreateWindowForm(CWindowControl *parent)
 {
-    auto newWindow = new CWindowControl();
-    newWindow->SetParentWindow(parent);
-    return newWindow;
+    return nullptr;
 }
 
 HINSTANCE CControlManager::GetHInstance()

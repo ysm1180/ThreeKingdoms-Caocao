@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "MemoryPool.h"
 
-
 namespace jojogame {
 CMemoryPoolBase::CMemoryPoolBase()
 {
@@ -25,6 +24,35 @@ CMemoryPool<T>::~CMemoryPool()
 }
 
 template<typename T>
+T * CMemoryPool<T>::GetUnsingPointer()
+{
+    T *instance = nullptr;
+    if (_unusingPool.empty()) {
+        instance = (T *)malloc(sizeof(T));
+    }
+    else {
+        instance = _unusingPool.front();
+        _unusingPool.pop_front();
+    }
+
+    return instance;
+}
+
+template<typename T>
+void CMemoryPool<T>::Destroy()
+{
+    for (auto v : _usingPool) {
+        delete v;
+    }
+    _usingPool.clear();
+
+    for (auto v : _unusingPool) {
+        delete v;
+    }
+    _unusingPool.clear();
+}
+
+template<typename T>
 CMemoryPool<T>& CMemoryPool<T>::GetInstance()
 {
     std::call_once(s_onceFlag, [] {
@@ -33,6 +61,20 @@ CMemoryPool<T>& CMemoryPool<T>::GetInstance()
     });
 
     return *s_sharedMemoryPool.get();
+}
+
+template<typename T>
+void CMemoryPool<T>::Delete(T * instance, bool isCallDestructor) {
+    if (isCallDestructor) {
+        instance->~T();
+    }
+
+    if (_limit < _unusingPool.size()) {
+        free(instance);
+    }
+    else {
+        _unusingPool.push_back(instance);
+    }
 }
 
 
@@ -54,11 +96,12 @@ void CMemoryPoolManager::RegisterMemoryPool(CMemoryPoolBase * pool)
     _poolManager.insert(pool);
 }
 
-void CMemoryPoolManager::DestroyMemoryPools()
+void CMemoryPoolManager::DestroyAllMemoryPool()
 {
     for (auto v : _poolManager) {
-        v->Destory();
+        v->Destroy();
     }
+    _poolManager.clear();
 }
 
 CMemoryPoolManager & CMemoryPoolManager::GetInstance()
