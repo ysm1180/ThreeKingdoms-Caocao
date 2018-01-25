@@ -135,6 +135,9 @@
     <ProjectReference Include="..\Library\CommonLib\CommonLib.vcxproj">
       <Project>{20d48aa0-6594-42f6-a22f-890ae0041bc4}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Library\FontLib\FontLib.vcxproj">
+      <Project>{f308ae50-5c06-49d2-b93c-ac56424f199e}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Library\LuaLib\LuaLib.vcxproj">
       <Project>{bd478b56-b06b-4f26-96a4-1803dc6510bc}</Project>
     </ProjectReference>

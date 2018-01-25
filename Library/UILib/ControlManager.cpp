@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ControlManager.h"
 
+#include "BaseLib\MemoryPool.h"
 
 #include "BaseControl.h"
 #include "WindowControl.h"
@@ -37,7 +38,9 @@ void CControlManager::Init(HINSTANCE hInstance)
 
 CWindowControl* CControlManager::CreateWindowForm(CWindowControl *parent)
 {
-    return nullptr;
+    auto newWindow = CMemoryPool<CWindowControl>::GetInstance().New();
+    newWindow->SetParentWindow(parent);
+    return newWindow;
 }
 
 HINSTANCE CControlManager::GetHInstance()

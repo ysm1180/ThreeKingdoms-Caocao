@@ -51,7 +51,6 @@ int Application::Run()
         DispatchMessage(&message);
     }
 
-    CMemoryPool<CGameManager>::GetInstance();
     CMemoryPoolManager::GetInstance().DestroyAllMemoryPool();
 
     return (int)message.wParam;
