@@ -22,10 +22,14 @@ void CBaseControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(SetHeight);
     LUA_METHOD(SetX);
     LUA_METHOD(SetY);
+    LUA_METHOD(SetCreateEvent);
+    LUA_METHOD(SetDestroyEvent);
+    LUA_METHOD(SetClickEvent);
     LUA_METHOD(SetStyle);
 
     LUA_METHOD(Show);
     LUA_METHOD(Hide);
+
     LUA_METHOD(MoveToCenter);
 }
 
@@ -72,19 +76,19 @@ inline LONG CBaseControl::GetStyle() const
     return _style;
 }
 
-inline std::wstring CBaseControl::GetCreateFunction() const
+inline std::wstring CBaseControl::GetCreateEvent() const
 {
-    return _createFunction;
+    return _createEvent;
 }
 
-inline std::wstring CBaseControl::GetDestroyFunction() const
+inline std::wstring CBaseControl::GetDestroyEvent() const
 {
-    return _destroyFunction;
+    return _destroyEvent;
 }
 
-inline std::wstring CBaseControl::GetClickFunction() const
+inline std::wstring CBaseControl::GetClickEvent() const
 {
-    return _clickFunction;
+    return _clickEvent;
 }
 
 inline HWND CBaseControl::GetHWnd() const
@@ -127,19 +131,19 @@ void CBaseControl::SetHeight(const int height)
     _size.cy = height;
 }
 
-void CBaseControl::SetCreateFunction(const std::wstring createFunction)
+void CBaseControl::SetCreateEvent(const std::wstring createEventName)
 {
-    _createFunction = createFunction;
+    _createEvent = createEventName;
 }
 
-void CBaseControl::SetDestroyFunction(const std::wstring destroyFunction)
+void CBaseControl::SetDestroyEvent(const std::wstring destroyEventName)
 {
-    _destroyFunction = destroyFunction;
+    _destroyEvent = destroyEventName;
 }
 
-void CBaseControl::SetClickFunction(const std::wstring clickFunction)
+void CBaseControl::SetClickEvent(const std::wstring clickEventName)
 {
-    _clickFunction = clickFunction;
+    _clickEvent = clickEventName;
 }
 
 void CBaseControl::Show()

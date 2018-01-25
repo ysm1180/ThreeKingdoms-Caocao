@@ -59,7 +59,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         // close 함수 호출, 리턴값(close) = true 이면 종료 취소
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto closeFunction = window->GetCloseFunction();
+        auto closeFunction = window->GetCloseEvent();
         const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeFunction.c_str());
         if (notClose)
         {
@@ -102,19 +102,21 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(IsControlBox);
     LUA_METHOD(IsTitleBar);
     LUA_METHOD(GetTitleName);
-    LUA_METHOD(GetActiveFunction);
-    LUA_METHOD(GetCloseFunction);
+    LUA_METHOD(GetActiveEvent);
+    LUA_METHOD(GetCloseEvent);
+
     LUA_METHOD(SetMaxButton);
     LUA_METHOD(SetMinButton);
     LUA_METHOD(SetControlBox);
     LUA_METHOD(SetTitleBar);
     LUA_METHOD(SetTitleName);
-    LUA_METHOD(SetActiveFunction);
-    LUA_METHOD(SetCloseFunction);
+    LUA_METHOD(SetActiveEvent);
+    LUA_METHOD(SetCloseEvent);
     LUA_METHOD(SetIcon);
     LUA_METHOD(SetBackColor);
     LUA_METHOD(SetDialogResult);
     LUA_METHOD(SetMenu);
+
     LUA_METHOD(Create);
     LUA_METHOD(ShowModalWindow);
     LUA_METHOD(Destroy);
@@ -176,14 +178,14 @@ bool CWindowControl::IsTitleBar() const
     return _isTitleBar;
 }
 
-std::wstring CWindowControl::GetActiveFunction() const
+std::wstring CWindowControl::GetActiveEvent() const
 {
-    return _activeFunction;
+    return _activeEvent;
 }
 
-std::wstring CWindowControl::GetCloseFunction() const
+std::wstring CWindowControl::GetCloseEvent() const
 {
-    return _closeFunction;
+    return _closeEvent;
 }
 
 HBRUSH CWindowControl::GetBackBrush() const
@@ -277,14 +279,14 @@ void CWindowControl::SetTitleBar(const bool isTitleBar)
     }
 }
 
-void CWindowControl::SetActiveFunction(std::wstring activeFunction)
+void CWindowControl::SetActiveEvent(std::wstring activeEventName)
 {
-    _activeFunction = activeFunction;
+    _activeEvent = activeEventName;
 }
 
-void CWindowControl::SetCloseFunction(std::wstring closeFunction)
+void CWindowControl::SetCloseEvent(std::wstring closeEventName)
 {
-    _closeFunction = closeFunction;
+    _closeEvent = closeEventName;
 }
 
 void CWindowControl::SetIcon(std::wstring iconFilePath)

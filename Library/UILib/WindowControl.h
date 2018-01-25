@@ -19,8 +19,8 @@ public:
     bool IsMinButton() const;
     bool IsTitleBar() const;
     std::wstring GetTitleName() const;
-    std::wstring GetActiveFunction() const;
-    std::wstring GetCloseFunction() const;
+    std::wstring GetActiveEvent() const;
+    std::wstring GetCloseEvent() const;
     HBRUSH GetBackBrush() const;
     CMenubar* GetMenu();
 
@@ -29,8 +29,8 @@ public:
     void SetMinButton(bool isMinButton);
     void SetTitleBar(bool isTitleBar);
     void SetTitleName(std::wstring title);
-    void SetActiveFunction(std::wstring activeFunction);
-    void SetCloseFunction(std::wstring closeFunction);
+    void SetActiveEvent(std::wstring activeEventName);
+    void SetCloseEvent(std::wstring closeEventName);
     void SetIcon(std::wstring iconFilePath);
     void SetBackColor(COLORREF backColor);
     void SetMenu(CMenubar* menu);
@@ -77,8 +77,8 @@ private:
     bool _isTitleBar = true;
     int* _dialogResult = nullptr;
     std::wstring _titleName = L"";
-    std::wstring _activeFunction = L"";
-    std::wstring _closeFunction = L"";
+    std::wstring _activeEvent = L"";
+    std::wstring _closeEvent = L"";
     HICON _icon = LoadIcon(nullptr, IDI_APPLICATION);
     HBRUSH _backBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
     CMenubar* _menu = nullptr;

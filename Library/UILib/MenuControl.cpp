@@ -32,7 +32,7 @@ std::wstring CMenuItem::text()
 
 std::wstring CMenuItem::clickFunction()
 {
-    return _clickFunction;
+    return _clickEvent;
 }
 
 void CMenuItem::setText(std::wstring text)
@@ -42,7 +42,7 @@ void CMenuItem::setText(std::wstring text)
 
 void CMenuItem::setClickFunction(std::wstring clickFunction)
 {
-    _clickFunction = clickFunction;
+    _clickEvent = clickFunction;
 }
 
 void CMenuItem::setChildMenuItem(CMenuItem* child)

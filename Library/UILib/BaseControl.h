@@ -10,8 +10,7 @@ public:
     CBaseControl();
     virtual ~CBaseControl();
 
-    CBaseControl(const CBaseControl&) = delete;
-    CBaseControl& operator=(const CBaseControl&) = delete;
+   
 
     virtual bool IsEnabled() const;
     virtual bool IsVisible() const;
@@ -20,9 +19,9 @@ public:
     virtual int GetX() const;
     virtual int GetY() const;
     virtual LONG GetStyle() const;
-    virtual std::wstring GetCreateFunction() const;
-    virtual std::wstring GetDestroyFunction() const;
-    virtual std::wstring GetClickFunction() const;
+    virtual std::wstring GetCreateEvent() const;
+    virtual std::wstring GetDestroyEvent() const;
+    virtual std::wstring GetClickEvent() const;
     virtual HWND GetHWnd() const;
 
     virtual void SetStyle(LONG style);
@@ -32,9 +31,9 @@ public:
     virtual void SetX(int y);
     virtual void SetWidth(int width);
     virtual void SetHeight(int height);
-    virtual void SetCreateFunction(std::wstring createFunction);
-    virtual void SetDestroyFunction(std::wstring destroyFunction);
-    virtual void SetClickFunction(std::wstring clickFunction);
+    virtual void SetCreateEvent(std::wstring createEventName);
+    virtual void SetDestroyEvent(std::wstring destroyEventName);
+    virtual void SetClickEvent(std::wstring clickEventName);
 
     virtual void Show();
     virtual void Hide();
@@ -54,8 +53,8 @@ protected:
     POINT _position;
     LONG _style = 0;
 
-    std::wstring _createFunction = L"";
-    std::wstring _destroyFunction = L"";
-    std::wstring _clickFunction = L"";
+    std::wstring _createEvent = L"";
+    std::wstring _destroyEvent = L"";
+    std::wstring _clickEvent = L"";
 };
 }

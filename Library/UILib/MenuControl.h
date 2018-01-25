@@ -21,7 +21,7 @@ private:
     HMENU _item = nullptr;
     int _index = 0;
     std::wstring _text = L"";
-    std::wstring _clickFunction = L"";
+    std::wstring _clickEvent = L"";
 };
 
 class CMenubar
