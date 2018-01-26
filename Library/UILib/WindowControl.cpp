@@ -37,6 +37,10 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         if (wParam == TRUE)
         {
+            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            auto activeFunction = window->GetActiveEvent();
+            CLuaTinker::GetLuaTinker().Call<void>(activeFunction.c_str());
+            break;
         }
     }
 
@@ -95,7 +99,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
 void CWindowControl::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN_CHILD(CWindowControl, "Window", CBaseControl);
+    LUA_BEGIN_CHILD(CWindowControl, "_Window", CBaseControl);
 
     LUA_METHOD(IsMaxButton);
     LUA_METHOD(IsMinButton);
@@ -279,14 +283,14 @@ void CWindowControl::SetTitleBar(const bool isTitleBar)
     }
 }
 
-void CWindowControl::SetActiveEvent(std::wstring activeEventName)
+void CWindowControl::SetActiveEvent(std::wstring activeEvent)
 {
-    _activeEvent = activeEventName;
+    _activeEvent = activeEvent;
 }
 
-void CWindowControl::SetCloseEvent(std::wstring closeEventName)
+void CWindowControl::SetCloseEvent(std::wstring closeEvent)
 {
-    _closeEvent = closeEventName;
+    _closeEvent = closeEvent;
 }
 
 void CWindowControl::SetIcon(std::wstring iconFilePath)

@@ -13,7 +13,7 @@ public:
 
     void Init(HINSTANCE hInstance);
 
-    CWindowControl& CreateWindowForm(CWindowControl *parent);
+    CWindowControl* CreateWindowForm(CWindowControl *parent);
     // void CreatePopupWindow(CWindowControl *parent);
     // void CreateMoviePlayer(CWindowControl *parent);
 

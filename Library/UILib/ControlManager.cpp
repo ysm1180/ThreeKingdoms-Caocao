@@ -13,7 +13,7 @@ std::unique_ptr<CControlManager> CControlManager::s_controlManager;
 
 void CControlManager::RegisterFunctions(lua_State* L)
 {
-    LUA_BEGIN(CControlManager, "ControlManager");
+    LUA_BEGIN(CControlManager, "_ControlManager");
 
     LUA_METHOD(CreateWindowForm);
 }
@@ -36,11 +36,11 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClass<CMoviePlayerControl>();
 }
 
-CWindowControl& CControlManager::CreateWindowForm(CWindowControl *parent)
+CWindowControl* CControlManager::CreateWindowForm(CWindowControl *parent)
 {
     auto newWindow = CMemoryPool<CWindowControl>::GetInstance().New();
     newWindow->SetParentWindow(parent);
-    return *newWindow;
+    return newWindow;
 }
 
 HINSTANCE CControlManager::GetHInstance()

@@ -4,7 +4,7 @@
 namespace jojogame {
 void CMenuItem::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN(CMenuItem, "MenuItem");
+    LUA_BEGIN(CMenuItem, "_MenuItem");
 }
 
 CMenuItem::CMenuItem()
@@ -56,7 +56,7 @@ void CMenuItem::setChildMenuItem(CMenuItem* child)
 
 void CMenubar::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN(CMenubar, "Menu");
+    LUA_BEGIN(CMenubar, "_Menu");
 }
 
 CMenubar::CMenubar()

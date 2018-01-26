@@ -25,6 +25,7 @@ public:
     CLuaTinker(const CLuaTinker& src) = delete;
     CLuaTinker& operator=(const CLuaTinker& rhs) = delete;
 
+    lua_State* GetLuaState();
 	void Run(const char *fileName);
 
     static CLuaTinker& GetLuaTinker();

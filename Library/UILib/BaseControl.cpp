@@ -6,7 +6,7 @@
 namespace jojogame {
 void CBaseControl::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN(CBaseControl, "BaseControl");
+    LUA_BEGIN(CBaseControl, "_BaseControl");
 
     LUA_METHOD(IsEnabled);
     LUA_METHOD(IsVisible);
@@ -131,19 +131,19 @@ void CBaseControl::SetHeight(const int height)
     _size.cy = height;
 }
 
-void CBaseControl::SetCreateEvent(const std::wstring createEventName)
+void CBaseControl::SetCreateEvent(const std::wstring createEvent)
 {
-    _createEvent = createEventName;
+    _createEvent = createEvent;
 }
 
-void CBaseControl::SetDestroyEvent(const std::wstring destroyEventName)
+void CBaseControl::SetDestroyEvent(const std::wstring destroyEvent)
 {
-    _destroyEvent = destroyEventName;
+    _destroyEvent = destroyEvent;
 }
 
-void CBaseControl::SetClickEvent(const std::wstring clickEventName)
+void CBaseControl::SetClickEvent(const std::wstring clickEvent)
 {
-    _clickEvent = clickEventName;
+    _clickEvent = clickEvent;
 }
 
 void CBaseControl::Show()

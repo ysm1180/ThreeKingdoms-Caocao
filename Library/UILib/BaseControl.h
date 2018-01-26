@@ -31,9 +31,9 @@ public:
     virtual void SetX(int y);
     virtual void SetWidth(int width);
     virtual void SetHeight(int height);
-    virtual void SetCreateEvent(std::wstring createEventName);
-    virtual void SetDestroyEvent(std::wstring destroyEventName);
-    virtual void SetClickEvent(std::wstring clickEventName);
+    virtual void SetCreateEvent(std::wstring createEvent);
+    virtual void SetDestroyEvent(std::wstring destroyEvent);
+    virtual void SetClickEvent(std::wstring clickEvent);
 
     virtual void Show();
     virtual void Hide();
@@ -49,8 +49,8 @@ protected:
     bool _isEnabled = true;
     HWND _hWnd = nullptr;
     HWND _parentHWnd = nullptr;
-    SIZE _size;
-    POINT _position;
+    SIZE _size = SIZE{ 0, 0 };
+    POINT _position = POINT{ 0, 0 };
     LONG _style = 0;
 
     std::wstring _createEvent = L"";

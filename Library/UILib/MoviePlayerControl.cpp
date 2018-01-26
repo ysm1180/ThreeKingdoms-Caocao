@@ -16,7 +16,7 @@ LRESULT CALLBACK CMoviePlayerControl::OnControlProc(HWND hWnd, UINT msg, WPARAM 
     {
     case WM_LBUTTONUP:
     {
-        CLuaTinker::GetLuaTinker().Call<void>(moviePlayer->GetClickEvent().c_str());
+        //CLuaTinker::GetLuaTinker().Call<void>(moviePlayer->GetClickEvent().c_str());
     }
     }
 
@@ -25,7 +25,7 @@ LRESULT CALLBACK CMoviePlayerControl::OnControlProc(HWND hWnd, UINT msg, WPARAM 
 
 void CMoviePlayerControl::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN_CHILD(CMoviePlayerControl, "MoviePlayer", CBaseControl);
+    LUA_BEGIN_CHILD(CMoviePlayerControl, "_MoviePlayer", CBaseControl);
 
     LUA_METHOD(Play);
     LUA_METHOD(Stop);

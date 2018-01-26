@@ -8,10 +8,11 @@ main = WindowManager.Create({
     X = 100,
     Y = 100,
     TitleName = title,
-    Color = gameManager:Color(0, 0, 0),
+    BackColor = {R = 0, G = 0, B = 0},
     CloseEvent = "main_close"
 })
 main:Show()
+
 
 function main_close() 
     gameManager:Quit()

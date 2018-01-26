@@ -1,5 +1,7 @@
 #include "LuaTinker.h"
 
+#include "UILib\WindowControl.h"
+
 namespace jojogame {
 std::once_flag CLuaTinker::s_onceFlag;
 std::unique_ptr<CLuaTinker> CLuaTinker::s_luaTinker;
@@ -16,8 +18,18 @@ int CustomLuaRequire(lua_State *L) {
 }
 
 int CustomLuaMessage(lua_State *L) {
-    std::string str(lua_tostring(L, -1));
-    MessageBoxA(GetDesktopWindow(), str.c_str(), "Debug", 0);
+    char c[128] = { 0, };
+
+    if (lua_isstring(L, -1)) {
+        std::string str(lua_tostring(L, -1));
+        MessageBoxA(GetDesktopWindow(), str.c_str(), "Debug", 0);
+    }
+    else if (lua_isnumber(L, -1)) {
+        sprintf_s(c, sizeof(c), "%lf", lua_tonumber(L, -1));
+        MessageBoxA(GetDesktopWindow(), c, "Debug", 0);
+    }
+
+    lua_pop(L, 1);
 
     return 0;
 }
@@ -30,7 +42,6 @@ CLuaTinker::CLuaTinker()
 
     RegisterFunction("require", CustomLuaRequire);
     RegisterFunction("print", CustomLuaMessage);
-
 }
 
 CLuaTinker::~CLuaTinker()
@@ -39,6 +50,11 @@ CLuaTinker::~CLuaTinker()
         lua_close(_luaState);
     }
     _luaState = nullptr;
+}
+
+lua_State* CLuaTinker::GetLuaState()
+{
+    return _luaState;
 }
 
 void CLuaTinker::Run(const char *fileName)

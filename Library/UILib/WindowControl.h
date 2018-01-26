@@ -29,8 +29,8 @@ public:
     void SetMinButton(bool isMinButton);
     void SetTitleBar(bool isTitleBar);
     void SetTitleName(std::wstring title);
-    void SetActiveEvent(std::wstring activeEventName);
-    void SetCloseEvent(std::wstring closeEventName);
+    void SetActiveEvent(std::wstring activeEvent);
+    void SetCloseEvent(std::wstring closeEvent);
     void SetIcon(std::wstring iconFilePath);
     void SetBackColor(COLORREF backColor);
     void SetMenu(CMenubar* menu);
