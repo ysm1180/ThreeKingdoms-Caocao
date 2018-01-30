@@ -3,6 +3,11 @@
 #include "BaseControl.h"
 #include "LuaLib\LuaTinker.h"
 
+#include <Windows.h>
+#include <windowsx.h>
+
+#include <string>
+
 namespace jojogame {
 class CMenubar;
 
@@ -39,7 +44,7 @@ public:
     /**
      * \brief 윈도우 창을 생성합니다.
      */
-    void Create() override;
+    bool Create() override;
 
     /**
      * \brief 생성된 창을 Modal 타입으로 나타냅니다.

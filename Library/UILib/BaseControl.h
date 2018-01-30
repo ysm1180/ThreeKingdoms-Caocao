@@ -1,5 +1,11 @@
 #pragma once
 
+#include "LuaLib\LuaTinker.h"
+
+#include <Windows.h>
+#include <windowsx.h>
+
+#include <string>
 
 namespace jojogame {
 class CBaseControl
@@ -9,8 +15,6 @@ public:
 
     CBaseControl();
     virtual ~CBaseControl();
-
-   
 
     virtual bool IsEnabled() const;
     virtual bool IsVisible() const;
@@ -38,12 +42,13 @@ public:
     virtual void Show();
     virtual void Hide();
 
-    virtual void MoveToCenter();
-
-    virtual void Create() = 0;
+    virtual bool Create() = 0;
     virtual void Destroy() = 0;
 
-    static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) { return ::DefWindowProc(hWnd, msg, wParam, lParam); }
+    static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+    {
+        return ::DefWindowProc(hWnd, msg, wParam, lParam);
+    }
 protected:
     bool _isVisible = false;
     bool _isEnabled = true;

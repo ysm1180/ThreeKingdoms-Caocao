@@ -4,6 +4,9 @@
 
 #include "LuaLib\/LuaTinker.h"
 
+#include <mutex>
+#include <memory>
+
 namespace jojogame {
 class CGameManager
 {

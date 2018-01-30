@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+#include "LuaLib\LuaTinker.h"
+
+#include <Windows.h>
+
 namespace jojogame {
 class  CMenuItem
 {

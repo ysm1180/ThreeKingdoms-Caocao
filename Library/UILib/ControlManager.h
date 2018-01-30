@@ -1,7 +1,15 @@
 #pragma once
 
+#include "LuaLib\LuaTinker.h"
+
+#include <Windows.h>
+#include <windowsx.h>
+#include <memory>
+#include <mutex>
+
 namespace jojogame {
 class CWindowControl;
+class CMoviePlayerControl;
 
 class CControlManager
 {
@@ -15,7 +23,7 @@ public:
 
     CWindowControl* CreateWindowForm(CWindowControl *parent);
     // void CreatePopupWindow(CWindowControl *parent);
-    // void CreateMoviePlayer(CWindowControl *parent);
+    CMoviePlayerControl* CreateMoviePlayer(CWindowControl *parent, std::wstring fileName);
 
     HINSTANCE GetHInstance();
 

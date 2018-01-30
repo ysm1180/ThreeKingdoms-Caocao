@@ -1,7 +1,8 @@
-#include "stdafx.h"
-
 #include "WindowControl.h"
+#include "MoviePlayerControl.h"
 #include "ControlManager.h"
+
+#include <Vfw.h>
 
 namespace jojogame {
 LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
@@ -24,9 +25,15 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         break;
     }
-
-    case WM_NOTIFY:
+    case MCIWNDM_NOTIFYPOS:
+    {
+        CMoviePlayerControl * playedMovie = reinterpret_cast<CMoviePlayerControl *>(GetWindowLongPtr((HWND)wParam, GWLP_USERDATA));
+        if (MCIWndGetEnd((HWND)wParam) == lParam)
+        {
+            playedMovie->Stop();
+        }
         break;
+    }
 
     case WM_LBUTTONUP:
     {
@@ -39,9 +46,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         {
             auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
             auto activeFunction = window->GetActiveEvent();
-            CLuaTinker::GetLuaTinker().Call<void>(activeFunction.c_str());
-            break;
+            //CLuaTinker::GetLuaTinker().Call<void>(activeFunction.c_str());
         }
+        return 0;
     }
 
     case WM_COMMAND:
@@ -79,7 +86,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
     case WM_PAINT:
     {
-        return 0;
+        break;
     }
 
     case WM_ERASEBKGND:
@@ -95,7 +102,6 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
     return DefWindowProc(hWnd, iMessage, wParam, lParam);
 }
-
 
 void CWindowControl::RegisterFunctions(lua_State *L)
 {
@@ -144,7 +150,6 @@ void CWindowControl::RegisterFunctions(lua_State *L)
 
 CWindowControl::CWindowControl()
 {
-
     _style = WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX;
     // _style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 }
@@ -331,15 +336,17 @@ void CWindowControl::SetMenu(CMenubar * menu)
 
 void CWindowControl::SetParentWindow(CWindowControl * parent)
 {
-    if (parent) {
+    if (parent)
+    {
         _parentHWnd = parent->_hWnd;
     }
-    else {
+    else
+    {
         _parentHWnd = nullptr;
     }
 }
 
-void CWindowControl::Create()
+bool CWindowControl::Create()
 {
     RECT rect;
 
@@ -356,6 +363,8 @@ void CWindowControl::Create()
         nullptr,
         CControlManager::GetInstance().GetHInstance(),
         (LPVOID)this);
+
+    return true;
 }
 
 void CWindowControl::Close() const
@@ -421,5 +430,4 @@ void CWindowControl::Destroy()
     DestroyWindow(_hWnd);
     _hWnd = nullptr;
 }
-
 }

@@ -1,6 +1,4 @@
-﻿#include "stdafx.h"
-
-#include "MenuManager.h"
+﻿#include "MenuManager.h"
 
 namespace jojogame {
 std::once_flag CMenuManager::s_onceFlag;

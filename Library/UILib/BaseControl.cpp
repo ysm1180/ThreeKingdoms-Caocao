@@ -1,7 +1,6 @@
-#include "stdafx.h"
-
 #include "BaseControl.h"
 #include "ControlManager.h"
+#include "LuaLib\LuaTinker.h"
 
 namespace jojogame {
 void CBaseControl::RegisterFunctions(lua_State *L)
@@ -29,8 +28,6 @@ void CBaseControl::RegisterFunctions(lua_State *L)
 
     LUA_METHOD(Show);
     LUA_METHOD(Hide);
-
-    LUA_METHOD(MoveToCenter);
 }
 
 CBaseControl::CBaseControl()
@@ -114,21 +111,60 @@ void CBaseControl::SetEnabled(const bool enabled)
 void CBaseControl::SetY(const int y)
 {
     _position.y = y;
+
+    if (_hWnd != nullptr)
+    {
+        RECT rect;
+
+        SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
+        AdjustWindowRect(&rect, _style, FALSE);
+
+        SetWindowPos(_hWnd, NULL, _position.x, _position.y, _size.cx, _size.cy, SWP_NOSIZE || SWP_NOZORDER);
+    }
 }
 
 void CBaseControl::SetX(const int x)
 {
     _position.x = x;
+
+    if (_hWnd != nullptr)
+    {
+        RECT rect;
+
+        SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
+        AdjustWindowRect(&rect, _style, FALSE);
+
+        SetWindowPos(_hWnd, NULL, _position.x, _position.y, _size.cx, _size.cy, SWP_NOSIZE || SWP_NOZORDER);
+    }
 }
 
 void CBaseControl::SetWidth(const int width)
 {
     _size.cx = width;
+
+    if (_hWnd != nullptr)
+    {
+        RECT rect;
+
+        SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
+        AdjustWindowRect(&rect, _style, FALSE);
+
+        SetWindowPos(_hWnd, NULL, _position.x, _position.y, _size.cx, _size.cy, SWP_NOMOVE | SWP_NOZORDER);
+    }
 }
 
 void CBaseControl::SetHeight(const int height)
 {
     _size.cy = height;
+
+    if (_hWnd != nullptr)
+    {
+        RECT rect;
+
+        SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
+        AdjustWindowRect(&rect, _style, FALSE);
+        SetWindowPos(_hWnd, NULL, _position.x, _position.y, _size.cx, _size.cy, SWP_NOMOVE | SWP_NOZORDER);
+    }
 }
 
 void CBaseControl::SetCreateEvent(const std::wstring createEvent)
@@ -154,27 +190,5 @@ void CBaseControl::Show()
 void CBaseControl::Hide()
 {
     ShowWindow(_hWnd, FALSE);
-}
-
-void CBaseControl::MoveToCenter()
-{
-    auto parentHWnd = _parentHWnd;
-    if (parentHWnd == nullptr)
-    {
-        parentHWnd = GetDesktopWindow();
-    }
-
-    RECT parentRect;
-    GetWindowRect(parentHWnd, &parentRect);
-
-    const int parentWidth = parentRect.right - parentRect.left;
-    const int parentHeight = parentRect.bottom - parentRect.top;
-    _position.x = parentWidth / 2 - _size.cx / 2;
-    _position.y = parentHeight / 2 - _size.cy / 2;
-
-    if (_hWnd != nullptr)
-    {
-        MoveWindow(_hWnd, _position.x, _position.y, _size.cx, _size.cy, TRUE);
-    }
 }
 }

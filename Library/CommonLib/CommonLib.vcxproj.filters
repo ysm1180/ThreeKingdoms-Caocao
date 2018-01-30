@@ -1,15 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="GameManager.cpp" />
-    <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="GameScriptManager.cpp" />
+    <ClCompile Include="MenuManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="GameManager.h" />
-    <ClInclude Include="MenuManager.h" />
     <ClInclude Include="GameScriptManager.h" />
+    <ClInclude Include="MenuManager.h" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
-﻿#include "stdafx.h"
-#include "MenuControl.h"
+﻿#include "MenuControl.h"
+
+
 
 namespace jojogame {
 void CMenuItem::RegisterFunctions(lua_State *L)
@@ -49,7 +50,6 @@ void CMenuItem::setChildMenuItem(CMenuItem* child)
 {
 }
 
-
 /****************************************
                 CMenubar
 *****************************************/
@@ -74,12 +74,13 @@ CMenubar::~CMenubar()
 
 void CMenubar::AddMenuItem(CMenuItem* menuItem)
 {
-    if (menuItem->item()) {
+    if (menuItem->item())
+    {
         AppendMenu(_menu, MF_STRING | MF_POPUP, (UINT)menuItem->item(), menuItem->text().c_str());
     }
-    else {
+    else
+    {
         // AppendMenu(_menu, MF_STRING, 10, menuItem->text().c_str());
     }
 }
-
 }

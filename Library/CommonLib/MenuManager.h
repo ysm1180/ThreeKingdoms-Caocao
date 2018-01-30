@@ -1,7 +1,12 @@
 ﻿#pragma once
 
+#include "LuaLib\LuaTinker.h"
+
 #include <map>
 #include <vector>
+
+#include <memory>
+#include <mutex>
 
 namespace jojogame {
 enum MENU_INDEX

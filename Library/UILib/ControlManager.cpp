@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "ControlManager.h"
 
 #include "BaseLib\MemoryPool.h"
@@ -16,6 +15,7 @@ void CControlManager::RegisterFunctions(lua_State* L)
     LUA_BEGIN(CControlManager, "_ControlManager");
 
     LUA_METHOD(CreateWindowForm);
+    LUA_METHOD(CreateMoviePlayer);
 }
 
 CControlManager::CControlManager()
@@ -41,6 +41,12 @@ CWindowControl* CControlManager::CreateWindowForm(CWindowControl *parent)
     auto newWindow = CMemoryPool<CWindowControl>::GetInstance().New();
     newWindow->SetParentWindow(parent);
     return newWindow;
+}
+
+CMoviePlayerControl* CControlManager::CreateMoviePlayer(CWindowControl * parent, std::wstring fileName)
+{
+    auto newMoviePlayer = CMemoryPool<CMoviePlayerControl>::GetInstance().New(parent, fileName);
+    return newMoviePlayer;
 }
 
 HINSTANCE CControlManager::GetHInstance()

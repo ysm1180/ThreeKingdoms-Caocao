@@ -1,8 +1,10 @@
-﻿#pragma comment(lib, "vfw32.lib")
-
-#pragma once
+﻿#pragma once
+#pragma comment(lib, "vfw32.lib")
 
 #include "BaseControl.h"
+
+#include <string>
+#include <Windows.h>
 
 namespace jojogame {
 class CWindowControl;
@@ -17,15 +19,20 @@ public:
 
     WNDPROC GetOldProc();
 
+    void SetFileName(std::wstring fileName);
+
     void Play();
     void Stop();
 
-    void Create() override;
+    bool Create() override;
     void Destroy() override;
 
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 private:
     WNDPROC _oldProc;
+    
     std::wstring _fileName = L"";
+
+    bool _played = false;
 };
 }

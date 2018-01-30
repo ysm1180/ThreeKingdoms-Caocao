@@ -6,27 +6,38 @@ namespace jojogame {
 std::once_flag CLuaTinker::s_onceFlag;
 std::unique_ptr<CLuaTinker> CLuaTinker::s_luaTinker;
 
-int CustomLuaRequire(lua_State *L) {
-    std::string fileName(lua_tostring(L, -1));
-    fileName = "Script\\" + fileName;
-    
-    lua_tinker::dofile(L, fileName.c_str());
+int CustomLuaRequire(lua_State *L)
+{
+    const char *filePath = lua_tostring(L, -1);
+
+    if (!filePath)
+    {
+    }
+
+    lua_tinker::dofile(L, filePath);
 
     lua_pop(L, 1);
 
     return 0;
 }
 
-int CustomLuaMessage(lua_State *L) {
+int CustomLuaMessage(lua_State *L)
+{
     char c[128] = { 0, };
 
-    if (lua_isstring(L, -1)) {
+    if (lua_isstring(L, -1))
+    {
         std::string str(lua_tostring(L, -1));
-        MessageBoxA(GetDesktopWindow(), str.c_str(), "Debug", 0);
+        MessageBoxA(GetDesktopWindow(), str.c_str(), "Lua Print", 0);
     }
-    else if (lua_isnumber(L, -1)) {
+    else if (lua_isnumber(L, -1))
+    {
         sprintf_s(c, sizeof(c), "%lf", lua_tonumber(L, -1));
-        MessageBoxA(GetDesktopWindow(), c, "Debug", 0);
+        MessageBoxA(GetDesktopWindow(), c, "Lua Print", 0);
+    }
+    else if (lua_isnil(L, -1))
+    {
+        MessageBoxA(GetDesktopWindow(), "nil", "Lua Print", 0);
     }
 
     lua_pop(L, 1);
@@ -46,7 +57,8 @@ CLuaTinker::CLuaTinker()
 
 CLuaTinker::~CLuaTinker()
 {
-    if (_luaState) {
+    if (_luaState)
+    {
         lua_close(_luaState);
     }
     _luaState = nullptr;

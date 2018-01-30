@@ -1,23 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="WindowControl.cpp" />
     <ClCompile Include="BaseControl.cpp" />
-    <ClCompile Include="ControlManager.cpp" />
-    <ClCompile Include="TextFont.cpp" />
     <ClCompile Include="ButtonControl.cpp" />
+    <ClCompile Include="ControlManager.cpp" />
     <ClCompile Include="MenuControl.cpp" />
     <ClCompile Include="MoviePlayerControl.cpp" />
+    <ClCompile Include="TextFont.cpp" />
+    <ClCompile Include="WindowControl.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="WindowControl.h" />
     <ClInclude Include="BaseControl.h" />
-    <ClInclude Include="ControlManager.h" />
-    <ClInclude Include="TextFont.h" />
     <ClInclude Include="ButtonControl.h" />
+    <ClInclude Include="ControlManager.h" />
     <ClInclude Include="MenuControl.h" />
     <ClInclude Include="MoviePlayerControl.h" />
+    <ClInclude Include="TextFont.h" />
+    <ClInclude Include="WindowControl.h" />
   </ItemGroup>
 </Project>

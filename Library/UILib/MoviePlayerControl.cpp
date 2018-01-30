@@ -1,6 +1,4 @@
-﻿#include "stdafx.h"
-
-#include "MoviePlayerControl.h"
+﻿#include "MoviePlayerControl.h"
 #include "ControlManager.h"
 #include "WindowControl.h"
 
@@ -16,7 +14,7 @@ LRESULT CALLBACK CMoviePlayerControl::OnControlProc(HWND hWnd, UINT msg, WPARAM 
     {
     case WM_LBUTTONUP:
     {
-        //CLuaTinker::GetLuaTinker().Call<void>(moviePlayer->GetClickEvent().c_str());
+        CLuaTinker::GetLuaTinker().Call<void>(moviePlayer->GetClickEvent().c_str());
     }
     }
 
@@ -35,7 +33,10 @@ void CMoviePlayerControl::RegisterFunctions(lua_State *L)
 
 CMoviePlayerControl::CMoviePlayerControl(CWindowControl* parent, std::wstring fileName)
 {
-    _parentHWnd = parent->GetHWnd();
+    if (parent)
+    {
+        _parentHWnd = parent->GetHWnd();
+    }
     _fileName = fileName;
 }
 
@@ -49,11 +50,17 @@ WNDPROC CMoviePlayerControl::GetOldProc()
     return _oldProc;
 }
 
+void CMoviePlayerControl::SetFileName(std::wstring fileName)
+{
+    _fileName = fileName;
+}
+
 void CMoviePlayerControl::Play()
 {
     auto quit = false;
 
     MCIWndPlay(_hWnd);
+    _played = true;
 
     // Loop
     MSG message;
@@ -70,7 +77,7 @@ void CMoviePlayerControl::Play()
             TranslateMessage(&message);
             DispatchMessage(&message);
         }
-        else if (_hWnd == nullptr)
+        else if (!_played)
         {
             break;
         }
@@ -89,21 +96,31 @@ void CMoviePlayerControl::Stop()
     {
         MCIWndStop(_hWnd);
         MCIWndClose(_hWnd);
+        MCIWndDestroy(_hWnd);
+        _played = false;
     }
 }
 
-void CMoviePlayerControl::Create()
+bool CMoviePlayerControl::Create()
 {
     if (_hWnd != nullptr)
     {
         Destroy();
     }
 
+    RECT rect;
     _hWnd = MCIWndCreate(_parentHWnd, CControlManager::GetInstance().GetHInstance(),
-        MCIWNDF_NOTIFYANSI | MCIWNDF_NOMENU | MCIWNDF_NOTIFYALL | MCIWNDF_NOPLAYBAR | MCI_WAIT,
+        MCIWNDF_NOTIFYANSI | MCIWNDF_NOMENU | MCIWNDF_NOTIFYPOS | MCIWNDF_NOPLAYBAR | MCI_WAIT,
         _fileName.c_str());
-    _oldProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(_hWnd, GWLP_WNDPROC, (LONG_PTR)OnControlProc));
+
+    GetClientRect(_hWnd, &rect);
+    _size.cx = rect.right - rect.left;
+    _size.cy = rect.bottom - rect.top;
+
+    _oldProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(_hWnd, GWLP_WNDPROC, (LONG_PTR)CMoviePlayerControl::OnControlProc));
     SetWindowLongPtr(_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+
+    return true;
 }
 
 void CMoviePlayerControl::Destroy()
@@ -117,6 +134,4 @@ void CMoviePlayerControl::Destroy()
         _hWnd = nullptr;
     }
 }
-
-
 }
