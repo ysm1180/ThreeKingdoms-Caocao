@@ -14,7 +14,6 @@ end
 
 function main()
     local title = "三國志曺操傳"
-
     main = WindowManager.Create({
         Width = 640, 
         Height = 440, 
@@ -34,9 +33,13 @@ function main()
     openningMovie:Play()
     openningMovie:WaitForPlay()
 
+    print ""
     mainMenuDialog = WindowManager.Create({
         Parent = main,
-        
+        Width = 200,
+        Height = 142,
+        Center = true,
+        ControlBox = false
     })
 end
 

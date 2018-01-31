@@ -20,6 +20,13 @@ WindowManager = ControlManager:Instance
         newWindow:SetTitleName(options.TitleName)
         newWindow:SetBackColor(options.BackColor)
 
+        newWindow:SetMaxButton(options.MaxButton)
+        newWindow:SetMinButton(options.MinButton)
+        if options.ControlBox == nil then
+            options.ControlBox = true
+        end
+        newWindow:SetControlBox(options.ControlBox)
+
         newWindow:SetCreateEvent(options.Create)
         newWindow:SetDestroyEvent(options.Destroy)     
         newWindow:SetActiveEvent(options.Active)
@@ -30,5 +37,5 @@ WindowManager = ControlManager:Instance
         newWindow:Create()
 
         return newWindow
-    end,
+    end
 }
