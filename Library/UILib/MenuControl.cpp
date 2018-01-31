@@ -33,7 +33,7 @@ std::wstring CMenuItem::text()
 
 std::wstring CMenuItem::clickFunction()
 {
-    return _clickEvent;
+    return _mouseLButtonUpEvent;
 }
 
 void CMenuItem::setText(std::wstring text)
@@ -43,7 +43,7 @@ void CMenuItem::setText(std::wstring text)
 
 void CMenuItem::setClickFunction(std::wstring clickFunction)
 {
-    _clickEvent = clickFunction;
+    _mouseLButtonUpEvent = clickFunction;
 }
 
 void CMenuItem::setChildMenuItem(CMenuItem* child)
@@ -76,7 +76,7 @@ void CMenubar::AddMenuItem(CMenuItem* menuItem)
 {
     if (menuItem->item())
     {
-        AppendMenu(_menu, MF_STRING | MF_POPUP, (UINT)menuItem->item(), menuItem->text().c_str());
+        // AppendMenu(_menu, MF_STRING | MF_POPUP, (UINT)menuItem->item(), menuItem->text().c_str());
     }
     else
     {

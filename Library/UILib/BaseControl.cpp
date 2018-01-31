@@ -23,7 +23,11 @@ void CBaseControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(SetY);
     LUA_METHOD(SetCreateEvent);
     LUA_METHOD(SetDestroyEvent);
-    LUA_METHOD(SetClickEvent);
+    LUA_METHOD(SetMouseLButtonUpEvent);
+    LUA_METHOD(SetMouseLButtonDownEvent);
+    LUA_METHOD(SetMouseMoveEvent);
+    LUA_METHOD(SetMouseHoverEvent);
+    LUA_METHOD(SetMouseLeaveEvent);
     LUA_METHOD(SetStyle);
 
     LUA_METHOD(Show);
@@ -83,9 +87,29 @@ inline std::wstring CBaseControl::GetDestroyEvent() const
     return _destroyEvent;
 }
 
-inline std::wstring CBaseControl::GetClickEvent() const
+inline std::wstring CBaseControl::GetMouseLButtonUpEvent() const
 {
-    return _clickEvent;
+    return _mouseLButtonUpEvent;
+}
+
+std::wstring CBaseControl::GetMouseLButtonDownEvent() const
+{
+    return _mouseLButtonDownEvent;
+}
+
+std::wstring CBaseControl::GetMouseMoveEvent() const
+{
+    return _mouseMoveEvent;
+}
+
+std::wstring CBaseControl::GetMouseHoverEvent() const
+{
+    return _mouseHoverEvent;
+}
+
+std::wstring CBaseControl::GetMouseLeaveEvent() const
+{
+    return _mouseLeaveEvent;
 }
 
 inline HWND CBaseControl::GetHWnd() const
@@ -177,9 +201,29 @@ void CBaseControl::SetDestroyEvent(const std::wstring destroyEvent)
     _destroyEvent = destroyEvent;
 }
 
-void CBaseControl::SetClickEvent(const std::wstring clickEvent)
+void CBaseControl::SetMouseLButtonUpEvent(const std::wstring mouseLButtonUpEvent)
 {
-    _clickEvent = clickEvent;
+    _mouseLButtonUpEvent = mouseLButtonUpEvent;
+}
+
+void CBaseControl::SetMouseLButtonDownEvent(std::wstring mouseLButtonDownEvent)
+{
+    _mouseLButtonDownEvent = mouseLButtonDownEvent;
+}
+
+void CBaseControl::SetMouseMoveEvent(std::wstring mouseMoveEvent)
+{
+    _mouseMoveEvent = mouseMoveEvent;
+}
+
+void CBaseControl::SetMouseHoverEvent(std::wstring mouseHoverEvent)
+{
+    _mouseHoverEvent = mouseHoverEvent;
+}
+
+void CBaseControl::SetMouseLeaveEvent(std::wstring mouseLeaveEvent)
+{
+    _mouseLeaveEvent = mouseLeaveEvent;
 }
 
 void CBaseControl::Show()

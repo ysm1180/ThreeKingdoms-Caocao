@@ -18,6 +18,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         auto window = reinterpret_cast<CWindowControl *>(lpParamCreate);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
 
+        auto createFunction = window->GetCreateEvent();
+        CLuaTinker::GetLuaTinker().Call(createFunction.c_str(), window);
+
         return 0;
     }
 
@@ -35,8 +38,19 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         break;
     }
 
+    case WM_LBUTTONDOWN:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLButtonDownEvent = window->GetMouseLButtonDownEvent();
+        CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(), window);
+        break;
+    }
+
     case WM_LBUTTONUP:
     {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLButtonUpEvent = window->GetMouseLButtonUpEvent();
+        CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), window);
         break;
     }
 
@@ -45,8 +59,8 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         if (wParam == TRUE)
         {
             auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto activeFunction = window->GetActiveEvent();
-            //CLuaTinker::GetLuaTinker().Call<void>(activeFunction.c_str());
+            auto activeEvent = window->GetActiveEvent();
+            CLuaTinker::GetLuaTinker().Call(activeEvent.c_str(), window);
         }
         return 0;
     }
@@ -70,8 +84,8 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         // close 함수 호출, 리턴값(close) = true 이면 종료 취소
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto closeFunction = window->GetCloseEvent();
-        const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeFunction.c_str());
+        auto closeEvent = window->GetCloseEvent();
+        const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeEvent.c_str(), window);
         if (notClose)
         {
             return 0;

@@ -46,7 +46,23 @@ Control = Object:Instance
         self.control:SetDestroyEvent(destroyEventName)
     end,
 
-    SetClickEvent = function(self, clickEventName)
-        self.control:SetClickEvent(clickEventName)
+    SetMouseLButtonUpEvent = function(self, mouseLButtonUpEventName)
+        self.control:SetMouseLButtonUpEvent(mouseLButtonUpEventName)
+    end,
+
+    SetMouseLButtonDownEvent = function(self, mouseLButtonDownEventName)
+        self.control:SetMouseLButtonUpEvent(mouseLButtonDownEventName)
+    end,
+
+    SetMouseMoveEvent = function(self, mouseMoveEventName)
+        self.control:SetMouseLButtonUpEvent(mouseMoveEventName)
+    end,
+
+    SetMouseHoverEvent = function(self, mouseHoverEventName)
+        self.control:SetMouseHoverEvent(mouseHoverEventName)
+    end,
+
+    SetMouseLeaveEvent = function(self, mouseLeaveEventName)
+        self.control:SetMouseLeaveEvent(mouseLeaveEventName)
     end
 }

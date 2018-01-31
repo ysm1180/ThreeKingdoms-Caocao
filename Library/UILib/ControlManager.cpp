@@ -30,10 +30,10 @@ void CControlManager::Init(HINSTANCE hInstance)
 {
     _hInstance = hInstance;
 
-    CLuaTinker::GetLuaTinker().RegisterClass<CControlManager>();
-    CLuaTinker::GetLuaTinker().RegisterClass<CBaseControl>();
-    CLuaTinker::GetLuaTinker().RegisterClass<CWindowControl>();
-    CLuaTinker::GetLuaTinker().RegisterClass<CMoviePlayerControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CControlManager>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CBaseControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CWindowControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CMoviePlayerControl>();
 }
 
 CWindowControl* CControlManager::CreateWindowForm(CWindowControl *parent)

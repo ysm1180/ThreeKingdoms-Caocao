@@ -14,7 +14,11 @@ LRESULT CALLBACK CMoviePlayerControl::OnControlProc(HWND hWnd, UINT msg, WPARAM 
     {
     case WM_LBUTTONUP:
     {
-        CLuaTinker::GetLuaTinker().Call<void>(moviePlayer->GetClickEvent().c_str());
+        CLuaTinker::GetLuaTinker().Call(moviePlayer->GetMouseLButtonUpEvent().c_str(), moviePlayer);
+    }
+    case WM_LBUTTONDOWN:
+    {
+        CLuaTinker::GetLuaTinker().Call(moviePlayer->GetMouseLButtonDownEvent().c_str(), moviePlayer);
     }
     }
 
@@ -25,7 +29,9 @@ void CMoviePlayerControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN_CHILD(CMoviePlayerControl, "_MoviePlayer", CBaseControl);
 
+    LUA_METHOD(IsPlaying);
     LUA_METHOD(Play);
+    LUA_METHOD(WaitForPlay);
     LUA_METHOD(Stop);
     LUA_METHOD(Create);
     LUA_METHOD(Destroy);
@@ -47,7 +53,12 @@ CMoviePlayerControl::~CMoviePlayerControl()
 
 WNDPROC CMoviePlayerControl::GetOldProc()
 {
-    return _oldProc;
+    return _originalProc;
+}
+
+bool CMoviePlayerControl::IsPlaying()
+{
+    return _playing;
 }
 
 void CMoviePlayerControl::SetFileName(std::wstring fileName)
@@ -57,13 +68,18 @@ void CMoviePlayerControl::SetFileName(std::wstring fileName)
 
 void CMoviePlayerControl::Play()
 {
-    auto quit = false;
 
+    MCIWndOpen(_hWnd, _fileName.c_str(), 0);
     MCIWndPlay(_hWnd);
-    _played = true;
+    _playing = true;
 
-    // Loop
+}
+
+void CMoviePlayerControl::WaitForPlay()
+{
+    auto quit = false;
     MSG message;
+
     for (;;)
     {
         if (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE))
@@ -77,7 +93,7 @@ void CMoviePlayerControl::Play()
             TranslateMessage(&message);
             DispatchMessage(&message);
         }
-        else if (!_played)
+        else if (!_playing)
         {
             break;
         }
@@ -96,8 +112,7 @@ void CMoviePlayerControl::Stop()
     {
         MCIWndStop(_hWnd);
         MCIWndClose(_hWnd);
-        MCIWndDestroy(_hWnd);
-        _played = false;
+        _playing = false;
     }
 }
 
@@ -117,7 +132,7 @@ bool CMoviePlayerControl::Create()
     _size.cx = rect.right - rect.left;
     _size.cy = rect.bottom - rect.top;
 
-    _oldProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(_hWnd, GWLP_WNDPROC, (LONG_PTR)CMoviePlayerControl::OnControlProc));
+    _originalProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(_hWnd, GWLP_WNDPROC, (LONG_PTR)CMoviePlayerControl::OnControlProc));
     SetWindowLongPtr(_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
     return true;
@@ -127,10 +142,11 @@ void CMoviePlayerControl::Destroy()
 {
     if (_hWnd != nullptr)
     {
-        SetWindowLongPtr(_hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(_oldProc));
+        SetWindowLongPtr(_hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(_originalProc));
         MCIWndStop(_hWnd);
         MCIWndClose(_hWnd);
         MCIWndDestroy(_hWnd);
+        _playing = false;
         _hWnd = nullptr;
     }
 }

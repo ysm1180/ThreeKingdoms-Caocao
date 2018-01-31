@@ -2,8 +2,9 @@
 
 #define WM_STOP_DELAY (WM_USER + 1)
 
-#include "LuaLib\/LuaTinker.h"
+#include "LuaLib\LuaTinker.h"
 
+#include <windows.h>
 #include <mutex>
 #include <memory>
 

@@ -6,7 +6,7 @@ MoviePlayerManager = ControlManager:Instance
     Create = function(options)
         local newMoviePlayer = MoviePlayer:Instance(options.Parent, options.FileName)
 
-        newMoviePlayer:SetClickEvent(options.ClickEvent)
+        newMoviePlayer:SetMouseLButtonDownEvent(options.MouseLButtonDown)
         newMoviePlayer:Create()
 
         local width, height = newMoviePlayer:Size()

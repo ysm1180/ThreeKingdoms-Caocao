@@ -20,11 +20,31 @@ Window = Control:Instance
         self.control:SetBackColor(gameManager:Color(color.R, color.G, color.B))
     end,
 
-    SetActiveEvent = function(self, activeEventName)
-        self.control:SetActiveEvent(activeEventName)
+    SetActiveEvent = function(self, evnet)
+        self.control:SetActiveEvent(evnet)
     end,
 
-    SetCloseEvent = function(self, closeEventName)
-        self.control:SetCloseEvent(closeEventName)
+    SetCloseEvent = function(self, evnet)
+        self.control:SetCloseEvent(event)
+    end,
+
+    SetTitleName = function(self, title)
+        self.control:SetTitleName(title)
+    end,
+
+    ShowModalWindow = function(self)
+        self.control:ShowModalWindow()
+    end,
+
+    SetMaxButton = function(self, value)
+        self.control:SetMaxButton(value)
+    end,
+
+    SetMinButton = function(self, value)
+        self.control:SetMinButton(value)
+    end,
+
+    SetControlBox = function(self, value)
+        self.control:SetControlBox(value)
     end
 }

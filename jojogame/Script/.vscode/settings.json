@@ -1,3 +1,4 @@
 {
-    "lua.targetVersion": "5.3"
+    "lua.targetVersion": "5.3",
+    "python.pythonPath": "C:\\Python27\\python.exe"
 }

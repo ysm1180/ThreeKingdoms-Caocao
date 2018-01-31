@@ -25,7 +25,11 @@ public:
     virtual LONG GetStyle() const;
     virtual std::wstring GetCreateEvent() const;
     virtual std::wstring GetDestroyEvent() const;
-    virtual std::wstring GetClickEvent() const;
+    virtual std::wstring GetMouseLButtonUpEvent() const;
+    virtual std::wstring GetMouseLButtonDownEvent() const;
+    virtual std::wstring GetMouseMoveEvent() const;
+    virtual std::wstring GetMouseHoverEvent() const;
+    virtual std::wstring GetMouseLeaveEvent() const;
     virtual HWND GetHWnd() const;
 
     virtual void SetStyle(LONG style);
@@ -37,7 +41,11 @@ public:
     virtual void SetHeight(int height);
     virtual void SetCreateEvent(std::wstring createEvent);
     virtual void SetDestroyEvent(std::wstring destroyEvent);
-    virtual void SetClickEvent(std::wstring clickEvent);
+    virtual void SetMouseLButtonUpEvent(std::wstring mouseLButtonUpEvent);
+    virtual void SetMouseLButtonDownEvent(std::wstring mouseLButtonDownEvent);
+    virtual void SetMouseMoveEvent(std::wstring mouseMoveEvent);
+    virtual void SetMouseHoverEvent(std::wstring mouseHoverEvent);
+    virtual void SetMouseLeaveEvent(std::wstring mouseLeaveEvent);
 
     virtual void Show();
     virtual void Hide();
@@ -60,6 +68,10 @@ protected:
 
     std::wstring _createEvent = L"";
     std::wstring _destroyEvent = L"";
-    std::wstring _clickEvent = L"";
+    std::wstring _mouseLButtonUpEvent = L"";
+    std::wstring _mouseLButtonDownEvent = L"";
+    std::wstring _mouseMoveEvent = L"";
+    std::wstring _mouseHoverEvent = L"";
+    std::wstring _mouseLeaveEvent = L"";
 };
 }

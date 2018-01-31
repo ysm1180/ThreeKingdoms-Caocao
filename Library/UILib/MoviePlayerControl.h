@@ -19,9 +19,12 @@ public:
 
     WNDPROC GetOldProc();
 
+    bool IsPlaying();
+
     void SetFileName(std::wstring fileName);
 
     void Play();
+    void WaitForPlay();
     void Stop();
 
     bool Create() override;
@@ -29,10 +32,9 @@ public:
 
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 private:
-    WNDPROC _oldProc;
-    
     std::wstring _fileName = L"";
-
-    bool _played = false;
+    bool _playing = false;
+    
+    WNDPROC _originalProc;
 };
 }

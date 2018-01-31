@@ -16,17 +16,19 @@ WindowManager = ControlManager:Instance
             end
         end
         newWindow:Move(options.X, options.Y)
-        
+
+        newWindow:SetTitleName(options.TitleName)
         newWindow:SetBackColor(options.BackColor)
 
-        newWindow:SetCreateEvent(options.CreateEvent)
-        newWindow:SetDestroyEvent(options.DestroyEvent)        
-        newWindow:SetClickEvent(options.CloseEvent)
+        newWindow:SetCreateEvent(options.Create)
+        newWindow:SetDestroyEvent(options.Destroy)     
+        newWindow:SetActiveEvent(options.Active)
+        newWindow:SetCloseEvent(options.Close)
+        newWindow:SetMouseLButtonUpEvent(options.MouseLButtonUp)
+        newWindow:SetMouseLButtonDownEvent(options.MouseLButtonDown)
 
-        newWindow:SetActiveEvent(options.ActiveEvent)
-        newWindow:SetCloseEvent(options.CloseEvent)
         newWindow:Create()
-        
+
         return newWindow
     end,
 }

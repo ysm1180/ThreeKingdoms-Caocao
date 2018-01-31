@@ -34,6 +34,6 @@ protected:
     bool _isItalic = false;
     bool _isUnderline = false;
     int _fontSize = 12;
-    std::wstring _fontName = LR"(±¼¸²)";
+    std::wstring _fontName = LR"(êµ´ë¦¼)";
 };
 }

@@ -39,7 +39,7 @@ int Application::Run()
 
     _controlManager->Init(_hInstance);
 
-    luaTinker.RegisterClass<CGameManager>();
+    luaTinker.RegisterClassToLua<CGameManager>();
 
     luaTinker.RegisterVariable("controlManager", _controlManager);
     luaTinker.RegisterVariable("gameManager", _gameManager);
