@@ -33,25 +33,25 @@ private:
     static std::unique_ptr<CMemoryPoolManager> s_sharedMemoryPoolManager;
 };
 
-template <typename T>
+template<typename T>
 class CMemoryPool : public CMemoryPoolBase
 {
 public:
     CMemoryPool()
     {
     }
+
     virtual ~CMemoryPool()
     {
     }
 
-    T* GetUnsingPointer()
+    T *GetUnsingPointer()
     {
         T *instance = nullptr;
         if (_unusingPool.empty())
         {
-            instance = (T *)malloc(sizeof(T));
-        }
-        else
+            instance = (T *) malloc(sizeof(T));
+        } else
         {
             instance = _unusingPool.front();
             _unusingPool.pop_front();
@@ -59,6 +59,7 @@ public:
 
         return instance;
     }
+
     void Destroy() override
     {
         for (auto v : _usingPool)
@@ -87,56 +88,56 @@ public:
     }
 
 public:
-    T * New()
+    T *New()
     {
         T *pointer = GetUnsingPointer();
 
-        _usingPool.push_back(new (pointer) T());
+        _usingPool.push_back(new(pointer) T());
 
         return pointer;
     }
 
-    template <typename T1>
-    T* New(T1 t1)
+    template<typename T1>
+    T *New(T1 t1)
     {
         T *pointer = GetUnsingPointer();
 
-        _usingPool.push_back(new (pointer) T(t1));
+        _usingPool.push_back(new(pointer) T(t1));
 
         return pointer;
     }
 
-    template <typename T1, typename T2>
-    T* New(T1 t1, T2 t2)
+    template<typename T1, typename T2>
+    T *New(T1 t1, T2 t2)
     {
         T *pointer = GetUnsingPointer();
 
-        _usingPool.push_back(new (pointer) T(t1, t2));
+        _usingPool.push_back(new(pointer) T(t1, t2));
 
         return pointer;
     }
 
-    template <typename T1, typename T2, typename T3>
-    T* New(T1 t1, T2 t2, T3 t3)
+    template<typename T1, typename T2, typename T3>
+    T *New(T1 t1, T2 t2, T3 t3)
     {
         T *pointer = GetUnsingPointer();
 
-        _usingPool.push_back(new (pointer) T(t1, t2, t3));
+        _usingPool.push_back(new(pointer) T(t1, t2, t3));
 
         return pointer;
     }
 
-    template <typename T1, typename T2, typename T3, typename T4>
-    T* New(T1 t1, T2 t2, T3 t3, T4 t4)
+    template<typename T1, typename T2, typename T3, typename T4>
+    T *New(T1 t1, T2 t2, T3 t3, T4 t4)
     {
         T *pointer = GetUnsingPointer();
 
-        _usingPool.push_back(new (pointer) T(t1, t2, t3, t4));
+        _usingPool.push_back(new(pointer) T(t1, t2, t3, t4));
 
         return pointer;
     }
 
-    void Delete(T * instance, bool isCallDestructor = true)
+    void Delete(T *instance, bool isCallDestructor = true)
     {
         if (isCallDestructor)
         {
@@ -146,8 +147,7 @@ public:
         if (_limit < _unusingPool.size())
         {
             free(instance);
-        }
-        else
+        } else
         {
             _unusingPool.push_back(instance);
         }

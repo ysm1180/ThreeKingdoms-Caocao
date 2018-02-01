@@ -6,10 +6,10 @@ namespace jojogame {
 CMemoryPoolBase::CMemoryPoolBase()
 {
 }
+
 CMemoryPoolBase::~CMemoryPoolBase()
 {
 }
-
 
 
 std::once_flag CMemoryPoolManager::s_onceFlag;
@@ -23,14 +23,15 @@ CMemoryPoolManager::~CMemoryPoolManager()
 {
 }
 
-void CMemoryPoolManager::RegisterMemoryPool(CMemoryPoolBase * pool)
+void CMemoryPoolManager::RegisterMemoryPool(CMemoryPoolBase *pool)
 {
     _poolManager.insert(pool);
 }
 
 void CMemoryPoolManager::DestroyAllMemoryPool()
 {
-    for (auto v : _poolManager) {
+    for (auto v : _poolManager)
+    {
         v->Destroy();
         delete v;
     }
@@ -38,9 +39,10 @@ void CMemoryPoolManager::DestroyAllMemoryPool()
     _poolManager.clear();
 }
 
-CMemoryPoolManager & CMemoryPoolManager::GetInstance()
+CMemoryPoolManager& CMemoryPoolManager::GetInstance()
 {
-    std::call_once(s_onceFlag, [] {
+    std::call_once(s_onceFlag, []
+    {
         s_sharedMemoryPoolManager.reset(new CMemoryPoolManager);
     });
 

@@ -6,6 +6,7 @@ MoviePlayerManager = ControlManager:Instance
     Create = function(options)
         local newMoviePlayer = MoviePlayer:Instance(options.Parent, options.FileName)
 
+        newMoviePlayer:SetEndEvent(options.End)
         newMoviePlayer:SetMouseLButtonDownEvent(options.MouseLButtonDown)
         newMoviePlayer:Create()
 
@@ -18,7 +19,7 @@ MoviePlayerManager = ControlManager:Instance
             end
         end
         newMoviePlayer:Move(options.X, options.Y)
-        
+
         return newMoviePlayer
     end,
 }

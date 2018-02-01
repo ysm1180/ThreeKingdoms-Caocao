@@ -5,7 +5,7 @@
 #include <Windows.h>
 
 namespace jojogame {
-class  CMenuItem
+class CMenuItem
 {
 public:
     static void RegisterFunctions(lua_State *L);
@@ -36,7 +36,7 @@ public:
     CMenubar();
     virtual ~CMenubar();
 
-    void AddMenuItem(CMenuItem* menuItem);
+    void AddMenuItem(CMenuItem *menuItem);
 private:
     HMENU _menu = nullptr;
 };

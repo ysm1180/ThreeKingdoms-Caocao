@@ -38,5 +38,9 @@ MoviePlayer = Control:Instance
 
     IsPlaying = function(self)
         return self.control:IsPlaying()
+    end,
+
+    SetEndEvent = function(self, event)
+        self.control:SetEndEvent(event)
     end
 }

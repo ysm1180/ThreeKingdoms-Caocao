@@ -10,7 +10,7 @@ class CGameScriptManager;
 
 class Application
 {
-public:
+ public:
     explicit Application(HINSTANCE hInstance);
     virtual ~Application();
 
@@ -19,11 +19,11 @@ public:
     virtual int Run();
 
     static Application& GetInstance();
-protected:
+ protected:
     HINSTANCE _hInstance;
     CControlManager *_controlManager;
     CGameManager *_gameManager;
 
-    static Application* s_sharedApplication;
+    static Application *s_sharedApplication;
 };
 }  // namespace jojogame

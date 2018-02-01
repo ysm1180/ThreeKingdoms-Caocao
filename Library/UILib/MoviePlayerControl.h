@@ -20,7 +20,9 @@ public:
     WNDPROC GetOldProc();
 
     bool IsPlaying();
+    std::wstring GetEndEvent();
 
+    void SetEndEvent(std::wstring endEvent);
     void SetFileName(std::wstring fileName);
 
     void Play();
@@ -32,6 +34,7 @@ public:
 
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 private:
+    std::wstring _endEvent = L"";
     std::wstring _fileName = L"";
     bool _playing = false;
     

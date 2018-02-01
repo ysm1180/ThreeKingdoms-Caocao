@@ -14,16 +14,16 @@ class CMoviePlayerControl;
 class CControlManager
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CControlManager();
     virtual ~CControlManager();
 
     void Init(HINSTANCE hInstance);
 
-    CWindowControl* CreateWindowForm(CWindowControl *parent);
+    CWindowControl *CreateWindowForm(CWindowControl *parent);
     // void CreatePopupWindow(CWindowControl *parent);
-    CMoviePlayerControl* CreateMoviePlayer(CWindowControl *parent, std::wstring fileName);
+    CMoviePlayerControl *CreateMoviePlayer(CWindowControl *parent, std::wstring fileName);
 
     HINSTANCE GetHInstance();
 

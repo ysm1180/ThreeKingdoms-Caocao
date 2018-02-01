@@ -9,109 +9,109 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 {
     switch (iMessage)
     {
-    case WM_CREATE:
-    {
-        // Form ≈¨∑°Ω∫¿« ∆˜¿Œ≈Õ∏¶ hwnd¿« GWLP_USERDATA ø° ¿˙¿Â
-        // GetWindowLongPtr ¿ª ≈Î«ÿ Form instance ∏¶ ∫“∑ØøÕº≠ «‘ºˆ »£√‚ ∞°¥…
-        LPCREATESTRUCT createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        auto lpParamCreate = createStruct->lpCreateParams;
-        auto window = reinterpret_cast<CWindowControl *>(lpParamCreate);
-        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
-
-        auto createFunction = window->GetCreateEvent();
-        CLuaTinker::GetLuaTinker().Call(createFunction.c_str(), window);
-
-        return 0;
-    }
-
-    case WM_SETCURSOR:
-    {
-        break;
-    }
-    case MCIWNDM_NOTIFYPOS:
-    {
-        CMoviePlayerControl * playedMovie = reinterpret_cast<CMoviePlayerControl *>(GetWindowLongPtr((HWND)wParam, GWLP_USERDATA));
-        if (MCIWndGetEnd((HWND)wParam) == lParam)
+        case WM_CREATE:
         {
-            playedMovie->Stop();
+            // WindowControl ÌÅ¥ÎûòÏä§Ïùò Ìè¨Ïù∏ÌÑ∞Î•º hwndÏùò GWLP_USERDATA Ïóê Ï†ÄÏû•
+            // GetWindowLongPtr ÏùÑ ÌÜµÌï¥ WindowControl instance Î•º Î∂àÎü¨ÏôÄÏÑú Ìï®Ïàò Ìò∏Ï∂ú Í∞ÄÎä•
+            LPCREATESTRUCT createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
+            auto lpParamCreate = createStruct->lpCreateParams;
+            auto window = reinterpret_cast<CWindowControl *>(lpParamCreate);
+            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
+
+            auto createFunction = window->GetCreateEvent();
+            CLuaTinker::GetLuaTinker().Call(createFunction.c_str(), window);
+
+            return 0;
         }
-        break;
-    }
 
-    case WM_LBUTTONDOWN:
-    {
-        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseLButtonDownEvent = window->GetMouseLButtonDownEvent();
-        CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(), window);
-        break;
-    }
+        case WM_SETCURSOR:
+        {
+            break;
+        }
+        case MCIWNDM_NOTIFYPOS:
+        {
+            CMoviePlayerControl *playedMovie = reinterpret_cast<CMoviePlayerControl *>(GetWindowLongPtr((HWND) wParam,
+                                                                                                        GWLP_USERDATA));
+            if (MCIWndGetEnd((HWND) wParam) == lParam)
+            {
+                CLuaTinker::GetLuaTinker().Call(playedMovie->GetEndEvent().c_str(), playedMovie);
+            }
+            break;
+        }
 
-    case WM_LBUTTONUP:
-    {
-        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseLButtonUpEvent = window->GetMouseLButtonUpEvent();
-        CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), window);
-        break;
-    }
-
-    case WM_ACTIVATEAPP:
-    {
-        if (wParam == TRUE)
+        case WM_LBUTTONDOWN:
         {
             auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto activeEvent = window->GetActiveEvent();
-            CLuaTinker::GetLuaTinker().Call(activeEvent.c_str(), window);
+            auto mouseLButtonDownEvent = window->GetMouseLButtonDownEvent();
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(), window);
+            break;
         }
-        return 0;
-    }
 
-    case WM_COMMAND:
-    {
-        break;
-    }
+        case WM_LBUTTONUP:
+        {
+            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            auto mouseLButtonUpEvent = window->GetMouseLButtonUpEvent();
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), window);
+            break;
+        }
 
-    case WM_SIZE:
-    {
-        break;
-    }
+        case WM_ACTIVATEAPP:
+        {
+            if (wParam == TRUE)
+            {
+                auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+                auto activeEvent = window->GetActiveEvent();
+                CLuaTinker::GetLuaTinker().Call(activeEvent.c_str(), window);
+            }
+            return 0;
+        }
 
-    case WM_MOVE:
-    {
-        break;
-    }
+        case WM_COMMAND:
+        {
+            break;
+        }
 
-    case WM_CLOSE:
-    {
-        // close «‘ºˆ »£√‚, ∏Æ≈œ∞™(close) = true ¿Ã∏È ¡æ∑· √Îº“
-        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto closeEvent = window->GetCloseEvent();
-        const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeEvent.c_str(), window);
-        if (notClose)
+        case WM_SIZE:
+        {
+            break;
+        }
+
+        case WM_MOVE:
+        {
+            break;
+        }
+
+        case WM_CLOSE:
+        {
+            // notClose = true Ïù¥Î©¥ Ï¢ÖÎ£å Ï∑®ÏÜå
+            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            auto closeEvent = window->GetCloseEvent();
+            const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeEvent.c_str(), window);
+            if (notClose)
+            {
+                return 0;
+            }
+            break;
+        }
+
+        case WM_DESTROY:
         {
             return 0;
         }
-        break;
-    }
 
-    case WM_DESTROY:
-    {
-        return 0;
-    }
+        case WM_PAINT:
+        {
+            break;
+        }
 
-    case WM_PAINT:
-    {
-        break;
-    }
-
-    case WM_ERASEBKGND:
-    {
-        // Background color ∑Œ πË∞Êªˆ¿ª º≥¡§«—¥Ÿ.
-        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        RECT rect;
-        GetClientRect(hWnd, &rect);
-        FillRect((HDC)wParam, &rect, window->_backBrush);
-        return TRUE;
-    }
+        case WM_ERASEBKGND:
+        {
+            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            RECT rect;
+            GetClientRect(hWnd, &rect);
+            FillRect((HDC) wParam, &rect, window->_backBrush);
+            return TRUE;
+        }
     }
 
     return DefWindowProc(hWnd, iMessage, wParam, lParam);
@@ -147,7 +147,7 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(Close);
     LUA_METHOD(Refresh);
 
-    // WNDCLASS √ ±‚»≠
+    // WNDCLASS Ï¥àÍ∏∞Ìôî
     WNDCLASS wndClass;
     wndClass.cbClsExtra = 0;
     wndClass.cbWndExtra = 0;
@@ -216,7 +216,7 @@ HBRUSH CWindowControl::GetBackBrush() const
     return _backBrush;
 }
 
-CMenubar* CWindowControl::GetMenu()
+CMenubar *CWindowControl::GetMenu()
 {
     return _menu;
 }
@@ -227,8 +227,7 @@ void CWindowControl::SetControlBox(const bool isControlBox)
     if (_isControlBox)
     {
         _style |= WS_SYSMENU;
-    }
-    else
+    } else
     {
         _style &= ~WS_SYSMENU;
     }
@@ -245,8 +244,7 @@ void CWindowControl::SetMaxButton(const bool isMaxButton)
     if (_isMaxButton)
     {
         _style |= WS_MAXIMIZEBOX;
-    }
-    else
+    } else
     {
         _style &= ~WS_MAXIMIZEBOX;
     }
@@ -263,8 +261,7 @@ void CWindowControl::SetMinButton(const bool isMinButton)
     if (_isMinButton)
     {
         _style |= WS_MINIMIZEBOX;
-    }
-    else
+    } else
     {
         _style &= ~WS_MINIMIZEBOX;
     }
@@ -290,8 +287,7 @@ void CWindowControl::SetTitleBar(const bool isTitleBar)
     if (_isTitleBar)
     {
         _style |= WS_CAPTION;
-    }
-    else
+    } else
     {
         _style &= ~WS_CAPTION;
     }
@@ -317,17 +313,15 @@ void CWindowControl::SetIcon(std::wstring iconFilePath)
     if (!iconFilePath.empty())
     {
         _icon = static_cast<HICON>(LoadImageW(nullptr,
-            iconFilePath.c_str(),
-            IMAGE_ICON,
-            0,
-            0,
-            LR_DEFAULTSIZE | LR_LOADFROMFILE | LR_SHARED));
-    }
-    else if (iconFilePath == L"DEFAULT")
+                                              iconFilePath.c_str(),
+                                              IMAGE_ICON,
+                                              0,
+                                              0,
+                                              LR_DEFAULTSIZE | LR_LOADFROMFILE | LR_SHARED));
+    } else if (iconFilePath == L"DEFAULT")
     {
         _icon = LoadIcon(nullptr, IDI_APPLICATION);
-    }
-    else
+    } else
     {
         _icon = nullptr;
     }
@@ -344,17 +338,16 @@ void CWindowControl::SetBackColor(const COLORREF backColor)
     Refresh();
 }
 
-void CWindowControl::SetMenu(CMenubar * menu)
+void CWindowControl::SetMenu(CMenubar *menu)
 {
 }
 
-void CWindowControl::SetParentWindow(CWindowControl * parent)
+void CWindowControl::SetParentWindow(CWindowControl *parent)
 {
     if (parent)
     {
         _parentHWnd = parent->_hWnd;
-    }
-    else
+    } else
     {
         _parentHWnd = nullptr;
     }
@@ -367,16 +360,18 @@ bool CWindowControl::Create()
     SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
     AdjustWindowRect(&rect, _style, FALSE);
     _hWnd = CreateWindowW(L"jojo_form",
-        _titleName.c_str(),
-        _style,
-        rect.left,
-        rect.top,
-        rect.right - rect.left,
-        rect.bottom - rect.top,
-        _parentHWnd,
-        nullptr,
-        CControlManager::GetInstance().GetHInstance(),
-        (LPVOID)this);
+                          _titleName.c_str(),
+                          _style,
+                          rect.left,
+                          rect.top,
+                          rect.right - rect.left,
+                          rect.bottom - rect.top,
+                          _parentHWnd,
+                          nullptr,
+                          CControlManager::GetInstance().GetHInstance(),
+                          (LPVOID) this);
+
+    CConsoleOutput::OutputConsoles(L"Create Window");
 
     return true;
 }

@@ -4,7 +4,7 @@ namespace jojogame {
 std::once_flag CMenuManager::s_onceFlag;
 std::unique_ptr<CMenuManager> CMenuManager::s_sharedMenuManager;
 
-void CMenuManager::RegisterFunctions(lua_State * L)
+void CMenuManager::RegisterFunctions(lua_State *L)
 {
 }
 
@@ -20,14 +20,15 @@ CMenuManager::~CMenuManager()
 CMenuManager& CMenuManager::GetInstance()
 {
     std::call_once(s_onceFlag,
-        [] {
-        s_sharedMenuManager.reset(new CMenuManager);
-    });
+                   []
+                   {
+                       s_sharedMenuManager.reset(new CMenuManager);
+                   });
 
     return *s_sharedMenuManager.get();
 }
 
-int CMenuManager::AddMenuItem(CMenuItem* item)
+int CMenuManager::AddMenuItem(CMenuItem *item)
 {
     const auto index = _GetNewIndex();
 
@@ -36,7 +37,7 @@ int CMenuManager::AddMenuItem(CMenuItem* item)
         return 0;
     }
 
-    _menuItemStorage.insert(std::map<int, CMenuItem*>::value_type(static_cast<int>(index), item));
+    _menuItemStorage.insert(std::map<int, CMenuItem *>::value_type(static_cast<int>(index), item));
     return static_cast<int>(index);
 }
 

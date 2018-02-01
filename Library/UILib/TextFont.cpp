@@ -2,7 +2,7 @@
 #include "BaseControl.h"
 
 namespace jojogame {
-CTextFont::CTextFont(CBaseControl * control)
+CTextFont::CTextFont(CBaseControl *control)
 {
     _control = control;
 }
@@ -74,27 +74,28 @@ void CTextFont::_ResetFont()
     }
 
     _font = CreateFontW(_fontSize,
-        0,
-        0,
-        0,
-        FW_NORMAL,
-        _isItalic,
-        _isUnderline,
-        _isBold,
-        HANGEUL_CHARSET,
-        0,
-        0,
-        0,
-        VARIABLE_PITCH | FF_ROMAN,
-        _fontName.c_str());
+                        0,
+                        0,
+                        0,
+                        FW_NORMAL,
+                        _isItalic,
+                        _isUnderline,
+                        _isBold,
+                        HANGEUL_CHARSET,
+                        0,
+                        0,
+                        0,
+                        VARIABLE_PITCH | FF_ROMAN,
+                        _fontName.c_str());
 
     HWND controlHWnd = _control->GetHWnd();
     if (controlHWnd != nullptr)
     {
-        SendMessage(controlHWnd, WM_SETFONT, (WPARAM)_font, (LPARAM)TRUE);
+        SendMessage(controlHWnd, WM_SETFONT, (WPARAM) _font, (LPARAM) TRUE);
 
         RECT rect;
-        SetRect(&rect, _control->GetX(), _control->GetY(), _control->GetX() + _control->GetWidth(), _control->GetY() + _control->GetHeight());
+        SetRect(&rect, _control->GetX(), _control->GetY(), _control->GetX() + _control->GetWidth(),
+                _control->GetY() + _control->GetHeight());
         InvalidateRect(controlHWnd, &rect, true);
     }
 }

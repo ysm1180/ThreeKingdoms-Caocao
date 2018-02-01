@@ -5,7 +5,7 @@ namespace jojogame {
 std::once_flag CGameManager::s_onceFlag;
 std::unique_ptr<CGameManager> CGameManager::s_sharedGameManager;
 
-void CGameManager::RegisterFunctions(lua_State * L)
+void CGameManager::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CGameManager, "GameManager");
 
@@ -28,9 +28,10 @@ CGameManager::~CGameManager()
 CGameManager& CGameManager::GetInstance()
 {
     std::call_once(s_onceFlag,
-        [] {
-        s_sharedGameManager.reset(new CGameManager);
-    });
+                   []
+                   {
+                       s_sharedGameManager.reset(new CGameManager);
+                   });
 
     return *s_sharedGameManager.get();
 }
@@ -81,8 +82,7 @@ void CGameManager::Delay(int time)
             }
             TranslateMessage(&message);
             DispatchMessage(&message);
-        }
-        else
+        } else
         {
             if ((GetTickCount() - starttime) >= static_cast<DWORD>(time))
             {

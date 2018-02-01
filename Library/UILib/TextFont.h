@@ -27,7 +27,7 @@ public:
 protected:
     void _ResetFont();
 
-    CBaseControl * _control = nullptr;
+    CBaseControl *_control = nullptr;
 
     HFONT _font = nullptr;
     bool _isBold = false;

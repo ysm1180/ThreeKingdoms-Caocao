@@ -20,11 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MemoryPool.h" />
-    <ClInclude Include="Path.h" />
+    <ClInclude Include="ConsoleOutput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryPool.cpp" />
-    <ClCompile Include="Path.cpp" />
+    <ClCompile Include="ConsoleOutput.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -1,6 +1,8 @@
 require "Script\\window_manager.lua"
 require "Script\\movie_player_manager.lua"
 
+DEBUG(true)
+
 function main_close() 
     if openningMovie:IsPlaying() then
         openningMovie:Destroy()
@@ -9,6 +11,10 @@ function main_close()
 end
 
 function openning_click()
+    openningMovie:Destroy()
+end
+
+function openning_end()
     openningMovie:Destroy()
 end
 
@@ -28,12 +34,12 @@ function main()
         Center = true,
         FileName = "Script\\logo.avi",
         Parent = main,
-        MouseLButtonDown = "openning_click"
+        MouseLButtonDown = "openning_click",
+        End = "openning_end"
     })
     openningMovie:Play()
     openningMovie:WaitForPlay()
 
-    print ""
     mainMenuDialog = WindowManager.Create({
         Parent = main,
         Width = 200,
@@ -41,6 +47,7 @@ function main()
         Center = true,
         ControlBox = false
     })
+    
 end
 
 main()

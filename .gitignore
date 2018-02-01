@@ -288,3 +288,6 @@ __pycache__/
 *.xsd.cs
 
 .vscode/
+
+cmake-build-debug/
+CMakeLists.txt

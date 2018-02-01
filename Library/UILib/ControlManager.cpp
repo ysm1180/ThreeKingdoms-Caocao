@@ -10,7 +10,7 @@ namespace jojogame {
 std::once_flag CControlManager::s_onceFlag;
 std::unique_ptr<CControlManager> CControlManager::s_controlManager;
 
-void CControlManager::RegisterFunctions(lua_State* L)
+void CControlManager::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CControlManager, "_ControlManager");
 
@@ -36,14 +36,14 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CMoviePlayerControl>();
 }
 
-CWindowControl* CControlManager::CreateWindowForm(CWindowControl *parent)
+CWindowControl *CControlManager::CreateWindowForm(CWindowControl *parent)
 {
     auto newWindow = CMemoryPool<CWindowControl>::GetInstance().New();
     newWindow->SetParentWindow(parent);
     return newWindow;
 }
 
-CMoviePlayerControl* CControlManager::CreateMoviePlayer(CWindowControl * parent, std::wstring fileName)
+CMoviePlayerControl *CControlManager::CreateMoviePlayer(CWindowControl *parent, std::wstring fileName)
 {
     auto newMoviePlayer = CMemoryPool<CMoviePlayerControl>::GetInstance().New(parent, fileName);
     return newMoviePlayer;
@@ -53,6 +53,7 @@ HINSTANCE CControlManager::GetHInstance()
 {
     return _hInstance;
 }
+
 void CControlManager::SetHInstance(HINSTANCE hInstance)
 {
     _hInstance = hInstance;
@@ -60,7 +61,8 @@ void CControlManager::SetHInstance(HINSTANCE hInstance)
 
 CControlManager& CControlManager::GetInstance()
 {
-    std::call_once(s_onceFlag, [] {
+    std::call_once(s_onceFlag, []
+    {
         s_controlManager.reset(new CControlManager);
     });
 

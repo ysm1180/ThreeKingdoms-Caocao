@@ -30,6 +30,8 @@ void CMoviePlayerControl::RegisterFunctions(lua_State *L)
     LUA_BEGIN_CHILD(CMoviePlayerControl, "_MoviePlayer", CBaseControl);
 
     LUA_METHOD(IsPlaying);
+    LUA_METHOD(SetEndEvent);
+
     LUA_METHOD(Play);
     LUA_METHOD(WaitForPlay);
     LUA_METHOD(Stop);
@@ -59,6 +61,16 @@ WNDPROC CMoviePlayerControl::GetOldProc()
 bool CMoviePlayerControl::IsPlaying()
 {
     return _playing;
+}
+
+std::wstring CMoviePlayerControl::GetEndEvent()
+{
+    return _endEvent;
+}
+
+void CMoviePlayerControl::SetEndEvent(std::wstring endEvent)
+{
+    _endEvent = endEvent;
 }
 
 void CMoviePlayerControl::SetFileName(std::wstring fileName)

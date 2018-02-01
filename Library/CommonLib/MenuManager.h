@@ -21,7 +21,7 @@ class CMenuItem;
 class CMenuManager
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CMenuManager();
     ~CMenuManager();
@@ -34,7 +34,7 @@ public:
 private:
     int _GetNewIndex();
 
-    std::map<int, CMenuItem*> _menuItemStorage;
+    std::map<int, CMenuItem *> _menuItemStorage;
     std::vector<int> _reusingIndexStorage;
 
     static std::once_flag s_onceFlag;

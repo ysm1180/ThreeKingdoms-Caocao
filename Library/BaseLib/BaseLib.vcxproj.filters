@@ -2,10 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="MemoryPool.h" />
-    <ClInclude Include="Path.h" />
+    <ClInclude Include="ConsoleOutput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryPool.cpp" />
-    <ClCompile Include="Path.cpp" />
+    <ClCompile Include="ConsoleOutput.cpp" />
   </ItemGroup>
 </Project>
