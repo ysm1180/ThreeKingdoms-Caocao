@@ -1,8 +1,8 @@
 #include "GameScriptManager.h"
 
 namespace jojogame {
-std::once_flag s_onceFlag;
-std::unique_ptr<CGameScriptManager> s_sharedGameScriptManager;
+std::once_flag CGameScriptManager::s_onceFlag;
+std::unique_ptr<CGameScriptManager> CGameScriptManager::s_sharedGameScriptManager;
 
 void CGameScriptManager::RegisterFunctions(lua_State *L)
 {

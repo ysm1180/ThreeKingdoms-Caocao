@@ -4,6 +4,9 @@
 
 #include <mutex>
 #include <memory>
+#ifndef _MSVC_LANG
+#include "BaseLib\mingw.mutex.h"
+#endif
 
 namespace jojogame {
 class CGameScriptManager

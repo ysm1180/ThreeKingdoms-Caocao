@@ -22,6 +22,8 @@ MoviePlayer = Control:Instance
 
     Destroy = function(self)
         self.control:Destroy()
+
+        OUTPUT("Movie Destroy")
     end,
 
     WaitForPlay = function(self)
@@ -30,10 +32,14 @@ MoviePlayer = Control:Instance
 
     Play = function(self)
         self.control:Play()
+
+        OUTPUT("Movie Play")
     end,
 
     Stop = function(self)
         self.control:Stop()
+
+        OUTPUT("Movie Stop")
     end,
 
     IsPlaying = function(self)
@@ -42,5 +48,7 @@ MoviePlayer = Control:Instance
 
     SetEndEvent = function(self, event)
         self.control:SetEndEvent(event)
+
+        OUTPUT("Set End Event : " .. (event or "NULL"))
     end
 }

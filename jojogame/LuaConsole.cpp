@@ -12,7 +12,7 @@ INT_PTR __stdcall DialogProc(HWND hDialog, UINT message, WPARAM wParam, LPARAM l
         case WM_COMMAND:
             switch (LOWORD(wParam))
             {
-                case IDCANCEL:
+                case IDOK:
                     SendMessage(hDialog, WM_CLOSE, 0, 0);
                     return TRUE;
             }
@@ -47,11 +47,16 @@ void CLuaConsole::SetHInstance(HINSTANCE hInstance)
     _hInstance = hInstance;
 }
 
-void CLuaConsole::AppendOutput(std::wstring msg)
+void CLuaConsole::Output(std::string msg)
+{
+    this->AppendOutput(msg);
+}
+
+void CLuaConsole::AppendOutput(std::string msg)
 {
     HWND output = GetDlgItem(_hWnd, IDC_LOG);
     int oldLen = GetWindowTextLength(output);
-    int appendLen = line.length() + 2; // + 2 : \r\n
+    int appendLen = msg.length() + 2; // + 2 : \r\n
     int newLen = oldLen + appendLen;
 
     //crop
@@ -102,8 +107,5 @@ void CLuaConsole::SetDebugFlag(bool flag)
     }
 }
 
-void CLuaConsole::Output(std::wstring msg)
-{
 
-}
 }

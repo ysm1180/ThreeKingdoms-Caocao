@@ -5,6 +5,7 @@
 #include "BaseControl.h"
 #include "WindowControl.h"
 #include "MoviePlayerControl.h"
+#include "ButtonControl.h"
 
 namespace jojogame {
 std::once_flag CControlManager::s_onceFlag;
@@ -47,6 +48,13 @@ CMoviePlayerControl *CControlManager::CreateMoviePlayer(CWindowControl *parent, 
 {
     auto newMoviePlayer = CMemoryPool<CMoviePlayerControl>::GetInstance().New(parent, fileName);
     return newMoviePlayer;
+}
+
+CButtonControl * CControlManager::CreateButton(CWindowControl * parent)
+{
+    auto newButton = CMemoryPool<CButtonControl>::GetInstance().New();
+
+    return newButton;
 }
 
 HINSTANCE CControlManager::GetHInstance()

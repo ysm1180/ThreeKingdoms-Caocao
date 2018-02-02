@@ -2,6 +2,9 @@
 #include "ControlManager.h"
 #include "WindowControl.h"
 
+
+#include "BaseLib\ConsoleOutput.h"
+
 #include <MMSystem.h>
 #include <Vfw.h>
 
@@ -37,6 +40,8 @@ void CMoviePlayerControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(Stop);
     LUA_METHOD(Create);
     LUA_METHOD(Destroy);
+
+
 }
 
 CMoviePlayerControl::CMoviePlayerControl(CWindowControl* parent, std::wstring fileName)
@@ -80,11 +85,9 @@ void CMoviePlayerControl::SetFileName(std::wstring fileName)
 
 void CMoviePlayerControl::Play()
 {
-
     MCIWndOpen(_hWnd, _fileName.c_str(), 0);
     MCIWndPlay(_hWnd);
     _playing = true;
-
 }
 
 void CMoviePlayerControl::WaitForPlay()
@@ -135,11 +138,30 @@ bool CMoviePlayerControl::Create()
         Destroy();
     }
 
-    RECT rect;
-    _hWnd = MCIWndCreate(_parentHWnd, CControlManager::GetInstance().GetHInstance(),
-        MCIWNDF_NOTIFYANSI | MCIWNDF_NOMENU | MCIWNDF_NOTIFYPOS | MCIWNDF_NOPLAYBAR | MCI_WAIT,
-        _fileName.c_str());
+    AVIFileInit();
 
+    PAVIFILE aviFile;
+    int error = AVIFileOpen(&aviFile, _fileName.c_str(), OF_READ, NULL);
+    if (error) {
+        AVIFileExit();
+        return false;
+    }
+
+    AVIFILEINFO aviInfo;
+    AVIFileInfo(aviFile, &aviInfo, sizeof(aviInfo));
+
+    int playRate = aviInfo.dwRate / aviInfo.dwScale;
+    PAVISTREAM aviStream;
+    AVIFileGetStream(aviFile, &aviStream, 0, 0);
+    AVISTREAMINFO aviStreamInfo;
+    AVIStreamInfo(aviStream, &aviStreamInfo, sizeof(aviStreamInfo));
+
+
+    //_hWnd = MCIWndCreateW(_parentHWnd, CControlManager::GetInstance().GetHInstance(),
+    //    MCIWNDF_NOTIFYANSI | MCIWNDF_NOMENU | MCIWNDF_NOTIFYPOS | MCIWNDF_NOPLAYBAR | MCI_WAIT,
+    //    _fileName.c_str());
+    
+    RECT rect;
     GetClientRect(_hWnd, &rect);
     _size.cx = rect.right - rect.left;
     _size.cy = rect.bottom - rect.top;

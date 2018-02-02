@@ -1,6 +1,7 @@
 ﻿#pragma once
 #pragma comment(lib, "vfw32.lib")
 
+
 #include "BaseControl.h"
 
 #include <string>

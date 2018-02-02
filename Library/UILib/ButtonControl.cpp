@@ -38,7 +38,9 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         {
             auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
             auto mouseMoveEvent = button->GetMouseMoveEvent();
-            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent.c_str(), (int) wParam, GET_X_LPARAM(lParam),
+            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent.c_str(), 
+                (int) wParam, 
+                GET_X_LPARAM(lParam),
                                             GET_Y_LPARAM(lParam));
 
             if (isHover == false)

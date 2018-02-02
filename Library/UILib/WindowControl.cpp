@@ -2,6 +2,8 @@
 #include "MoviePlayerControl.h"
 #include "ControlManager.h"
 
+#include "BaseLib\ConsoleOutput.h"
+
 #include <Vfw.h>
 
 namespace jojogame {
@@ -11,8 +13,8 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         case WM_CREATE:
         {
-            // WindowControl í´ë˜ìŠ¤ì˜ í¬ì¸í„°ë¥¼ hwndì˜ GWLP_USERDATA ì— ì €ì¥
-            // GetWindowLongPtr ì„ í†µí•´ WindowControl instance ë¥¼ ë¶ˆëŸ¬ì™€ì„œ í•¨ìˆ˜ í˜¸ì¶œ ê°€ëŠ¥
+            // WindowControl Å¬·¡½ºÀÇ Æ÷ÀÎÅÍ¸¦ hwndÀÇ GWLP_USERDATA ¿¡ ÀúÀå
+            // GetWindowLongPtr À» ÅëÇØ WindowControl instance ¸¦ ºÒ·¯¿Í¼­ ÇÔ¼ö È£Ãâ °¡´É
             LPCREATESTRUCT createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
             auto lpParamCreate = createStruct->lpCreateParams;
             auto window = reinterpret_cast<CWindowControl *>(lpParamCreate);
@@ -83,7 +85,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
         case WM_CLOSE:
         {
-            // notClose = true ì´ë©´ ì¢…ë£Œ ì·¨ì†Œ
+            // notClose = true ÀÌ¸é Á¾·á Ãë¼Ò
             auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
             auto closeEvent = window->GetCloseEvent();
             const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeEvent.c_str(), window);
@@ -147,7 +149,7 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(Close);
     LUA_METHOD(Refresh);
 
-    // WNDCLASS ì´ˆê¸°í™”
+    // WNDCLASS ÃÊ±âÈ­
     WNDCLASS wndClass;
     wndClass.cbClsExtra = 0;
     wndClass.cbWndExtra = 0;
@@ -370,8 +372,6 @@ bool CWindowControl::Create()
                           nullptr,
                           CControlManager::GetInstance().GetHInstance(),
                           (LPVOID) this);
-
-    CConsoleOutput::OutputConsoles(L"Create Window");
 
     return true;
 }

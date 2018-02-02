@@ -486,6 +486,8 @@ char *read(lua_State *L, int index);
 template<>
 const char *read(lua_State *L, int index);
 template<>
+std::string read(lua_State *L, int index);
+template<>
 std::wstring read(lua_State *L, int index);
 template<>
 char read(lua_State *L, int index);
@@ -1527,6 +1529,7 @@ void class_mem(lua_State *L, const char *name, VAR BASE::*val)
 template<typename T>
 struct class_name
 {
+
     // global name
     static const char *name(const char *name = NULL)
     {

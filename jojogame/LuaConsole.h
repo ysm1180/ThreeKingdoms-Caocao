@@ -1,6 +1,9 @@
 #pragma once
 
 #include "BaseLib\ConsoleOutput.h"
+#ifndef _MSVC_LANG
+#include "BaseLib\mingw.mutex.h"
+#endif
 
 #include "resource.h"
 
@@ -13,7 +16,7 @@
 namespace jojogame {
 class CLuaConsole : public CConsoleOutput
 {
- public:
+public:
     CLuaConsole();
     virtual ~CLuaConsole();
 
@@ -21,14 +24,14 @@ class CLuaConsole : public CConsoleOutput
 
     void SetHInstance(HINSTANCE hInstance);
 
-    void Output(std::wstring msg);
-    void AppendOutput(std::wstring msg);
+    void Output(std::string msg);
+    void AppendOutput(std::string msg);
 
     void Create();
 
     static CLuaConsole& GetInstance();
     static void SetDebugFlag(bool flag);
- private:
+private:
     HWND _hWnd;
     HINSTANCE _hInstance;
 

@@ -26,13 +26,13 @@ function main()
         Center = true,
         TitleName = title,
         BackColor = {R = 0, G = 0, B = 0},
-        Close = "main_close"
+        Close = "main_close",
+        Show = true
     })
-    main:Show()
 
     openningMovie = MoviePlayerManager.Create({
         Center = true,
-        FileName = "Script\\logo.avi",
+        FileName = "Script\\logo.mkv",
         Parent = main,
         MouseLButtonDown = "openning_click",
         End = "openning_end"
@@ -45,7 +45,9 @@ function main()
         Width = 200,
         Height = 142,
         Center = true,
-        ControlBox = false
+        BackColor = {R = 0xF0, G = 0xF0, B = 0xF0},
+        Modal = true,
+        Show = true
     })
     
 end

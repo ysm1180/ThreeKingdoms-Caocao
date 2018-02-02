@@ -1,7 +1,6 @@
 #pragma once
 
 #include "BaseControl.h"
-#include "BaseLib\ConsoleOutput.h"
 #include "LuaLib\LuaTinker.h"
 
 #include <Windows.h>

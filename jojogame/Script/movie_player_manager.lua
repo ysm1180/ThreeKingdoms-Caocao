@@ -4,6 +4,8 @@ require "Script\\movie_player.lua"
 MoviePlayerManager = ControlManager:Instance
 {
     Create = function(options)
+        OUTPUT("-------- Start Create : Movie Player --------")
+
         local newMoviePlayer = MoviePlayer:Instance(options.Parent, options.FileName)
 
         newMoviePlayer:SetEndEvent(options.End)
@@ -19,6 +21,8 @@ MoviePlayerManager = ControlManager:Instance
             end
         end
         newMoviePlayer:Move(options.X, options.Y)
+
+        OUTPUT("-------- End Create : Movie Player --------")
 
         return newMoviePlayer
     end,

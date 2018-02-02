@@ -4,12 +4,13 @@ require "Script\\window.lua"
 WindowManager = ControlManager:Instance
 {
     Create = function(options)
+        OUTPUT("-------- Start Create : Window --------")
         local newWindow = Window:Instance(options.Parent)
 
         newWindow:SetSize(options.Width, options.Height)
 
         if options.Center then
-            local x, y = ControlManager.GetCenterPosition(options.Parent, options.Width, options.Height)
+            local x, y = ControlManager.GetCenterPosition(options.Parent, options.Width, options.Height, false)
             if x ~= nil and y ~= nil then
                 options.X = x
                 options.Y = y
@@ -36,6 +37,15 @@ WindowManager = ControlManager:Instance
 
         newWindow:Create()
 
+        if options.Show then
+            if options.Modal then
+                newWindow:ShowModalWindow()
+            else
+                newWindow:Show()
+            end
+        end
+
+        OUTPUT("-------- End Create : Window --------")
         return newWindow
     end
 }

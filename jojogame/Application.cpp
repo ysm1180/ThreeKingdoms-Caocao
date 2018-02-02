@@ -50,9 +50,10 @@ int Application::Run()
     luaTinker.RegisterVariable("controlManager", _controlManager);
     luaTinker.RegisterVariable("gameManager", _gameManager);
 
-    luaTinker.RegisterFunction("DEBUGLUA", &CLuaConsole::SetDebugFlag);
+    luaTinker.RegisterFunction("OUTPUT", &CConsoleOutput::OutputConsoles);
+    luaTinker.RegisterFunction("DEBUG", &CLuaConsole::SetDebugFlag);
 
-    luaTinker.Run("Script\\main.lua");
+    luaTinker.Run("./Script/main.lua");
     while (GetMessage(&message, 0, 0, 0))
     {
         TranslateMessage(&message);

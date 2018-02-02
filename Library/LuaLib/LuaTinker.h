@@ -16,6 +16,9 @@
 
 #include <memory>
 #include <mutex>
+#ifndef _MSVC_LANG
+#include "BaseLib\mingw.mutex.h"
+#endif
 
 namespace jojogame {
 class CLuaTinker

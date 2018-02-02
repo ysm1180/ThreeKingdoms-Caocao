@@ -11,6 +11,7 @@
 
 #include "lua_tinker.h"
 
+#include "BaseLib\ConsoleOutput.h"
 #include "UILib\WindowControl.h"
 
 /*---------------------------------------------------------------------------*/
@@ -249,7 +250,8 @@ void lua_tinker::print_error(lua_State *L, const char *fmt, ...)
         lua_call(L, 1, 0);
     } else
     {
-        printf("%s\n", text);
+        jojogame::CConsoleOutput::OutputConsoles(text);
+        // printf("%s\n", text);
         lua_pop(L, 1);
     }
 }
@@ -307,6 +309,15 @@ template<>
 const char *lua_tinker::read(lua_State *L, int index)
 {
     return (const char *) lua_tostring(L, index);
+}
+
+
+template<>
+std::string lua_tinker::read(lua_State *L, int index)
+{
+    const auto original = const_cast<char *>(lua_tostring(L, index));
+    std::string unicode(original);
+    return unicode;
 }
 
 template<>

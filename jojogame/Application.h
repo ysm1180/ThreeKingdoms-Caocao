@@ -10,7 +10,7 @@ class CGameScriptManager;
 
 class Application
 {
- public:
+public:
     explicit Application(HINSTANCE hInstance);
     virtual ~Application();
 
@@ -19,7 +19,7 @@ class Application
     virtual int Run();
 
     static Application& GetInstance();
- protected:
+protected:
     HINSTANCE _hInstance;
     CControlManager *_controlManager;
     CGameManager *_gameManager;

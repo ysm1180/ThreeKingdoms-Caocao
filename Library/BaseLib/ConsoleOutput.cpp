@@ -1,6 +1,8 @@
 #include "ConsoleOutput.h"
 
 namespace jojogame {
+std::vector<CConsoleOutput *> CConsoleOutput::_consoles;
+
 CConsoleOutput::CConsoleOutput()
 {
 
@@ -15,7 +17,7 @@ void CConsoleOutput::RegisterConsole(CConsoleOutput *console)
     _consoles.push_back(console);
 }
 
-void CConsoleOutput::OutputConsoles(std::wstring msg)
+void CConsoleOutput::OutputConsoles(std::string msg)
 {
     for (auto console : _consoles)
     {
