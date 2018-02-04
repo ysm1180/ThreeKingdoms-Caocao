@@ -17,7 +17,7 @@ void CConsoleOutput::RegisterConsole(CConsoleOutput *console)
     _consoles.push_back(console);
 }
 
-void CConsoleOutput::OutputConsoles(std::string msg)
+void CConsoleOutput::OutputConsoles(std::wstring msg)
 {
     for (auto console : _consoles)
     {

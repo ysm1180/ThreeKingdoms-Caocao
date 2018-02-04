@@ -7,9 +7,20 @@
 #include <windowsx.h>
 
 #include <string>
+#include <vector>
 
 namespace jojogame {
+class CMoviePlayer;
 class CMenubar;
+
+struct DrawingImageInfo
+{
+    int x;
+    int y;
+    int width;
+    int height;
+    HDC memDC;
+};
 
 class CWindowControl : public CBaseControl
 {
@@ -41,6 +52,8 @@ public:
     void SetMenu(CMenubar *menu);
     void SetParentWindow(CWindowControl *parent);
 
+    void AddDrawingImage(HDC srcDC, int x, int y, int width, int height);
+
     bool Create() override;
     virtual void Destroy() override;
 
@@ -50,6 +63,7 @@ public:
     void SetDialogResult(int value) const;
 
     void Refresh() const;
+    void RefreshByRegion(int x, int y, int width, int height);
 
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -64,6 +78,9 @@ private:
     std::wstring _closeEvent = L"";
     HICON _icon = LoadIcon(nullptr, IDI_APPLICATION);
     HBRUSH _backBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
+
+    std::vector<DrawingImageInfo> _images;
     CMenubar *_menu = nullptr;
+
 };
 }

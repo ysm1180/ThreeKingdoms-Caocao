@@ -250,7 +250,10 @@ void lua_tinker::print_error(lua_State *L, const char *fmt, ...)
         lua_call(L, 1, 0);
     } else
     {
-        jojogame::CConsoleOutput::OutputConsoles(text);
+        const auto len = MultiByteToWideChar(CP_UTF8, 0, text, -1, nullptr, 0);
+        std::wstring unicode(len, L'\0');
+        MultiByteToWideChar(CP_UTF8, 0, text, -1, &unicode[0], len);
+        jojogame::CConsoleOutput::OutputConsoles(unicode);
         // printf("%s\n", text);
         lua_pop(L, 1);
     }

@@ -24,8 +24,8 @@ public:
 
     void SetHInstance(HINSTANCE hInstance);
 
-    void Output(std::string msg);
-    void AppendOutput(std::string msg);
+    void Output(std::wstring msg);
+    void AppendOutput(std::wstring msg);
 
     void Create();
 

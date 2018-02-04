@@ -13,8 +13,8 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         case WM_CREATE:
         {
-            // WindowControl ≈¨∑°Ω∫¿« ∆˜¿Œ≈Õ∏¶ hwnd¿« GWLP_USERDATA ø° ¿˙¿Â
-            // GetWindowLongPtr ¿ª ≈Î«ÿ WindowControl instance ∏¶ ∫“∑ØøÕº≠ «‘ºˆ »£√‚ ∞°¥…
+            // WindowControl ÌÅ¥ÎûòÏä§Ïùò Ìè¨Ïù∏ÌÑ∞Î•º hwndÏùò GWLP_USERDATA Ïóê Ï†ÄÏû•
+            // GetWindowLongPtr ÏùÑ ÌÜµÌï¥ WindowControl instance Î•º Î∂àÎü¨ÏôÄÏÑú Ìï®Ïàò Ìò∏Ï∂ú Í∞ÄÎä•
             LPCREATESTRUCT createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
             auto lpParamCreate = createStruct->lpCreateParams;
             auto window = reinterpret_cast<CWindowControl *>(lpParamCreate);
@@ -85,7 +85,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
         case WM_CLOSE:
         {
-            // notClose = true ¿Ã∏È ¡æ∑· √Îº“
+            // notClose = true Ïù¥Î©¥ Ï¢ÖÎ£å Ï∑®ÏÜå
             auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
             auto closeEvent = window->GetCloseEvent();
             const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeEvent.c_str(), window);
@@ -103,6 +103,16 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
         case WM_PAINT:
         {
+            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hWnd, &ps);
+
+            /*for (auto image : window->_images)
+            {
+                BitBlt(hdc, image.x, image.y, image.width, image.height, image.memDC, 0, 0, SRCCOPY);
+            }*/
+
+            EndPaint(hWnd, &ps);
             break;
         }
 
@@ -149,7 +159,7 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(Close);
     LUA_METHOD(Refresh);
 
-    // WNDCLASS √ ±‚»≠
+    // WNDCLASS Ï¥àÍ∏∞Ìôî
     WNDCLASS wndClass;
     wndClass.cbClsExtra = 0;
     wndClass.cbWndExtra = 0;
@@ -314,7 +324,7 @@ void CWindowControl::SetIcon(std::wstring iconFilePath)
 {
     if (!iconFilePath.empty())
     {
-        _icon = static_cast<HICON>(LoadImageW(nullptr,
+        _icon = static_cast<HICON>(LoadImage(nullptr,
                                               iconFilePath.c_str(),
                                               IMAGE_ICON,
                                               0,
@@ -361,7 +371,7 @@ bool CWindowControl::Create()
 
     SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
     AdjustWindowRect(&rect, _style, FALSE);
-    _hWnd = CreateWindowW(L"jojo_form",
+    _hWnd = CreateWindow(L"jojo_form",
                           _titleName.c_str(),
                           _style,
                           rect.left,
@@ -434,9 +444,31 @@ void CWindowControl::Refresh() const
     InvalidateRect(_hWnd, &rect, TRUE);
 }
 
+void CWindowControl::RefreshByRegion(int x, int y, int width, int height)
+{
+    RECT rect;
+
+    SetRect(&rect, x, y, x + width, y + height);
+    InvalidateRect(_hWnd, &rect, TRUE);
+}
+
 void CWindowControl::Destroy()
 {
     DestroyWindow(_hWnd);
     _hWnd = nullptr;
+}
+
+void CWindowControl::AddDrawingImage(HDC srcDC, int x, int y, int width, int height)
+{
+    DrawingImageInfo image;
+    HDC newDC = CreateCompatibleDC(srcDC);
+    BitBlt(newDC, 0, 0, width, height, srcDC, 0, 0, SRCCOPY);
+
+    image.memDC = newDC;
+    image.x = x;
+    image.y = y;
+    image.width = width;
+    image.height = height;
+    _images.push_back(image);
 }
 }

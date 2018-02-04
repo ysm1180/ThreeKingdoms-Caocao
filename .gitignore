@@ -290,4 +290,3 @@ __pycache__/
 .vscode/
 
 cmake-build-debug/
-CMakeLists.txt

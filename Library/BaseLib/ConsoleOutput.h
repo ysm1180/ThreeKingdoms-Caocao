@@ -12,11 +12,11 @@ public:
     CConsoleOutput();
     virtual ~CConsoleOutput();
 
-    virtual void Output(std::string msg) = 0;
+    virtual void Output(std::wstring msg) = 0;
 
     static void RegisterConsole(CConsoleOutput *console);
 
-    static void OutputConsoles(std::string msg);
+    static void OutputConsoles(std::wstring msg);
 
 private:
     static std::vector<CConsoleOutput *> _consoles;

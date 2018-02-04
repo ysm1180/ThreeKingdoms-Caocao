@@ -47,12 +47,12 @@ void CLuaConsole::SetHInstance(HINSTANCE hInstance)
     _hInstance = hInstance;
 }
 
-void CLuaConsole::Output(std::string msg)
+void CLuaConsole::Output(std::wstring msg)
 {
     this->AppendOutput(msg);
 }
 
-void CLuaConsole::AppendOutput(std::string msg)
+void CLuaConsole::AppendOutput(std::wstring msg)
 {
     HWND output = GetDlgItem(_hWnd, IDC_LOG);
     int oldLen = GetWindowTextLength(output);
@@ -68,7 +68,7 @@ void CLuaConsole::AppendOutput(std::string msg)
 
     SendMessage(output, EM_SETSEL, 0, -1);
     SendMessage(output, EM_SETSEL, -1, -1);
-    SendMessage(output, EM_REPLACESEL, 0, (LPARAM) "\r\n");
+    SendMessage(output, EM_REPLACESEL, 0, (LPARAM) "\n");
 
     SendMessage(output, EM_SETSEL, 0, -1);
     SendMessage(output, EM_SETSEL, -1, -1);

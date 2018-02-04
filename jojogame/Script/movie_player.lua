@@ -1,6 +1,6 @@
 require "Script\\control.lua"
 
-MoviePlayer = Control:Instance
+MoviePlayer = Object:Instance
 {
     Instance = function(self, parent, fileName)
         local newMoviePlayer = {}
@@ -20,6 +20,12 @@ MoviePlayer = Control:Instance
         return newMoviePlayer
     end,
 
+    Create = function(self)
+        self.control:Create()
+
+        OUTPUT("Movie Created")
+    end,
+    
     Destroy = function(self)
         self.control:Destroy()
 

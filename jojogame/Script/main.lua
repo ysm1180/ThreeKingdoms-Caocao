@@ -31,10 +31,8 @@ function main()
     })
 
     openningMovie = MoviePlayerManager.Create({
-        Center = true,
-        FileName = "Script\\logo.mkv",
+        FileName = "Script\\logo.avi",
         Parent = main,
-        MouseLButtonDown = "openning_click",
         End = "openning_end"
     })
     openningMovie:Play()
