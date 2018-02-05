@@ -13,7 +13,7 @@ class CMoviePlayerControl;
 class CButtonControl;
 
 
-class CControlManager
+class  CControlManager
 {
 public:
     static void RegisterFunctions(lua_State *L);

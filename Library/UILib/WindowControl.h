@@ -25,7 +25,7 @@ struct DrawingImageInfo
     HBITMAP oldBitmap;
 };
 
-class CWindowControl : public CBaseControl
+class  CWindowControl : public CBaseControl
 {
 public:
     static void RegisterFunctions(lua_State *L);
@@ -55,7 +55,7 @@ public:
     void SetMenu(CMenubar *menu);
     void SetParentWindow(CWindowControl *parent);
 
-    int SetDrawingImage(int index, HDC srcDC, BITMAPINFO bitmapInfo, RECT& rect);
+    int SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bitmapInfo, RECT& rect);
 
     bool Create() override;
     virtual void Destroy() override;

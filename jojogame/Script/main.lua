@@ -34,7 +34,7 @@ function main()
     })
 
     openningMovie = MoviePlayerManager.Create({
-        FileName = "Script\\logo.avi",
+        FileName = "Script\\LOGO.avi",
         Parent = main,
         End = "openning_end"
     })

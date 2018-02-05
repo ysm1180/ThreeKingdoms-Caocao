@@ -6,7 +6,7 @@
 #include <Windows.h>
 
 namespace jojogame {
-class CButtonControl : public CBaseControl
+class  CButtonControl : public CBaseControl
 {
 public:
     static void RegisterFunctions(lua_State *L);

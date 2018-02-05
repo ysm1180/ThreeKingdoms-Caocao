@@ -6,7 +6,7 @@
 namespace jojogame {
 class CBaseControl;
 
-class CTextFont
+class  CTextFont
 {
 public:
     CTextFont(CBaseControl *control);

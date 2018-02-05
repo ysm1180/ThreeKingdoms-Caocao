@@ -8,7 +8,7 @@
 #include <string>
 
 namespace jojogame {
-class CBaseControl
+class  CBaseControl
 {
 public:
     static void RegisterFunctions(lua_State *L);

@@ -466,7 +466,7 @@ void CWindowControl::Destroy()
     _hWnd = nullptr;
 }
 
-int CWindowControl::SetDrawingImage(int index, HDC srcDC, BITMAPINFO bitmapInfo, RECT& rect)
+int CWindowControl::SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bitmapInfo, RECT& rect)
 {
     int x = rect.left;
     int y = rect.top;

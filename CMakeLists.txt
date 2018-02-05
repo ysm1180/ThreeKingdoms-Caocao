@@ -11,14 +11,15 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/jojogame)
 
 include_directories(
-        ./Library/)
+        ./Library/
+        ./Library/ffmpeg/${PROJECT_ARCH}/include)
 add_definitions(-DUNICODE)
 
 #WIN SDK LIBS
 link_directories(
         "C:/Program Files (x86)/Windows Kits/10/lib/10.0.16299.0/ucrt/x86"
         "C:/Program Files (x86)/Windows Kits/10/lib/10.0.16299.0/um/x86"
-)
+        ./Library/ffmpeg/${PROJECT_ARCH}/lib)
 
 add_library(BaseLib STATIC
         Library/BaseLib/ConsoleOutput.cpp

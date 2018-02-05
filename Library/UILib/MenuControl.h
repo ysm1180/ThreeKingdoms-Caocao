@@ -5,7 +5,7 @@
 #include <Windows.h>
 
 namespace jojogame {
-class CMenuItem
+class  CMenuItem
 {
 public:
     static void RegisterFunctions(lua_State *L);

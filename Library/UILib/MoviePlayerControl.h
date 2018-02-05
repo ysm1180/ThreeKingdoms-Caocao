@@ -1,7 +1,20 @@
 #pragma once
 #pragma comment(lib, "vfw32.lib")
+#pragma comment(lib, "avcodec.lib")
+#pragma comment(lib, "avformat.lib")
+#pragma comment(lib, "swscale.lib")
+#pragma comment(lib, "avutil.lib")
+
 
 #include "BaseControl.h"
+
+extern "C"  {
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <libavutil/imgutils.h>
+#include <libavutil/pixfmt.h>
+}
 
 #include <string>
 #include <Windows.h>
@@ -48,9 +61,9 @@ private:
     POINT _position;
     SIZE _size;
 
-    CWindowControl *_parent;
-    PAVIFILE _aviFile;
-    PAVISTREAM _aviStream;
+    CWindowControl *_parent = nullptr;
+    PAVIFILE _aviFile = nullptr;
+    PAVISTREAM _aviStream = nullptr;
     double _fps = 0;
 
     int _drawingIndex = 0;

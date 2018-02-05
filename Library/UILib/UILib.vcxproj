@@ -36,6 +36,17 @@
     <ClInclude Include="TextFont.h" />
     <ClInclude Include="WindowControl.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BaseLib\BaseLib.vcxproj">
+      <Project>{3d880581-1970-47a7-ac2b-29f4cd082cfd}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\CommonLib\CommonLib.vcxproj">
+      <Project>{15117ffd-fdd2-4026-86b3-bb0ec9467719}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\LuaLib\LuaLib.vcxproj">
+      <Project>{b37527a7-9844-4e0a-bc1b-060d54f98751}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{140E8959-F899-4C6D-8D65-E624E7698267}</ProjectGuid>

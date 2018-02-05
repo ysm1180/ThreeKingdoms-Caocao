@@ -244,7 +244,7 @@
 #if defined(LUA_BUILD_AS_DLL)	/* { */
 
 #if defined(LUA_CORE) || defined(LUA_LIB)	/* { */
-#define LUA_API __declspec(dllexport)
+#define LUA_API 
 #else						/* }{ */
 #define LUA_API __declspec(dllimport)
 #endif						/* } */

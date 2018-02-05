@@ -66,7 +66,121 @@ void CMoviePlayerControl::SetFileName(std::wstring fileName)
 
 bool CMoviePlayerControl::Create()
 {
-    AVIFileInit();
+    avcodec_register_all();
+
+    AVFormatContext *formatContext = nullptr;
+
+    int length = WideCharToMultiByte(CP_ACP, 0, _fileName.c_str(), -1, NULL, 0, NULL, NULL);
+    char *str = new char[length];
+    WideCharToMultiByte(CP_ACP, 0, _fileName.c_str(), -1, str, length, 0, 0);
+    int error = avformat_open_input(&formatContext, "C:\\LOGO.avi", NULL, 0);
+    if (error != 0)
+    {
+        delete[] str;
+        return false;
+    }
+    delete[] str;
+
+    if (avformat_find_stream_info(formatContext, NULL) < 0)
+    {
+        return false;
+    }
+
+    int i;
+    AVCodecParameters *pCodecCtx = NULL;
+    AVCodec *codec;
+    // Find the first video stream
+    int videoStream = -1;
+    for (i = 0; i < formatContext->nb_streams; i++)
+    {
+        if (formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+        {
+            videoStream = i;
+            break;
+        }
+    }
+    if (videoStream == -1)
+    {
+        return -1;
+    } // Didn't find a video stream
+
+    // Get a pointer to the codec context for the video stream
+    pCodecCtx = formatContext->streams[videoStream]->codecpar;
+    codec = avcodec_find_decoder(pCodecCtx->codec_id);
+    auto codecContext = avcodec_alloc_context3(codec);
+
+    int numBytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, codecContext->width, codecContext->height, 32);
+    uint8_t *buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
+    AVFrame *pFrame = av_frame_alloc();
+    AVFrame *pFrameRGB = av_frame_alloc();
+    av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize, buffer, AV_PIX_FMT_RGB24,
+                         codecContext->width, codecContext->height, 32);
+
+    HDC dc = GetDC(_parent->GetHWnd());
+    HDC newDC = CreateCompatibleDC(dc);
+
+
+    int w = pCodecCtx->width;
+    int h = pCodecCtx->height;
+    auto img_convert_ctx = sws_getContext(w, h, codecContext->pix_fmt,
+                                          w, h, AV_PIX_FMT_RGB24,
+                                          SWS_BICUBIC, NULL, NULL, NULL);
+
+    struct SwsContext *sws_ctx = NULL;
+    int frameFinished;
+    AVPacket packet;
+
+    
+    /*CClientDC dc;*/
+    BITMAPINFO bmi = {0};
+    bmi.bmiHeader.biBitCount = 24;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    bmi.bmiHeader.biHeight = -codecContext->height;
+    bmi.bmiHeader.biWidth = codecContext->width;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biSizeImage = codecContext->height * codecContext->width * 3;
+    auto hbmp = CreateDIBSection(newDC, &bmi, DIB_RGB_COLORS, (void **)&buffer, NULL, 0); //&pbmpdata
+    av_init_packet(&packet);
+    while ((av_read_frame(formatContext, &packet) >= 0))
+    {
+        // Is this a packet from the video stream?
+        if (packet.stream_index == videoStream)
+        {
+            /// Decode video frame
+            //avcodec_decode_video(pCodecCtx, pFrame, &frameFinished,packet.data, packet.size);
+            avcodec_send_packet(codecContext, &packet);
+            avcodec_receive_frame(codecContext, pFrameRGB);
+
+            // Did we get a video frame?
+                sws_scale(img_convert_ctx, (uint8_t const * const *)pFrame->data,
+                          pFrame->linesize, 0, codecContext->height,
+                          pFrameRGB->data, pFrameRGB->linesize);
+
+                pFrameRGB->data[0] = buffer;
+                pFrameRGB->linesize[0] = codecContext->width * 3;
+
+                SelectObject(newDC, hbmp);//hbmp
+
+                BitBlt(dc, 0, 0, codecContext->width, codecContext->height, newDC, 0, 0, SRCCOPY);
+                Sleep(10);
+        }
+
+        // Free the packet that was allocated by av_read_frame
+        av_packet_unref(&packet);
+    }
+
+    av_free(pFrameRGB);
+    av_free(pFrame);
+    av_free(buffer);
+
+    avcodec_close(codecContext);
+    avformat_close_input(&formatContext);
+
+    DeleteDC(newDC);
+    ReleaseDC(_parent->GetHWnd(), dc);
+
+    /*AVIFileInit();
 
     int error = AVIFileOpen(&_aviFile, _fileName.c_str(), OF_READ, NULL);
     if (error)
@@ -87,7 +201,7 @@ bool CMoviePlayerControl::Create()
         AVIFileRelease(_aviFile);
         AVIFileExit();
         return false;
-    }
+    }*/
 
     _position.x = _position.y = 0;
 
@@ -139,7 +253,8 @@ void DrawMovieFrame(CMoviePlayerControl *movieControl, unsigned char *data, CWin
     RECT rect;
     SetRect(&rect, movieControl->GetX(), movieControl->GetY(),
             movieControl->GetX() + movieControl->GetWidth(), movieControl->GetY() + movieControl->GetHeight());
-    BitBlt(dc, movieControl->GetX(), movieControl->GetY(), movieControl->GetWidth(), movieControl->GetHeight(), newDC, 0, 0, SRCCOPY);
+    BitBlt(dc, movieControl->GetX(), movieControl->GetY(), movieControl->GetWidth(), movieControl->GetHeight(), newDC,
+           0, 0, SRCCOPY);
     movieControl->SetDrawingIndex(parent->SetDrawingImage(movieControl->GetDrawingIndex(), newDC, bitmapInfo, rect));
     delete[] pixels;
 
@@ -151,7 +266,7 @@ void DrawMovieFrame(CMoviePlayerControl *movieControl, unsigned char *data, CWin
 
 void CMoviePlayerControl::Play()
 {
-    std::thread t([&](PAVISTREAM aviStream)
+    /*std::thread t([&](PAVISTREAM aviStream)
                   {
                       int firstFrame = AVIStreamStart(aviStream);
                       int numFrames = AVIStreamLength(aviStream);
@@ -168,7 +283,7 @@ void CMoviePlayerControl::Play()
                       _playing = false;
                       CLuaTinker::GetLuaTinker().Call(_endEvent.c_str());
                   }, _aviStream);
-    t.detach();
+    t.detach();*/
     _playing = true;
 
 }

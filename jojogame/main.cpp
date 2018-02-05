@@ -1,8 +1,17 @@
 #pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "avcodec.lib")
 
 //#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version = '6.0.0.0' processorArchitecture = '*' publicKeyToken = '6595b64144ccf1df' language = '*'\"")
 
 #include "Application.h"
+
+extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <libavutil/imgutils.h>
+#include <libavutil/pixfmt.h>
+}
 
 #include <CommCtrl.h>
 #include <string>
@@ -25,6 +34,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
     stylesStruct.dwICC = ICC_STANDARD_CLASSES;
     InitCommonControlsEx(&stylesStruct);
 
-
+    avcodec_register_all();
+    
     return app.Run();
 }
