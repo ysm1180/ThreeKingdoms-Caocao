@@ -19,7 +19,10 @@ struct DrawingImageInfo
     int y;
     int width;
     int height;
+    void *bits;
+    BITMAPINFO bitmapInfo;
     HDC memDC;
+    HBITMAP oldBitmap;
 };
 
 class CWindowControl : public CBaseControl
@@ -52,7 +55,7 @@ public:
     void SetMenu(CMenubar *menu);
     void SetParentWindow(CWindowControl *parent);
 
-    void AddDrawingImage(HDC srcDC, int x, int y, int width, int height);
+    int SetDrawingImage(int index, HDC srcDC, BITMAPINFO bitmapInfo, RECT& rect);
 
     bool Create() override;
     virtual void Destroy() override;
@@ -63,7 +66,7 @@ public:
     void SetDialogResult(int value) const;
 
     void Refresh() const;
-    void RefreshByRegion(int x, int y, int width, int height);
+    void RefreshByRegion(RECT& rect);
 
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -79,7 +82,7 @@ private:
     HICON _icon = LoadIcon(nullptr, IDI_APPLICATION);
     HBRUSH _backBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
 
-    std::vector<DrawingImageInfo> _images;
+    std::vector<DrawingImageInfo *> _images;
     CMenubar *_menu = nullptr;
 
 };

@@ -8,6 +8,7 @@ MoviePlayerManager = ControlManager:Instance
 
         local newMoviePlayer = MoviePlayer:Instance(options.Parent, options.FileName)
 
+        newMoviePlayer:SetEndEvent(options.End)
         newMoviePlayer:Create()
 
         OUTPUT("-------- End Create : Movie Player --------")

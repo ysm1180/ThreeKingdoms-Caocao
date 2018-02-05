@@ -107,10 +107,10 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
 
-            /*for (auto image : window->_images)
+            for (auto image : window->_images)
             {
-                BitBlt(hdc, image.x, image.y, image.width, image.height, image.memDC, 0, 0, SRCCOPY);
-            }*/
+                BitBlt(hdc, image->x, image->y, image->width, image->height, image->memDC, 0, 0, SRCCOPY);
+            }
 
             EndPaint(hWnd, &ps);
             break;
@@ -182,6 +182,17 @@ CWindowControl::CWindowControl()
 
 CWindowControl::~CWindowControl()
 {
+    if (_images.size() > 0)
+    {
+        for (auto image : _images)
+        {
+            HBITMAP newBitmap = (HBITMAP)SelectObject(image->memDC, image->oldBitmap);
+            DeleteBitmap(newBitmap);
+            DeleteDC(image->memDC);
+            delete image;
+        }
+    }
+
     if (_backBrush != nullptr)
     {
         DeleteBrush(_backBrush);
@@ -325,11 +336,11 @@ void CWindowControl::SetIcon(std::wstring iconFilePath)
     if (!iconFilePath.empty())
     {
         _icon = static_cast<HICON>(LoadImage(nullptr,
-                                              iconFilePath.c_str(),
-                                              IMAGE_ICON,
-                                              0,
-                                              0,
-                                              LR_DEFAULTSIZE | LR_LOADFROMFILE | LR_SHARED));
+                                             iconFilePath.c_str(),
+                                             IMAGE_ICON,
+                                             0,
+                                             0,
+                                             LR_DEFAULTSIZE | LR_LOADFROMFILE | LR_SHARED));
     } else if (iconFilePath == L"DEFAULT")
     {
         _icon = LoadIcon(nullptr, IDI_APPLICATION);
@@ -372,16 +383,16 @@ bool CWindowControl::Create()
     SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
     AdjustWindowRect(&rect, _style, FALSE);
     _hWnd = CreateWindow(L"jojo_form",
-                          _titleName.c_str(),
-                          _style,
-                          rect.left,
-                          rect.top,
-                          rect.right - rect.left,
-                          rect.bottom - rect.top,
-                          _parentHWnd,
-                          nullptr,
-                          CControlManager::GetInstance().GetHInstance(),
-                          (LPVOID) this);
+                         _titleName.c_str(),
+                         _style,
+                         rect.left,
+                         rect.top,
+                         rect.right - rect.left,
+                         rect.bottom - rect.top,
+                         _parentHWnd,
+                         nullptr,
+                         CControlManager::GetInstance().GetHInstance(),
+                         (LPVOID) this);
 
     return true;
 }
@@ -444,11 +455,8 @@ void CWindowControl::Refresh() const
     InvalidateRect(_hWnd, &rect, TRUE);
 }
 
-void CWindowControl::RefreshByRegion(int x, int y, int width, int height)
+void CWindowControl::RefreshByRegion(RECT& rect)
 {
-    RECT rect;
-
-    SetRect(&rect, x, y, x + width, y + height);
     InvalidateRect(_hWnd, &rect, TRUE);
 }
 
@@ -458,17 +466,41 @@ void CWindowControl::Destroy()
     _hWnd = nullptr;
 }
 
-void CWindowControl::AddDrawingImage(HDC srcDC, int x, int y, int width, int height)
+int CWindowControl::SetDrawingImage(int index, HDC srcDC, BITMAPINFO bitmapInfo, RECT& rect)
 {
-    DrawingImageInfo image;
+    int x = rect.left;
+    int y = rect.top;
+    int width = rect.right - x;
+    int height = rect.bottom - y;
+    DrawingImageInfo *image = new DrawingImageInfo();
     HDC newDC = CreateCompatibleDC(srcDC);
+    HBITMAP newBitmap = CreateDIBSection(srcDC, &bitmapInfo, DIB_RGB_COLORS, (void **)&image->bits, 0, 0);
+
+    image->oldBitmap = (HBITMAP)SelectObject(newDC, newBitmap);
     BitBlt(newDC, 0, 0, width, height, srcDC, 0, 0, SRCCOPY);
 
-    image.memDC = newDC;
-    image.x = x;
-    image.y = y;
-    image.width = width;
-    image.height = height;
-    _images.push_back(image);
+    image->memDC = newDC;
+    image->bitmapInfo = bitmapInfo;
+    image->x = x;
+    image->y = y;
+    image->width = width;
+    image->height = height;
+
+    if (index + 1 > _images.size()) {
+        _images.push_back(image);
+
+        return _images.size() - 1;
+    }
+    else {
+        DrawingImageInfo *unusedData = _images[index];
+        HBITMAP newBitmap = (HBITMAP)SelectObject(unusedData->memDC, unusedData->oldBitmap);
+        DeleteBitmap(newBitmap);
+        DeleteDC(_images[index]->memDC);
+        delete _images[index];
+        _images[index] = image;
+
+        return index;
+    }
+    
 }
 }

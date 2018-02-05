@@ -3,15 +3,17 @@ require "Script\\movie_player_manager.lua"
 
 DEBUG(true)
 
+function main_click()
+    if openningMovie:IsPlaying() then
+        openningMovie:Destroy()
+    end
+end
+
 function main_close() 
     if openningMovie:IsPlaying() then
         openningMovie:Destroy()
     end
     gameManager:Quit()
-end
-
-function openning_click()
-    openningMovie:Destroy()
 end
 
 function openning_end()
@@ -26,6 +28,7 @@ function main()
         Center = true,
         TitleName = title,
         BackColor = {R = 0, G = 0, B = 0},
+        MouseLButtonUp = "main_click",
         Close = "main_close",
         Show = true
     })
@@ -38,15 +41,7 @@ function main()
     openningMovie:Play()
     openningMovie:WaitForPlay()
 
-    mainMenuDialog = WindowManager.Create({
-        Parent = main,
-        Width = 200,
-        Height = 142,
-        Center = true,
-        BackColor = {R = 0xF0, G = 0xF0, B = 0xF0},
-        Modal = true,
-        Show = true
-    })
+    
     
 end
 

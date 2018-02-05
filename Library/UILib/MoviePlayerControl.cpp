@@ -94,55 +94,20 @@ bool CMoviePlayerControl::Create()
     return true;
 }
 
-BOOL CreateFromPackedDIBPointer(LPBYTE pDIB, int iFrame)
+void CMoviePlayerControl::Destroy()
 {
-    //Creates a full-color (no palette) DIB from a pointer to a
-    //full-color memory DIB
-
-    //get the BitmapInfoHeader
-    BITMAPINFOHEADER bih;
-    RtlMoveMemory(&bih.biSize, pDIB, sizeof(BITMAPINFOHEADER));
-
-    //now get the bitmap bits
-    if (bih.biSizeImage < 1)
+    Stop();
+    if (_aviStream)
     {
-        return FALSE;
+        AVIStreamRelease(_aviStream);
+        _aviStream = nullptr;
     }
-
-    BYTE* Bits = new BYTE[bih.biSizeImage];
-
-    RtlMoveMemory(Bits, pDIB + sizeof(BITMAPINFOHEADER), bih.biSizeImage);
-
-    //and BitmapInfo variable-length UDT
-    BYTE memBitmapInfo[40];
-    RtlMoveMemory(memBitmapInfo, &bih, sizeof(bih));
-
-    BITMAPFILEHEADER bfh;
-    bfh.bfType = 19778;    //BM header
-    bfh.bfSize = 55 + bih.biSizeImage;
-    bfh.bfReserved1 = 0;
-    bfh.bfReserved2 = 0;
-    bfh.bfOffBits = sizeof(BITMAPINFOHEADER) + sizeof(BITMAPFILEHEADER); //54
-
-    char temp[256];
-    sprintf_s(temp, "Frame-%05d.bmp", iFrame);
-
-    FILE* fp;
-    fopen_s(&fp, temp, "wb");
-    if (fp != NULL)
+    if (_aviFile != nullptr)
     {
-        fwrite(&bfh, sizeof(bfh), 1, fp);
-        fwrite(&memBitmapInfo, sizeof(memBitmapInfo), 1, fp);
-        fwrite(Bits, bih.biSizeImage, 1, fp);
-        fclose(fp);
+        AVIFileRelease(_aviFile);
+        _aviFile = nullptr;
     }
-    else
-    {
-        return FALSE;
-    }
-
-    delete[] Bits;
-    return TRUE;
+    AVIFileExit();
 }
 
 void DrawMovieFrame(CMoviePlayerControl *movieControl, unsigned char *data, CWindowControl *parent)
@@ -164,45 +129,45 @@ void DrawMovieFrame(CMoviePlayerControl *movieControl, unsigned char *data, CWin
     BYTE memBitmapInfo[40];
     RtlMoveMemory(memBitmapInfo, &bitmapInfoHeader, sizeof(bitmapInfoHeader));
 
-    char *bits;
+    void *bits;
     HDC dc = GetDC(parent->GetHWnd());
     HDC newDC = CreateCompatibleDC(dc);
-    HBITMAP newBitmap = CreateDIBSection(dc, &bitmapInfo, DIB_RGB_COLORS, (void **)&bits, 0, 0);
-    HBITMAP oldBitmap = (HBITMAP)SelectObject(newDC, newBitmap);
+    HBITMAP newBitmap = CreateDIBSection(dc, &bitmapInfo, DIB_RGB_COLORS, &bits, 0, 0);
+    HBITMAP oldBitmap = (HBITMAP) SelectObject(newDC, newBitmap);
     SetDIBits(newDC, newBitmap, 0, bitmapInfoHeader.biHeight, pixels, &bitmapInfo, DIB_RGB_COLORS);
-    /*parent->AddDrawingImage(newDC,
-                            movieControl->GetX(), movieControl->GetY(),
-                            movieControl->GetWidth(), movieControl->GetHeight());
-    parent->RefreshByRegion(movieControl->GetX(), movieControl->GetY(),
-                            movieControl->GetWidth(), movieControl->GetHeight());*/
+
+    RECT rect;
+    SetRect(&rect, movieControl->GetX(), movieControl->GetY(),
+            movieControl->GetX() + movieControl->GetWidth(), movieControl->GetY() + movieControl->GetHeight());
+    BitBlt(dc, movieControl->GetX(), movieControl->GetY(), movieControl->GetWidth(), movieControl->GetHeight(), newDC, 0, 0, SRCCOPY);
+    movieControl->SetDrawingIndex(parent->SetDrawingImage(movieControl->GetDrawingIndex(), newDC, bitmapInfo, rect));
     delete[] pixels;
-    BitBlt(dc, 120, 240, movieControl->GetWidth(), movieControl->GetHeight(), newDC, 0, 0, SRCCOPY);
 
     SelectObject(newDC, oldBitmap);
     DeleteBitmap(newBitmap);
     DeleteDC(newDC);
     ReleaseDC(parent->GetHWnd(), dc);
-
 }
 
 void CMoviePlayerControl::Play()
 {
-    std::thread t([&](PAVISTREAM aviStream) {
-        int firstFrame = AVIStreamStart(aviStream);
-        int numFrames = AVIStreamLength(aviStream);
-        PGETFRAME frame = AVIStreamGetFrameOpen(aviStream, NULL);
+    std::thread t([&](PAVISTREAM aviStream)
+                  {
+                      int firstFrame = AVIStreamStart(aviStream);
+                      int numFrames = AVIStreamLength(aviStream);
+                      PGETFRAME frame = AVIStreamGetFrameOpen(aviStream, NULL);
 
-        for (int i = firstFrame; i < numFrames && _playing; i++)
-        {
-            BYTE *data = (BYTE *) AVIStreamGetFrame(frame, i - firstFrame);
-            DrawMovieFrame(this, data, _parent);
-            //CreateFromPackedDIBPointer(data, i - firstFrame);
-            CGameManager::GetInstance().Delay(120);
-        }
-        AVIStreamGetFrameClose(frame);
+                      for (int i = firstFrame; i < numFrames && _playing; i++)
+                      {
+                          BYTE *data = (BYTE *) AVIStreamGetFrame(frame, i - firstFrame);
+                          DrawMovieFrame(this, data, _parent);
+                          CGameManager::GetInstance().Delay(60);
+                      }
+                      AVIStreamGetFrameClose(frame);
 
-        _playing = false;
-    }, _aviStream);
+                      _playing = false;
+                      CLuaTinker::GetLuaTinker().Call(_endEvent.c_str());
+                  }, _aviStream);
     t.detach();
     _playing = true;
 
@@ -246,22 +211,6 @@ void CMoviePlayerControl::Stop()
     }
 }
 
-void CMoviePlayerControl::Destroy()
-{
-    if (_aviStream)
-    {
-        AVIStreamRelease(_aviStream);
-        _aviStream = nullptr;
-    }
-    if (_aviFile != nullptr)
-    {
-        AVIFileRelease(_aviFile);
-        _aviFile = nullptr;
-    }
-    AVIFileExit();
-    _playing = false;
-}
-
 int CMoviePlayerControl::GetX()
 {
     return _position.x;
@@ -282,6 +231,11 @@ int CMoviePlayerControl::GetHeight()
     return _size.cy;
 }
 
+int CMoviePlayerControl::GetDrawingIndex()
+{
+    return _drawingIndex;
+}
+
 void CMoviePlayerControl::SetX(int x)
 {
     _position.x = x;
@@ -300,5 +254,10 @@ void CMoviePlayerControl::SetWidth(int width)
 void CMoviePlayerControl::SetHeight(int height)
 {
     _size.cy = height;
+}
+
+void CMoviePlayerControl::SetDrawingIndex(int index)
+{
+    _drawingIndex = index;
 }
 }

@@ -24,6 +24,7 @@ public:
     int GetHeight();
     bool IsPlaying();
     std::wstring GetEndEvent();
+    int GetDrawingIndex();
 
     void SetX(int x);
     void SetY(int y);
@@ -31,13 +32,14 @@ public:
     void SetHeight(int height);
     void SetEndEvent(std::wstring endEvent);
     void SetFileName(std::wstring fileName);
+    void SetDrawingIndex(int index);
+
+    bool Create();
+    void Destroy();
 
     void Play();
     void WaitForPlay();
     void Stop();
-
-    bool Create();
-    void Destroy();
 
 private:
     std::wstring _endEvent = L"";
@@ -50,5 +52,7 @@ private:
     PAVIFILE _aviFile;
     PAVISTREAM _aviStream;
     double _fps = 0;
+
+    int _drawingIndex = 0;
 };
 }
