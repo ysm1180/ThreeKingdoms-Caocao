@@ -7,7 +7,7 @@ else( CMAKE_SIZEOF_VOID_P EQUAL 8 )
     set( PROJECT_ARCH "x86" )
 endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/jojogame)
 
 include_directories(

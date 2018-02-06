@@ -5,6 +5,7 @@
 #include "BaseLib\ConsoleOutput.h"
 #include "CommonLib\GameManager.h"
 
+
 #include <thread>
 
 namespace jojogame {
@@ -66,144 +67,92 @@ void CMoviePlayerControl::SetFileName(std::wstring fileName)
 
 bool CMoviePlayerControl::Create()
 {
-    avcodec_register_all();
+    AVCodecParameters *videoCodecParameters = nullptr;
+    AVCodecParameters *audioCodecParameters = nullptr;
+    AVCodec *videoCodec;
+    AVCodec *audioCodec;
+    int error = 0;
 
-    AVFormatContext *formatContext = nullptr;
-
-    int length = WideCharToMultiByte(CP_ACP, 0, _fileName.c_str(), -1, NULL, 0, NULL, NULL);
-    char *str = new char[length];
-    WideCharToMultiByte(CP_ACP, 0, _fileName.c_str(), -1, str, length, 0, 0);
-    int error = avformat_open_input(&formatContext, "C:\\LOGO.avi", NULL, 0);
-    if (error != 0)
-    {
-        delete[] str;
-        return false;
-    }
+    int length;
+    length = WideCharToMultiByte(CP_ACP, 0, _fileName.c_str(), -1, nullptr, NULL, nullptr, nullptr);
+    auto *str = new char[length];
+    WideCharToMultiByte(CP_ACP, 0, _fileName.c_str(), -1, str, length, nullptr, nullptr);
+    error = avformat_open_input(&_formatContext, str, nullptr, nullptr);
     delete[] str;
-
-    if (avformat_find_stream_info(formatContext, NULL) < 0)
+    if (error < 0)
     {
+        CConsoleOutput::OutputConsoles(L"File open error");
         return false;
     }
 
-    int i;
-    AVCodecParameters *pCodecCtx = NULL;
-    AVCodec *codec;
-    // Find the first video stream
-    int videoStream = -1;
-    for (i = 0; i < formatContext->nb_streams; i++)
+    if (avformat_find_stream_info(_formatContext, nullptr) < 0)
     {
-        if (formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+        CConsoleOutput::OutputConsoles(L"Cannot find stream information");
+        return false;
+    }
+
+    // Find video stream
+    for (unsigned int i = 0; i < _formatContext->nb_streams; i++)
+    {
+        if (_formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && videoCodecParameters == nullptr)
         {
-            videoStream = i;
-            break;
+            videoCodecParameters = _formatContext->streams[i]->codecpar;
+            _videoStreamIndex = i;
+        }
+        if (_formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && audioCodecParameters == nullptr)
+        {
+            audioCodecParameters = _formatContext->streams[i]->codecpar;
+            _audioStreamIndex = i;
         }
     }
-    if (videoStream == -1)
+    if (videoCodecParameters == nullptr || audioCodecParameters == nullptr)
     {
-        return -1;
-    } // Didn't find a video stream
-
-    // Get a pointer to the codec context for the video stream
-    pCodecCtx = formatContext->streams[videoStream]->codecpar;
-    codec = avcodec_find_decoder(pCodecCtx->codec_id);
-    auto codecContext = avcodec_alloc_context3(codec);
-
-    int numBytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, codecContext->width, codecContext->height, 32);
-    uint8_t *buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
-    AVFrame *pFrame = av_frame_alloc();
-    AVFrame *pFrameRGB = av_frame_alloc();
-    av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize, buffer, AV_PIX_FMT_RGB24,
-                         codecContext->width, codecContext->height, 32);
-
-    HDC dc = GetDC(_parent->GetHWnd());
-    HDC newDC = CreateCompatibleDC(dc);
-
-
-    int w = pCodecCtx->width;
-    int h = pCodecCtx->height;
-    auto img_convert_ctx = sws_getContext(w, h, codecContext->pix_fmt,
-                                          w, h, AV_PIX_FMT_RGB24,
-                                          SWS_BICUBIC, NULL, NULL, NULL);
-
-    struct SwsContext *sws_ctx = NULL;
-    int frameFinished;
-    AVPacket packet;
-
-    
-    /*CClientDC dc;*/
-    BITMAPINFO bmi = {0};
-    bmi.bmiHeader.biBitCount = 24;
-    bmi.bmiHeader.biCompression = BI_RGB;
-    bmi.bmiHeader.biHeight = -codecContext->height;
-    bmi.bmiHeader.biWidth = codecContext->width;
-    bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biSizeImage = codecContext->height * codecContext->width * 3;
-    auto hbmp = CreateDIBSection(newDC, &bmi, DIB_RGB_COLORS, (void **)&buffer, NULL, 0); //&pbmpdata
-    av_init_packet(&packet);
-    while ((av_read_frame(formatContext, &packet) >= 0))
-    {
-        // Is this a packet from the video stream?
-        if (packet.stream_index == videoStream)
-        {
-            /// Decode video frame
-            //avcodec_decode_video(pCodecCtx, pFrame, &frameFinished,packet.data, packet.size);
-            avcodec_send_packet(codecContext, &packet);
-            avcodec_receive_frame(codecContext, pFrameRGB);
-
-            // Did we get a video frame?
-                sws_scale(img_convert_ctx, (uint8_t const * const *)pFrame->data,
-                          pFrame->linesize, 0, codecContext->height,
-                          pFrameRGB->data, pFrameRGB->linesize);
-
-                pFrameRGB->data[0] = buffer;
-                pFrameRGB->linesize[0] = codecContext->width * 3;
-
-                SelectObject(newDC, hbmp);//hbmp
-
-                BitBlt(dc, 0, 0, codecContext->width, codecContext->height, newDC, 0, 0, SRCCOPY);
-                Sleep(10);
-        }
-
-        // Free the packet that was allocated by av_read_frame
-        av_packet_unref(&packet);
-    }
-
-    av_free(pFrameRGB);
-    av_free(pFrame);
-    av_free(buffer);
-
-    avcodec_close(codecContext);
-    avformat_close_input(&formatContext);
-
-    DeleteDC(newDC);
-    ReleaseDC(_parent->GetHWnd(), dc);
-
-    /*AVIFileInit();
-
-    int error = AVIFileOpen(&_aviFile, _fileName.c_str(), OF_READ, NULL);
-    if (error)
-    {
-        AVIFileExit();
+        CConsoleOutput::OutputConsoles(L"Cannot find video or audio stream");
         return false;
     }
 
-    AVIFILEINFO aviInfo;
-    AVIFileInfo(_aviFile, &aviInfo, sizeof(AVIFILEINFO));
-    _fps = (double) aviInfo.dwRate / aviInfo.dwScale;
-    _size.cx = aviInfo.dwWidth;
-    _size.cy = aviInfo.dwHeight;
-
-    error = AVIFileGetStream(_aviFile, &_aviStream, streamtypeVIDEO, 0);
-    if (error)
+    videoCodec = avcodec_find_decoder(videoCodecParameters->codec_id);
+    if (videoCodec == nullptr)
     {
-        AVIFileRelease(_aviFile);
-        AVIFileExit();
+        CConsoleOutput::OutputConsoles(L"Cannot find video decoder");
         return false;
-    }*/
+    }
+    audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
+    if (audioCodec == nullptr)
+    {
+        CConsoleOutput::OutputConsoles(L"Cannot find audio decoder");
+        return false;
+    }
+
+    _videoCodecContext = avcodec_alloc_context3(videoCodec);
+    if (avcodec_parameters_to_context(_videoCodecContext, videoCodecParameters) < 0)
+    {
+        CConsoleOutput::OutputConsoles(L"Failed to convert to context");
+        return false;
+    }
+    _audioCodecContext = avcodec_alloc_context3(audioCodec);
+    if (avcodec_parameters_to_context(_audioCodecContext, audioCodecParameters) < 0)
+    {
+        CConsoleOutput::OutputConsoles(L"Failed to convert to context");
+        return false;
+    }
+
+    if (avcodec_open2(_videoCodecContext, videoCodec, nullptr) < 0)
+    {
+        CConsoleOutput::OutputConsoles(L"Cannot open codec");
+        return false;
+    }
+    if (avcodec_open2(_videoCodecContext, audioCodec, nullptr) < 0)
+    {
+        CConsoleOutput::OutputConsoles(L"Cannot open codec");
+        return false;
+    }
+
+    _fps = av_q2d(_formatContext->streams[_videoStreamIndex]->avg_frame_rate);
 
     _position.x = _position.y = 0;
+    _size.cx = _videoCodecContext->width;
+    _size.cy = _videoCodecContext->height;
 
     return true;
 }
@@ -211,79 +160,320 @@ bool CMoviePlayerControl::Create()
 void CMoviePlayerControl::Destroy()
 {
     Stop();
-    if (_aviStream)
+    if (_formatContext)
     {
-        AVIStreamRelease(_aviStream);
-        _aviStream = nullptr;
+        avformat_close_input(&_formatContext);
+        _formatContext = nullptr;
     }
-    if (_aviFile != nullptr)
+
+    if (_videoCodecContext)
     {
-        AVIFileRelease(_aviFile);
-        _aviFile = nullptr;
+        avcodec_close(_videoCodecContext);
+        _videoCodecContext = nullptr;
     }
-    AVIFileExit();
 }
 
-void DrawMovieFrame(CMoviePlayerControl *movieControl, unsigned char *data, CWindowControl *parent)
-{
-    BITMAPINFO bitmapInfo;
-    BITMAPINFOHEADER bitmapInfoHeader;
-    ZeroMemory(&bitmapInfo, sizeof(BITMAPINFO));
-    RtlMoveMemory(&bitmapInfoHeader.biSize, data, sizeof(BITMAPINFOHEADER));
-    bitmapInfo.bmiHeader = bitmapInfoHeader;
 
-    if (bitmapInfoHeader.biSizeImage < 1)
+void packet_queue_init(PacketQueue *q)
+{
+    memset(q, 0, sizeof(PacketQueue));
+    q->mutex = SDL_CreateMutex();
+    q->cond = SDL_CreateCond();
+}
+
+int packet_queue_put(PacketQueue *q, AVPacket *pkt)
+{
+
+    AVPacketList *pkt1;
+    if (av_dup_packet(pkt) < 0)
     {
-        return;
+        return -1;
+    }
+    pkt1 = av_malloc(sizeof(AVPacketList));
+    if (!pkt1)
+    {
+        return -1;
+    }
+    pkt1->pkt = *pkt;
+    pkt1->next = NULL;
+
+
+    SDL_LockMutex(q->mutex);
+
+    if (!q->last_pkt)
+    {
+        q->first_pkt = pkt1;
+    } else
+    {
+        q->last_pkt->next = pkt1;
+    }
+    q->last_pkt = pkt1;
+    q->nb_packets++;
+    q->size += pkt1->pkt.size;
+    SDL_CondSignal(q->cond);
+
+    SDL_UnlockMutex(q->mutex);
+    return 0;
+}
+
+static int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
+{
+    AVPacketList *pkt1;
+    int ret;
+
+    SDL_LockMutex(q->mutex);
+
+    for (;;)
+    {
+
+        if (quit)
+        {
+            ret = -1;
+            break;
+        }
+
+        pkt1 = q->first_pkt;
+        if (pkt1)
+        {
+            q->first_pkt = pkt1->next;
+            if (!q->first_pkt)
+            {
+                q->last_pkt = NULL;
+            }
+            q->nb_packets--;
+            q->size -= pkt1->pkt.size;
+            *pkt = pkt1->pkt;
+            av_free(pkt1);
+            ret = 1;
+            break;
+        } else if (!block)
+        {
+            ret = 0;
+            break;
+        } else
+        {
+            SDL_CondWait(q->cond, q->mutex);
+        }
+    }
+    SDL_UnlockMutex(q->mutex);
+    return ret;
+}
+
+int audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_size)
+{
+
+    static AVPacket pkt;
+    static uint8_t *audio_pkt_data = NULL;
+    static int audio_pkt_size = 0;
+    static AVFrame frame;
+
+    int len1, data_size = 0;
+
+    for (;;)
+    {
+        while (audio_pkt_size > 0)
+        {
+            int got_frame = 0;
+            len1 = avcodec_decode_audio4(aCodecCtx, &frame, &got_frame, &pkt);
+            if (len1 < 0)
+            {
+                /* if error, skip frame */
+                audio_pkt_size = 0;
+                break;
+            }
+            audio_pkt_data += len1;
+            audio_pkt_size -= len1;
+            data_size = 0;
+            if (got_frame)
+            {
+                data_size = av_samples_get_buffer_size(NULL,
+                                                       aCodecCtx->channels,
+                                                       frame.nb_samples,
+                                                       aCodecCtx->sample_fmt,
+                                                       1);
+                assert(data_size <= buf_size);
+                memcpy(audio_buf, frame.data[0], data_size);
+            }
+            if (data_size <= 0)
+            {
+                /* No data yet, get more frames */
+                continue;
+            }
+            /* We have data, return it and come back for more later */
+            return data_size;
+        }
+        if (pkt.data)
+        {
+            av_free_packet(&pkt);
+        }
+
+        if (quit)
+        {
+            return -1;
+        }
+
+        if (packet_queue_get(&audioq, &pkt, 1) < 0)
+        {
+            return -1;
+        }
+        audio_pkt_data = pkt.data;
+        audio_pkt_size = pkt.size;
+    }
+}
+
+void audioCallback(void *userdata, Uint8 *stream, int len)
+{
+    AVCodecContext *audioCodecConext = (AVCodecContext *) userdata;
+    int len1, audio_size;
+
+    static uint8_t audio_buf[(MAX_AUDIO_FRAME_SIZE * 3) / 2];
+    static unsigned int audio_buf_size = 0;
+    static unsigned int audio_buf_index = 0;
+
+    while (len > 0)
+    {
+        if (audio_buf_index >= audio_buf_size)
+        {
+            /* We have already sent all our data; get more */
+            audio_size = audio_decode_frame(audioCodecConext, audio_buf, sizeof(audio_buf));
+            if (audio_size < 0)
+            {
+                /* If error, output silence */
+                audio_buf_size = 1024; // arbitrary?
+                memset(audio_buf, 0, audio_buf_size);
+            } else
+            {
+                audio_buf_size = audio_size;
+            }
+            audio_buf_index = 0;
+        }
+        len1 = audio_buf_size - audio_buf_index;
+        if (len1 > len)
+        {
+            len1 = len;
+        }
+        memcpy(stream, (uint8_t *) audio_buf + audio_buf_index, len1);
+        len -= len1;
+        stream += len1;
+        audio_buf_index += len1;
+    }
+}
+
+bool PlayMovie(CMoviePlayerControl *movieControl, SwsContext *imageConvertContext)
+{
+    double freq = 0.0;
+    __int64 counterStart = 0;
+    int fps = 0;
+
+    AVCodecContext *codecContext = movieControl->GetVideoCodecContext();
+    HDC dc = GetDC(movieControl->GetParentControl()->GetHWnd());
+    HDC newDC = CreateCompatibleDC(dc);
+
+    int numBytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, codecContext->width, codecContext->height, 32);
+    if (numBytes < 0)
+    {
+        CConsoleOutput::OutputConsoles(L"Cannot get image buffer size");
+        return false;
     }
 
-    auto pixels = new char[bitmapInfoHeader.biSizeImage];
-    RtlMoveMemory(pixels, data + sizeof(BITMAPINFOHEADER), bitmapInfoHeader.biSizeImage);
+    auto buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
+    AVFrame *frame = av_frame_alloc();
+    AVFrame *frameBGR = av_frame_alloc();
+    av_image_fill_arrays(frameBGR->data, frameBGR->linesize, buffer, AV_PIX_FMT_RGB24,
+                         codecContext->width, codecContext->height, 32);
 
-    BYTE memBitmapInfo[40];
-    RtlMoveMemory(memBitmapInfo, &bitmapInfoHeader, sizeof(bitmapInfoHeader));
-
-    void *bits;
-    HDC dc = GetDC(parent->GetHWnd());
-    HDC newDC = CreateCompatibleDC(dc);
-    HBITMAP newBitmap = CreateDIBSection(dc, &bitmapInfo, DIB_RGB_COLORS, &bits, 0, 0);
+    BITMAPINFO bmi = {0};
+    bmi.bmiHeader.biBitCount = 24;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    bmi.bmiHeader.biHeight = -codecContext->height;
+    bmi.bmiHeader.biWidth = codecContext->width;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biSizeImage = static_cast<DWORD>(codecContext->height * codecContext->width * 3);
+    auto newBitmap = CreateDIBSection(newDC, &bmi, DIB_RGB_COLORS, (void **) &buffer, NULL, 0); //&pbmpdata
     HBITMAP oldBitmap = (HBITMAP) SelectObject(newDC, newBitmap);
-    SetDIBits(newDC, newBitmap, 0, bitmapInfoHeader.biHeight, pixels, &bitmapInfo, DIB_RGB_COLORS);
 
-    RECT rect;
-    SetRect(&rect, movieControl->GetX(), movieControl->GetY(),
-            movieControl->GetX() + movieControl->GetWidth(), movieControl->GetY() + movieControl->GetHeight());
-    BitBlt(dc, movieControl->GetX(), movieControl->GetY(), movieControl->GetWidth(), movieControl->GetHeight(), newDC,
-           0, 0, SRCCOPY);
-    movieControl->SetDrawingIndex(parent->SetDrawingImage(movieControl->GetDrawingIndex(), newDC, bitmapInfo, rect));
-    delete[] pixels;
+    AVPacket packet{};
+    av_init_packet(&packet);
+    while (movieControl->IsPlaying() && (av_read_frame(movieControl->GetAVFormatContext(), &packet) >= 0))
+    {
+        // Is this a packet from the video stream?
+        if (packet.stream_index == movieControl->GetVideoStreamIndex())
+        {
+            /// Decode video frame
+            if (avcodec_send_packet(codecContext, &packet) == 0 && avcodec_receive_frame(codecContext, frame) == 0)
+            {
+                sws_scale(imageConvertContext, (uint8_t const *const *) frame->data,
+                          frame->linesize, 0, codecContext->height,
+                          frameBGR->data, frameBGR->linesize);
+
+                frameBGR->data[0] = buffer;
+                frameBGR->linesize[0] = codecContext->width * 3;
+
+                if (movieControl->IsPlaying())
+                {
+                    BitBlt(dc, 0, 0, codecContext->width, codecContext->height, newDC, 0, 0, SRCCOPY);
+                    CGameManager::GetInstance().Delay(1000.0 / movieControl->GetFps());
+                }
+            }
+        } else if (packet.stream_index == movieControl->GetAudioStreamIndex())
+        {
+            packet_queue_put(movieControl->GetPointerAudioQueue(), &packet);
+        }
+    }
+
+    // Free the packet that was allocated by av_read_frame
+    av_packet_unref(&packet);
 
     SelectObject(newDC, oldBitmap);
     DeleteBitmap(newBitmap);
+    av_free(frameBGR);
+    av_free(frame);
+
     DeleteDC(newDC);
-    ReleaseDC(parent->GetHWnd(), dc);
+    ReleaseDC(movieControl->GetParentControl()->GetHWnd(), dc);
+}
+
+bool PlaySound(CMoviePlayerControl *movieControl)
+{
+    SDL_AudioSpec audioSpec;
+    SDL_AudioSpec spec;
+    auto audioContext = movieControl->GetAudioCodecContext();
+    audioSpec.freq = audioContext->sample_rate;
+    audioSpec.format = AUDIO_S16SYS;
+    audioSpec.channels = audioContext->channels;
+    audioSpec.silence = 0;
+    audioSpec.samples = 1024;
+    audioSpec.callback = audioCallback;
+    audioSpec.userdata = audioContext;
+
+    if (SDL_OpenAudio(&audioSpec, &spec))
+    {
+        return false;
+    }
+
+    SDL_PauseAudio(0);
+    packet_queue_init(movieControl->GetPointerAudioQueue());
 }
 
 void CMoviePlayerControl::Play()
 {
-    /*std::thread t([&](PAVISTREAM aviStream)
+    Stop();
+    std::thread t([&]()
                   {
-                      int firstFrame = AVIStreamStart(aviStream);
-                      int numFrames = AVIStreamLength(aviStream);
-                      PGETFRAME frame = AVIStreamGetFrameOpen(aviStream, NULL);
+                      PlaySound(this);
 
-                      for (int i = firstFrame; i < numFrames && _playing; i++)
-                      {
-                          BYTE *data = (BYTE *) AVIStreamGetFrame(frame, i - firstFrame);
-                          DrawMovieFrame(this, data, _parent);
-                          CGameManager::GetInstance().Delay(60);
-                      }
-                      AVIStreamGetFrameClose(frame);
+                      int width = _videoCodecContext->width;
+                      int height = _videoCodecContext->height;
+                      SwsContext *imageConvertContext = nullptr;
+                      imageConvertContext = sws_getCachedContext(imageConvertContext, width, height,
+                                                                 _videoCodecContext->pix_fmt,
+                                                                 width, height, AV_PIX_FMT_BGR24,
+                                                                 SWS_BICUBIC, nullptr, nullptr, nullptr);
 
-                      _playing = false;
-                      CLuaTinker::GetLuaTinker().Call(_endEvent.c_str());
-                  }, _aviStream);
-    t.detach();*/
+                      PlayMovie(this, imageConvertContext);
+                  });
+    t.detach();
     _playing = true;
 
 }
@@ -346,9 +536,44 @@ int CMoviePlayerControl::GetHeight()
     return _size.cy;
 }
 
+CWindowControl *CMoviePlayerControl::GetParentControl()
+{
+    return _parent;
+}
+
 int CMoviePlayerControl::GetDrawingIndex()
 {
     return _drawingIndex;
+}
+
+AVFormatContext *CMoviePlayerControl::GetAVFormatContext()
+{
+    return _formatContext;
+}
+
+AVCodecContext *CMoviePlayerControl::GetVideoCodecContext()
+{
+    return _videoCodecContext;
+}
+
+AVCodecContext *CMoviePlayerControl::GetAudioCodecContext()
+{
+    return _audioCodecContext;
+}
+
+int CMoviePlayerControl::GetVideoStreamIndex()
+{
+    return _videoStreamIndex;
+}
+
+int CMoviePlayerControl::GetAudioStreamIndex()
+{
+    return _audioStreamIndex;
+}
+
+double CMoviePlayerControl::GetFps()
+{
+    return _fps;
 }
 
 void CMoviePlayerControl::SetX(int x)
@@ -374,5 +599,10 @@ void CMoviePlayerControl::SetHeight(int height)
 void CMoviePlayerControl::SetDrawingIndex(int index)
 {
     _drawingIndex = index;
+}
+
+PacketQueue *CMoviePlayerControl::GetPointerAudioQueue()
+{
+    return &_audioQueue;
 }
 }

@@ -1,10 +1,7 @@
 #pragma once
 #pragma comment(lib, "vfw32.lib")
-#pragma comment(lib, "avcodec.lib")
-#pragma comment(lib, "avformat.lib")
-#pragma comment(lib, "swscale.lib")
-#pragma comment(lib, "avutil.lib")
 
+#define MAX_AUDIO_FRAME_SIZE 192000
 
 #include "BaseControl.h"
 
@@ -14,6 +11,8 @@ extern "C"  {
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
 #include <libavutil/pixfmt.h>
+
+#include <SDL/include/SDL.h>
 }
 
 #include <string>
@@ -22,6 +21,15 @@ extern "C"  {
 
 namespace jojogame {
 class CWindowControl;
+
+
+struct PacketQueue {
+    AVPacketList *first_pkt, *last_pkt;
+    int nb_packets;
+    int size;
+    SDL_mutex *mutex;
+    SDL_cond *cond;
+};
 
 class CMoviePlayerControl
 {
@@ -35,6 +43,14 @@ public:
     int GetY();
     int GetWidth();
     int GetHeight();
+    CWindowControl *GetParentControl();
+    AVFormatContext *GetAVFormatContext();
+    AVCodecContext *GetVideoCodecContext();
+    AVCodecContext *GetAudioCodecContext();
+    PacketQueue *GetPointerAudioQueue();
+    int GetVideoStreamIndex();
+    int GetAudioStreamIndex();
+    double GetFps();
     bool IsPlaying();
     std::wstring GetEndEvent();
     int GetDrawingIndex();
@@ -62,9 +78,13 @@ private:
     SIZE _size;
 
     CWindowControl *_parent = nullptr;
-    PAVIFILE _aviFile = nullptr;
-    PAVISTREAM _aviStream = nullptr;
+    AVFormatContext *_formatContext = nullptr;
+    AVCodecContext *_videoCodecContext = nullptr;
+    AVCodecContext *_audioCodecContext = nullptr;
+    int _videoStreamIndex = -1;
+    int _audioStreamIndex = -1;
     double _fps = 0;
+    PacketQueue _audioQueue;
 
     int _drawingIndex = 0;
 };

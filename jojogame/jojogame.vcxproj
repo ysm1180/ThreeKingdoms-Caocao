@@ -88,8 +88,8 @@
       <AdditionalIncludeDirectories>..\Library\;..\Library\ffmpeg\x86\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\Library\ffmpeg\x86\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>avcodec.lib;avformat.lib;swscale.lib;avutil.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Library\ffmpeg\x86\lib;..\Library\SDL\lib\x86;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>avcodec.lib;avformat.lib;swscale.lib;avutil.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
