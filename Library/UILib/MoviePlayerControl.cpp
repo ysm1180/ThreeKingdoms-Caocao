@@ -65,6 +65,92 @@ void CMoviePlayerControl::SetFileName(std::wstring fileName)
     _fileName = fileName;
 }
 
+
+void packet_queue_init(PacketQueue *q)
+{
+    memset(q, 0, sizeof(PacketQueue));
+    q->mutex = SDL_CreateMutex();
+    q->cond = SDL_CreateCond();
+}
+
+int packet_queue_put(PacketQueue *q, AVPacket *pkt)
+{
+
+    AVPacketList *pkt1;
+    pkt1 = (AVPacketList *) av_malloc(sizeof(AVPacketList));
+    if (!pkt1)
+    {
+        return AVERROR(ENOMEM);
+    }
+    if (av_packet_ref(&pkt1->pkt, pkt) < 0)
+    {
+        return -1;
+    }
+    pkt1->next = NULL;
+
+
+    SDL_LockMutex(q->mutex);
+
+    if (!q->last_pkt)
+    {
+        q->first_pkt = pkt1;
+    } else
+    {
+        q->last_pkt->next = pkt1;
+    }
+    q->last_pkt = pkt1;
+    q->nb_packets++;
+    q->size += pkt1->pkt.size;
+    SDL_CondSignal(q->cond);
+
+    SDL_UnlockMutex(q->mutex);
+    return 0;
+}
+
+static int packet_queue_get(CMoviePlayerControl *movieControl, AVPacket *pkt, int block)
+{
+    auto q = movieControl->GetPointerAudioQueue();
+    AVPacketList *pkt1;
+    int ret;
+
+    SDL_LockMutex(q->mutex);
+
+    for (;;)
+    {
+
+        if (!movieControl->IsPlaying())
+        {
+            ret = -1;
+            break;
+        }
+
+        pkt1 = q->first_pkt;
+        if (pkt1)
+        {
+            q->first_pkt = pkt1->next;
+            if (!q->first_pkt)
+            {
+                q->last_pkt = NULL;
+            }
+            q->nb_packets--;
+            q->size -= pkt1->pkt.size;
+            *pkt = pkt1->pkt;
+            av_free(pkt1);
+            ret = 1;
+            break;
+        } else if (!block)
+        {
+            ret = 0;
+            break;
+        } else
+        {
+            SDL_CondWait(q->cond, q->mutex);
+        }
+    }
+    SDL_UnlockMutex(q->mutex);
+    return ret;
+}
+
 bool CMoviePlayerControl::Create()
 {
     AVCodecParameters *videoCodecParameters = nullptr;
@@ -142,12 +228,13 @@ bool CMoviePlayerControl::Create()
         CConsoleOutput::OutputConsoles(L"Cannot open codec");
         return false;
     }
-    if (avcodec_open2(_videoCodecContext, audioCodec, nullptr) < 0)
+    if (avcodec_open2(_audioCodecContext, audioCodec, nullptr) < 0)
     {
         CConsoleOutput::OutputConsoles(L"Cannot open codec");
         return false;
     }
 
+    packet_queue_init(&_audioQueue);
     _fps = av_q2d(_formatContext->streams[_videoStreamIndex]->avg_frame_rate);
 
     _position.x = _position.y = 0;
@@ -174,125 +261,40 @@ void CMoviePlayerControl::Destroy()
 }
 
 
-void packet_queue_init(PacketQueue *q)
+int audio_decode_frame(CMoviePlayerControl *movieControl, uint8_t *audio_buf, int buf_size)
 {
-    memset(q, 0, sizeof(PacketQueue));
-    q->mutex = SDL_CreateMutex();
-    q->cond = SDL_CreateCond();
-}
-
-int packet_queue_put(PacketQueue *q, AVPacket *pkt)
-{
-
-    AVPacketList *pkt1;
-    if (av_dup_packet(pkt) < 0)
-    {
-        return -1;
-    }
-    pkt1 = av_malloc(sizeof(AVPacketList));
-    if (!pkt1)
-    {
-        return -1;
-    }
-    pkt1->pkt = *pkt;
-    pkt1->next = NULL;
-
-
-    SDL_LockMutex(q->mutex);
-
-    if (!q->last_pkt)
-    {
-        q->first_pkt = pkt1;
-    } else
-    {
-        q->last_pkt->next = pkt1;
-    }
-    q->last_pkt = pkt1;
-    q->nb_packets++;
-    q->size += pkt1->pkt.size;
-    SDL_CondSignal(q->cond);
-
-    SDL_UnlockMutex(q->mutex);
-    return 0;
-}
-
-static int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
-{
-    AVPacketList *pkt1;
-    int ret;
-
-    SDL_LockMutex(q->mutex);
-
-    for (;;)
-    {
-
-        if (quit)
-        {
-            ret = -1;
-            break;
-        }
-
-        pkt1 = q->first_pkt;
-        if (pkt1)
-        {
-            q->first_pkt = pkt1->next;
-            if (!q->first_pkt)
-            {
-                q->last_pkt = NULL;
-            }
-            q->nb_packets--;
-            q->size -= pkt1->pkt.size;
-            *pkt = pkt1->pkt;
-            av_free(pkt1);
-            ret = 1;
-            break;
-        } else if (!block)
-        {
-            ret = 0;
-            break;
-        } else
-        {
-            SDL_CondWait(q->cond, q->mutex);
-        }
-    }
-    SDL_UnlockMutex(q->mutex);
-    return ret;
-}
-
-int audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_size)
-{
-
+    auto audioContext = movieControl->GetAudioCodecContext();
     static AVPacket pkt;
-    static uint8_t *audio_pkt_data = NULL;
+    static uint8_t *audio_pkt_data = nullptr;
     static int audio_pkt_size = 0;
     static AVFrame frame;
 
-    int len1, data_size = 0;
+    int packetError, data_size = 0;
 
     for (;;)
     {
         while (audio_pkt_size > 0)
         {
-            int got_frame = 0;
-            len1 = avcodec_decode_audio4(aCodecCtx, &frame, &got_frame, &pkt);
-            if (len1 < 0)
+            packetError = avcodec_send_packet(audioContext, &pkt);
+            char err[4096];
+            av_make_error_string(err, 4096, packetError);
+            if (packetError < 0)
             {
                 /* if error, skip frame */
                 audio_pkt_size = 0;
                 break;
             }
-            audio_pkt_data += len1;
-            audio_pkt_size -= len1;
+            audio_pkt_data += pkt.size;
+            audio_pkt_size -= pkt.size;
             data_size = 0;
-            if (got_frame)
+            if (avcodec_receive_frame(audioContext, &frame) == 0)
             {
-                data_size = av_samples_get_buffer_size(NULL,
-                                                       aCodecCtx->channels,
+                data_size = av_samples_get_buffer_size(nullptr,
+                                                       audioContext->channels,
                                                        frame.nb_samples,
-                                                       aCodecCtx->sample_fmt,
+                                                       audioContext->sample_fmt,
                                                        1);
-                assert(data_size <= buf_size);
-                memcpy(audio_buf, frame.data[0], data_size);
+                memcpy(audio_buf, frame.data[0], static_cast<size_t>(data_size));
             }
             if (data_size <= 0)
             {
@@ -304,15 +306,15 @@ int audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_si
         }
         if (pkt.data)
         {
-            av_free_packet(&pkt);
+            av_packet_unref(&pkt);
         }
 
-        if (quit)
+        if (!movieControl->IsPlaying())
         {
             return -1;
         }
 
-        if (packet_queue_get(&audioq, &pkt, 1) < 0)
+        if (packet_queue_get(movieControl, &pkt, 1) < 0)
         {
             return -1;
         }
@@ -323,7 +325,7 @@ int audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_si
 
 void audioCallback(void *userdata, Uint8 *stream, int len)
 {
-    AVCodecContext *audioCodecConext = (AVCodecContext *) userdata;
+    CMoviePlayerControl *moviePlayerControl = (CMoviePlayerControl *) userdata;
     int len1, audio_size;
 
     static uint8_t audio_buf[(MAX_AUDIO_FRAME_SIZE * 3) / 2];
@@ -335,7 +337,7 @@ void audioCallback(void *userdata, Uint8 *stream, int len)
         if (audio_buf_index >= audio_buf_size)
         {
             /* We have already sent all our data; get more */
-            audio_size = audio_decode_frame(audioCodecConext, audio_buf, sizeof(audio_buf));
+            audio_size = audio_decode_frame(moviePlayerControl, audio_buf, sizeof(audio_buf));
             if (audio_size < 0)
             {
                 /* If error, output silence */
@@ -343,7 +345,7 @@ void audioCallback(void *userdata, Uint8 *stream, int len)
                 memset(audio_buf, 0, audio_buf_size);
             } else
             {
-                audio_buf_size = audio_size;
+                audio_buf_size = static_cast<unsigned int>(audio_size);
             }
             audio_buf_index = 0;
         }
@@ -361,10 +363,7 @@ void audioCallback(void *userdata, Uint8 *stream, int len)
 
 bool PlayMovie(CMoviePlayerControl *movieControl, SwsContext *imageConvertContext)
 {
-    double freq = 0.0;
-    __int64 counterStart = 0;
-    int fps = 0;
-
+    SDL_Event event;
     AVCodecContext *codecContext = movieControl->GetVideoCodecContext();
     HDC dc = GetDC(movieControl->GetParentControl()->GetHWnd());
     HDC newDC = CreateCompatibleDC(dc);
@@ -415,15 +414,28 @@ bool PlayMovie(CMoviePlayerControl *movieControl, SwsContext *imageConvertContex
                     BitBlt(dc, 0, 0, codecContext->width, codecContext->height, newDC, 0, 0, SRCCOPY);
                     CGameManager::GetInstance().Delay(1000.0 / movieControl->GetFps());
                 }
+                av_packet_unref(&packet);
             }
         } else if (packet.stream_index == movieControl->GetAudioStreamIndex())
         {
-            packet_queue_put(movieControl->GetPointerAudioQueue(), &packet);
+           packet_queue_put(movieControl->GetPointerAudioQueue(), &packet);
+        } else
+        {
+            av_packet_unref(&packet);
+        }
+
+        SDL_PollEvent(&event);
+        switch (event.type)
+        {
+            case SDL_QUIT:
+                SDL_Quit();
+                break;
+            default:
+                break;
         }
     }
 
     // Free the packet that was allocated by av_read_frame
-    av_packet_unref(&packet);
 
     SelectObject(newDC, oldBitmap);
     DeleteBitmap(newBitmap);
@@ -445,22 +457,22 @@ bool PlaySound(CMoviePlayerControl *movieControl)
     audioSpec.silence = 0;
     audioSpec.samples = 1024;
     audioSpec.callback = audioCallback;
-    audioSpec.userdata = audioContext;
+    audioSpec.userdata = movieControl;
 
-    if (SDL_OpenAudio(&audioSpec, &spec))
+    if (SDL_OpenAudio(&audioSpec, NULL))
     {
         return false;
     }
 
     SDL_PauseAudio(0);
-    packet_queue_init(movieControl->GetPointerAudioQueue());
 }
 
 void CMoviePlayerControl::Play()
 {
-    Stop();
     std::thread t([&]()
                   {
+                      _playing = true;
+
                       PlaySound(this);
 
                       int width = _videoCodecContext->width;
@@ -472,9 +484,9 @@ void CMoviePlayerControl::Play()
                                                                  SWS_BICUBIC, nullptr, nullptr, nullptr);
 
                       PlayMovie(this, imageConvertContext);
+                      _playing = false;
                   });
     t.detach();
-    _playing = true;
 
 }
 
@@ -501,7 +513,6 @@ void CMoviePlayerControl::WaitForPlay()
         }
     }
 
-    Stop();
     if (quit)
     {
         PostQuitMessage(0);

@@ -22,7 +22,6 @@ extern "C"  {
 namespace jojogame {
 class CWindowControl;
 
-
 struct PacketQueue {
     AVPacketList *first_pkt, *last_pkt;
     int nb_packets;

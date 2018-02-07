@@ -4,9 +4,7 @@ require "Script\\movie_player_manager.lua"
 DEBUG(true)
 
 function main_click()
-    if openningMovie:IsPlaying() then
-        openningMovie:Destroy()
-    end
+    openningMovie:Play()
 end
 
 function main_close() 
