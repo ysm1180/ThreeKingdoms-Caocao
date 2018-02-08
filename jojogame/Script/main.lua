@@ -32,14 +32,11 @@ function main()
     })
 
     openningMovie = MoviePlayerManager.Create({
-        FileName = "Script\\a.mp4",
+        FileName = "Script\\Logo.avi",
         Parent = main,
         End = "openning_end"
     })
     openningMovie:Play()
-    openningMovie:WaitForPlay()
-
-    
     
 end
 

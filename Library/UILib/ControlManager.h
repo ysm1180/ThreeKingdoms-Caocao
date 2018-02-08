@@ -25,7 +25,7 @@ public:
 
     CWindowControl *CreateWindowForm(CWindowControl *parent);
     // void CreatePopupWindow(CWindowControl *parent);
-    CMoviePlayerControl *CreateMoviePlayer(CWindowControl *parent, std::wstring fileName);
+    CMoviePlayerControl *CreateMoviePlayer(CWindowControl *parent, std::string fileName);
     CButtonControl *CreateButton(CWindowControl *parent);
 
     HINSTANCE GetHInstance();
