@@ -83,7 +83,12 @@ int packet_queue_put(PacketQueue *q, AVPacket *pkt)
     {
         return AVERROR(ENOMEM);
     }
-    pkt1->pkt = *pkt;
+
+    av_init_packet(&pkt1->pkt);
+    if (av_packet_ref(&pkt1->pkt, pkt) < 0) {
+        return AVERROR(ENOMEM);
+    }
+    //pkt1->pkt = *pkt;
     pkt1->next = NULL;
 
 
