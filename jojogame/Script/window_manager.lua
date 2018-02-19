@@ -21,6 +21,7 @@ WindowManager = ControlManager:Instance
         newWindow:SetTitleName(options.TitleName)
         newWindow:SetBackColor(options.BackColor)
 
+        newWindow:SetTitlebar(options.Titlebar)
         newWindow:SetMaxButton(options.MaxButton)
         newWindow:SetMinButton(options.MinButton)
         if options.ControlBox == nil then

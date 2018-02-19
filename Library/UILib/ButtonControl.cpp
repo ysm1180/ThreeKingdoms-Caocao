@@ -1,9 +1,10 @@
 #include "ButtonControl.h"
 
 #include "ControlManager.h"
+#include "WindowControl.h"
 
 namespace jojogame {
-WNDPROC CButtonControl::s_originalProc = NULL;
+WNDPROC CButtonControl::s_originalProc = nullptr;
 
 LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
@@ -20,8 +21,10 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(button));
 
             auto createEvent = button->GetCreateEvent();
-            CLuaTinker::GetLuaTinker().Call(createEvent.c_str(), button);
-
+            if (createEvent.length())
+            {
+                CLuaTinker::GetLuaTinker().Call(createEvent.c_str(), button);
+            }
             break;
         }
 
@@ -29,8 +32,22 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         {
             auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
             auto mouseLButtonUpEvent = button->GetMouseLButtonUpEvent();
+            if (mouseLButtonUpEvent.length())
+            {
+                CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), button);
+            }
+            break;
+        }
 
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), button);
+        case WM_LBUTTONDOWN:
+        {
+            auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            auto mouseLButtonUpEvent = button->GetMouseLButtonDownEvent();
+
+            if (mouseLButtonUpEvent.length())
+            {
+                CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), button);
+            }
             break;
         }
 
@@ -38,10 +55,13 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         {
             auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
             auto mouseMoveEvent = button->GetMouseMoveEvent();
-            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent.c_str(), 
-                (int) wParam, 
-                GET_X_LPARAM(lParam),
-                                            GET_Y_LPARAM(lParam));
+            if (mouseMoveEvent.length())
+            {
+                CLuaTinker::GetLuaTinker().Call(mouseMoveEvent.c_str(),
+                                                (int) wParam,
+                                                GET_X_LPARAM(lParam),
+                                                GET_Y_LPARAM(lParam));
+            }
 
             if (isHover == false)
             {
@@ -58,7 +78,10 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         {
             auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
             auto mouseHoverEvent = button->GetMouseHoverEvent();
-            CLuaTinker::GetLuaTinker().Call(mouseHoverEvent.c_str());
+            if (mouseHoverEvent.length())
+            {
+                CLuaTinker::GetLuaTinker().Call(mouseHoverEvent.c_str());
+            }
 
             isHover = true;
             trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
@@ -73,7 +96,10 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         {
             auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
             auto mouseLeaveEvent = button->GetMouseLeaveEvent();
-            CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent.c_str());
+            if (mouseLeaveEvent.length())
+            {
+                CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent.c_str());
+            }
 
             isHover = false;
             break;
@@ -90,30 +116,52 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
 void CButtonControl::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN(CButtonControl, "_ButtonControl");
+    LUA_BEGIN_CHILD(CButtonControl, "_ButtonControl", CBaseControl);
+
+    LUA_METHOD(GetText);
+    LUA_METHOD(GetFont);
+
+    LUA_METHOD(SetTransparentBackground);
+    LUA_METHOD(SetTransparentBorder);
+    LUA_METHOD(SetText);
+    LUA_METHOD(SetParentWindow);
+
+    LUA_METHOD(Create);
+    LUA_METHOD(Destroy);
 
     WNDCLASS wndClass;
     GetClassInfo(NULL, TEXT("button"), &wndClass);
+    s_originalProc = wndClass.lpfnWndProc;
     wndClass.hInstance = CControlManager::GetInstance().GetHInstance();
     wndClass.lpfnWndProc = (WNDPROC) CButtonControl::OnControlProc;
     wndClass.lpszClassName = L"jojo_button";
-    s_originalProc = wndClass.lpfnWndProc;
     RegisterClass(&wndClass);
 }
 
 CButtonControl::CButtonControl()
         : _font(this)
 {
-    _style = WS_TABSTOP | WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON | BS_NOTIFY;
+    //_style = WS_TABSTOP | WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON | BS_NOTIFY;
+    _style = BS_PUSHBUTTON | WS_CHILD;
 }
 
 CButtonControl::~CButtonControl()
 {
 }
 
-CTextFont& CButtonControl::GetFont()
+bool CButtonControl::IsTransparentBackground()
 {
-    return _font;
+    return _isTransparentBackground;
+}
+
+bool CButtonControl::IsTransparentBorder()
+{
+    return _isTransparentBorder;
+}
+
+CTextFont *CButtonControl::GetFont()
+{
+    return &_font;
 }
 
 std::wstring CButtonControl::GetText()
@@ -121,9 +169,39 @@ std::wstring CButtonControl::GetText()
     return _text;
 }
 
+void CButtonControl::SetTransparentBackground(bool isTransparentBackground)
+{
+    _isTransparentBackground = isTransparentBackground;
+
+    UpdateWindow(_hWnd);
+}
+
+void CButtonControl::SetTransparentBorder(bool isTransparentBorder)
+{
+    _isTransparentBorder = isTransparentBorder;
+
+    UpdateWindow(_hWnd);
+}
+
 void CButtonControl::SetText(std::wstring text)
 {
     _text = text;
+
+    if (_hWnd)
+    {
+        SetWindowText(_hWnd, _text.c_str());
+    }
+}
+
+void CButtonControl::SetParentWindow(CWindowControl *parent)
+{
+    if (parent)
+    {
+        _parentHWnd = parent->GetHWnd();
+    } else
+    {
+        _parentHWnd = nullptr;
+    }
 }
 
 bool CButtonControl::Create()
@@ -136,17 +214,21 @@ bool CButtonControl::Create()
                          _size.cx,
                          _size.cy,
                          _parentHWnd,
-                         nullptr,
+                         (HMENU) _hWnd,
                          CControlManager::GetInstance().GetHInstance(),
                          (LPVOID) this);
+    _font.ResetFont();
 
     return true;
 }
 
 void CButtonControl::Destroy()
 {
-    DestroyWindow(_hWnd);
-    _hWnd = nullptr;
+    if (_hWnd)
+    {
+        DestroyWindow(_hWnd);
+        _hWnd = nullptr;
+    }
 }
 
 WNDPROC CButtonControl::GetOriginalProc()

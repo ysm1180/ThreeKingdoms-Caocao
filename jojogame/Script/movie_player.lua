@@ -32,29 +32,40 @@ MoviePlayer = Object:Instance
         OUTPUT("Movie Destroy")
     end,
 
-    WaitForPlay = function(self)
-        self.control:WaitForPlay()
-    end,
-
     Play = function(self)
-        self.control:Play()
-
         OUTPUT("Movie Play")
+        
+        self.control:Play()
     end,
 
     Stop = function(self)
-        self.control:Stop()
-
         OUTPUT("Movie Stop")
+        
+        self.control:Stop()
     end,
 
     IsPlaying = function(self)
         return self.control:IsPlaying()
+    end,
+    
+    Size = function(self)
+        return self.control:GetWidth(), self.control:GetHeight()
     end,
 
     SetEndEvent = function(self, event)
         self.control:SetEndEvent(event)
 
         OUTPUT("Set End Event : " .. (event or "NULL"))
-    end
+    end,
+
+    SetPosition = function(self, x, y)
+        if x ~= nil then
+            self.control:SetX(x)
+        end
+
+        if y ~= nil then
+            self.control:SetY(y)
+        end
+    end,
+    
 }

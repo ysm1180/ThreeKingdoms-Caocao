@@ -40,13 +40,12 @@ public:
     std::wstring GetTitleName() const;
     std::wstring GetActiveEvent() const;
     std::wstring GetCloseEvent() const;
-    HBRUSH GetBackBrush() const;
     CMenubar *GetMenu();
 
     void SetControlBox(bool isControlBox);
     void SetMaxButton(bool isMaxButton);
     void SetMinButton(bool isMinButton);
-    void SetTitleBar(bool isTitleBar);
+    void SetTitlebar(bool isTitlebar);
     void SetTitleName(std::wstring title);
     void SetActiveEvent(std::wstring activeEvent);
     void SetCloseEvent(std::wstring closeEvent);
@@ -66,7 +65,6 @@ public:
     void SetDialogResult(int value) const;
 
     void Refresh() const;
-    void RefreshByRegion(RECT& rect);
 
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -74,7 +72,7 @@ private:
     bool _isMaxButton = false;
     bool _isMinButton = true;
     bool _isControlBox = true;
-    bool _isTitleBar = true;
+    bool _isTitlebar = true;
     int *_dialogResult = nullptr;
     std::wstring _titleName = L"";
     std::wstring _activeEvent = L"";

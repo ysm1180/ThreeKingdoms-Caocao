@@ -32,10 +32,16 @@ HINSTANCE Application::GetHInstance()
 
 int Application::Run()
 {
-    MSG message;
+    MSG message{};
     CLuaTinker& luaTinker = CLuaTinker::GetLuaTinker();
     CLuaConsole& luaConsole = CLuaConsole::GetInstance();
     bool debug = false;
+
+    av_register_all();
+    if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0)
+    {
+        return 1;
+    }
 
     _controlManager = &CControlManager::GetInstance();
     _gameManager = &CGameManager::GetInstance();
@@ -54,13 +60,19 @@ int Application::Run()
     luaTinker.RegisterFunction("DEBUG", &CLuaConsole::SetDebugFlag);
 
     luaTinker.Run("./Script/main.lua");
-    while (GetMessage(&message, 0, 0, 0))
+
+    while (WM_QUIT != message.message)
     {
-        TranslateMessage(&message);
-        DispatchMessage(&message);
+        if (PeekMessage(&message, NULL, 0, 0, PM_NOREMOVE))
+        {
+            GetMessage(&message, NULL, 0, 0);
+            TranslateMessage(&message);
+            DispatchMessage(&message);
+        }
     }
 
     CMemoryPoolManager::GetInstance().DestroyAllMemoryPool();
+    SDL_Quit();
 
     return (int) message.wParam;
 }

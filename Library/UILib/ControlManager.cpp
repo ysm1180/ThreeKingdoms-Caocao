@@ -17,6 +17,7 @@ void CControlManager::RegisterFunctions(lua_State *L)
 
     LUA_METHOD(CreateWindowForm);
     LUA_METHOD(CreateMoviePlayer);
+    LUA_METHOD(CreateButton);
 }
 
 CControlManager::CControlManager()
@@ -35,6 +36,7 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CBaseControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CWindowControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CMoviePlayerControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CButtonControl>();
 }
 
 CWindowControl *CControlManager::CreateWindowForm(CWindowControl *parent)
@@ -50,10 +52,10 @@ CMoviePlayerControl *CControlManager::CreateMoviePlayer(CWindowControl *parent, 
     return newMoviePlayer;
 }
 
-CButtonControl * CControlManager::CreateButton(CWindowControl * parent)
+CButtonControl * CControlManager::CreateButton(CWindowControl *parent)
 {
     auto newButton = CMemoryPool<CButtonControl>::GetInstance().New();
-
+    newButton->SetParentWindow(parent);
     return newButton;
 }
 

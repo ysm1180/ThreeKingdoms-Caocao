@@ -1,7 +1,11 @@
 #pragma once
 
-
 #include <Windows.h>
+
+extern "C" {
+#include <libavformat/avformat.h>
+#include <SDL/include/SDL.h>
+}
 
 namespace jojogame {
 class CControlManager;

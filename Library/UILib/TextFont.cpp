@@ -2,13 +2,44 @@
 #include "BaseControl.h"
 
 namespace jojogame {
+void CTextFont::RegisterFunctions(lua_State *L)
+{
+    LUA_BEGIN(CTextFont, "_TextFont");
+
+    LUA_METHOD(IsBold);
+    LUA_METHOD(IsItalic);
+    LUA_METHOD(IsUnderline);
+    LUA_METHOD(GetFontName);
+    LUA_METHOD(GetFontSize);
+
+    LUA_METHOD(SetBold);
+    LUA_METHOD(SetUnderline);
+    LUA_METHOD(SetItalic);
+    LUA_METHOD(SetFontName);
+    LUA_METHOD(SetFontSize);
+}
+
 CTextFont::CTextFont(CBaseControl *control)
 {
     _control = control;
+    _fontName = L"±¼¸²";
+    _fontSize = 12;
+
+    ResetFont();
 }
 
 CTextFont::~CTextFont()
 {
+    if (_font != nullptr)
+    {
+        DeleteFont(_font);
+        _font = nullptr;
+    }
+}
+
+HFONT CTextFont::GetHFont()
+{
+    return _font;
 }
 
 bool CTextFont::IsBold()
@@ -39,38 +70,39 @@ std::wstring CTextFont::GetFontName()
 void CTextFont::SetBold(bool isBold)
 {
     _isBold = isBold;
-    _ResetFont();
+    ResetFont();
 }
 
 void CTextFont::SetItalic(bool isItalic)
 {
     _isItalic = isItalic;
-    _ResetFont();
+    ResetFont();
 }
 
 void CTextFont::SetUnderline(bool isUnderline)
 {
     _isUnderline = isUnderline;
-    _ResetFont();
+    ResetFont();
 }
 
 void CTextFont::SetFontSize(int fontSize)
 {
     _fontSize = fontSize;
-    _ResetFont();
+    ResetFont();
 }
 
 void CTextFont::SetFontName(std::wstring fontName)
 {
     _fontName = fontName;
-    _ResetFont();
+    ResetFont();
 }
 
-void CTextFont::_ResetFont()
+void CTextFont::ResetFont()
 {
     if (_font != nullptr)
     {
         DeleteFont(_font);
+        _font = nullptr;
     }
 
     _font = CreateFontW(_fontSize,
@@ -78,9 +110,9 @@ void CTextFont::_ResetFont()
                         0,
                         0,
                         FW_NORMAL,
-                        _isItalic,
-                        _isUnderline,
-                        _isBold,
+                        static_cast<DWORD>(_isItalic),
+                        static_cast<DWORD>(_isUnderline),
+                        static_cast<DWORD>(_isBold),
                         HANGEUL_CHARSET,
                         0,
                         0,

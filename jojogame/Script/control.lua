@@ -5,9 +5,13 @@ Control = Object:Instance
     control = nil,
 
     Create = function(self)
-        self.control:Create()
-
-        OUTPUT("Create")
+        OUTPUT("Try Create")
+        result = self.control:Create()
+        if result then
+            OUTPUT("Success create")
+        else
+            OUTPUT("Fail to create")
+        end
     end,
 
     Move = function(self, x, y)

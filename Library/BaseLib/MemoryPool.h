@@ -4,9 +4,6 @@
 #include <list>
 #include <memory>
 #include <mutex>
-#ifndef _MSVC_LANG
-#include "mingw.mutex.h"
-#endif
 
 namespace jojogame {
 class CMemoryPoolBase

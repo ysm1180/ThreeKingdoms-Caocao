@@ -29,8 +29,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -88,8 +89,11 @@
       <AdditionalIncludeDirectories>..\Library\;..\Library\ffmpeg\x86\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\Library\ffmpeg\x86\lib;..\Library\SDL\lib\x86;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\ffmpeg\x86\lib;..\Library\SDL\lib\x86</AdditionalLibraryDirectories>
       <AdditionalDependencies>avcodec.lib;avformat.lib;swscale.lib;avutil.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -115,7 +119,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>avcodec.lib;avformat.lib;swscale.lib;avutil.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Library\ffmpeg\x86\lib;..\Library\SDL\lib\x86;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\ffmpeg\x86\lib;..\Library\SDL\lib\x86;..\Library\Vid\;</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

@@ -3,10 +3,6 @@
 #include "WindowControl.h"
 
 #include "BaseLib\ConsoleOutput.h"
-#include "CommonLib\GameManager.h"
-
-
-#include <thread>
 
 namespace jojogame {
 void CMoviePlayerControl::RegisterFunctions(lua_State *L)
@@ -25,7 +21,6 @@ void CMoviePlayerControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(SetEndEvent);
 
     LUA_METHOD(Play);
-    LUA_METHOD(WaitForPlay);
     LUA_METHOD(Stop);
     LUA_METHOD(Create);
     LUA_METHOD(Destroy);
@@ -51,275 +46,409 @@ bool CMoviePlayerControl::IsPlaying()
     return _state.playing;
 }
 
-std::wstring CMoviePlayerControl::GetEndEvent()
-{
-    return _endEvent;
-}
-
 void CMoviePlayerControl::SetEndEvent(std::wstring endEvent)
 {
     _endEvent = endEvent;
 }
 
-void CMoviePlayerControl::SetFileName(std::string fileName)
+void InitPacketQueue(PacketQueue *queue)
 {
-    _state.fileName = fileName;
+    queue->size = 0;
+    queue->firstPacket = nullptr;
+    queue->lastPacket = nullptr;
 }
 
-
-void packet_queue_init(PacketQueue *q)
+int PutPacketQueue(PacketQueue *queue, AVPacket *packet)
 {
-    memset(q, 0, sizeof(PacketQueue));
-    q->mutex = SDL_CreateMutex();
-    q->cond = SDL_CreateCond();
-}
-
-int packet_queue_put(PacketQueue *q, AVPacket *pkt)
-{
-
-    AVPacketList *pkt1;
-    pkt1 = (AVPacketList *) av_malloc(sizeof(AVPacketList));
-    if (!pkt1)
+    AVPacketList *packetList;
+    packetList = (AVPacketList *) av_malloc(sizeof(AVPacketList));
+    if (!packetList)
     {
         return AVERROR(ENOMEM);
     }
 
-    av_init_packet(&pkt1->pkt);
-    if (av_packet_ref(&pkt1->pkt, pkt) < 0) {
+    av_init_packet(&packetList->pkt);
+    if (av_packet_ref(&packetList->pkt, packet) < 0)
+    {
         return AVERROR(ENOMEM);
     }
-    //pkt1->pkt = *pkt;
-    pkt1->next = NULL;
+    packetList->next = nullptr;
 
-
-    SDL_LockMutex(q->mutex);
-
-    if (!q->last_pkt)
+    std::unique_lock<std::mutex> lock(queue->mutex);
+    if (!queue->lastPacket)
     {
-        q->first_pkt = pkt1;
+        queue->firstPacket = packetList;
     } else
     {
-        q->last_pkt->next = pkt1;
+        queue->lastPacket->next = packetList;
     }
-    q->last_pkt = pkt1;
-    q->nb_packets++;
-    q->size += pkt1->pkt.size;
-    SDL_CondSignal(q->cond);
+    queue->lastPacket = packetList;
+    queue->size += packetList->pkt.size;
+    queue->cond.notify_one();
+    lock.unlock();
 
-    SDL_UnlockMutex(q->mutex);
     return 0;
 }
 
-static int packet_queue_get(VideoState *videoState, PacketQueue *q, AVPacket *pkt, int block)
+static int GetPacketQueue(VideoState *videoState, PacketQueue *queue, AVPacket *packet, int block)
 {
-    AVPacketList *pkt1;
-    int ret;
+    AVPacketList *packetList;
+    int result;
 
-    SDL_LockMutex(q->mutex);
-
+    std::unique_lock<std::mutex> lock(queue->mutex);
     for (;;)
     {
-        if (videoState->playing == false)
+        if (!videoState->playing)
         {
-            ret = -1;
+            result = -1;
             break;
         }
 
-        pkt1 = q->first_pkt;
-        if (pkt1)
+        packetList = queue->firstPacket;
+        if (packetList)
         {
-            q->first_pkt = pkt1->next;
-            if (!q->first_pkt)
+            queue->firstPacket = packetList->next;
+            if (!queue->firstPacket)
             {
-                q->last_pkt = NULL;
+                queue->lastPacket = nullptr;
             }
-            q->nb_packets--;
-            q->size -= pkt1->pkt.size;
-            *pkt = pkt1->pkt;
-            av_free(pkt1);
-            ret = 1;
+            queue->size -= packetList->pkt.size;
+            *packet = packetList->pkt;
+            av_free(packetList);
+            result = 1;
             break;
         } else if (!block)
         {
-            ret = 0;
+            result = 0;
             break;
         } else
         {
-            SDL_CondWait(q->cond, q->mutex);
+            if (videoState->finishQueue)
+            {
+                videoState->playing = false;
+                SDL_CloseAudio();
+                result = -1;
+                break;
+            }
+            queue->cond.wait(lock);
         }
     }
-    SDL_UnlockMutex(q->mutex);
-    return ret;
+    lock.unlock();
+
+    return result;
 }
 
-int audio_decode_frame(VideoState *videoState, uint8_t *audio_buf, int buf_size)
+double GetAudioClock(VideoState *videoState)
 {
-    int packetError, data_size = 0;
-    AVPacket *pkt = &videoState->audioPacket;
+    double pts;
+    int hwBufSize, bytesPerSec, n;
+
+    pts = videoState->audioClock; /* maintained in the audio thread */
+    hwBufSize = videoState->audioBufferSize - videoState->audioBufferIndex;
+    bytesPerSec = 0;
+    n = videoState->audioCodecContext->channels * 2;
+    if (videoState->audioStream)
+    {
+        bytesPerSec = videoState->audioCodecContext->sample_rate * n;
+    }
+    if (bytesPerSec)
+    {
+        pts -= (double) hwBufSize / bytesPerSec;
+    }
+    return pts;
+}
+
+double GetVideoClock(VideoState *is)
+{
+    double delta;
+
+    delta = (av_gettime() - is->videoCurrentPtsTime) / 1000000.0;
+    return is->videoCurrentPts + delta;
+}
+
+double GetMasterClock(VideoState *videoState)
+{
+    if (videoState->syncType == SyncType::AudioMaster)
+    {
+        return GetAudioClock(videoState);
+    }
+    else {
+        return GetVideoClock(videoState);
+    }
+}
+
+int SynchronizeAudio(VideoState *videoState, short *samples, int samplesSize)
+{
+    int n;
+    double refClock;
+
+    n = 2 * videoState->audioCodecContext->channels;
+
+    if (videoState->syncType != SyncType::AudioMaster)
+    {
+        double diff, avgDiff;
+        int wantedSize, minSize, maxSize /*, nb_samples */;
+
+        refClock = GetMasterClock(videoState);
+        diff = GetAudioClock(videoState) - refClock;
+
+        if (diff < AV_NOSYNC_THRESHOLD)
+        {
+            // accumulate the diffs
+            videoState->audioDiffCum = diff + videoState->audioDiffAvgCoef
+                                              * videoState->audioDiffCum;
+            if (videoState->audioDiffAvgCount < AUDIO_DIFF_AVG_NB)
+            {
+                videoState->audioDiffAvgCount++;
+            } else
+            {
+                avgDiff = videoState->audioDiffCum * (1.0 - videoState->audioDiffAvgCoef);
+                if (fabs(avgDiff) >= videoState->audioDiffThreshold)
+                {
+                    wantedSize = samplesSize + ((int) (diff * videoState->audioCodecContext->sample_rate) * n);
+                    minSize = samplesSize * ((100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100);
+                    maxSize = samplesSize * ((100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100);
+                    if (wantedSize < minSize)
+                    {
+                        wantedSize = minSize;
+                    } else if (wantedSize > maxSize)
+                    {
+                        wantedSize = maxSize;
+                    }
+                    if (wantedSize < samplesSize)
+                    {
+                        /* remove samples */
+                        samplesSize = wantedSize;
+                    } else if (wantedSize > samplesSize)
+                    {
+                        uint8_t *samples_end, *q;
+                        int nb;
+
+                        /* add samples by copying final sample*/
+                        nb = (samplesSize - wantedSize);
+                        samples_end = (uint8_t *) samples + samplesSize - n;
+                        q = samples_end + n;
+                        while (nb > 0)
+                        {
+                            memcpy(q, samples_end, n);
+                            q += n;
+                            nb -= n;
+                        }
+                        samplesSize = wantedSize;
+                    }
+                }
+            }
+        } else
+        {
+            /* difference videoState TOO big; reset diff stuff */
+            videoState->audioDiffAvgCount = 0;
+            videoState->audioDiffCum = 0;
+        }
+    }
+    return samplesSize;
+}
+
+int DecodeAudioFrame(VideoState *videoState, uint8_t *audioBuffer, int bufferSize, double *ptsPtr)
+{
+    int packetError, dataSize = 0;
+    int n;
+    double pts;
+    AVPacket *packet = &videoState->audioPacket;
 
     for (;;)
     {
         while (videoState->audioPacketSize > 0)
         {
-            packetError = avcodec_send_packet(videoState->audioCodecContext, pkt);
-            if (pkt->size < 0)
+            packetError = avcodec_send_packet(videoState->audioCodecContext, packet);
+            if (packet->size < 0 || packetError < 0)
             {
-                /* if error, skip frame */
+                // If error, skip frame
                 videoState->audioPacketSize = 0;
                 break;
             }
-            data_size = 0;
+            dataSize = 0;
             if (avcodec_receive_frame(videoState->audioCodecContext, &videoState->audioFrame) == 0)
             {
-                data_size = av_samples_get_buffer_size(nullptr,
-                                                       videoState->audioCodecContext->channels,
-                                                       videoState->audioFrame.nb_samples,
-                                                       videoState->audioCodecContext->sample_fmt,
-                                                       1);
-                memcpy(audio_buf, videoState->audioFrame.data[0], static_cast<size_t>(data_size));
+                dataSize = av_samples_get_buffer_size(nullptr,
+                                                      videoState->audioCodecContext->channels,
+                                                      videoState->audioFrame.nb_samples,
+                                                      videoState->audioCodecContext->sample_fmt,
+                                                      1);
+                memcpy(audioBuffer, videoState->audioFrame.data[0], static_cast<size_t>(dataSize));
             }
 
-            videoState->audioPacketData += pkt->size;
-            videoState->audioPacketSize -= pkt->size;
+            videoState->audioPacketData += packet->size;
+            videoState->audioPacketSize -= packet->size;
 
-            if (data_size <= 0)
+            if (dataSize <= 0)
             {
-                /* No data yet, get more frames */
+                // No data yet, get more frames
                 continue;
             }
-            /* We have data, return it and come back for more later */
-            return data_size;
+
+            pts = videoState->audioClock;
+            *ptsPtr = pts;
+            n = 2 * videoState->audioCodecContext->channels;
+            videoState->audioClock += (double) dataSize /
+                                      (double) (n * videoState->audioCodecContext->sample_rate);
+            // We have data, return it and come back for more later
+            return dataSize;
         }
 
-        if (pkt->data)
+        if (packet->data)
         {
-            av_packet_unref(pkt);
+            av_packet_unref(packet);
         }
 
-        if (videoState->playing == false)
+        if (!videoState->playing || GetPacketQueue(videoState, &videoState->audioQueue, packet, 1) < 0)
         {
             return -1;
         }
 
-        if (packet_queue_get(videoState, &videoState->audioQueue, pkt, 1) < 0)
-        {
-            return -1;
-        }
+        videoState->audioPacketData = packet->data;
+        videoState->audioPacketSize = packet->size;
 
-        videoState->audioPacketData = pkt->data;
-        videoState->audioPacketSize = pkt->size;
+        if (packet->pts != AV_NOPTS_VALUE)
+        {
+            videoState->audioClock = av_q2d(videoState->audioStream->time_base) * packet->pts;
+        }
     }
 }
 
-void audioCallback(void *userdata, Uint8 *stream, int len)
+void AudioCallback(void *userdata, Uint8 *stream, int len)
 {
     auto videoState = (VideoState *) userdata;
-    int len1, audio_size;
+    int computedLen, audioSize;
+    double pts;
 
-    while (len > 0)
+    while (videoState->playing && len > 0)
     {
         if (videoState->audioBufferIndex >= videoState->audioBufferSize)
         {
-            /* We have already sent all our data; get more */
-            audio_size = audio_decode_frame(videoState, videoState->audioBuffer, sizeof(videoState->audioBuffer));
-            if (audio_size < 0)
+            // We have already sent all our data; get more
+            audioSize = DecodeAudioFrame(videoState, videoState->audioBuffer, sizeof(videoState->audioBuffer), &pts);
+            if (audioSize < 0)
             {
-                /* If error, output silence */
+                // If error, output silence
                 videoState->audioBufferSize = 1024; // arbitrary?
                 memset(videoState->audioBuffer, 0, videoState->audioBufferSize);
             } else
             {
-                videoState->audioBufferSize = static_cast<unsigned int>(audio_size);
+                audioSize = SynchronizeAudio(videoState, (int16_t *) videoState->audioBuffer, audioSize);
+                videoState->audioBufferSize = static_cast<unsigned int>(audioSize);
             }
             videoState->audioBufferIndex = 0;
         }
-        len1 = videoState->audioBufferSize - videoState->audioBufferIndex;
-        if (len1 > len)
+        computedLen = videoState->audioBufferSize - videoState->audioBufferIndex;
+        if (computedLen > len)
         {
-            len1 = len;
+            computedLen = len;
         }
-        memcpy(stream, (uint8_t *) videoState->audioBuffer + videoState->audioBufferIndex, len1);
-        len -= len1;
-        stream += len1;
-        videoState->audioBufferIndex += len1;
+        memcpy(stream, (uint8_t *) videoState->audioBuffer + videoState->audioBufferIndex, computedLen);
+        len -= computedLen;
+        stream += computedLen;
+        videoState->audioBufferIndex += computedLen;
     }
 }
 
 
-static Uint32 sdl_refresh_timer_cb(Uint32 interval, void *opaque)
+static void RefreshTimerCallback(DWORD threadId, void *opaque)
 {
-    SDL_Event event;
-    event.type = FF_REFRESH_EVENT;
-    event.user.data1 = opaque;
-    SDL_PushEvent(&event);
-    return 0; /* 0 means stop timer */
+    PostThreadMessage(threadId, WM_REFRESH_EVENT, NULL, (LPARAM)opaque);
 }
 
 /* schedule a video refresh in 'delay' ms */
-static void schedule_refresh(VideoState *is, int delay)
+static void ScheduleRefresh(VideoState *is, int delay)
 {
-    SDL_AddTimer(delay, sdl_refresh_timer_cb, is);
+    auto mainThreadId = std::this_thread::get_id();
+    std::stringstream stringStream;
+    stringStream << mainThreadId;
+    auto id = (DWORD)std::stoull(stringStream.str());
+
+    std::thread([=](){
+        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+        RefreshTimerCallback(id, is);
+    }).detach();
 }
 
 void DisplayVideo(VideoState *videoState)
 {
     VideoFrame *videoFrame;
-    float aspect_ratio;
 
     videoFrame = &videoState->frameQueue[videoState->frameQueueRearIndex];
     if (videoFrame->dc)
     {
-//        if (videoState->videoCodecContext->sample_aspect_ratio.num == 0)
-//        {
-//            aspect_ratio = 0;
-//        } else
-//        {
-//            aspect_ratio = av_q2d(videoState->videoCodecContext->sample_aspect_ratio) *
-//                           videoState->videoCodecContext->width / videoState->videoCodecContext->height;
-//        }
-//        if (aspect_ratio <= 0.0)
-//        {
-//            aspect_ratio = (float) videoState->videoCodecContext->width /
-//                           (float) videoState->videoCodecContext->height;
-//        }
-
-        SDL_LockMutex(videoState->screenMutex);
+        std::unique_lock<std::mutex> lock(videoState->screenMutex);
 
         if (videoState->playing)
         {
             HDC dc = GetDC(videoState->parentControlHWnd);
             BitBlt(dc, videoState->position.x, videoState->position.y, videoState->videoCodecContext->width,
-                videoState->videoCodecContext->height, videoFrame->dc, 0, 0, SRCCOPY);
+                   videoState->videoCodecContext->height, videoFrame->dc, 0, 0, SRCCOPY);
             ReleaseDC(videoState->parentControlHWnd, dc);
         }
 
-        SDL_UnlockMutex(videoState->screenMutex);
-
+        lock.unlock();
     }
 }
 
-void video_refresh_timer(void *userdata)
+void RefreshVideoTimer(void *userdata)
 {
 
-    VideoState *videoState = (VideoState *) userdata;
+    auto *videoState = (VideoState *) userdata;
     VideoFrame *videoFrame;
+    double actualDelay, delay, syncThreshold, refClock, diff;
 
     if (videoState->videoStream)
     {
         if (videoState->frameQueueSize == 0)
         {
-            schedule_refresh(videoState, 1);
+            ScheduleRefresh(videoState, 1);
         } else
         {
             videoFrame = &videoState->frameQueue[videoState->frameQueueRearIndex];
-            /* Now, normally here goes a ton of code
-           about timing, etc. we're just going to
-           guess at a delay for now. You can
-           increase and decrease this value and hard code
-           the timing - but I don't suggest that ;)
-           We'll learn how to do it for real later.
-            */
-            schedule_refresh(videoState, 40);
+
+            videoState->videoCurrentPts = videoFrame->pts;
+            videoState->videoCurrentPtsTime = av_gettime();
+            delay = videoFrame->pts - videoState->frameLastPts; // the pts from last time
+            if (delay <= 0 || delay >= 1.0)
+            {
+                // if incorrect delay, use previous one
+                delay = videoState->frameLastDelay;
+            }
+            // save for next time
+            videoState->frameLastDelay = delay;
+            videoState->frameLastPts = videoFrame->pts;
+
+            // update delay to sync to audio if not master source
+            if (videoState->syncType != SyncType::VideoMaster)
+            {
+                refClock = GetMasterClock(videoState);
+                diff = videoFrame->pts - refClock;
+
+                // Skip or repeat the frame. Take delay into account
+                // FFPlay still doesn't "know if this is the best guess."
+                syncThreshold = (delay > AV_SYNC_THRESHOLD) ? delay : AV_SYNC_THRESHOLD;
+                if (fabs(diff) < AV_NOSYNC_THRESHOLD)
+                {
+                    if (diff <= -syncThreshold)
+                    {
+                        delay = 0;
+                    } else if (diff >= syncThreshold)
+                    {
+                        delay = 2 * delay;
+                    }
+                }
+            }
+            videoState->frameTimer += delay;
+            // computer the REAL delay
+            actualDelay = videoState->frameTimer - (av_gettime() / 1000000.0);
+            if (actualDelay < 0.010)
+            {
+                // Really it should skip the picture instead
+                actualDelay = 0.010;
+            }
+            ScheduleRefresh(videoState, (int) (actualDelay * 1000 + 0.5));
 
             DisplayVideo(videoState);
 
@@ -327,20 +456,21 @@ void video_refresh_timer(void *userdata)
             {
                 videoState->frameQueueRearIndex = 0;
             }
-            SDL_LockMutex(videoState->frameQueueMutex);
+
+            std::unique_lock<std::mutex> lock(videoState->frameQueueMutex);
             videoState->frameQueueSize--;
-            SDL_CondSignal(videoState->frameQueueCond);
-            SDL_UnlockMutex(videoState->frameQueueMutex);
+            videoState->frameQueueCond.notify_one();
+            lock.unlock();
         }
     } else
     {
-        schedule_refresh(videoState, 100);
+        ScheduleRefresh(videoState, 100);
     }
 }
 
-void alloc_picture(void *userdata)
+void AllocPicture(void *userdata)
 {
-    VideoState *videoState = (VideoState *) userdata;
+    auto *videoState = (VideoState *) userdata;
     VideoFrame *videoFrame;
 
     videoFrame = &videoState->frameQueue[videoState->frameQueueWIndex];
@@ -352,7 +482,7 @@ void alloc_picture(void *userdata)
 
     }
 
-    SDL_LockMutex(videoState->screenMutex);
+    std::unique_lock<std::mutex> lock(videoState->screenMutex);
 
     int numBytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, videoState->videoCodecContext->width,
                                             videoState->videoCodecContext->height, 32);
@@ -381,26 +511,24 @@ void alloc_picture(void *userdata)
 
     ReleaseDC(videoState->parentControlHWnd, dc);
 
-    SDL_UnlockMutex(videoState->screenMutex);
+    lock.unlock();
 
     videoFrame->width = videoState->videoCodecContext->width;
     videoFrame->height = videoState->videoCodecContext->height;
-    videoFrame->allocated = 1;
-
 }
 
-int queue_picture(VideoState *videoState, AVFrame *frame)
+int QueuePicture(VideoState *videoState, AVFrame *frame, double pts)
 {
     VideoFrame *videoFrame;
 
-    /* wait until we have space for a new pic */
-    SDL_LockMutex(videoState->frameQueueMutex);
+    // wait until we have space for a new pic
+    std::unique_lock<std::mutex> lock(videoState->frameQueueMutex);
     while (videoState->frameQueueSize >= VIDEO_FRAME_QUEUE_SIZE &&
            videoState->playing)
     {
-        SDL_CondWait(videoState->frameQueueCond, videoState->frameQueueMutex);
+        videoState->frameQueueCond.wait(lock);
     }
-    SDL_UnlockMutex(videoState->frameQueueMutex);
+    lock.unlock();
 
     if (!videoState->playing)
     {
@@ -413,10 +541,7 @@ int queue_picture(VideoState *videoState, AVFrame *frame)
         videoFrame->width != videoState->videoCodecContext->width ||
         videoFrame->height != videoState->videoCodecContext->height)
     {
-        SDL_Event event;
-
-        videoFrame->allocated = 0;
-        alloc_picture(videoState);
+        AllocPicture(videoState);
         if (!videoState->playing)
         {
             return -1;
@@ -425,6 +550,7 @@ int queue_picture(VideoState *videoState, AVFrame *frame)
 
     if (videoFrame->buffer)
     {
+        videoFrame->pts = pts;
         AVFrame *frameBGR = av_frame_alloc();
 
         av_image_fill_arrays(frameBGR->data, frameBGR->linesize, videoFrame->buffer, AV_PIX_FMT_RGB24,
@@ -441,43 +567,72 @@ int queue_picture(VideoState *videoState, AVFrame *frame)
         {
             videoState->frameQueueWIndex = 0;
         }
-        SDL_LockMutex(videoState->frameQueueMutex);
-        videoState->frameQueueSize++;
-        SDL_UnlockMutex(videoState->frameQueueMutex);
 
-        av_free(frameBGR);
+        std::unique_lock<std::mutex> lock(videoState->frameQueueMutex);
+        videoState->frameQueueSize++;
+        lock.unlock();
+        av_frame_free(&frameBGR);
     }
 
     return 0;
 }
 
-int video_thread(void *arg)
+
+double SynchronizeVideo(VideoState *videoState, AVFrame *srcFrame, double pts)
+{
+    double frameDelay;
+
+    if (pts != 0)
+    {
+        // if we have pts, set video clock to it
+        videoState->videoClock = pts;
+    } else
+    {
+        // if we aren't given a pts, set it to the clock
+        pts = videoState->videoClock;
+    }
+    // update the video clock
+    frameDelay = av_q2d(videoState->videoCodecContext->time_base);
+    // if we are repeating a frame, adjust clock accordingly
+    frameDelay += srcFrame->repeat_pict * (frameDelay * 0.5);
+    videoState->videoClock += frameDelay;
+    return pts;
+}
+
+int ThreadVideo(void *arg)
 {
     VideoState *videoState = (VideoState *) arg;
     AVPacket packet;
     AVFrame *frame;
+    double pts;
 
     frame = av_frame_alloc();
 
-    for (;;)
+    for (; videoState->playing;)
     {
-        if (packet_queue_get(videoState, &videoState->videoQueue, &packet, 1) < 0)
+
+        if (!videoState->playing || GetPacketQueue(videoState, &videoState->videoQueue, &packet, 1) < 0)
         {
-            // means we quit getting packets
             break;
         }
 
+        pts = 0;
         if (avcodec_send_packet(videoState->videoCodecContext, &packet) == 0)
         {
             if (avcodec_receive_frame(videoState->videoCodecContext, frame) == 0)
             {
-                if (queue_picture(videoState, frame) < 0)
+                if ((pts = av_frame_get_best_effort_timestamp(frame)) == AV_NOPTS_VALUE)
+                {
+                    pts = 0;
+                }
+                pts *= av_q2d(videoState->videoStream->time_base);
+                pts = SynchronizeVideo(videoState, frame, pts);
+                if (QueuePicture(videoState, frame, pts) < 0)
                 {
                     break;
                 }
             }
         }
-
         av_packet_unref(&packet);
     }
 
@@ -493,11 +648,6 @@ bool CMoviePlayerControl::Create()
     AVCodec *audioCodec;
     int error = 0;
 
-    _state.screenMutex = SDL_CreateMutex();
-    _state.frameQueueMutex = SDL_CreateMutex();
-    _state.frameQueueCond = SDL_CreateCond();
-
-    int length;
     _state.formatContext = nullptr;
     error = avformat_open_input(&_state.formatContext, _state.fileName.c_str(), nullptr, nullptr);
     if (error < 0)
@@ -573,12 +723,14 @@ bool CMoviePlayerControl::Create()
         return false;
     }
 
+    _state.syncType = SyncType::VideoMaster;
+
     _state.audioBufferSize = 0;
     _state.audioBufferIndex = 0;
     memset(&_state.audioPacket, 0, sizeof(_state.audioPacket));
-    packet_queue_init(&_state.videoQueue);
-    packet_queue_init(&_state.audioQueue);
-    _fps = av_q2d(_state.formatContext->streams[_state.videoStreamIndex]->avg_frame_rate);
+    InitPacketQueue(&_state.videoQueue);
+    InitPacketQueue(&_state.audioQueue);
+    av_q2d(_state.formatContext->streams[_state.videoStreamIndex]->avg_frame_rate);
 
     int width = _state.videoCodecContext->width;
     int height = _state.videoCodecContext->height;
@@ -607,30 +759,67 @@ bool CMoviePlayerControl::Create()
 void CMoviePlayerControl::Destroy()
 {
     Stop();
+
+    if (_state.audioCodecContext)
+    {
+        avcodec_free_context(&_state.audioCodecContext);
+        _state.audioCodecContext = nullptr;
+    }
+    if (_state.videoCodecContext)
+    {
+        avcodec_free_context(&_state.videoCodecContext);
+        _state.videoCodecContext = nullptr;
+    }
     if (_state.formatContext)
     {
         avformat_close_input(&_state.formatContext);
         _state.formatContext = nullptr;
     }
+}
 
-    if (_state.videoCodecContext)
+bool PlaySound(VideoState *videoState)
+{
+    SDL_AudioSpec audioSpec{};
+    auto audioContext = videoState->audioCodecContext;
+    audioSpec.freq = audioContext->sample_rate;
+    audioSpec.format = AUDIO_S16SYS;
+    audioSpec.channels = static_cast<Uint8>(audioContext->channels);
+    audioSpec.silence = 0;
+    audioSpec.samples = 8192;
+    audioSpec.callback = AudioCallback;
+    audioSpec.userdata = videoState;
+
+    if (SDL_OpenAudio(&audioSpec, nullptr))
     {
-        avcodec_close(_state.videoCodecContext);
-        _state.videoCodecContext = nullptr;
+        return false;
     }
+
+    videoState->audioHwBufferSize = audioSpec.size;
+    SDL_PauseAudio(0);
+    return true;
 }
 
 bool PlayMovie(VideoState *videoState)
 {
     AVPacket packet;
-    videoState->videoThread = SDL_CreateThread(video_thread, "video_thread", videoState);
+
+    videoState->frameTimer = (double) av_gettime() / 1000000.0;
+    videoState->frameLastDelay = 40e-3;
+    videoState->videoCurrentPtsTime = av_gettime();
+
+    auto t = std::thread([&]()
+                         {
+                             ThreadVideo(videoState);
+                         });
 
     for (;;)
     {
-        if (videoState->playing == false)
+        if (!videoState->playing)
         {
+            videoState->frameQueueCond.notify_all();
             break;
         }
+
         // seek stuff goes here
         if (videoState->audioQueue.size > MAX_AUDIOQ_SIZE ||
             videoState->videoQueue.size > MAX_VIDEOQ_SIZE)
@@ -643,20 +832,21 @@ bool PlayMovie(VideoState *videoState)
         {
             if (videoState->formatContext->pb->error == 0)
             {
-                SDL_Delay(100); /* no error; wait for user input */
+                videoState->finishQueue = true;
                 continue;
             } else
             {
+                videoState->playing = false;
                 break;
             }
         }
 
         if (packet.stream_index == videoState->videoStreamIndex)
         {
-            packet_queue_put(&videoState->videoQueue, &packet);
+            PutPacketQueue(&videoState->videoQueue, &packet);
         } else if (packet.stream_index == videoState->audioStreamIndex)
         {
-            packet_queue_put(&videoState->audioQueue, &packet);
+            PutPacketQueue(&videoState->audioQueue, &packet);
         } else
         {
             av_packet_unref(&packet);
@@ -668,92 +858,40 @@ bool PlayMovie(VideoState *videoState)
         SDL_Delay(100);
     }
 
-
-    SDL_Event event;
-    event.type = FF_QUIT_EVENT;
-    event.user.data1 = videoState;
-    SDL_PushEvent(&event);
+    t.join();
 
     return true;
-}
-
-bool PlaySound(VideoState *videoState)
-{
-    SDL_AudioSpec audioSpec;
-    SDL_AudioSpec spec;
-    auto audioContext = videoState->audioCodecContext;
-    audioSpec.freq = audioContext->sample_rate;
-    audioSpec.format = AUDIO_S16SYS;
-    audioSpec.channels = audioContext->channels;
-    audioSpec.silence = 0;
-    audioSpec.samples = 8192;
-    audioSpec.callback = audioCallback;
-    audioSpec.userdata = videoState;
-
-    if (SDL_OpenAudio(&audioSpec, NULL))
-    {
-        return false;
-    }
-
-    SDL_PauseAudio(0);
-
-    return true;
-}
-
-
-int decode_thread(void *arg)
-{
-    VideoState *is = (VideoState *)arg;
-    PlaySound(is);
-    PlayMovie(is);
-
-    return 0;
 }
 
 void CMoviePlayerControl::Play()
 {
-    SDL_Event event;
-
-    schedule_refresh(&_state, 40);
-
     _state.playing = true;
+    _state.finishQueue = false;
 
-    _state.parseThread = SDL_CreateThread(decode_thread, "decode_thread", &_state);
+    ScheduleRefresh(&_state, 40);
 
-    for (; _state.playing;)
-    {
-        SDL_WaitEvent(&event);
-        switch (event.type)
-        {
-            case FF_QUIT_EVENT:
-                _state.playing = false;
-                break;
-            case SDL_QUIT:
-                SDL_Quit();
-                PostQuitMessage(0);
-                break;
-            case FF_REFRESH_EVENT:
-                video_refresh_timer(event.user.data1);
-                break;
-            default:
-                break;
-        }
-    }
-}
+    auto t = std::thread([&]()
+                         {
+                             PlaySound(&_state);
+                             PlayMovie(&_state);
+                         });
 
-void CMoviePlayerControl::WaitForPlay()
-{
+
     auto quit = false;
     MSG message;
 
-    for (;;)
+    for (; _state.playing;)
     {
         if (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE))
         {
             if (message.message == WM_QUIT)
             {
+                Destroy();
                 quit = true;
                 break;
+            } else if (message.message == WM_REFRESH_EVENT)
+            {
+                RefreshVideoTimer(reinterpret_cast<void *>(message.lParam));
             }
 
             TranslateMessage(&message);
@@ -763,6 +901,11 @@ void CMoviePlayerControl::WaitForPlay()
             break;
         }
     }
+
+    t.join();
+
+    CLuaTinker::GetLuaTinker().Call(_endEvent.c_str(), this);
+    _parent->Refresh();
 
     if (quit)
     {
@@ -775,6 +918,7 @@ void CMoviePlayerControl::Stop()
     if (_state.playing)
     {
         _state.playing = false;
+        SDL_CloseAudio();
     }
 }
 
@@ -798,26 +942,6 @@ int CMoviePlayerControl::GetHeight()
     return _size.cy;
 }
 
-CWindowControl *CMoviePlayerControl::GetParentControl()
-{
-    return _parent;
-}
-
-VideoState *CMoviePlayerControl::GetVideoState()
-{
-    return &_state;
-}
-
-int CMoviePlayerControl::GetDrawingIndex()
-{
-    return _drawingIndex;
-}
-
-double CMoviePlayerControl::GetFps()
-{
-    return _fps;
-}
-
 void CMoviePlayerControl::SetX(int x)
 {
     _state.position.x = x;
@@ -836,11 +960,6 @@ void CMoviePlayerControl::SetWidth(int width)
 void CMoviePlayerControl::SetHeight(int height)
 {
     _size.cy = height;
-}
-
-void CMoviePlayerControl::SetDrawingIndex(int index)
-{
-    _drawingIndex = index;
 }
 
 }

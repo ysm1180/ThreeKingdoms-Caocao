@@ -72,7 +72,6 @@ Window = Control:Instance
         end
 
         OUTPUT("Set Min Button : " .. tostring(value))
-        
     end,
 
     SetControlBox = function(self, value)
@@ -83,6 +82,15 @@ Window = Control:Instance
         end
 
         OUTPUT("Set Control Box : " .. tostring(value))
-        
-    end
+    end,
+
+    SetTitlebar = function(self, value)
+        if type(value) == "boolean" then        
+            self.control:SetTitlebar(value)
+        else
+            self.control:SetControlBox(false)
+        end
+
+        OUTPUT("Set Title bar : " .. tostring(value))
+    end,
 }

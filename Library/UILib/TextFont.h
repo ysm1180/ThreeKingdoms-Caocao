@@ -1,5 +1,7 @@
 #pragma once
 
+#include "LuaLib/LuaTinker.h"
+
 #include <Windows.h>
 #include <string>
 
@@ -9,8 +11,12 @@ class CBaseControl;
 class  CTextFont
 {
 public:
+    static void RegisterFunctions(lua_State *L);
+
     CTextFont(CBaseControl *control);
     virtual ~CTextFont();
+
+    HFONT GetHFont();
 
     bool IsBold();
     bool IsItalic();
@@ -24,16 +30,16 @@ public:
     void SetFontSize(int fontSize);
     void SetFontName(std::wstring fontName);
 
-protected:
-    void _ResetFont();
+    void ResetFont();
 
+protected:
     CBaseControl *_control = nullptr;
 
     HFONT _font = nullptr;
     bool _isBold = false;
     bool _isItalic = false;
     bool _isUnderline = false;
-    int _fontSize = 12;
-    std::wstring _fontName = LR"(굴림)";
+    int _fontSize = 10;
+    std::wstring _fontName;
 };
 }

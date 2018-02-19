@@ -7,7 +7,8 @@ else( CMAKE_SIZEOF_VOID_P EQUAL 8 )
     set( PROJECT_ARCH "x86" )
 endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/jojogame)
 
 include_directories(
@@ -27,6 +28,8 @@ add_library(BaseLib STATIC
         Library/BaseLib/MemoryPool.cpp
         Library/BaseLib/MemoryPool.h)
 add_library(CommonLib STATIC
+        Library/CommonLib/lodepng.cpp
+        Library/CommonLib/lodepng.h
         Library/CommonLib/GameManager.cpp
         Library/CommonLib/GameManager.h
         Library/CommonLib/GameScriptManager.cpp
@@ -112,7 +115,7 @@ add_library(UILib STATIC Library/UILib/BaseControl.cpp
         Library/UILib/TextFont.cpp
         Library/UILib/TextFont.h
         Library/UILib/WindowControl.cpp
-        Library/UILib/WindowControl.h)
+        Library/UILib/WindowControl.h Library/UILib/LayoutControl.cpp Library/UILib/LayoutControl.h)
 
 add_executable(newjojogame WIN32
         jojogame/Application.cpp

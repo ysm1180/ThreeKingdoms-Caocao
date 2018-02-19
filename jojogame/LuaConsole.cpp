@@ -35,6 +35,11 @@ CLuaConsole::CLuaConsole()
 
 CLuaConsole::~CLuaConsole()
 {
+    if (_hWnd)
+    {
+        DestroyWindow(_hWnd);
+        _hWnd = nullptr;
+    }
 }
 
 HWND CLuaConsole::GetHWnd()
@@ -73,6 +78,9 @@ void CLuaConsole::AppendOutput(std::wstring msg)
     SendMessage(output, EM_SETSEL, 0, -1);
     SendMessage(output, EM_SETSEL, -1, -1);
     SendMessage(output, EM_REPLACESEL, 0, (LPARAM) msg.c_str());
+
+    OutputDebugString(msg.c_str());
+    OutputDebugString(L"\n");
 }
 
 void CLuaConsole::Create()

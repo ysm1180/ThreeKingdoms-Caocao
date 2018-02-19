@@ -1,10 +1,8 @@
 #include "WindowControl.h"
 #include "MoviePlayerControl.h"
+#include "ButtonControl.h"
+
 #include "ControlManager.h"
-
-#include "BaseLib\ConsoleOutput.h"
-
-#include <Vfw.h>
 
 namespace jojogame {
 LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
@@ -21,7 +19,10 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
 
             auto createFunction = window->GetCreateEvent();
-            CLuaTinker::GetLuaTinker().Call(createFunction.c_str(), window);
+            if (createFunction.length())
+            {
+                CLuaTinker::GetLuaTinker().Call(createFunction.c_str(), window);
+            }
 
             return 0;
         }
@@ -30,13 +31,14 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         {
             break;
         }
-        case MCIWNDM_NOTIFYPOS:
+
+        case WM_LBUTTONUP:
         {
-            CMoviePlayerControl *playedMovie = reinterpret_cast<CMoviePlayerControl *>(GetWindowLongPtr((HWND) wParam,
-                                                                                                        GWLP_USERDATA));
-            if (MCIWndGetEnd((HWND) wParam) == lParam)
+            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            auto mouseLButtonUpEvent = window->GetMouseLButtonUpEvent();
+            if (mouseLButtonUpEvent.length())
             {
-                CLuaTinker::GetLuaTinker().Call(playedMovie->GetEndEvent().c_str(), playedMovie);
+                CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), window);
             }
             break;
         }
@@ -45,15 +47,10 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         {
             auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
             auto mouseLButtonDownEvent = window->GetMouseLButtonDownEvent();
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(), window);
-            break;
-        }
-
-        case WM_LBUTTONUP:
-        {
-            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto mouseLButtonUpEvent = window->GetMouseLButtonUpEvent();
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), window);
+            if (mouseLButtonDownEvent.length())
+            {
+                CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(), window);
+            }
             break;
         }
 
@@ -63,7 +60,10 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             {
                 auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
                 auto activeEvent = window->GetActiveEvent();
-                CLuaTinker::GetLuaTinker().Call(activeEvent.c_str(), window);
+                if (activeEvent.length())
+                {
+                    CLuaTinker::GetLuaTinker().Call(activeEvent.c_str(), window);
+                }
             }
             return 0;
         }
@@ -85,20 +85,66 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
         case WM_CLOSE:
         {
-            // notClose = true 이면 종료 취소
             auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
             auto closeEvent = window->GetCloseEvent();
-            const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeEvent.c_str(), window);
-            if (notClose)
+            if (closeEvent.length())
             {
-                return 0;
+                // notClose = true 이면 종료 취소
+                const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeEvent.c_str(), window);
+                if (notClose)
+                {
+                    return 0;
+                }
             }
             break;
         }
 
         case WM_DESTROY:
         {
+            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            auto destroyEvent = window->GetDestroyEvent();
+            if (destroyEvent.length())
+            {
+                CLuaTinker::GetLuaTinker().Call<void>(destroyEvent.c_str(), window);
+            }
+
             return 0;
+        }
+
+        case WM_CTLCOLORBTN:
+        {
+            auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr((HWND) lParam, GWLP_USERDATA));
+            if (button->IsTransparentBackground())
+            {
+                RECT rect;
+                GetClientRect(button->GetHWnd(), &rect);
+                auto rgn = CreateRectRgn(rect.left, rect.top, rect.right, rect.bottom);
+                SelectClipRgn((HDC) wParam, rgn);
+
+                auto originalFont = SelectFont((HDC) wParam, button->GetFont()->GetHFont());
+                SetBkMode((HDC) wParam, TRANSPARENT);
+                DrawText((HDC) wParam, button->GetText().c_str(), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+                SelectFont((HDC) wParam, originalFont);
+                SetBkMode((HDC) wParam, OPAQUE);
+
+                if (button->IsTransparentBorder())
+                {
+                    ExcludeClipRect((HDC) wParam, rect.left, rect.top, rect.right, rect.bottom);
+                } else
+                {
+                    ExcludeClipRect((HDC) wParam, rect.left + 2, rect.top + 2, rect.right - 2, rect.bottom - 2);
+                }
+            } else if (button->IsTransparentBorder())
+            {
+                RECT rect;
+                GetClientRect(button->GetHWnd(), &rect);
+                auto rgn = CreateRectRgn(rect.left + 2, rect.top + 2, rect.right - 2, rect.bottom - 2);
+                ExcludeClipRect((HDC) wParam, rect.left, rect.top, rect.right, rect.bottom);
+                SelectClipRgn((HDC)wParam, rgn);
+            }
+
+            break;
         }
 
         case WM_PAINT:
@@ -144,7 +190,7 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(SetMaxButton);
     LUA_METHOD(SetMinButton);
     LUA_METHOD(SetControlBox);
-    LUA_METHOD(SetTitleBar);
+    LUA_METHOD(SetTitlebar);
     LUA_METHOD(SetTitleName);
     LUA_METHOD(SetActiveEvent);
     LUA_METHOD(SetCloseEvent);
@@ -176,8 +222,8 @@ void CWindowControl::RegisterFunctions(lua_State *L)
 
 CWindowControl::CWindowControl()
 {
-    _style = WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX;
-    // _style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+    //_style = WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX;
+    _style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 }
 
 CWindowControl::~CWindowControl()
@@ -186,7 +232,7 @@ CWindowControl::~CWindowControl()
     {
         for (auto image : _images)
         {
-            HBITMAP newBitmap = (HBITMAP)SelectObject(image->memDC, image->oldBitmap);
+            HBITMAP newBitmap = (HBITMAP) SelectObject(image->memDC, image->oldBitmap);
             DeleteBitmap(newBitmap);
             DeleteDC(image->memDC);
             delete image;
@@ -196,6 +242,12 @@ CWindowControl::~CWindowControl()
     if (_backBrush != nullptr)
     {
         DeleteBrush(_backBrush);
+    }
+
+    if (_hWnd != nullptr)
+    {
+        DestroyWindow(_hWnd);
+        _hWnd = nullptr;
     }
 }
 
@@ -221,7 +273,7 @@ std::wstring CWindowControl::GetTitleName() const
 
 bool CWindowControl::IsTitleBar() const
 {
-    return _isTitleBar;
+    return _isTitlebar;
 }
 
 std::wstring CWindowControl::GetActiveEvent() const
@@ -232,11 +284,6 @@ std::wstring CWindowControl::GetActiveEvent() const
 std::wstring CWindowControl::GetCloseEvent() const
 {
     return _closeEvent;
-}
-
-HBRUSH CWindowControl::GetBackBrush() const
-{
-    return _backBrush;
 }
 
 CMenubar *CWindowControl::GetMenu()
@@ -304,10 +351,10 @@ void CWindowControl::SetTitleName(std::wstring title)
     }
 }
 
-void CWindowControl::SetTitleBar(const bool isTitleBar)
+void CWindowControl::SetTitlebar(bool isTitlebar)
 {
-    _isTitleBar = isTitleBar;
-    if (_isTitleBar)
+    _isTitlebar = isTitlebar;
+    if (_isTitlebar)
     {
         _style |= WS_CAPTION;
     } else
@@ -451,19 +498,21 @@ void CWindowControl::Refresh() const
 {
     RECT rect;
 
-    GetClientRect(_hWnd, &rect);
-    InvalidateRect(_hWnd, &rect, TRUE);
-}
-
-void CWindowControl::RefreshByRegion(RECT& rect)
-{
-    InvalidateRect(_hWnd, &rect, TRUE);
+    if (_hWnd)
+    {
+        GetClientRect(_hWnd, &rect);
+        InvalidateRect(_hWnd, &rect, TRUE);
+        UpdateWindow(_hWnd);
+    }
 }
 
 void CWindowControl::Destroy()
 {
-    DestroyWindow(_hWnd);
-    _hWnd = nullptr;
+    if (_hWnd)
+    {
+        DestroyWindow(_hWnd);
+        _hWnd = nullptr;
+    }
 }
 
 int CWindowControl::SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bitmapInfo, RECT& rect)
@@ -474,9 +523,9 @@ int CWindowControl::SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bi
     int height = rect.bottom - y;
     DrawingImageInfo *image = new DrawingImageInfo();
     HDC newDC = CreateCompatibleDC(srcDC);
-    HBITMAP newBitmap = CreateDIBSection(srcDC, &bitmapInfo, DIB_RGB_COLORS, (void **)&image->bits, 0, 0);
+    HBITMAP newBitmap = CreateDIBSection(srcDC, &bitmapInfo, DIB_RGB_COLORS, (void **) &image->bits, 0, 0);
 
-    image->oldBitmap = (HBITMAP)SelectObject(newDC, newBitmap);
+    image->oldBitmap = (HBITMAP) SelectObject(newDC, newBitmap);
     BitBlt(newDC, 0, 0, width, height, srcDC, 0, 0, SRCCOPY);
 
     image->memDC = newDC;
@@ -486,14 +535,15 @@ int CWindowControl::SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bi
     image->width = width;
     image->height = height;
 
-    if (index + 1 > _images.size()) {
+    if (index + 1 > _images.size())
+    {
         _images.push_back(image);
 
         return _images.size() - 1;
-    }
-    else {
+    } else
+    {
         DrawingImageInfo *unusedData = _images[index];
-        HBITMAP newBitmap = (HBITMAP)SelectObject(unusedData->memDC, unusedData->oldBitmap);
+        HBITMAP newBitmap = (HBITMAP) SelectObject(unusedData->memDC, unusedData->oldBitmap);
         DeleteBitmap(newBitmap);
         DeleteDC(_images[index]->memDC);
         delete _images[index];
@@ -501,6 +551,6 @@ int CWindowControl::SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bi
 
         return index;
     }
-    
+
 }
 }

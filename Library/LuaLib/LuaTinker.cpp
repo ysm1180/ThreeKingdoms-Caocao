@@ -12,6 +12,7 @@ int CustomLuaRequire(lua_State *L)
 
     if (!filePath)
     {
+        return 0;
     }
 
     lua_tinker::dofile(L, filePath);
