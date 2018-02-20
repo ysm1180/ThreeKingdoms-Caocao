@@ -56,7 +56,12 @@ function main()
     for i = 1, 4 do
         mainDialogButtons[i] = ButtonManager.Create({
             Parent = mainDialog,
-            Text = mainDialogButtons.Text[i],
+            Text = {
+                Content = mainDialogButtons.Text[i],
+                Color = {
+                    Pushed = {R = 0xFF, G = 0x00, B = 0x00}
+                }
+            },
             Width = 176,
             Height = 30,
             X = 12,

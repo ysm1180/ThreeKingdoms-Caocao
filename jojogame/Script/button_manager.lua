@@ -18,8 +18,6 @@ ButtonManager = ControlManager:Instance
         end
         newButton:Move(options.X, options.Y)
 
-        newButton:SetText(options.Text)
-
         newButton:SetCreateEvent(options.Create)
         newButton:SetDestroyEvent(options.Destroy)
         newButton:SetMouseLButtonUpEvent(options.MouseLButtonUp)
@@ -27,22 +25,29 @@ ButtonManager = ControlManager:Instance
 
         if options.Border then
             newButton:SetBorderWidth(options.Border.Width)
-            newButton:SetNormalBorderColor(options.Border.Color.Normal)
-            newButton:SetFocusedBorderColor(options.Border.Color.Focused)
-            newButton:SetPushedBorderColor(options.Border.Color.Pushed)
+            if options.Border.Color then
+                newButton:SetNormalBorderColor(options.Border.Color.Normal)
+                newButton:SetFocusedBorderColor(options.Border.Color.Focused)
+                newButton:SetPushedBorderColor(options.Border.Color.Pushed)
+            end
         end
 
         if options.Background then
-            newButton:SetNormalBackgroundColor(options.Background.Color.Normal)
-            newButton:SetFocusedBackgroundColor(options.Background.Color.Focused)
-            newButton:SetPushedBackgroundColor(options.Background.Color.Pushed)
+            if options.Background.Color then
+                newButton:SetNormalBackgroundColor(options.Background.Color.Normal)
+                newButton:SetFocusedBackgroundColor(options.Background.Color.Focused)
+                newButton:SetPushedBackgroundColor(options.Background.Color.Pushed)
+            end
             newButton:SetTransparentBackground(options.Background.Transparent)        
         end
 
         if options.Text then    
-            newButton:SetNormalTextColor(options.Text.Color.Normal)
-            newButton:SetFocusedTextColor(options.Text.Color.Focused)
-            newButton:SetPushedTextColor(options.Text.Color.Pushed)
+            if options.Text.Color then
+                newButton:SetNormalTextColor(options.Text.Color.Normal)
+                newButton:SetFocusedTextColor(options.Text.Color.Focused)
+                newButton:SetPushedTextColor(options.Text.Color.Pushed)
+            end
+            newButton:SetText(options.Text.Content)
         end
 
         newButton:Create()

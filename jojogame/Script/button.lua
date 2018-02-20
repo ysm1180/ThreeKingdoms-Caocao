@@ -11,6 +11,11 @@ Button = TextControl:Instance {
         FOCUSED = {R = 0x00, G = 0x78, B = 0xD7},
         PUSHED = {R = 0x00, G = 0x54, B = 0x99}
     },
+    DEFAULT_TEXT_COLOR = {
+        NORMAL = {R = 0x00, G = 0x00, B = 0x00},
+        FOCUSED = {R = 0x00, G = 0x00, B = 0x00},
+        PUSHED = {R = 0x00, G = 0x00, B = 0x00}
+    },
 
     Instance = function(self, parent)
         local newButton = {}
@@ -53,8 +58,8 @@ Button = TextControl:Instance {
 
             OUTPUT(
                 "Set Normal Background Color #" ..
-                    string.format("%02x", color.R or 0xAD) ..
-                        string.format("%02x", color.G or 0xAD) .. string.format("%02x", color.B or 0xAD)
+                    string.format("%02x", color.R) ..
+                        string.format("%02x", color.G) .. string.format("%02x", color.B)
             )
         end
     end,
@@ -96,8 +101,8 @@ Button = TextControl:Instance {
 
             OUTPUT(
                 "Set Normal Border Color #" ..
-                    string.format("%02x", color.R or 0xAD) ..
-                        string.format("%02x", color.G or 0xAD) .. string.format("%02x", color.B or 0xAD)
+                    string.format("%02x", color.R) ..
+                        string.format("%02x", color.G) .. string.format("%02x", color.B)
             )
         end
     end,
@@ -125,6 +130,49 @@ Button = TextControl:Instance {
 
             OUTPUT(
                 "Set Pushed Border Color #" ..
+                    string.format("%02x", color.R) .. string.format("%02x", color.G) .. string.format("%02x", color.B)
+            )
+        end
+    end,
+
+    SetNormalTextColor = function(self, color)
+        if color ~= nil then
+            color.R = color.R or DEFAULT_TEXT_COLOR.NORMAL.R
+            color.G = color.G or DEFAULT_TEXT_COLOR.NORMAL.G
+            color.B = color.B or DEFAULT_TEXT_COLOR.NORMAL.B
+            self.control:SetTextColor(gameManager:Color(color.R, color.G, color.B))
+
+            OUTPUT(
+                "Set Normal Text Color #" ..
+                    string.format("%02x", color.R) ..
+                        string.format("%02x", color.G) .. string.format("%02x", color.B)
+            )
+        end
+    end,
+
+    SetFocusedTextColor = function(self, color)
+        if color ~= nil then
+            color.R = color.R or DEFAULT_TEXT_COLOR.FOCUSED.R
+            color.G = color.G or DEFAULT_TEXT_COLOR.FOCUSED.G
+            color.B = color.B or DEFAULT_TEXT_COLOR.FOCUSED.B
+            self.control:SetFocusedTextColor(gameManager:Color(color.R, color.G, color.B))
+
+            OUTPUT(
+                "Set Focused Text Color #" ..
+                    string.format("%02x", color.R) .. string.format("%02x", color.G) .. string.format("%02x", color.B)
+            )
+        end
+    end,
+
+    SetPushedTextColor = function(self, color)
+        if color ~= nil then
+            color.R = color.R or DEFAULT_TEXT_COLOR.PUSHED.R
+            color.G = color.G or DEFAULT_TEXT_COLOR.PUSHED.G
+            color.B = color.B or DEFAULT_TEXT_COLOR.PUSHED.B
+            self.control:SetPushedTextColor(gameManager:Color(color.R, color.G, color.B))
+
+            OUTPUT(
+                "Set Pushed Text Color #" ..
                     string.format("%02x", color.R) .. string.format("%02x", color.G) .. string.format("%02x", color.B)
             )
         end
