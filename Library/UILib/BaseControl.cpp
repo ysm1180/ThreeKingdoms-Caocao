@@ -62,14 +62,30 @@ inline int CBaseControl::GetHeight() const
     return _size.cy;
 }
 
-inline int CBaseControl::GetX() const
+int CBaseControl::GetX() const
 {
-    return _position.x;
+    if (_hWnd)
+    {
+        RECT rect;
+        GetWindowRect(_hWnd, &rect);
+        return rect.left;
+    } else
+    {
+        return _position.x;
+    }
 }
 
-inline int CBaseControl::GetY() const
+int CBaseControl::GetY() const
 {
-    return _position.y;
+    if (_hWnd)
+    {
+        RECT rect;
+        GetWindowRect(_hWnd, &rect);
+        return rect.top;
+    } else
+    {
+        return _position.y;
+    }
 }
 
 inline LONG CBaseControl::GetStyle() const
@@ -140,10 +156,13 @@ void CBaseControl::SetY(const int y)
     {
         RECT rect;
 
-        SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
+        SetRect(&rect, GetX(), _position.y, GetX() + GetWidth(), _position.y + GetHeight());
         AdjustWindowRect(&rect, _style, FALSE);
+        int diffX = GetX() - rect.left;
+        int diffY = _position.y - rect.top;
+        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, NULL, _position.x, _position.y, _size.cx, _size.cy, SWP_NOSIZE || SWP_NOZORDER);
+        SetWindowPos(_hWnd, NULL, rect.left, rect.top, rect.right, rect.bottom, SWP_NOSIZE || SWP_NOZORDER);
     }
 }
 
@@ -155,10 +174,13 @@ void CBaseControl::SetX(const int x)
     {
         RECT rect;
 
-        SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
+        SetRect(&rect, _position.x, GetY(), _position.x + GetWidth(), GetY() + GetHeight());
         AdjustWindowRect(&rect, _style, FALSE);
+        int diffX = _position.x - rect.left;
+        int diffY = GetY() - rect.top;
+        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, NULL, _position.x, _position.y, _size.cx, _size.cy, SWP_NOSIZE || SWP_NOZORDER);
+        SetWindowPos(_hWnd, NULL, rect.left, rect.top, rect.right, rect.bottom, SWP_NOSIZE || SWP_NOZORDER);
     }
 }
 
@@ -170,10 +192,13 @@ void CBaseControl::SetWidth(const int width)
     {
         RECT rect;
 
-        SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
+        SetRect(&rect, GetX(), GetY(), GetX() + _size.cx, GetY() + GetHeight());
         AdjustWindowRect(&rect, _style, FALSE);
+        int diffX = GetX() - rect.left;
+        int diffY = GetY() - rect.top;
+        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, NULL, _position.x, _position.y, _size.cx, _size.cy, SWP_NOMOVE | SWP_NOZORDER);
+        SetWindowPos(_hWnd, NULL, rect.left, rect.top, rect.right, rect.bottom, SWP_NOMOVE | SWP_NOZORDER);
     }
 }
 
@@ -185,9 +210,13 @@ void CBaseControl::SetHeight(const int height)
     {
         RECT rect;
 
-        SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
+        SetRect(&rect, GetX(), GetY(), GetX() + GetWidth(), GetY() + _size.cy);
         AdjustWindowRect(&rect, _style, FALSE);
-        SetWindowPos(_hWnd, NULL, _position.x, _position.y, _size.cx, _size.cy, SWP_NOMOVE | SWP_NOZORDER);
+        int diffX = GetX() - rect.left;
+        int diffY = GetY() - rect.top;
+        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+
+        SetWindowPos(_hWnd, NULL, rect.left, rect.top, rect.right, rect.bottom, SWP_NOMOVE | SWP_NOZORDER);
     }
 }
 

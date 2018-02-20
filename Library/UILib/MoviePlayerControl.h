@@ -38,6 +38,7 @@ extern "C" {
 #include <mutex>
 #include <chrono>
 #include <thread>
+#include <queue>
 
 namespace jojogame {
 class CWindowControl;
@@ -117,6 +118,8 @@ struct VideoState
     bool playing;
     bool finishQueue;
     POINT position;
+
+    std::queue<int> eventQueue;
 };
 
 

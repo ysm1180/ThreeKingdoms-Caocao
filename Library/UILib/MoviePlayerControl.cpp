@@ -2,6 +2,8 @@
 #include "ControlManager.h"
 #include "WindowControl.h"
 
+#include <iostream>
+
 #include "BaseLib\ConsoleOutput.h"
 
 namespace jojogame {
@@ -171,8 +173,8 @@ double GetMasterClock(VideoState *videoState)
     if (videoState->syncType == SyncType::AudioMaster)
     {
         return GetAudioClock(videoState);
-    }
-    else {
+    } else
+    {
         return GetVideoClock(videoState);
     }
 }
@@ -352,23 +354,35 @@ void AudioCallback(void *userdata, Uint8 *stream, int len)
 }
 
 
-static void RefreshTimerCallback(DWORD threadId, void *opaque)
+static void RefreshTimerCallback(void *data)
 {
-    PostThreadMessage(threadId, WM_REFRESH_EVENT, NULL, (LPARAM)opaque);
+    auto videoState = (VideoState *) data;
+    videoState->eventQueue.push(WM_REFRESH_EVENT);
+
+//    PostThreadMessage(threadId, WM_REFRESH_EVENT, NULL, (LPARAM)data);
+
+//    SDL_Event event;
+//    event.type = WM_REFRESH_EVENT;
+//    event.user.data1 = data;
+//    SDL_PushEvent(&event);
+//    return 0; /* 0 means stop timer */
 }
 
 /* schedule a video refresh in 'delay' ms */
 static void ScheduleRefresh(VideoState *is, int delay)
 {
-    auto mainThreadId = std::this_thread::get_id();
-    std::stringstream stringStream;
-    stringStream << mainThreadId;
-    auto id = (DWORD)std::stoull(stringStream.str());
+//    auto mainThreadId = std::this_thread::get_id();
+//    std::stringstream stringStream;
+//    stringStream << mainThreadId;
+//    auto id = (DWORD) std::stoull(stringStream.str());
 
-    std::thread([=](){
-        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-        RefreshTimerCallback(id, is);
-    }).detach();
+    std::thread([is, delay]()
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+                    RefreshTimerCallback(is);
+                }).detach();
+
+//    SDL_AddTimer(delay, RefreshTimerCallback, is);
 }
 
 void DisplayVideo(VideoState *videoState)
@@ -853,11 +867,6 @@ bool PlayMovie(VideoState *videoState)
         }
     }
 
-    while (videoState->playing)
-    {
-        SDL_Delay(100);
-    }
-
     t.join();
 
     return true;
@@ -865,6 +874,8 @@ bool PlayMovie(VideoState *videoState)
 
 void CMoviePlayerControl::Play()
 {
+    std::queue<int> queue;
+    _state.eventQueue.swap(queue);
     _state.playing = true;
     _state.finishQueue = false;
 
@@ -876,6 +887,23 @@ void CMoviePlayerControl::Play()
                              PlayMovie(&_state);
                          });
 
+//    SDL_Event event;
+//    for (; _state.playing;)
+//    {
+//        SDL_WaitEvent(&event);
+//        OutputDebugString(L"Event\n");
+//        switch (event.type)
+//        {
+//            case SDL_QUIT:
+//                SDL_Quit();
+//                break;
+//            case WM_REFRESH_EVENT:
+//                RefreshVideoTimer(event.user.data1);
+//                break;
+//            default:
+//                break;
+//        }
+//    }
 
     auto quit = false;
     MSG message;
@@ -889,9 +917,6 @@ void CMoviePlayerControl::Play()
                 Destroy();
                 quit = true;
                 break;
-            } else if (message.message == WM_REFRESH_EVENT)
-            {
-                RefreshVideoTimer(reinterpret_cast<void *>(message.lParam));
             }
 
             TranslateMessage(&message);
@@ -899,6 +924,10 @@ void CMoviePlayerControl::Play()
         } else if (!_state.playing)
         {
             break;
+        } else if (!_state.eventQueue.empty() && _state.eventQueue.front() == WM_REFRESH_EVENT)
+        {
+            _state.eventQueue.pop();
+            RefreshVideoTimer(reinterpret_cast<void *>(&_state));
         }
     }
 

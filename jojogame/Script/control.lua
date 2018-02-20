@@ -22,7 +22,7 @@ Control = Object:Instance
             self.control:SetY(y)
         end
 
-        OUTPUT("Move (" .. x .. ", " .. y .. ")")        
+        OUTPUT("Move (" .. (x or "NOT MOVE") .. ", " .. (y or "NOT MOVE") .. ")")        
     end,
 
     SetSize = function(self, w, h)

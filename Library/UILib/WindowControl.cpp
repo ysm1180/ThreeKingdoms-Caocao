@@ -1,8 +1,10 @@
 #include "WindowControl.h"
+
 #include "MoviePlayerControl.h"
 #include "ButtonControl.h"
-
 #include "ControlManager.h"
+
+#include "BaseLib\ConsoleOutput.h"
 
 namespace jojogame {
 LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
@@ -80,6 +82,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
         case WM_MOVE:
         {
+            CConsoleOutput::OutputConsoles(L"Move");
             break;
         }
 
@@ -427,8 +430,12 @@ bool CWindowControl::Create()
 {
     RECT rect;
 
-    SetRect(&rect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
+    SetRect(&rect, GetX(), GetY(), GetX() + GetWidth(), GetY() + GetHeight());
     AdjustWindowRect(&rect, _style, FALSE);
+    int diffX = GetX() - rect.left;
+    int diffY = GetY() - rect.top;
+    SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+
     _hWnd = CreateWindow(L"jojo_form",
                          _titleName.c_str(),
                          _style,

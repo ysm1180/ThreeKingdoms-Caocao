@@ -40,6 +40,7 @@ function main()
     openningMovie:Play()
 
     mainDialog = WindowManager.Create({
+        Parent = main,
         Width = 200, 
         Height = 142, 
         TitleName = title,
@@ -47,8 +48,8 @@ function main()
         MinButton = false,
         MaxButton = false,
         BackColor = {R = 0xF0, G = 0xF0, B = 0xF0},
-        Center = true,        
-        Show = true
+        Center = true,    
+        Modal = true,    
     })
 
     mainDialogButtons = {Text = {"새로운 게임을 시작한다", "저장 데이터를 불러온다", "환경 설정", "게임 종료"}}
@@ -64,7 +65,7 @@ function main()
             Show = true
         })
     end
-    
+    mainDialog:ShowModalWindow()
     
 end
 

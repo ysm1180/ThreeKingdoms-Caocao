@@ -142,7 +142,7 @@ CButtonControl::CButtonControl()
         : _font(this)
 {
     //_style = WS_TABSTOP | WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON | BS_NOTIFY;
-    _style = BS_PUSHBUTTON | WS_CHILD;
+    _style = WS_TABSTOP | BS_PUSHBUTTON | WS_CHILD;
 }
 
 CButtonControl::~CButtonControl()
