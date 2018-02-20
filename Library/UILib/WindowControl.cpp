@@ -6,6 +6,8 @@
 
 #include "BaseLib\ConsoleOutput.h"
 
+#include <WinUser.h>
+
 namespace jojogame {
 LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
@@ -82,7 +84,6 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
         case WM_MOVE:
         {
-            CConsoleOutput::OutputConsoles(L"Move");
             break;
         }
 
@@ -114,12 +115,65 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             return 0;
         }
 
+        case WM_NOTIFY:
+        {
+
+            break;
+        }
+
+        case WM_DRAWITEM:
+        {
+            auto item = (DRAWITEMSTRUCT *)lParam;
+            if (item->CtlType == ODT_BUTTON)
+            {
+                auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(item->hwndItem, GWLP_USERDATA));
+
+                COLORREF backgroundColor, borderColor;
+                if (button->IsPushed())
+                {
+                    backgroundColor = button->GetBackgroundColor().pushed;
+                    borderColor = button->GetBorderColor().pushed;
+                    SetTextColor(item->hDC, button->GetTextColor().pushed);
+                } else if (button->IsHovered())
+                {
+                    backgroundColor = button->GetBackgroundColor().focused;
+                    borderColor = button->GetBorderColor().focused;
+                    SetTextColor(item->hDC, button->GetTextColor().focused);
+                } else {
+                    backgroundColor = button->GetBackgroundColor().normal;
+                    borderColor = button->GetBorderColor().normal;
+                    SetTextColor(item->hDC, button->GetTextColor().normal);
+                }
+
+                RECT rect;
+                SetRect(&rect, item->rcItem.left, item->rcItem.top, item->rcItem.right, item->rcItem.bottom);
+                int borderWidth = button->GetBorderWidth();
+                HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor);
+                HBRUSH borderBrush = CreateSolidBrush(borderColor);
+                FillRect(item->hDC, &rect, borderBrush);
+                SetRect(&rect, rect.left + borderWidth, rect.top + borderWidth, rect.right - borderWidth, rect.bottom - borderWidth);
+                FillRect(item->hDC, &rect, backgroundBrush);
+
+                auto originalFont = SelectFont(item->hDC, button->GetFont()->GetHFont());
+                SetBkMode(item->hDC, TRANSPARENT);
+                DrawText(item->hDC, button->GetText().c_str(), -1, &rect,
+                         DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+                SelectFont(item->hDC, originalFont);
+                SetBkMode(item->hDC, OPAQUE);
+            }
+            break;
+        }
+
         case WM_CTLCOLORBTN:
         {
             auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr((HWND) lParam, GWLP_USERDATA));
+            RECT rect;
+
+            GetClientRect(button->GetHWnd(), &rect);
+
             if (button->IsTransparentBackground())
             {
-                RECT rect;
                 GetClientRect(button->GetHWnd(), &rect);
                 auto rgn = CreateRectRgn(rect.left, rect.top, rect.right, rect.bottom);
                 SelectClipRgn((HDC) wParam, rgn);
@@ -131,20 +185,8 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 SelectFont((HDC) wParam, originalFont);
                 SetBkMode((HDC) wParam, OPAQUE);
 
-                if (button->IsTransparentBorder())
-                {
-                    ExcludeClipRect((HDC) wParam, rect.left, rect.top, rect.right, rect.bottom);
-                } else
-                {
-                    ExcludeClipRect((HDC) wParam, rect.left + 2, rect.top + 2, rect.right - 2, rect.bottom - 2);
-                }
-            } else if (button->IsTransparentBorder())
-            {
-                RECT rect;
-                GetClientRect(button->GetHWnd(), &rect);
-                auto rgn = CreateRectRgn(rect.left + 2, rect.top + 2, rect.right - 2, rect.bottom - 2);
-                ExcludeClipRect((HDC) wParam, rect.left, rect.top, rect.right, rect.bottom);
-                SelectClipRgn((HDC)wParam, rgn);
+                int borderWidth = button->GetBorderWidth();
+                ExcludeClipRect((HDC) wParam, rect.left + borderWidth, rect.top + borderWidth, rect.right - borderWidth, rect.bottom - borderWidth);
             }
 
             break;

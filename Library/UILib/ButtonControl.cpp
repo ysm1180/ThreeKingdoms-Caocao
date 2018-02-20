@@ -36,6 +36,8 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             {
                 CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), button);
             }
+
+            button->_pushed = false;
             break;
         }
 
@@ -48,6 +50,9 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             {
                 CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), button);
             }
+
+            button->_pushed = true;
+
             break;
         }
 
@@ -83,6 +88,10 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 CLuaTinker::GetLuaTinker().Call(mouseHoverEvent.c_str());
             }
 
+            button->_hovered = true;
+            InvalidateRect(button->_hWnd, NULL, TRUE);
+            UpdateWindow(button->_hWnd);
+
             isHover = true;
             trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
             trackMouseEvent.dwFlags = TME_LEAVE;
@@ -100,6 +109,10 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             {
                 CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent.c_str());
             }
+
+            button->_hovered = false;
+            InvalidateRect(button->_hWnd, NULL, TRUE);
+            UpdateWindow(button->_hWnd);
 
             isHover = false;
             break;
@@ -120,11 +133,23 @@ void CButtonControl::RegisterFunctions(lua_State *L)
 
     LUA_METHOD(GetText);
     LUA_METHOD(GetFont);
+    LUA_METHOD(GetBackgroundColor);
+    LUA_METHOD(GetBorderColor);
+    LUA_METHOD(GetBorderWidth);
 
     LUA_METHOD(SetTransparentBackground);
-    LUA_METHOD(SetTransparentBorder);
     LUA_METHOD(SetText);
     LUA_METHOD(SetParentWindow);
+    LUA_METHOD(SetBackgroundColor);
+    LUA_METHOD(SetFocusedBackgroundColor);
+    LUA_METHOD(SetPushedBackgroundColor);
+    LUA_METHOD(SetBorderColor);
+    LUA_METHOD(SetFocusedBorderColor);
+    LUA_METHOD(SetPushedBorderColor);
+    LUA_METHOD(SetTextColor);
+    LUA_METHOD(SetFocusedTextColor);
+    LUA_METHOD(SetPushedTextColor);
+    LUA_METHOD(SetBorderWidth);
 
     LUA_METHOD(Create);
     LUA_METHOD(Destroy);
@@ -142,7 +167,7 @@ CButtonControl::CButtonControl()
         : _font(this)
 {
     //_style = WS_TABSTOP | WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON | BS_NOTIFY;
-    _style = WS_TABSTOP | BS_PUSHBUTTON | WS_CHILD;
+    _style = WS_TABSTOP | BS_OWNERDRAW | WS_CHILD;
 }
 
 CButtonControl::~CButtonControl()
@@ -154,9 +179,14 @@ bool CButtonControl::IsTransparentBackground()
     return _isTransparentBackground;
 }
 
-bool CButtonControl::IsTransparentBorder()
+bool CButtonControl::IsHovered()
 {
-    return _isTransparentBorder;
+    return _hovered;
+}
+
+bool CButtonControl::IsPushed()
+{
+    return _pushed;
 }
 
 CTextFont *CButtonControl::GetFont()
@@ -169,16 +199,30 @@ std::wstring CButtonControl::GetText()
     return _text;
 }
 
+StateColor& CButtonControl::GetBackgroundColor()
+{
+    return _backgroundColor;
+}
+
+
+StateColor& CButtonControl::GetBorderColor()
+{
+    return _borderColor;
+}
+
+StateColor& CButtonControl::GetTextColor()
+{
+    return _textColor;
+}
+
+int CButtonControl::GetBorderWidth()
+{
+    return _borderWidth;
+}
+
 void CButtonControl::SetTransparentBackground(bool isTransparentBackground)
 {
     _isTransparentBackground = isTransparentBackground;
-
-    UpdateWindow(_hWnd);
-}
-
-void CButtonControl::SetTransparentBorder(bool isTransparentBorder)
-{
-    _isTransparentBorder = isTransparentBorder;
 
     UpdateWindow(_hWnd);
 }
@@ -202,6 +246,56 @@ void CButtonControl::SetParentWindow(CWindowControl *parent)
     {
         _parentHWnd = nullptr;
     }
+}
+
+void CButtonControl::SetBackgroundColor(COLORREF color)
+{
+    _backgroundColor.normal = color;
+}
+
+void CButtonControl::SetFocusedBackgroundColor(COLORREF color)
+{
+    _backgroundColor.focused = color;
+}
+
+void CButtonControl::SetPushedBackgroundColor(COLORREF color)
+{
+    _backgroundColor.pushed = color;
+}
+
+void CButtonControl::SetBorderColor(COLORREF color)
+{
+    _borderColor.normal = color;
+}
+
+void CButtonControl::SetFocusedBorderColor(COLORREF color)
+{
+    _borderColor.focused = color;
+}
+
+void CButtonControl::SetPushedBorderColor(COLORREF color)
+{
+    _borderColor.pushed = color;
+}
+
+void CButtonControl::SetTextColor(COLORREF color)
+{
+    _textColor.normal = color;
+}
+
+void CButtonControl::SetFocusedTextColor(COLORREF color)
+{
+    _textColor.focused = color;
+}
+
+void CButtonControl::SetPushedTextColor(COLORREF color)
+{
+    _textColor.pushed = color;
+}
+
+void CButtonControl::SetBorderWidth(int width)
+{
+    _borderWidth = width;
 }
 
 bool CButtonControl::Create()

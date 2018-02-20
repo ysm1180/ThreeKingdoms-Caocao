@@ -37,7 +37,7 @@ function main()
         End = "openning_end",
         Center = true,
     })
-    openningMovie:Play()
+    --openningMovie:Play()
 
     mainDialog = WindowManager.Create({
         Parent = main,
@@ -61,7 +61,8 @@ function main()
             Height = 30,
             X = 12,
             Y = 11 + (i - 1) * 30,
-            Transparent = {Background = false, Border = false},
+            Border = {Width = 1},
+            Transparent = false,
             Show = true
         })
     end

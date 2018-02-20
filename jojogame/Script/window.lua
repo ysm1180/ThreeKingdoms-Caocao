@@ -20,9 +20,12 @@ Window = Control:Instance
 
     SetBackColor = function(self, color)
         if color ~= nil then
-            self.control:SetBackColor(gameManager:Color(color.R or 0, color.G or 0, color.B or 0))
+            color.R = color.R or 0
+            color.G = color.G or 0
+            color.B = color.B or 0
+            self.control:SetBackColor(gameManager:Color(color.R, color.G, color.B))
 
-            OUTPUT("Set Background Color #" .. string.format('%02x', color.R or 0) .. string.format('%02x', color.G or 0) .. string.format('%02x', color.B or 0) )
+            OUTPUT("Set Background Color #" .. string.format('%02x', color.R) .. string.format('%02x', color.G) .. string.format('%02x', color.B) )
         else
             self.control:SetBackColor(gameManager:Color(0, 0, 0))
 

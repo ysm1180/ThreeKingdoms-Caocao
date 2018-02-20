@@ -1,7 +1,7 @@
 require "Script\\control_manager.lua"
 require "Script\\button.lua"
 
-ButtonManager = ControlManager:Instance
+ButtonManager = ControlManager:Instance 
 {
     Create = function(options)
         OUTPUT("-------- Start Create : Button --------")
@@ -21,13 +21,28 @@ ButtonManager = ControlManager:Instance
         newButton:SetText(options.Text)
 
         newButton:SetCreateEvent(options.Create)
-        newButton:SetDestroyEvent(options.Destroy)     
+        newButton:SetDestroyEvent(options.Destroy)
         newButton:SetMouseLButtonUpEvent(options.MouseLButtonUp)
         newButton:SetMouseLButtonDownEvent(options.MouseLButtonDown)
-    
-        if options.Transparent then
-            newButton:SetTransparentBackground(options.Transparent.Background)
-            newButton:SetTransparentBorder(options.Transparent.Border)
+
+        if options.Border then
+            newButton:SetBorderWidth(options.Border.Width)
+            newButton:SetNormalBorderColor(options.Border.Color.Normal)
+            newButton:SetFocusedBorderColor(options.Border.Color.Focused)
+            newButton:SetPushedBorderColor(options.Border.Color.Pushed)
+        end
+
+        if options.Background then
+            newButton:SetNormalBackgroundColor(options.Background.Color.Normal)
+            newButton:SetFocusedBackgroundColor(options.Background.Color.Focused)
+            newButton:SetPushedBackgroundColor(options.Background.Color.Pushed)
+            newButton:SetTransparentBackground(options.Background.Transparent)        
+        end
+
+        if options.Text then    
+            newButton:SetNormalTextColor(options.Text.Color.Normal)
+            newButton:SetFocusedTextColor(options.Text.Color.Focused)
+            newButton:SetPushedTextColor(options.Text.Color.Pushed)
         end
 
         newButton:Create()
