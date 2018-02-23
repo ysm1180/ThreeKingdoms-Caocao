@@ -50,8 +50,9 @@ public:
         T *instance = nullptr;
         if (_unusingPool.empty())
         {
-            instance = (T *) malloc(sizeof(T));
-        } else
+            instance = (T *)malloc(sizeof(T));
+        }
+        else
         {
             instance = _unusingPool.front();
             _unusingPool.pop_front();
@@ -88,7 +89,7 @@ public:
     }
 
 public:
-    T *New()
+    T * New()
     {
         T *pointer = GetUnsingPointer();
 
@@ -147,7 +148,8 @@ public:
         if (_limit < _unusingPool.size())
         {
             free(instance);
-        } else
+        }
+        else
         {
             _unusingPool.push_back(instance);
         }

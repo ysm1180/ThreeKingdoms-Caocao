@@ -2,7 +2,7 @@ require "Script\\object.lua"
 
 ControlManager = Object:Instance 
 {
-    GetCenterPosition = function(parentControl, w, h, isChiildControl)
+    GetCenterPosition = function(self, parentControl, w, h, isChiildControl)
         OUTPUT("--- Start Get Center Position ---")
 
         if w == nil or h == nil then

@@ -123,7 +123,7 @@ void CTextFont::ResetFont()
     HWND controlHWnd = _control->GetHWnd();
     if (controlHWnd != nullptr)
     {
-        SendMessage(controlHWnd, WM_SETFONT, (WPARAM) _font, (LPARAM) TRUE);
+        SendMessage(controlHWnd, WM_SETFONT, (WPARAM)_font, (LPARAM)TRUE);
 
         RECT rect;
         SetRect(&rect, _control->GetX(), _control->GetY(), _control->GetX() + _control->GetWidth(),

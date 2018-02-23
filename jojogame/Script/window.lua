@@ -13,7 +13,7 @@ Window = Control:Instance
         setmetatable(newWindow, self)
         self.__index = self
 
-        OUTPUT("Make Window Intance")        
+        OUTPUT("Make Window Instance")        
         
         return newWindow
     end,
@@ -60,8 +60,6 @@ Window = Control:Instance
     SetMaxButton = function(self, value)
         if type(value) == "boolean" then
             self.control:SetMaxButton(value)
-        else
-            self.control:SetMaxButton(false)
         end
 
         OUTPUT("Set Max Button : " .. tostring(value))
@@ -70,8 +68,6 @@ Window = Control:Instance
     SetMinButton = function(self, value)
         if type(value) == "boolean" then
             self.control:SetMinButton(value)
-        else
-            self.control:SetMinButton(false)
         end
 
         OUTPUT("Set Min Button : " .. tostring(value))
@@ -80,8 +76,6 @@ Window = Control:Instance
     SetControlBox = function(self, value)
         if type(value) == "boolean" then        
             self.control:SetControlBox(value)
-        else
-            self.control:SetControlBox(false)
         end
 
         OUTPUT("Set Control Box : " .. tostring(value))
@@ -90,10 +84,16 @@ Window = Control:Instance
     SetTitlebar = function(self, value)
         if type(value) == "boolean" then        
             self.control:SetTitlebar(value)
-        else
-            self.control:SetControlBox(false)
         end
 
         OUTPUT("Set Title bar : " .. tostring(value))
+    end,
+
+    SetMenu = function(self, menu)
+        if menu then
+            self.control:SetMenu(menu.control)
+
+            OUTPUT("Set Menu")
+        end
     end,
 }

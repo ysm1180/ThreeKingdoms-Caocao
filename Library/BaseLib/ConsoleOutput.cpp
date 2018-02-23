@@ -5,7 +5,6 @@ std::vector<CConsoleOutput *> CConsoleOutput::_consoles;
 
 CConsoleOutput::CConsoleOutput()
 {
-
 }
 
 CConsoleOutput::~CConsoleOutput()

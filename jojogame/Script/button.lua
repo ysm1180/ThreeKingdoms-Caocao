@@ -28,7 +28,7 @@ Button = TextControl:Instance {
         setmetatable(newButton, self)
         self.__index = self
 
-        OUTPUT("Make Button Intance")
+        OUTPUT("Make Button Instance")
 
         return newButton
     end,
@@ -40,8 +40,7 @@ Button = TextControl:Instance {
     SetTransparentBackground = function(self, value)
         if type(value) == "boolean" then
             self.control:SetTransparentBackground(value)
-        else
-            self.control:SetTransparentBackground(false)
+            OUTPUT("Set Transparent Background : " .. tostring(value))
         end
     end,
 

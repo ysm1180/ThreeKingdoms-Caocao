@@ -1,6 +1,5 @@
 #include "LuaConsole.h"
 
-
 namespace jojogame {
 std::once_flag CLuaConsole::s_onceFlag;
 std::unique_ptr<CLuaConsole> CLuaConsole::s_sharedLuaConsole;
@@ -9,21 +8,21 @@ INT_PTR __stdcall DialogProc(HWND hDialog, UINT message, WPARAM wParam, LPARAM l
 {
     switch (message)
     {
-        case WM_COMMAND:
-            switch (LOWORD(wParam))
-            {
-                case IDOK:
-                    SendMessage(hDialog, WM_CLOSE, 0, 0);
-                    return TRUE;
-            }
-            break;
-
-        case WM_CLOSE:
-            DestroyWindow(hDialog);
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDOK:
+            SendMessage(hDialog, WM_CLOSE, 0, 0);
             return TRUE;
+        }
+        break;
 
-        case WM_DESTROY:
-            return TRUE;
+    case WM_CLOSE:
+        DestroyWindow(hDialog);
+        return TRUE;
+
+    case WM_DESTROY:
+        return TRUE;
     }
 
     return FALSE;
@@ -77,7 +76,7 @@ void CLuaConsole::AppendOutput(std::wstring msg)
 
     SendMessage(output, EM_SETSEL, 0, -1);
     SendMessage(output, EM_SETSEL, -1, -1);
-    SendMessage(output, EM_REPLACESEL, 0, (LPARAM) msg.c_str());
+    SendMessage(output, EM_REPLACESEL, 0, (LPARAM)msg.c_str());
 
     OutputDebugString(msg.c_str());
     OutputDebugString(L"\n");
@@ -108,12 +107,11 @@ void CLuaConsole::SetDebugFlag(bool flag)
         if (flag)
         {
             ShowWindow(hWnd, TRUE);
-        } else
+        }
+        else
         {
             ShowWindow(hWnd, FALSE);
         }
     }
 }
-
-
 }

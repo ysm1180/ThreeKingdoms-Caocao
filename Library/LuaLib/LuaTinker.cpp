@@ -24,17 +24,19 @@ int CustomLuaRequire(lua_State *L)
 
 int CustomLuaMessage(lua_State *L)
 {
-    char c[128] = {0,};
+    char c[128] = { 0, };
 
     if (lua_isstring(L, -1))
     {
         std::string str(lua_tostring(L, -1));
         MessageBoxA(GetDesktopWindow(), str.c_str(), "Lua Print", 0);
-    } else if (lua_isnumber(L, -1))
+    }
+    else if (lua_isnumber(L, -1))
     {
         sprintf_s(c, sizeof(c), "%lf", lua_tonumber(L, -1));
         MessageBoxA(GetDesktopWindow(), c, "Lua Print", 0);
-    } else if (lua_isnil(L, -1))
+    }
+    else if (lua_isnil(L, -1))
     {
         MessageBoxA(GetDesktopWindow(), "nil", "Lua Print", 0);
     }
@@ -77,9 +79,9 @@ CLuaTinker& CLuaTinker::GetLuaTinker()
 {
     std::call_once(s_onceFlag,
                    []
-                   {
-                       s_luaTinker.reset(new CLuaTinker);
-                   });
+    {
+        s_luaTinker.reset(new CLuaTinker);
+    });
 
     return *s_luaTinker.get();
 }

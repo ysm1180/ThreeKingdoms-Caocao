@@ -13,119 +13,118 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
     switch (iMessage)
     {
-        case WM_CREATE:
-        {
-            auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-            void *lpParamCreate = createStruct->lpCreateParams;
-            auto button = reinterpret_cast<CButtonControl *>(lpParamCreate);
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(button));
+    case WM_CREATE:
+    {
+        auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
+        void *lpParamCreate = createStruct->lpCreateParams;
+        auto button = reinterpret_cast<CButtonControl *>(lpParamCreate);
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(button));
 
-            auto createEvent = button->GetCreateEvent();
-            if (createEvent.length())
-            {
-                CLuaTinker::GetLuaTinker().Call(createEvent.c_str(), button);
-            }
-            break;
+        auto createEvent = button->GetCreateEvent();
+        if (createEvent.length())
+        {
+            CLuaTinker::GetLuaTinker().Call(createEvent.c_str(), button);
+        }
+        break;
+    }
+
+    case WM_LBUTTONUP:
+    {
+        auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLButtonUpEvent = button->GetMouseLButtonUpEvent();
+        if (mouseLButtonUpEvent.length())
+        {
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), button);
         }
 
-        case WM_LBUTTONUP:
-        {
-            auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto mouseLButtonUpEvent = button->GetMouseLButtonUpEvent();
-            if (mouseLButtonUpEvent.length())
-            {
-                CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), button);
-            }
+        button->_pushed = false;
+        break;
+    }
 
-            button->_pushed = false;
-            break;
+    case WM_LBUTTONDOWN:
+    {
+        auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLButtonUpEvent = button->GetMouseLButtonDownEvent();
+
+        if (mouseLButtonUpEvent.length())
+        {
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), button);
         }
 
-        case WM_LBUTTONDOWN:
+        button->_pushed = true;
+
+        break;
+    }
+
+    case WM_MOUSEMOVE:
+    {
+        auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseMoveEvent = button->GetMouseMoveEvent();
+        if (mouseMoveEvent.length())
         {
-            auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto mouseLButtonUpEvent = button->GetMouseLButtonDownEvent();
-
-            if (mouseLButtonUpEvent.length())
-            {
-                CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), button);
-            }
-
-            button->_pushed = true;
-
-            break;
+            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent.c_str(),
+                (int)wParam,
+                                            GET_X_LPARAM(lParam),
+                                            GET_Y_LPARAM(lParam));
         }
 
-        case WM_MOUSEMOVE:
+        if (isHover == false)
         {
-            auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto mouseMoveEvent = button->GetMouseMoveEvent();
-            if (mouseMoveEvent.length())
-            {
-                CLuaTinker::GetLuaTinker().Call(mouseMoveEvent.c_str(),
-                                                (int) wParam,
-                                                GET_X_LPARAM(lParam),
-                                                GET_Y_LPARAM(lParam));
-            }
-
-            if (isHover == false)
-            {
-                trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
-                trackMouseEvent.dwFlags = TME_HOVER;
-                trackMouseEvent.hwndTrack = hWnd;
-                trackMouseEvent.dwHoverTime = 10;
-                TrackMouseEvent(&trackMouseEvent);
-            }
-            break;
-        }
-
-        case WM_MOUSEHOVER:
-        {
-            auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto mouseHoverEvent = button->GetMouseHoverEvent();
-            if (mouseHoverEvent.length())
-            {
-                CLuaTinker::GetLuaTinker().Call(mouseHoverEvent.c_str());
-            }
-
-            button->_hovered = true;
-            InvalidateRect(button->_hWnd, NULL, TRUE);
-            UpdateWindow(button->_hWnd);
-
-            isHover = true;
             trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
-            trackMouseEvent.dwFlags = TME_LEAVE;
+            trackMouseEvent.dwFlags = TME_HOVER;
             trackMouseEvent.hwndTrack = hWnd;
-            trackMouseEvent.dwHoverTime = 500;
+            trackMouseEvent.dwHoverTime = 10;
             TrackMouseEvent(&trackMouseEvent);
-            break;
         }
+        break;
+    }
 
-        case WM_MOUSELEAVE:
+    case WM_MOUSEHOVER:
+    {
+        auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseHoverEvent = button->GetMouseHoverEvent();
+        if (mouseHoverEvent.length())
         {
-            auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto mouseLeaveEvent = button->GetMouseLeaveEvent();
-            if (mouseLeaveEvent.length())
-            {
-                CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent.c_str());
-            }
-
-            button->_hovered = false;
-            InvalidateRect(button->_hWnd, NULL, TRUE);
-            UpdateWindow(button->_hWnd);
-
-            isHover = false;
-            break;
+            CLuaTinker::GetLuaTinker().Call(mouseHoverEvent.c_str());
         }
 
-        case WM_DESTROY:
+        button->_hovered = true;
+        InvalidateRect(button->_hWnd, NULL, TRUE);
+        UpdateWindow(button->_hWnd);
+
+        isHover = true;
+        trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
+        trackMouseEvent.dwFlags = TME_LEAVE;
+        trackMouseEvent.hwndTrack = hWnd;
+        trackMouseEvent.dwHoverTime = 500;
+        TrackMouseEvent(&trackMouseEvent);
+        break;
+    }
+
+    case WM_MOUSELEAVE:
+    {
+        auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLeaveEvent = button->GetMouseLeaveEvent();
+        if (mouseLeaveEvent.length())
         {
-            break;
+            CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent.c_str());
         }
+
+        button->_hovered = false;
+        InvalidateRect(button->_hWnd, NULL, TRUE);
+        UpdateWindow(button->_hWnd);
+
+        isHover = false;
+        break;
+    }
+
+    case WM_DESTROY:
+    {
+        break;
+    }
     }
     return CallWindowProc(CButtonControl::GetOriginalProc(), hWnd, iMessage, wParam, lParam);
 }
-
 
 void CButtonControl::RegisterFunctions(lua_State *L)
 {
@@ -158,13 +157,13 @@ void CButtonControl::RegisterFunctions(lua_State *L)
     GetClassInfo(NULL, TEXT("button"), &wndClass);
     s_originalProc = wndClass.lpfnWndProc;
     wndClass.hInstance = CControlManager::GetInstance().GetHInstance();
-    wndClass.lpfnWndProc = (WNDPROC) CButtonControl::OnControlProc;
+    wndClass.lpfnWndProc = (WNDPROC)CButtonControl::OnControlProc;
     wndClass.lpszClassName = L"jojo_button";
     RegisterClass(&wndClass);
 }
 
 CButtonControl::CButtonControl()
-        : _font(this)
+    : _font(this)
 {
     //_style = WS_TABSTOP | WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON | BS_NOTIFY;
     _style = WS_TABSTOP | BS_OWNERDRAW | WS_CHILD;
@@ -204,7 +203,6 @@ StateColor& CButtonControl::GetBackgroundColor()
     return _backgroundColor;
 }
 
-
 StateColor& CButtonControl::GetBorderColor()
 {
     return _borderColor;
@@ -242,7 +240,8 @@ void CButtonControl::SetParentWindow(CWindowControl *parent)
     if (parent)
     {
         _parentHWnd = parent->GetHWnd();
-    } else
+    }
+    else
     {
         _parentHWnd = nullptr;
     }
@@ -308,9 +307,9 @@ bool CButtonControl::Create()
                          _size.cx,
                          _size.cy,
                          _parentHWnd,
-                         (HMENU) _hWnd,
+                         (HMENU)_hWnd,
                          CControlManager::GetInstance().GetHInstance(),
-                         (LPVOID) this);
+                         (LPVOID)this);
     _font.ResetFont();
 
     return true;

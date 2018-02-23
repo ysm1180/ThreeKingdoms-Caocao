@@ -2,6 +2,8 @@
 
 #include "LuaLib\LuaTinker.h"
 
+#include <Windows.h>
+
 #include <map>
 #include <vector>
 
@@ -26,7 +28,10 @@ public:
     CMenuManager();
     ~CMenuManager();
 
+    int AddMenuItemByHandle(CMenuItem *item, HMENU handle);
     int AddMenuItem(CMenuItem *item);
+
+    CMenuItem* GetMenuItem(int id);
 
     void DeleteMenuItem(const int index);
 

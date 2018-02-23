@@ -11,7 +11,8 @@ namespace jojogame {
 class CWindowControl;
 class CMoviePlayerControl;
 class CButtonControl;
-
+class CMenu;
+class CMenuItem;
 
 class  CControlManager
 {
@@ -24,9 +25,10 @@ public:
     void Init(HINSTANCE hInstance);
 
     CWindowControl *CreateWindowForm(CWindowControl *parent);
-    // void CreatePopupWindow(CWindowControl *parent);
     CMoviePlayerControl *CreateMoviePlayer(CWindowControl *parent, std::string fileName);
     CButtonControl *CreateButton(CWindowControl *parent);
+    CMenu *CreateMenu();
+    CMenuItem *CreateMenuItem();
 
     HINSTANCE GetHInstance();
 

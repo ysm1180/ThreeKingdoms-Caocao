@@ -74,6 +74,6 @@ int Application::Run()
     CMemoryPoolManager::GetInstance().DestroyAllMemoryPool();
     SDL_Quit();
 
-    return (int) message.wParam;
+    return (int)message.wParam;
 }
 }

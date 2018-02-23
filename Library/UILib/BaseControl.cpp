@@ -69,7 +69,8 @@ int CBaseControl::GetX() const
         RECT rect;
         GetWindowRect(_hWnd, &rect);
         return rect.left;
-    } else
+    }
+    else
     {
         return _position.x;
     }
@@ -82,7 +83,8 @@ int CBaseControl::GetY() const
         RECT rect;
         GetWindowRect(_hWnd, &rect);
         return rect.top;
-    } else
+    }
+    else
     {
         return _position.y;
     }
@@ -162,7 +164,7 @@ void CBaseControl::SetY(const int y)
         int diffY = _position.y - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, NULL, rect.left, rect.top, rect.right, rect.bottom, SWP_NOSIZE || SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOSIZE || SWP_NOZORDER);
     }
 }
 
@@ -180,7 +182,7 @@ void CBaseControl::SetX(const int x)
         int diffY = GetY() - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, NULL, rect.left, rect.top, rect.right, rect.bottom, SWP_NOSIZE || SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOSIZE || SWP_NOZORDER);
     }
 }
 
@@ -198,7 +200,7 @@ void CBaseControl::SetWidth(const int width)
         int diffY = GetY() - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, NULL, rect.left, rect.top, rect.right, rect.bottom, SWP_NOMOVE | SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOMOVE | SWP_NOZORDER);
     }
 }
 
@@ -216,7 +218,7 @@ void CBaseControl::SetHeight(const int height)
         int diffY = GetY() - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, NULL, rect.left, rect.top, rect.right, rect.bottom, SWP_NOMOVE | SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOMOVE | SWP_NOZORDER);
     }
 }
 

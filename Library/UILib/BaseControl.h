@@ -63,8 +63,8 @@ protected:
     bool _isEnabled = true;
     HWND _hWnd = nullptr;
     HWND _parentHWnd = nullptr;
-    SIZE _size = SIZE{0, 0};
-    POINT _position = POINT{0, 0};
+    SIZE _size = SIZE{ 0, 0 };
+    POINT _position = POINT{ 0, 0 };
     LONG _style = 0;
 
     std::wstring _createEvent = L"";

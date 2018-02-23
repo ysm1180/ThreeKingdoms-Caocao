@@ -28,7 +28,6 @@ extern "C" {
 
 #include <SDL/include/SDL.h>
 #include <SDL/include/SDL_thread.h>
-
 }
 
 #include <Windows.h>
@@ -121,7 +120,6 @@ struct VideoState
 
     std::queue<int> eventQueue;
 };
-
 
 class CMoviePlayerControl
 {

@@ -23,6 +23,7 @@ extern "C"
 
 namespace jojogame {
 class CWindowControl;
+class CMenu;
 }
 
 namespace lua_tinker {
@@ -219,8 +220,8 @@ enum
 {
     no = 1, yes = 2
 };
-typedef char(& no_type)[no];
-typedef char(& yes_type)[yes];
+typedef char(&no_type)[no];
+typedef char(&yes_type)[yes];
 
 struct int_conv_type
 {
@@ -258,7 +259,7 @@ struct is_enum
 {
     static T arg;
     static const bool value = ((sizeof(int_conv_tester(arg)) == sizeof(yes_type)) &&
-                               (sizeof(vfnd_ptr_tester(add_ptr(arg))) == sizeof(yes_type)));
+        (sizeof(vfnd_ptr_tester(add_ptr(arg))) == sizeof(yes_type)));
 };
 /////////////////////////////////
 
@@ -268,7 +269,7 @@ struct void2val
 {
     static T invoke(void *input)
     {
-        return *(T *) input;
+        return *(T *)input;
     }
 };
 template<typename T>
@@ -276,7 +277,7 @@ struct void2ptr
 {
     static T *invoke(void *input)
     {
-        return (T *) input;
+        return (T *)input;
     }
 };
 template<typename T>
@@ -284,7 +285,7 @@ struct void2ref
 {
     static T& invoke(void *input)
     {
-        return *(T *) input;
+        return *(T *)input;
     }
 };
 
@@ -326,7 +327,7 @@ struct lua2enum
 {
     static T invoke(lua_State *L, int index)
     {
-        return (T) (int) lua_tonumber(L, index);
+        return (T)(int)lua_tonumber(L, index);
     }
 };
 
@@ -385,14 +386,14 @@ struct val2user : user
 
     ~val2user()
     {
-        delete ((T *) m_p);
+        delete ((T *)m_p);
     }
 };
 
 template<typename T>
 struct ptr2user : user
 {
-    ptr2user(T *t) : user((void *) t)
+    ptr2user(T *t) : user((void *)t)
     {
     }
 };
@@ -421,8 +422,9 @@ struct ptr2lua
     {
         if (input)
         {
-            new(lua_newuserdata(L, sizeof(ptr2user < T > ))) ptr2user<T>(input);
-        } else
+            new(lua_newuserdata(L, sizeof(ptr2user < T >))) ptr2user<T>(input);
+        }
+        else
         {
             lua_pushnil(L);
         }
@@ -442,7 +444,7 @@ struct enum2lua
 {
     static void invoke(lua_State *L, T val)
     {
-        lua_pushnumber(L, (int) val);
+        lua_pushnumber(L, (int)val);
     }
 };
 
@@ -521,6 +523,8 @@ template<>
 table read(lua_State *L, int index);
 template<>
 ::jojogame::CWindowControl *read(lua_State *L, int index);
+template<>
+::jojogame::CMenu *read(lua_State *L, int index);
 
 // push a value to lua stack
 template<typename T>
@@ -533,6 +537,8 @@ template<>
 void push(lua_State *L, char ret);
 template<>
 void push(lua_State *L, unsigned char ret);
+template<>
+void push(lua_State *L, std::wstring ret);
 template<>
 void push(lua_State *L, short ret);
 template<>
@@ -646,8 +652,8 @@ struct functor<void, T1, T2, T3, T4, T5>
 {
     static int invoke(lua_State *L)
     {
-        upvalue_<void (*)(T1, T2, T3, T4, T5)>(L)(read<T1>(L, 1), read<T2>(L, 2), read<T3>(L, 3), read<T4>(L, 4),
-                                                  read<T5>(L, 5));
+        upvalue_<void(*)(T1, T2, T3, T4, T5)>(L)(read<T1>(L, 1), read<T2>(L, 2), read<T3>(L, 3), read<T4>(L, 4),
+                                                 read<T5>(L, 5));
         return 0;
     }
 };
@@ -657,7 +663,7 @@ struct functor<void, T1, T2, T3, T4>
 {
     static int invoke(lua_State *L)
     {
-        upvalue_<void (*)(T1, T2, T3, T4)>(L)(read<T1>(L, 1), read<T2>(L, 2), read<T3>(L, 3), read<T4>(L, 4));
+        upvalue_<void(*)(T1, T2, T3, T4)>(L)(read<T1>(L, 1), read<T2>(L, 2), read<T3>(L, 3), read<T4>(L, 4));
         return 0;
     }
 };
@@ -667,7 +673,7 @@ struct functor<void, T1, T2, T3>
 {
     static int invoke(lua_State *L)
     {
-        upvalue_<void (*)(T1, T2, T3)>(L)(read<T1>(L, 1), read<T2>(L, 2), read<T3>(L, 3));
+        upvalue_<void(*)(T1, T2, T3)>(L)(read<T1>(L, 1), read<T2>(L, 2), read<T3>(L, 3));
         return 0;
     }
 };
@@ -677,7 +683,7 @@ struct functor<void, T1, T2>
 {
     static int invoke(lua_State *L)
     {
-        upvalue_<void (*)(T1, T2)>(L)(read<T1>(L, 1), read<T2>(L, 2));
+        upvalue_<void(*)(T1, T2)>(L)(read<T1>(L, 1), read<T2>(L, 2));
         return 0;
     }
 };
@@ -687,7 +693,7 @@ struct functor<void, T1>
 {
     static int invoke(lua_State *L)
     {
-        upvalue_<void (*)(T1)>(L)(read<T1>(L, 1));
+        upvalue_<void(*)(T1)>(L)(read<T1>(L, 1));
         return 0;
     }
 };
@@ -697,7 +703,7 @@ struct functor<void>
 {
     static int invoke(lua_State *L)
     {
-        upvalue_<void (*)()>(L)();
+        upvalue_<void(*)()>(L)();
         return 0;
     }
 };
@@ -708,7 +714,7 @@ struct functor<int, lua_State *, T1>
 {
     static int invoke(lua_State *L)
     {
-        return upvalue_<int (*)(lua_State *, T1)>(L)(L, read<T1>(L, 1));
+        return upvalue_<int(*)(lua_State *, T1)>(L)(L, read<T1>(L, 1));
     }
 };
 
@@ -717,7 +723,7 @@ struct functor<int, lua_State *>
 {
     static int invoke(lua_State *L)
     {
-        return upvalue_<int (*)(lua_State *)>(L)(L);
+        return upvalue_<int(*)(lua_State *)>(L)(L);
     }
 };
 
@@ -810,8 +816,8 @@ struct mem_functor<RVal, T, T1, T2, T3, T4>
     static int invoke(lua_State *L)
     {
         push(L,
-             (read<T *>(L, 1)->*upvalue_<RVal(T::*)(T1, T2, T3, T4)>(L))(read<T1>(L, 2), read<T2>(L, 3), read<T3>(L, 4),
-                                                                         read<T4>(L, 5)));
+            (read<T *>(L, 1)->*upvalue_<RVal(T::*)(T1, T2, T3, T4)>(L))(read<T1>(L, 2), read<T2>(L, 3), read<T3>(L, 4),
+                                                                        read<T4>(L, 5)));
         return 1;
     }
 };
@@ -822,7 +828,7 @@ struct mem_functor<RVal, T, T1, T2, T3>
     static int invoke(lua_State *L)
     {
         push(L,
-             (read<T *>(L, 1)->*upvalue_<RVal(T::*)(T1, T2, T3)>(L))(read<T1>(L, 2), read<T2>(L, 3), read<T3>(L, 4)));
+            (read<T *>(L, 1)->*upvalue_<RVal(T::*)(T1, T2, T3)>(L))(read<T1>(L, 2), read<T2>(L, 3), read<T3>(L, 4)));
         return 1;
     }
 };
@@ -1085,7 +1091,7 @@ int constructor(lua_State *L)
 template<typename T>
 int destroyer(lua_State *L)
 {
-    ((user *) lua_touserdata(L, 1))->~user();
+    ((user *)lua_touserdata(L, 1))->~user();
     return 0;
 }
 
@@ -1093,7 +1099,7 @@ int destroyer(lua_State *L)
 template<typename F>
 void def(lua_State *L, const char *name, F func)
 {
-    lua_pushlightuserdata(L, (void *) func);
+    lua_pushlightuserdata(L, (void *)func);
     push_functor(L, func);
     lua_setglobal(L, name);
 }
@@ -1133,7 +1139,8 @@ RVal call(lua_State *L, const char *name)
         {
             lua_pop(L, 1);
         }
-    } else
+    }
+    else
     {
         print_error(L, "lua_tinker::call() attempt to call global `%s' (not a function)", name);
     }
@@ -1156,7 +1163,8 @@ RVal call(lua_State *L, const char *name, T1 arg)
         {
             lua_pop(L, 1);
         }
-    } else
+    }
+    else
     {
         print_error(L, "lua_tinker::call() attempt to call global `%s' (not a function)", name);
     }
@@ -1180,7 +1188,8 @@ RVal call(lua_State *L, const char *name, T1 arg1, T2 arg2)
         {
             lua_pop(L, 1);
         }
-    } else
+    }
+    else
     {
         print_error(L, "lua_tinker::call() attempt to call global `%s' (not a function)", name);
     }
@@ -1205,7 +1214,8 @@ RVal call(lua_State *L, const char *name, T1 arg1, T2 arg2, T3 arg3)
         {
             lua_pop(L, 1);
         }
-    } else
+    }
+    else
     {
         print_error(L, "lua_tinker::call() attempt to call global `%s' (not a function)", name);
     }
@@ -1231,7 +1241,8 @@ RVal call(lua_State *L, const char *name, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
             lua_pop(L, 1);
         }
-    } else
+    }
+    else
     {
         print_error(L, "lua_tinker::call() attempt to call global `%s' (not a function)", name);
     }
@@ -1258,7 +1269,8 @@ RVal call(lua_State *L, const char *name, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5
         {
             lua_pop(L, 1);
         }
-    } else
+    }
+    else
     {
         print_error(L, "lua_tinker::call() attempt to call global `%s' (not a function)", name);
     }
@@ -1286,7 +1298,8 @@ RVal call(lua_State *L, const char *name, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5
         {
             lua_pop(L, 1);
         }
-    } else
+    }
+    else
     {
         print_error(L, "lua_tinker::call() attempt to call global `%s' (not a function)", name);
     }
@@ -1315,7 +1328,8 @@ RVal call(lua_State *L, const char *name, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5
         {
             lua_pop(L, 1);
         }
-    } else
+    }
+    else
     {
         print_error(L, "lua_tinker::call() attempt to call global `%s' (not a function)", name);
     }
@@ -1345,7 +1359,8 @@ RVal call(lua_State *L, const char *name, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5
         {
             lua_pop(L, 1);
         }
-    } else
+    }
+    else
     {
         print_error(L, "lua_tinker::call() attempt to call global `%s' (not a function)", name);
     }
@@ -1529,7 +1544,6 @@ void class_mem(lua_State *L, const char *name, VAR BASE::*val)
 template<typename T>
 struct class_name
 {
-
     // global name
     static const char *name(const char *name = NULL)
     {
@@ -1571,7 +1585,8 @@ struct table_obj
         {
             lua_pushstring(m_L, name);
             lua_gettable(m_L, m_index);
-        } else
+        }
+        else
         {
             lua_pushnil(m_L);
         }

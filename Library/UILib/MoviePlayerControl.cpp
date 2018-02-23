@@ -63,7 +63,7 @@ void InitPacketQueue(PacketQueue *queue)
 int PutPacketQueue(PacketQueue *queue, AVPacket *packet)
 {
     AVPacketList *packetList;
-    packetList = (AVPacketList *) av_malloc(sizeof(AVPacketList));
+    packetList = (AVPacketList *)av_malloc(sizeof(AVPacketList));
     if (!packetList)
     {
         return AVERROR(ENOMEM);
@@ -80,7 +80,8 @@ int PutPacketQueue(PacketQueue *queue, AVPacket *packet)
     if (!queue->lastPacket)
     {
         queue->firstPacket = packetList;
-    } else
+    }
+    else
     {
         queue->lastPacket->next = packetList;
     }
@@ -119,11 +120,13 @@ static int GetPacketQueue(VideoState *videoState, PacketQueue *queue, AVPacket *
             av_free(packetList);
             result = 1;
             break;
-        } else if (!block)
+        }
+        else if (!block)
         {
             result = 0;
             break;
-        } else
+        }
+        else
         {
             if (videoState->finishQueue)
             {
@@ -155,7 +158,7 @@ double GetAudioClock(VideoState *videoState)
     }
     if (bytesPerSec)
     {
-        pts -= (double) hwBufSize / bytesPerSec;
+        pts -= (double)hwBufSize / bytesPerSec;
     }
     return pts;
 }
@@ -173,7 +176,8 @@ double GetMasterClock(VideoState *videoState)
     if (videoState->syncType == SyncType::AudioMaster)
     {
         return GetAudioClock(videoState);
-    } else
+    }
+    else
     {
         return GetVideoClock(videoState);
     }
@@ -198,22 +202,24 @@ int SynchronizeAudio(VideoState *videoState, short *samples, int samplesSize)
         {
             // accumulate the diffs
             videoState->audioDiffCum = diff + videoState->audioDiffAvgCoef
-                                              * videoState->audioDiffCum;
+                * videoState->audioDiffCum;
             if (videoState->audioDiffAvgCount < AUDIO_DIFF_AVG_NB)
             {
                 videoState->audioDiffAvgCount++;
-            } else
+            }
+            else
             {
                 avgDiff = videoState->audioDiffCum * (1.0 - videoState->audioDiffAvgCoef);
                 if (fabs(avgDiff) >= videoState->audioDiffThreshold)
                 {
-                    wantedSize = samplesSize + ((int) (diff * videoState->audioCodecContext->sample_rate) * n);
+                    wantedSize = samplesSize + ((int)(diff * videoState->audioCodecContext->sample_rate) * n);
                     minSize = samplesSize * ((100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100);
                     maxSize = samplesSize * ((100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100);
                     if (wantedSize < minSize)
                     {
                         wantedSize = minSize;
-                    } else if (wantedSize > maxSize)
+                    }
+                    else if (wantedSize > maxSize)
                     {
                         wantedSize = maxSize;
                     }
@@ -221,14 +227,15 @@ int SynchronizeAudio(VideoState *videoState, short *samples, int samplesSize)
                     {
                         /* remove samples */
                         samplesSize = wantedSize;
-                    } else if (wantedSize > samplesSize)
+                    }
+                    else if (wantedSize > samplesSize)
                     {
                         uint8_t *samples_end, *q;
                         int nb;
 
                         /* add samples by copying final sample*/
                         nb = (samplesSize - wantedSize);
-                        samples_end = (uint8_t *) samples + samplesSize - n;
+                        samples_end = (uint8_t *)samples + samplesSize - n;
                         q = samples_end + n;
                         while (nb > 0)
                         {
@@ -240,7 +247,8 @@ int SynchronizeAudio(VideoState *videoState, short *samples, int samplesSize)
                     }
                 }
             }
-        } else
+        }
+        else
         {
             /* difference videoState TOO big; reset diff stuff */
             videoState->audioDiffAvgCount = 0;
@@ -291,8 +299,8 @@ int DecodeAudioFrame(VideoState *videoState, uint8_t *audioBuffer, int bufferSiz
             pts = videoState->audioClock;
             *ptsPtr = pts;
             n = 2 * videoState->audioCodecContext->channels;
-            videoState->audioClock += (double) dataSize /
-                                      (double) (n * videoState->audioCodecContext->sample_rate);
+            videoState->audioClock += (double)dataSize /
+                (double)(n * videoState->audioCodecContext->sample_rate);
             // We have data, return it and come back for more later
             return dataSize;
         }
@@ -319,7 +327,7 @@ int DecodeAudioFrame(VideoState *videoState, uint8_t *audioBuffer, int bufferSiz
 
 void AudioCallback(void *userdata, Uint8 *stream, int len)
 {
-    auto videoState = (VideoState *) userdata;
+    auto videoState = (VideoState *)userdata;
     int computedLen, audioSize;
     double pts;
 
@@ -334,9 +342,10 @@ void AudioCallback(void *userdata, Uint8 *stream, int len)
                 // If error, output silence
                 videoState->audioBufferSize = 1024; // arbitrary?
                 memset(videoState->audioBuffer, 0, videoState->audioBufferSize);
-            } else
+            }
+            else
             {
-                audioSize = SynchronizeAudio(videoState, (int16_t *) videoState->audioBuffer, audioSize);
+                audioSize = SynchronizeAudio(videoState, (int16_t *)videoState->audioBuffer, audioSize);
                 videoState->audioBufferSize = static_cast<unsigned int>(audioSize);
             }
             videoState->audioBufferIndex = 0;
@@ -346,43 +355,42 @@ void AudioCallback(void *userdata, Uint8 *stream, int len)
         {
             computedLen = len;
         }
-        memcpy(stream, (uint8_t *) videoState->audioBuffer + videoState->audioBufferIndex, computedLen);
+        memcpy(stream, (uint8_t *)videoState->audioBuffer + videoState->audioBufferIndex, computedLen);
         len -= computedLen;
         stream += computedLen;
         videoState->audioBufferIndex += computedLen;
     }
 }
 
-
 static void RefreshTimerCallback(void *data)
 {
-    auto videoState = (VideoState *) data;
+    auto videoState = (VideoState *)data;
     videoState->eventQueue.push(WM_REFRESH_EVENT);
 
-//    PostThreadMessage(threadId, WM_REFRESH_EVENT, NULL, (LPARAM)data);
+    //    PostThreadMessage(threadId, WM_REFRESH_EVENT, NULL, (LPARAM)data);
 
-//    SDL_Event event;
-//    event.type = WM_REFRESH_EVENT;
-//    event.user.data1 = data;
-//    SDL_PushEvent(&event);
-//    return 0; /* 0 means stop timer */
+    //    SDL_Event event;
+    //    event.type = WM_REFRESH_EVENT;
+    //    event.user.data1 = data;
+    //    SDL_PushEvent(&event);
+    //    return 0; /* 0 means stop timer */
 }
 
 /* schedule a video refresh in 'delay' ms */
 static void ScheduleRefresh(VideoState *is, int delay)
 {
-//    auto mainThreadId = std::this_thread::get_id();
-//    std::stringstream stringStream;
-//    stringStream << mainThreadId;
-//    auto id = (DWORD) std::stoull(stringStream.str());
+    //    auto mainThreadId = std::this_thread::get_id();
+    //    std::stringstream stringStream;
+    //    stringStream << mainThreadId;
+    //    auto id = (DWORD) std::stoull(stringStream.str());
 
     std::thread([is, delay]()
-                {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-                    RefreshTimerCallback(is);
-                }).detach();
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+        RefreshTimerCallback(is);
+    }).detach();
 
-//    SDL_AddTimer(delay, RefreshTimerCallback, is);
+    //    SDL_AddTimer(delay, RefreshTimerCallback, is);
 }
 
 void DisplayVideo(VideoState *videoState)
@@ -408,8 +416,7 @@ void DisplayVideo(VideoState *videoState)
 
 void RefreshVideoTimer(void *userdata)
 {
-
-    auto *videoState = (VideoState *) userdata;
+    auto *videoState = (VideoState *)userdata;
     VideoFrame *videoFrame;
     double actualDelay, delay, syncThreshold, refClock, diff;
 
@@ -418,7 +425,8 @@ void RefreshVideoTimer(void *userdata)
         if (videoState->frameQueueSize == 0)
         {
             ScheduleRefresh(videoState, 1);
-        } else
+        }
+        else
         {
             videoFrame = &videoState->frameQueue[videoState->frameQueueRearIndex];
 
@@ -448,7 +456,8 @@ void RefreshVideoTimer(void *userdata)
                     if (diff <= -syncThreshold)
                     {
                         delay = 0;
-                    } else if (diff >= syncThreshold)
+                    }
+                    else if (diff >= syncThreshold)
                     {
                         delay = 2 * delay;
                     }
@@ -462,7 +471,7 @@ void RefreshVideoTimer(void *userdata)
                 // Really it should skip the picture instead
                 actualDelay = 0.010;
             }
-            ScheduleRefresh(videoState, (int) (actualDelay * 1000 + 0.5));
+            ScheduleRefresh(videoState, (int)(actualDelay * 1000 + 0.5));
 
             DisplayVideo(videoState);
 
@@ -476,7 +485,8 @@ void RefreshVideoTimer(void *userdata)
             videoState->frameQueueCond.notify_one();
             lock.unlock();
         }
-    } else
+    }
+    else
     {
         ScheduleRefresh(videoState, 100);
     }
@@ -484,7 +494,7 @@ void RefreshVideoTimer(void *userdata)
 
 void AllocPicture(void *userdata)
 {
-    auto *videoState = (VideoState *) userdata;
+    auto *videoState = (VideoState *)userdata;
     VideoFrame *videoFrame;
 
     videoFrame = &videoState->frameQueue[videoState->frameQueueWIndex];
@@ -493,7 +503,6 @@ void AllocPicture(void *userdata)
         SelectObject(videoFrame->dc, videoFrame->oldBitmap);
         DeleteBitmap(videoFrame->newBitmap);
         DeleteDC(videoFrame->dc);
-
     }
 
     std::unique_lock<std::mutex> lock(videoState->screenMutex);
@@ -505,9 +514,9 @@ void AllocPicture(void *userdata)
         CConsoleOutput::OutputConsoles(L"Cannot get image buffer size");
         return;
     }
-    videoFrame->buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
+    videoFrame->buffer = (uint8_t *)av_malloc(numBytes * sizeof(uint8_t));
 
-    BITMAPINFO bmi = {0};
+    BITMAPINFO bmi = { 0 };
     bmi.bmiHeader.biBitCount = 24;
     bmi.bmiHeader.biCompression = BI_RGB;
     bmi.bmiHeader.biHeight = -videoState->videoCodecContext->height;
@@ -519,9 +528,9 @@ void AllocPicture(void *userdata)
 
     HDC dc = GetDC(videoState->parentControlHWnd);
     videoFrame->dc = CreateCompatibleDC(dc);
-    videoFrame->newBitmap = CreateDIBSection(videoFrame->dc, &bmi, DIB_RGB_COLORS, (void **) &videoFrame->buffer,
+    videoFrame->newBitmap = CreateDIBSection(videoFrame->dc, &bmi, DIB_RGB_COLORS, (void **)&videoFrame->buffer,
                                              nullptr, 0);
-    videoFrame->oldBitmap = (HBITMAP) SelectObject(videoFrame->dc, videoFrame->newBitmap);
+    videoFrame->oldBitmap = (HBITMAP)SelectObject(videoFrame->dc, videoFrame->newBitmap);
 
     ReleaseDC(videoState->parentControlHWnd, dc);
 
@@ -570,7 +579,7 @@ int QueuePicture(VideoState *videoState, AVFrame *frame, double pts)
         av_image_fill_arrays(frameBGR->data, frameBGR->linesize, videoFrame->buffer, AV_PIX_FMT_RGB24,
                              videoState->videoCodecContext->width, videoState->videoCodecContext->height, 32);
 
-        sws_scale(videoState->swsContext, (uint8_t const *const *) frame->data,
+        sws_scale(videoState->swsContext, (uint8_t const *const *)frame->data,
                   frame->linesize, 0, videoState->videoCodecContext->height,
                   frameBGR->data, frameBGR->linesize);
 
@@ -591,7 +600,6 @@ int QueuePicture(VideoState *videoState, AVFrame *frame, double pts)
     return 0;
 }
 
-
 double SynchronizeVideo(VideoState *videoState, AVFrame *srcFrame, double pts)
 {
     double frameDelay;
@@ -600,7 +608,8 @@ double SynchronizeVideo(VideoState *videoState, AVFrame *srcFrame, double pts)
     {
         // if we have pts, set video clock to it
         videoState->videoClock = pts;
-    } else
+    }
+    else
     {
         // if we aren't given a pts, set it to the clock
         pts = videoState->videoClock;
@@ -615,7 +624,7 @@ double SynchronizeVideo(VideoState *videoState, AVFrame *srcFrame, double pts)
 
 int ThreadVideo(void *arg)
 {
-    VideoState *videoState = (VideoState *) arg;
+    VideoState *videoState = (VideoState *)arg;
     AVPacket packet;
     AVFrame *frame;
     double pts;
@@ -624,7 +633,6 @@ int ThreadVideo(void *arg)
 
     for (; videoState->playing;)
     {
-
         if (!videoState->playing || GetPacketQueue(videoState, &videoState->videoQueue, &packet, 1) < 0)
         {
             break;
@@ -817,14 +825,14 @@ bool PlayMovie(VideoState *videoState)
 {
     AVPacket packet;
 
-    videoState->frameTimer = (double) av_gettime() / 1000000.0;
+    videoState->frameTimer = (double)av_gettime() / 1000000.0;
     videoState->frameLastDelay = 40e-3;
     videoState->videoCurrentPtsTime = av_gettime();
 
     auto t = std::thread([&]()
-                         {
-                             ThreadVideo(videoState);
-                         });
+    {
+        ThreadVideo(videoState);
+    });
 
     for (;;)
     {
@@ -848,7 +856,8 @@ bool PlayMovie(VideoState *videoState)
             {
                 videoState->finishQueue = true;
                 continue;
-            } else
+            }
+            else
             {
                 videoState->playing = false;
                 break;
@@ -858,10 +867,12 @@ bool PlayMovie(VideoState *videoState)
         if (packet.stream_index == videoState->videoStreamIndex)
         {
             PutPacketQueue(&videoState->videoQueue, &packet);
-        } else if (packet.stream_index == videoState->audioStreamIndex)
+        }
+        else if (packet.stream_index == videoState->audioStreamIndex)
         {
             PutPacketQueue(&videoState->audioQueue, &packet);
-        } else
+        }
+        else
         {
             av_packet_unref(&packet);
         }
@@ -882,28 +893,28 @@ void CMoviePlayerControl::Play()
     ScheduleRefresh(&_state, 40);
 
     auto t = std::thread([&]()
-                         {
-                             PlaySound(&_state);
-                             PlayMovie(&_state);
-                         });
+    {
+        PlaySound(&_state);
+        PlayMovie(&_state);
+    });
 
-//    SDL_Event event;
-//    for (; _state.playing;)
-//    {
-//        SDL_WaitEvent(&event);
-//        OutputDebugString(L"Event\n");
-//        switch (event.type)
-//        {
-//            case SDL_QUIT:
-//                SDL_Quit();
-//                break;
-//            case WM_REFRESH_EVENT:
-//                RefreshVideoTimer(event.user.data1);
-//                break;
-//            default:
-//                break;
-//        }
-//    }
+    //    SDL_Event event;
+    //    for (; _state.playing;)
+    //    {
+    //        SDL_WaitEvent(&event);
+    //        OutputDebugString(L"Event\n");
+    //        switch (event.type)
+    //        {
+    //            case SDL_QUIT:
+    //                SDL_Quit();
+    //                break;
+    //            case WM_REFRESH_EVENT:
+    //                RefreshVideoTimer(event.user.data1);
+    //                break;
+    //            default:
+    //                break;
+    //        }
+    //    }
 
     auto quit = false;
     MSG message;
@@ -921,10 +932,12 @@ void CMoviePlayerControl::Play()
 
             TranslateMessage(&message);
             DispatchMessage(&message);
-        } else if (!_state.playing)
+        }
+        else if (!_state.playing)
         {
             break;
-        } else if (!_state.eventQueue.empty() && _state.eventQueue.front() == WM_REFRESH_EVENT)
+        }
+        else if (!_state.eventQueue.empty() && _state.eventQueue.front() == WM_REFRESH_EVENT)
         {
             _state.eventQueue.pop();
             RefreshVideoTimer(reinterpret_cast<void *>(&_state));
@@ -990,5 +1003,4 @@ void CMoviePlayerControl::SetHeight(int height)
 {
     _size.cy = height;
 }
-
 }

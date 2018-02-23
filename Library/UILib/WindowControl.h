@@ -11,7 +11,7 @@
 
 namespace jojogame {
 class CMoviePlayer;
-class CMenubar;
+class CMenu;
 
 struct DrawingImageInfo
 {
@@ -40,8 +40,12 @@ public:
     std::wstring GetTitleName() const;
     std::wstring GetActiveEvent() const;
     std::wstring GetCloseEvent() const;
-    CMenubar *GetMenu();
+    CMenu *GetMenu();
 
+    void SetY(int x) override;
+    void SetX(int y) override;
+    void SetWidth(int width) override;
+    void SetHeight(int height) override;
     void SetControlBox(bool isControlBox);
     void SetMaxButton(bool isMaxButton);
     void SetMinButton(bool isMinButton);
@@ -51,7 +55,7 @@ public:
     void SetCloseEvent(std::wstring closeEvent);
     void SetIcon(std::wstring iconFilePath);
     void SetBackColor(COLORREF backColor);
-    void SetMenu(CMenubar *menu);
+    void SetMenu(CMenu *menu);
     void SetParentWindow(CWindowControl *parent);
 
     int SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bitmapInfo, RECT& rect);
@@ -81,7 +85,6 @@ private:
     HBRUSH _backBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
 
     std::vector<DrawingImageInfo *> _images;
-    CMenubar *_menu = nullptr;
-
+    CMenu *_menu = nullptr;
 };
 }

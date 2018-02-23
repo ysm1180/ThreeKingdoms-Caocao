@@ -3,7 +3,7 @@ require "Script\\button.lua"
 
 ButtonManager = ControlManager:Instance 
 {
-    Create = function(options)
+    Create = function(self, options)
         OUTPUT("-------- Start Create : Button --------")
         local newButton = Button:Instance(options.Parent)
 

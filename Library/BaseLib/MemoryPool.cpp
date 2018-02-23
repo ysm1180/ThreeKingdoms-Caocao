@@ -1,8 +1,6 @@
 #include "MemoryPool.h"
 
 namespace jojogame {
-
-
 CMemoryPoolBase::CMemoryPoolBase()
 {
 }
@@ -10,7 +8,6 @@ CMemoryPoolBase::CMemoryPoolBase()
 CMemoryPoolBase::~CMemoryPoolBase()
 {
 }
-
 
 std::once_flag CMemoryPoolManager::s_onceFlag;
 std::unique_ptr<CMemoryPoolManager> CMemoryPoolManager::s_sharedMemoryPoolManager;
@@ -48,5 +45,4 @@ CMemoryPoolManager& CMemoryPoolManager::GetInstance()
 
     return *s_sharedMemoryPoolManager.get();
 }
-
 }

@@ -39,4 +39,3 @@ private:
     static std::unique_ptr<CLuaConsole> s_sharedLuaConsole;
 };
 }
-

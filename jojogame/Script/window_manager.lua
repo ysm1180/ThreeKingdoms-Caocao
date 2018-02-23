@@ -3,14 +3,14 @@ require "Script\\window.lua"
 
 WindowManager = ControlManager:Instance
 {
-    Create = function(options)
+    Create = function(self, options)
         OUTPUT("-------- Start Create : Window --------")
         local newWindow = Window:Instance(options.Parent)
 
         newWindow:SetSize(options.Width, options.Height)
 
         if options.Center then
-            local x, y = ControlManager.GetCenterPosition(options.Parent, options.Width, options.Height, false)
+            local x, y = ControlManager:GetCenterPosition(options.Parent, options.Width, options.Height, false)
             if x ~= nil and y ~= nil then
                 options.X = x
                 options.Y = y
@@ -35,6 +35,8 @@ WindowManager = ControlManager:Instance
         newWindow:SetCloseEvent(options.Close)
         newWindow:SetMouseLButtonUpEvent(options.MouseLButtonUp)
         newWindow:SetMouseLButtonDownEvent(options.MouseLButtonDown)
+
+        newWindow:SetMenu(options.Menu)
 
         newWindow:Create()
 

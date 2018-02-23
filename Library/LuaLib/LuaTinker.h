@@ -161,7 +161,7 @@ public:
     }
 
 protected:
-    lua_State *_luaState = nullptr;
+    lua_State * _luaState = nullptr;
 
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CLuaTinker> s_luaTinker;

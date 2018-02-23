@@ -6,6 +6,7 @@
 #include "WindowControl.h"
 #include "MoviePlayerControl.h"
 #include "ButtonControl.h"
+#include "MenuControl.h"
 
 namespace jojogame {
 std::once_flag CControlManager::s_onceFlag;
@@ -18,6 +19,8 @@ void CControlManager::RegisterFunctions(lua_State *L)
     LUA_METHOD(CreateWindowForm);
     LUA_METHOD(CreateMoviePlayer);
     LUA_METHOD(CreateButton);
+    LUA_METHOD(CreateMenu);
+    LUA_METHOD(CreateMenuItem);
 }
 
 CControlManager::CControlManager()
@@ -37,6 +40,8 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CWindowControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CMoviePlayerControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CButtonControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CMenu>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CMenuItem>();
 }
 
 CWindowControl *CControlManager::CreateWindowForm(CWindowControl *parent)
@@ -57,6 +62,16 @@ CButtonControl * CControlManager::CreateButton(CWindowControl *parent)
     auto newButton = CMemoryPool<CButtonControl>::GetInstance().New();
     newButton->SetParentWindow(parent);
     return newButton;
+}
+
+CMenu * CControlManager::CreateMenu()
+{
+    return CMemoryPool<CMenu>::GetInstance().New();
+}
+
+CMenuItem * CControlManager::CreateMenuItem()
+{
+    return CMemoryPool<CMenuItem>::GetInstance().New();;
 }
 
 HINSTANCE CControlManager::GetHInstance()

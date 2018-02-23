@@ -3,7 +3,7 @@ require "Script\\movie_player.lua"
 
 MoviePlayerManager = ControlManager:Instance
 {
-    Create = function(options)
+    Create = function(self, options)
         OUTPUT("-------- Start Create : Movie Player --------")
 
         local newMoviePlayer = MoviePlayer:Instance(options.Parent, options.FileName)

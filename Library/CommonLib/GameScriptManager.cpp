@@ -12,7 +12,6 @@ CGameScriptManager::CGameScriptManager()
 {
 }
 
-
 CGameScriptManager::~CGameScriptManager()
 {
 }
@@ -21,9 +20,9 @@ CGameScriptManager& CGameScriptManager::GetInstance()
 {
     std::call_once(s_onceFlag,
                    []
-                   {
-                       s_sharedGameScriptManager.reset(new CGameScriptManager);
-                   });
+    {
+        s_sharedGameScriptManager.reset(new CGameScriptManager);
+    });
 
     return *s_sharedGameScriptManager.get();
 }

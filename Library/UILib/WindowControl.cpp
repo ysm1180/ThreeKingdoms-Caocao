@@ -2,219 +2,236 @@
 
 #include "MoviePlayerControl.h"
 #include "ButtonControl.h"
+#include "MenuControl.h"
 #include "ControlManager.h"
 
 #include "BaseLib\ConsoleOutput.h"
 
-#include <WinUser.h>
+#include <CommonLib/MenuManager.h>
 
 namespace jojogame {
 LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
     switch (iMessage)
     {
-        case WM_CREATE:
+    case WM_CREATE:
+    {
+        // WindowControl 클래스의 포인터를 hwnd의 GWLP_USERDATA 에 저장
+        // GetWindowLongPtr 을 통해 WindowControl instance 를 불러와서 함수 호출 가능
+        LPCREATESTRUCT createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
+        auto lpParamCreate = createStruct->lpCreateParams;
+        auto window = reinterpret_cast<CWindowControl *>(lpParamCreate);
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
+
+        auto createFunction = window->GetCreateEvent();
+        if (createFunction.length())
         {
-            // WindowControl 클래스의 포인터를 hwnd의 GWLP_USERDATA 에 저장
-            // GetWindowLongPtr 을 통해 WindowControl instance 를 불러와서 함수 호출 가능
-            LPCREATESTRUCT createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-            auto lpParamCreate = createStruct->lpCreateParams;
-            auto window = reinterpret_cast<CWindowControl *>(lpParamCreate);
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
-
-            auto createFunction = window->GetCreateEvent();
-            if (createFunction.length())
-            {
-                CLuaTinker::GetLuaTinker().Call(createFunction.c_str(), window);
-            }
-
-            return 0;
+            CLuaTinker::GetLuaTinker().Call(createFunction.c_str(), window);
         }
 
-        case WM_SETCURSOR:
-        {
-            break;
-        }
+        return 0;
+    }
 
-        case WM_LBUTTONUP:
+    case WM_SETCURSOR:
+    {
+        break;
+    }
+
+    case WM_LBUTTONUP:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLButtonUpEvent = window->GetMouseLButtonUpEvent();
+        if (mouseLButtonUpEvent.length())
+        {
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), window);
+        }
+        break;
+    }
+
+    case WM_LBUTTONDOWN:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLButtonDownEvent = window->GetMouseLButtonDownEvent();
+        if (mouseLButtonDownEvent.length())
+        {
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(), window);
+        }
+        break;
+    }
+
+    case WM_ACTIVATEAPP:
+    {
+        if (wParam == TRUE)
         {
             auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto mouseLButtonUpEvent = window->GetMouseLButtonUpEvent();
-            if (mouseLButtonUpEvent.length())
+            auto activeEvent = window->GetActiveEvent();
+            if (activeEvent.length())
             {
-                CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), window);
+                CLuaTinker::GetLuaTinker().Call(activeEvent.c_str(), window);
             }
-            break;
         }
+        return 0;
+    }
 
-        case WM_LBUTTONDOWN:
+    case WM_COMMAND:
+    {
+        auto id = LOWORD(wParam);
+        auto menuItem = CMenuManager::GetInstance().GetMenuItem(id);
+        if (menuItem)
         {
-            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto mouseLButtonDownEvent = window->GetMouseLButtonDownEvent();
-            if (mouseLButtonDownEvent.length())
+            auto clickEvent = menuItem->GetClickEvent();
+            if (clickEvent.length())
             {
-                CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(), window);
+                CLuaTinker::GetLuaTinker().Call(clickEvent.c_str(), menuItem);
             }
-            break;
         }
+        break;
+    }
 
-        case WM_ACTIVATEAPP:
+    case WM_SIZE:
+    {
+        break;
+    }
+
+    case WM_MOVE:
+    {
+        break;
+    }
+
+    case WM_CLOSE:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto closeEvent = window->GetCloseEvent();
+        if (closeEvent.length())
         {
-            if (wParam == TRUE)
+            // notClose = true 이면 종료 취소
+            const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeEvent.c_str(), window);
+            if (notClose)
             {
-                auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-                auto activeEvent = window->GetActiveEvent();
-                if (activeEvent.length())
-                {
-                    CLuaTinker::GetLuaTinker().Call(activeEvent.c_str(), window);
-                }
+                return 0;
             }
-            return 0;
+        }
+        break;
+    }
+
+    case WM_DESTROY:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto destroyEvent = window->GetDestroyEvent();
+        if (destroyEvent.length())
+        {
+            CLuaTinker::GetLuaTinker().Call<void>(destroyEvent.c_str(), window);
         }
 
-        case WM_COMMAND:
-        {
-            break;
-        }
+        return 0;
+    }
 
-        case WM_SIZE:
-        {
-            break;
-        }
+    case WM_NOTIFY:
+    {
+        break;
+    }
 
-        case WM_MOVE:
-        {
-            break;
-        }
 
-        case WM_CLOSE:
+    case WM_DRAWITEM:
+    {
+        auto item = (DRAWITEMSTRUCT *)lParam;
+        if (item->CtlType == ODT_BUTTON)
         {
-            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto closeEvent = window->GetCloseEvent();
-            if (closeEvent.length())
+            auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(item->hwndItem, GWLP_USERDATA));
+
+            COLORREF backgroundColor, borderColor;
+            if (button->IsPushed())
             {
-                // notClose = true 이면 종료 취소
-                const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeEvent.c_str(), window);
-                if (notClose)
-                {
-                    return 0;
-                }
+                backgroundColor = button->GetBackgroundColor().pushed;
+                borderColor = button->GetBorderColor().pushed;
+                SetTextColor(item->hDC, button->GetTextColor().pushed);
             }
-            break;
-        }
-
-        case WM_DESTROY:
-        {
-            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            auto destroyEvent = window->GetDestroyEvent();
-            if (destroyEvent.length())
+            else if (button->IsHovered())
             {
-                CLuaTinker::GetLuaTinker().Call<void>(destroyEvent.c_str(), window);
+                backgroundColor = button->GetBackgroundColor().focused;
+                borderColor = button->GetBorderColor().focused;
+                SetTextColor(item->hDC, button->GetTextColor().focused);
             }
-
-            return 0;
-        }
-
-        case WM_NOTIFY:
-        {
-
-            break;
-        }
-
-        case WM_DRAWITEM:
-        {
-            auto item = (DRAWITEMSTRUCT *)lParam;
-            if (item->CtlType == ODT_BUTTON)
+            else
             {
-                auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(item->hwndItem, GWLP_USERDATA));
-
-                COLORREF backgroundColor, borderColor;
-                if (button->IsPushed())
-                {
-                    backgroundColor = button->GetBackgroundColor().pushed;
-                    borderColor = button->GetBorderColor().pushed;
-                    SetTextColor(item->hDC, button->GetTextColor().pushed);
-                } else if (button->IsHovered())
-                {
-                    backgroundColor = button->GetBackgroundColor().focused;
-                    borderColor = button->GetBorderColor().focused;
-                    SetTextColor(item->hDC, button->GetTextColor().focused);
-                } else {
-                    backgroundColor = button->GetBackgroundColor().normal;
-                    borderColor = button->GetBorderColor().normal;
-                    SetTextColor(item->hDC, button->GetTextColor().normal);
-                }
-
-                RECT rect;
-                SetRect(&rect, item->rcItem.left, item->rcItem.top, item->rcItem.right, item->rcItem.bottom);
-                int borderWidth = button->GetBorderWidth();
-                HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor);
-                HBRUSH borderBrush = CreateSolidBrush(borderColor);
-                FillRect(item->hDC, &rect, borderBrush);
-                SetRect(&rect, rect.left + borderWidth, rect.top + borderWidth, rect.right - borderWidth, rect.bottom - borderWidth);
-                FillRect(item->hDC, &rect, backgroundBrush);
-
-                auto originalFont = SelectFont(item->hDC, button->GetFont()->GetHFont());
-                SetBkMode(item->hDC, TRANSPARENT);
-                DrawText(item->hDC, button->GetText().c_str(), -1, &rect,
-                         DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-
-                SelectFont(item->hDC, originalFont);
-                SetBkMode(item->hDC, OPAQUE);
+                backgroundColor = button->GetBackgroundColor().normal;
+                borderColor = button->GetBorderColor().normal;
+                SetTextColor(item->hDC, button->GetTextColor().normal);
             }
-            break;
-        }
 
-        case WM_CTLCOLORBTN:
-        {
-            auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr((HWND) lParam, GWLP_USERDATA));
             RECT rect;
+            SetRect(&rect, item->rcItem.left, item->rcItem.top, item->rcItem.right, item->rcItem.bottom);
+            int borderWidth = button->GetBorderWidth();
+            HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor);
+            HBRUSH borderBrush = CreateSolidBrush(borderColor);
+            FillRect(item->hDC, &rect, borderBrush);
+            SetRect(&rect, rect.left + borderWidth, rect.top + borderWidth, rect.right - borderWidth,
+                    rect.bottom - borderWidth);
+            FillRect(item->hDC, &rect, backgroundBrush);
 
+            auto originalFont = SelectFont(item->hDC, button->GetFont()->GetHFont());
+            SetBkMode(item->hDC, TRANSPARENT);
+            DrawText(item->hDC, button->GetText().c_str(), -1, &rect,
+                     DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+            SelectFont(item->hDC, originalFont);
+            SetBkMode(item->hDC, OPAQUE);
+        }
+        
+        break;
+    }
+
+    case WM_CTLCOLORBTN:
+    {
+        auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
+        RECT rect;
+
+        GetClientRect(button->GetHWnd(), &rect);
+
+        if (button->IsTransparentBackground())
+        {
             GetClientRect(button->GetHWnd(), &rect);
+            auto rgn = CreateRectRgn(rect.left, rect.top, rect.right, rect.bottom);
+            SelectClipRgn((HDC)wParam, rgn);
 
-            if (button->IsTransparentBackground())
-            {
-                GetClientRect(button->GetHWnd(), &rect);
-                auto rgn = CreateRectRgn(rect.left, rect.top, rect.right, rect.bottom);
-                SelectClipRgn((HDC) wParam, rgn);
+            auto originalFont = SelectFont((HDC)wParam, button->GetFont()->GetHFont());
+            SetBkMode((HDC)wParam, TRANSPARENT);
+            DrawText((HDC)wParam, button->GetText().c_str(), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
-                auto originalFont = SelectFont((HDC) wParam, button->GetFont()->GetHFont());
-                SetBkMode((HDC) wParam, TRANSPARENT);
-                DrawText((HDC) wParam, button->GetText().c_str(), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+            SelectFont((HDC)wParam, originalFont);
+            SetBkMode((HDC)wParam, OPAQUE);
 
-                SelectFont((HDC) wParam, originalFont);
-                SetBkMode((HDC) wParam, OPAQUE);
-
-                int borderWidth = button->GetBorderWidth();
-                ExcludeClipRect((HDC) wParam, rect.left + borderWidth, rect.top + borderWidth, rect.right - borderWidth, rect.bottom - borderWidth);
-            }
-
-            break;
+            int borderWidth = button->GetBorderWidth();
+            ExcludeClipRect((HDC)wParam, rect.left + borderWidth, rect.top + borderWidth, rect.right - borderWidth,
+                            rect.bottom - borderWidth);
         }
 
-        case WM_PAINT:
+        break;
+    }
+
+    case WM_PAINT:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        for (auto image : window->_images)
         {
-            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-
-            for (auto image : window->_images)
-            {
-                BitBlt(hdc, image->x, image->y, image->width, image->height, image->memDC, 0, 0, SRCCOPY);
-            }
-
-            EndPaint(hWnd, &ps);
-            break;
+            BitBlt(hdc, image->x, image->y, image->width, image->height, image->memDC, 0, 0, SRCCOPY);
         }
 
-        case WM_ERASEBKGND:
-        {
-            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            RECT rect;
-            GetClientRect(hWnd, &rect);
-            FillRect((HDC) wParam, &rect, window->_backBrush);
-            return TRUE;
-        }
+        EndPaint(hWnd, &ps);
+        break;
+    }
+
+    case WM_ERASEBKGND:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        RECT rect;
+        GetClientRect(hWnd, &rect);
+        FillRect((HDC)wParam, &rect, window->_backBrush);
+        return TRUE;
+    }
     }
 
     return DefWindowProc(hWnd, iMessage, wParam, lParam);
@@ -277,7 +294,7 @@ CWindowControl::~CWindowControl()
     {
         for (auto image : _images)
         {
-            HBITMAP newBitmap = (HBITMAP) SelectObject(image->memDC, image->oldBitmap);
+            HBITMAP newBitmap = (HBITMAP)SelectObject(image->memDC, image->oldBitmap);
             DeleteBitmap(newBitmap);
             DeleteDC(image->memDC);
             delete image;
@@ -331,9 +348,113 @@ std::wstring CWindowControl::GetCloseEvent() const
     return _closeEvent;
 }
 
-CMenubar *CWindowControl::GetMenu()
+CMenu *CWindowControl::GetMenu()
 {
     return _menu;
+}
+
+void CWindowControl::SetY(const int y)
+{
+    _position.y = y;
+
+    if (_hWnd != nullptr)
+    {
+        RECT rect;
+
+        SetRect(&rect, GetX(), _position.y, GetX() + GetWidth(), _position.y + GetHeight());
+        if (_menu)
+        {
+            AdjustWindowRect(&rect, _style, TRUE);
+        }
+        else
+        {
+            AdjustWindowRect(&rect, _style, FALSE);
+        }
+
+        int diffX = GetX() - rect.left;
+        int diffY = _position.y - rect.top;
+        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOSIZE || SWP_NOZORDER);
+    }
+}
+
+void CWindowControl::SetX(const int x)
+{
+    _position.x = x;
+
+    if (_hWnd != nullptr)
+    {
+        RECT rect;
+
+        SetRect(&rect, _position.x, GetY(), _position.x + GetWidth(), GetY() + GetHeight());
+        if (_menu)
+        {
+            AdjustWindowRect(&rect, _style, TRUE);
+        }
+        else
+        {
+            AdjustWindowRect(&rect, _style, FALSE);
+        }
+
+        int diffX = _position.x - rect.left;
+        int diffY = GetY() - rect.top;
+        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOSIZE || SWP_NOZORDER);
+    }
+}
+
+void CWindowControl::SetWidth(const int width)
+{
+    _size.cx = width;
+
+    if (_hWnd != nullptr)
+    {
+        RECT rect;
+
+        SetRect(&rect, GetX(), GetY(), GetX() + _size.cx, GetY() + GetHeight());
+        if (_menu)
+        {
+            AdjustWindowRect(&rect, _style, TRUE);
+        }
+        else
+        {
+            AdjustWindowRect(&rect, _style, FALSE);
+        }
+
+        int diffX = GetX() - rect.left;
+        int diffY = GetY() - rect.top;
+        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOMOVE | SWP_NOZORDER);
+    }
+}
+
+void CWindowControl::SetHeight(const int height)
+{
+    _size.cy = height;
+
+    if (_hWnd != nullptr)
+    {
+        RECT rect;
+
+        SetRect(&rect, GetX(), GetY(), GetX() + GetWidth(), GetY() + _size.cy);
+        if (_menu)
+        {
+            AdjustWindowRect(&rect, _style, TRUE);
+        }
+        else
+        {
+            AdjustWindowRect(&rect, _style, FALSE);
+        }
+
+        int diffX = GetX() - rect.left;
+        int diffY = GetY() - rect.top;
+        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOMOVE | SWP_NOZORDER);
+    }
 }
 
 void CWindowControl::SetControlBox(const bool isControlBox)
@@ -342,7 +463,8 @@ void CWindowControl::SetControlBox(const bool isControlBox)
     if (_isControlBox)
     {
         _style |= WS_SYSMENU;
-    } else
+    }
+    else
     {
         _style &= ~WS_SYSMENU;
     }
@@ -359,7 +481,8 @@ void CWindowControl::SetMaxButton(const bool isMaxButton)
     if (_isMaxButton)
     {
         _style |= WS_MAXIMIZEBOX;
-    } else
+    }
+    else
     {
         _style &= ~WS_MAXIMIZEBOX;
     }
@@ -376,7 +499,8 @@ void CWindowControl::SetMinButton(const bool isMinButton)
     if (_isMinButton)
     {
         _style |= WS_MINIMIZEBOX;
-    } else
+    }
+    else
     {
         _style &= ~WS_MINIMIZEBOX;
     }
@@ -402,7 +526,8 @@ void CWindowControl::SetTitlebar(bool isTitlebar)
     if (_isTitlebar)
     {
         _style |= WS_CAPTION;
-    } else
+    }
+    else
     {
         _style &= ~WS_CAPTION;
     }
@@ -433,10 +558,12 @@ void CWindowControl::SetIcon(std::wstring iconFilePath)
                                              0,
                                              0,
                                              LR_DEFAULTSIZE | LR_LOADFROMFILE | LR_SHARED));
-    } else if (iconFilePath == L"DEFAULT")
+    }
+    else if (iconFilePath == L"DEFAULT")
     {
         _icon = LoadIcon(nullptr, IDI_APPLICATION);
-    } else
+    }
+    else
     {
         _icon = nullptr;
     }
@@ -453,8 +580,17 @@ void CWindowControl::SetBackColor(const COLORREF backColor)
     Refresh();
 }
 
-void CWindowControl::SetMenu(CMenubar *menu)
+void CWindowControl::SetMenu(CMenu *menu)
 {
+    _menu = menu;
+    if (_menu)
+    {
+        ::SetMenu(_hWnd, _menu->GetHMenu());
+    }
+    else
+    {
+        ::SetMenu(_hWnd, nullptr);
+    }
 }
 
 void CWindowControl::SetParentWindow(CWindowControl *parent)
@@ -462,7 +598,8 @@ void CWindowControl::SetParentWindow(CWindowControl *parent)
     if (parent)
     {
         _parentHWnd = parent->_hWnd;
-    } else
+    }
+    else
     {
         _parentHWnd = nullptr;
     }
@@ -488,7 +625,11 @@ bool CWindowControl::Create()
                          _parentHWnd,
                          nullptr,
                          CControlManager::GetInstance().GetHInstance(),
-                         (LPVOID) this);
+                         (LPVOID)this);
+    if (_menu)
+    {
+        ::SetMenu(_hWnd, _menu->GetHMenu());
+    }
 
     return true;
 }
@@ -572,9 +713,9 @@ int CWindowControl::SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bi
     int height = rect.bottom - y;
     DrawingImageInfo *image = new DrawingImageInfo();
     HDC newDC = CreateCompatibleDC(srcDC);
-    HBITMAP newBitmap = CreateDIBSection(srcDC, &bitmapInfo, DIB_RGB_COLORS, (void **) &image->bits, 0, 0);
+    HBITMAP newBitmap = CreateDIBSection(srcDC, &bitmapInfo, DIB_RGB_COLORS, (void **)&image->bits, 0, 0);
 
-    image->oldBitmap = (HBITMAP) SelectObject(newDC, newBitmap);
+    image->oldBitmap = (HBITMAP)SelectObject(newDC, newBitmap);
     BitBlt(newDC, 0, 0, width, height, srcDC, 0, 0, SRCCOPY);
 
     image->memDC = newDC;
@@ -589,10 +730,11 @@ int CWindowControl::SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bi
         _images.push_back(image);
 
         return _images.size() - 1;
-    } else
+    }
+    else
     {
         DrawingImageInfo *unusedData = _images[index];
-        HBITMAP newBitmap = (HBITMAP) SelectObject(unusedData->memDC, unusedData->oldBitmap);
+        HBITMAP newBitmap = (HBITMAP)SelectObject(unusedData->memDC, unusedData->oldBitmap);
         DeleteBitmap(newBitmap);
         DeleteDC(_images[index]->memDC);
         delete _images[index];
@@ -600,6 +742,5 @@ int CWindowControl::SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bi
 
         return index;
     }
-
 }
 }

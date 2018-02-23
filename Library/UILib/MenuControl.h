@@ -4,7 +4,11 @@
 
 #include <Windows.h>
 
+#include <vector>
+
 namespace jojogame {
+class CMenu;
+
 class  CMenuItem
 {
 public:
@@ -13,31 +17,46 @@ public:
     CMenuItem();
     virtual ~CMenuItem();
 
-    HMENU item();
-    std::wstring text();
-    std::wstring clickFunction();
+    bool IsEnabled();
+    HMENU GetChildMenu();
+    std::wstring GetText();
+    std::wstring GetClickEvent();
+    int GetPosition();
 
-    void setText(std::wstring text);
-    void setClickFunction(std::wstring clickFunction);
+    void SetEnabled(bool isEnabled);
+    void SetText(std::wstring text);
+    void SetClickEvent(std::wstring clickEvent);
+    void SetChildMenu(CMenu *childMenu);
+    void SetParentMenu(CMenu *parentMenu);
+    void SetPosition(int position);
 
-    void setChildMenuItem(CMenuItem *child);
 private:
-    HMENU _item = nullptr;
-    int _index = 0;
+    CMenu * _parentMenu = nullptr;
+    int _position = -1;
+
+    HMENU _childMenu = nullptr;
     std::wstring _text = L"";
-    std::wstring _mouseLButtonUpEvent = L"";
+    std::wstring _clickEvent = L"";
+
+    bool _isEnabled = true;
 };
 
-class CMenubar
+class CMenu
 {
 public:
     static void RegisterFunctions(lua_State *L);
 
-    CMenubar();
-    virtual ~CMenubar();
+    CMenu();
+    virtual ~CMenu();
+
+    HMENU GetHMenu();
 
     void AddMenuItem(CMenuItem *menuItem);
+    void DeleteMenuitem(CMenuItem *menuItem);
+    void DeleteMeuItemByPosition(int position);
 private:
     HMENU _menu = nullptr;
+    std::vector<CMenuItem *> _menuItems;
+    int _count = 0;
 };
 }

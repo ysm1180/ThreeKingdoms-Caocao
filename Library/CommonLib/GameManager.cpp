@@ -1,7 +1,6 @@
 #include "GameManager.h"
 
 namespace jojogame {
-
 std::once_flag CGameManager::s_onceFlag;
 std::unique_ptr<CGameManager> CGameManager::s_sharedGameManager;
 
@@ -29,9 +28,9 @@ CGameManager& CGameManager::GetInstance()
 {
     std::call_once(s_onceFlag,
                    []
-                   {
-                       s_sharedGameManager.reset(new CGameManager);
-                   });
+    {
+        s_sharedGameManager.reset(new CGameManager);
+    });
 
     return *s_sharedGameManager.get();
 }
@@ -60,7 +59,6 @@ void CGameManager::Quit()
     PostQuitMessage(0);
 }
 
-
 void CGameManager::Delay(int time)
 {
     const auto starttime = GetTickCount();
@@ -82,7 +80,8 @@ void CGameManager::Delay(int time)
             }
             TranslateMessage(&message);
             DispatchMessage(&message);
-        } else
+        }
+        else
         {
             if ((GetTickCount() - starttime) >= static_cast<DWORD>(time))
             {
