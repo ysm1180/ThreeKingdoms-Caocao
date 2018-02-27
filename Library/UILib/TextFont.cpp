@@ -19,10 +19,19 @@ void CTextFont::RegisterFunctions(lua_State *L)
     LUA_METHOD(SetFontSize);
 }
 
+CTextFont::CTextFont()
+{
+    _control = nullptr;
+    _fontName = L"µ¸¿ò";
+    _fontSize = 12;
+
+    ResetFont();
+}
+
 CTextFont::CTextFont(CBaseControl *control)
 {
     _control = control;
-    _fontName = L"±¼¸²";
+    _fontName = L"µ¸¿ò";
     _fontSize = 12;
 
     ResetFont();
@@ -120,15 +129,18 @@ void CTextFont::ResetFont()
                         VARIABLE_PITCH | FF_ROMAN,
                         _fontName.c_str());
 
-    HWND controlHWnd = _control->GetHWnd();
-    if (controlHWnd != nullptr)
+    if (_control)
     {
-        SendMessage(controlHWnd, WM_SETFONT, (WPARAM)_font, (LPARAM)TRUE);
+        HWND controlHWnd = _control->GetHWnd();
+        if (controlHWnd != nullptr)
+        {
+            SendMessage(controlHWnd, WM_SETFONT, (WPARAM)_font, (LPARAM)TRUE);
 
-        RECT rect;
-        SetRect(&rect, _control->GetX(), _control->GetY(), _control->GetX() + _control->GetWidth(),
-                _control->GetY() + _control->GetHeight());
-        InvalidateRect(controlHWnd, &rect, true);
+            RECT rect;
+            SetRect(&rect, _control->GetX(), _control->GetY(), _control->GetX() + _control->GetWidth(),
+                    _control->GetY() + _control->GetHeight());
+            InvalidateRect(controlHWnd, &rect, true);
+        }
     }
 }
 }

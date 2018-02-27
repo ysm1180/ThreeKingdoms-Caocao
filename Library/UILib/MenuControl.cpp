@@ -2,6 +2,7 @@
 
 #include "CommonLib/MenuManager.h"
 #include "BaseLib/ConsoleOutput.h"
+#include "WindowControl.h"
 
 #include <algorithm>
 
@@ -12,14 +13,35 @@ void CMenuItem::RegisterFunctions(lua_State *L)
 
     LUA_METHOD(IsEnabled);
     LUA_METHOD(GetText);
+    LUA_METHOD(GetFont);
+    LUA_METHOD(GetClickEvent);
+    LUA_METHOD(GetChildMenu);
+
+    LUA_METHOD(GetNormalBackgroundColor);
+    LUA_METHOD(GetFocusedBackgroundColor);
+    LUA_METHOD(GetDisabledBackgroundColor);
+    LUA_METHOD(GetDisableFocusedBackgroundColor);
+    LUA_METHOD(GetNormalTextColor);
+    LUA_METHOD(GetFocusedTextColor);
+    LUA_METHOD(GetDisabledTextColor);
+    LUA_METHOD(GetDisableFocusedTextColor);
 
     LUA_METHOD(SetEnabled);
     LUA_METHOD(SetText);
     LUA_METHOD(SetClickEvent);
     LUA_METHOD(SetChildMenu);
+    LUA_METHOD(SetNormalBackgroundColor);
+    LUA_METHOD(SetFocusedBackgroundColor);
+    LUA_METHOD(SetDisabledBackgroundColor);
+    LUA_METHOD(SetDisableFocusedBackgroundColor);
+    LUA_METHOD(SetNormalTextColor);
+    LUA_METHOD(SetFocusedTextColor);
+    LUA_METHOD(SetDisabledTextColor);
+    LUA_METHOD(SetDisableFocusedTextColor);
 }
 
 CMenuItem::CMenuItem()
+        : _font()
 {
     _childMenu = nullptr;
 }
@@ -33,7 +55,7 @@ bool CMenuItem::IsEnabled()
     return _isEnabled;
 }
 
-HMENU CMenuItem::GetChildMenu()
+CMenu* CMenuItem::GetChildMenu()
 {
     return _childMenu;
 }
@@ -53,10 +75,25 @@ int CMenuItem::GetPosition()
     return _position;
 }
 
+CTextFont *CMenuItem::GetFont()
+{
+    return &_font;
+}
+
+MenuItemStateColor CMenuItem::GetBackgroundColor()
+{
+    return _backgroundColor;
+}
+
+MenuItemStateColor CMenuItem::GetTextColor()
+{
+    return _textColor;
+}
+
 void CMenuItem::SetEnabled(bool isEnabled)
 {
     _isEnabled = isEnabled;
-    
+
     if (_parentMenu)
     {
         MENUITEMINFO itemInfo{};
@@ -71,7 +108,11 @@ void CMenuItem::SetEnabled(bool isEnabled)
             itemInfo.fState = MFS_DISABLED;
         }
         ::SetMenuItemInfo(_parentMenu->GetHMenu(), static_cast<UINT>(_position), TRUE, &itemInfo);
-           
+
+        if (_parentMenu->GetParentWindow())
+        {
+            DrawMenuBar(_parentMenu->GetParentWindow()->GetHWnd());
+        }
     }
 }
 
@@ -86,6 +127,11 @@ void CMenuItem::SetText(std::wstring text)
         itemInfo.fMask = MIIM_STRING;
         itemInfo.dwTypeData = const_cast<LPWSTR>(_text.c_str());
         ::SetMenuItemInfo(_parentMenu->GetHMenu(), static_cast<UINT>(_position), TRUE, &itemInfo);
+
+        if (_parentMenu->GetParentWindow())
+        {
+            DrawMenuBar(_parentMenu->GetParentWindow()->GetHWnd());
+        }
     }
 }
 
@@ -96,7 +142,7 @@ void CMenuItem::SetClickEvent(std::wstring clickEvent)
 
 void CMenuItem::SetChildMenu(CMenu *childMenu)
 {
-    _childMenu = childMenu->GetHMenu();
+    _childMenu = childMenu;
 }
 
 void CMenuItem::SetParentMenu(CMenu *parentMenu)
@@ -109,6 +155,86 @@ void CMenuItem::SetPosition(int position)
     _position = position;
 }
 
+void CMenuItem::SetNormalBackgroundColor(COLORREF color)
+{
+    _backgroundColor.normal = color;
+}
+
+void CMenuItem::SetFocusedBackgroundColor(COLORREF color)
+{
+    _backgroundColor.focused = color;
+}
+
+void CMenuItem::SetDisabledBackgroundColor(COLORREF color)
+{
+    _backgroundColor.disabled = color;
+}
+
+void CMenuItem::SetDisableFocusedBackgroundColor(COLORREF color)
+{
+    _backgroundColor.disableFocused = color;
+}
+
+void CMenuItem::SetNormalTextColor(COLORREF color)
+{
+    _textColor.normal = color;
+}
+
+void CMenuItem::SetFocusedTextColor(COLORREF color)
+{
+    _textColor.focused = color;
+}
+
+void CMenuItem::SetDisabledTextColor(COLORREF color)
+{
+    _textColor.disabled = color;
+}
+
+void CMenuItem::SetDisableFocusedTextColor(COLORREF color)
+{
+    _textColor.disableFocused = color;
+}
+
+COLORREF CMenuItem::GetNormalBackgroundColor()
+{
+    return _backgroundColor.normal;
+}
+
+COLORREF CMenuItem::GetFocusedBackgroundColor()
+{
+    return _backgroundColor.focused;
+}
+
+COLORREF CMenuItem::GetDisabledBackgroundColor()
+{
+    return _backgroundColor.disabled;
+}
+
+COLORREF CMenuItem::GetDisableFocusedBackgroundColor()
+{
+    return _backgroundColor.disableFocused;
+}
+
+COLORREF CMenuItem::GetNormalTextColor()
+{
+    return _textColor.normal;
+}
+
+COLORREF CMenuItem::GetFocusedTextColor()
+{
+    return _textColor.focused;
+}
+
+COLORREF CMenuItem::GetDisabledTextColor()
+{
+    return _textColor.disabled;
+}
+
+COLORREF CMenuItem::GetDisableFocusedTextColor()
+{
+    return _textColor.disableFocused;
+}
+
 /****************************************
                 CMenu
 *****************************************/
@@ -117,6 +243,7 @@ void CMenu::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CMenu, "_Menu");
 
+    LUA_METHOD(GetMenuItemByPosition);
     LUA_METHOD(AddMenuItem);
     LUA_METHOD(DeleteMeuItemByPosition);
 }
@@ -139,6 +266,21 @@ HMENU CMenu::GetHMenu()
     return _menu;
 }
 
+CWindowControl * CMenu::GetParentWindow()
+{
+    return _parentWindow;
+}
+
+CMenuItem *CMenu::GetMenuItemByPosition(int position)
+{
+    return _menuItems[position];
+}
+
+void CMenu::SetParentWindow(CWindowControl * parent)
+{
+    _parentWindow = parent;
+}
+
 void CMenu::AddMenuItem(CMenuItem *menuItem)
 {
     auto iter = std::find(_menuItems.begin(), _menuItems.end(), menuItem);
@@ -150,19 +292,19 @@ void CMenu::AddMenuItem(CMenuItem *menuItem)
     {
         if (menuItem->GetChildMenu())
         {
-            int index = CMenuManager::GetInstance().AddMenuItemByHandle(menuItem, menuItem->GetChildMenu());
-            AppendMenu(_menu, MF_STRING | MF_POPUP, (UINT)menuItem->GetChildMenu(), menuItem->GetText().c_str());
+            int index = CMenuManager::GetInstance().AddMenuItemByHandle(menuItem, menuItem->GetChildMenu()->GetHMenu());
+            AppendMenu(_menu, MF_STRING | MF_POPUP, (UINT) menuItem->GetChildMenu()->GetHMenu(), menuItem->GetText().c_str());
         }
         else
         {
-            if (wcscmp(menuItem->GetText().c_str(), L"-") == 0)
+            int index = CMenuManager::GetInstance().AddMenuItem(menuItem);
+            if (menuItem->IsEnabled() && wcscmp(menuItem->GetText().c_str(), L"-") != 0)
             {
-                AppendMenu(_menu, MF_SEPARATOR, 0, 0);
-            } 
+                AppendMenu(_menu, MF_OWNERDRAW, index, (LPTSTR)menuItem);
+            }
             else
             {
-                int index = CMenuManager::GetInstance().AddMenuItem(menuItem);
-                AppendMenu(_menu, MF_STRING, index, menuItem->GetText().c_str());
+                AppendMenu(_menu, MF_OWNERDRAW | MF_DISABLED, index, (LPTSTR)menuItem);
             }
         }
         menuItem->SetParentMenu(this);

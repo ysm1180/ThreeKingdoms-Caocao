@@ -9,7 +9,7 @@
 namespace jojogame {
 class CWindowControl;
 
-struct StateColor
+struct ButtonStateColor
 {
     COLORREF normal;
     COLORREF focused;
@@ -29,9 +29,9 @@ public:
     bool IsPushed();
     CTextFont *GetFont();
     std::wstring GetText();
-    StateColor& GetBackgroundColor();
-    StateColor& GetBorderColor();
-    StateColor& GetTextColor();
+    ButtonStateColor& GetBackgroundColor();
+    ButtonStateColor& GetBorderColor();
+    ButtonStateColor& GetTextColor();
     int GetBorderWidth();
 
     void SetTransparentBackground(bool isTransparentBackground);
@@ -58,9 +58,9 @@ protected:
     CTextFont _font;
     std::wstring _text = L"";
     bool _isTransparentBackground = false;
-    StateColor _backgroundColor = { RGB(0xE1, 0xE1, 0xE1), RGB(0xE5, 0xF1, 0xFB), RGB(0xCC, 0xE4, 0xF7) };
-    StateColor _borderColor = { RGB(0xAD, 0xAD, 0xAD), RGB(0x00, 0x78, 0xD7), RGB(0x00, 0x54, 0x99) };
-    StateColor _textColor = { RGB(0x00, 0x00, 0x00), RGB(0x00, 0x00, 0x00), RGB(0x00, 0x00, 0x00) };
+    ButtonStateColor _backgroundColor = { RGB(0xE1, 0xE1, 0xE1), RGB(0xE5, 0xF1, 0xFB), RGB(0xCC, 0xE4, 0xF7) };
+    ButtonStateColor _borderColor = { RGB(0xAD, 0xAD, 0xAD), RGB(0x00, 0x78, 0xD7), RGB(0x00, 0x54, 0x99) };
+    ButtonStateColor _textColor = { RGB(0x00, 0x00, 0x00), RGB(0x00, 0x00, 0x00), RGB(0x00, 0x00, 0x00) };
     int _borderWidth = 1;
 
     bool _hovered = false;

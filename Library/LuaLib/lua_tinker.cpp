@@ -14,6 +14,8 @@
 #include "BaseLib\ConsoleOutput.h"
 #include "UILib\WindowControl.h"
 #include "UILib\MenuControl.h"
+#include "UILib\TextFont.h"
+
 
 
 /*---------------------------------------------------------------------------*/
@@ -466,6 +468,18 @@ jojogame::CMenu *lua_tinker::read(lua_State *L, int index)
 
     auto value = (user *)lua_touserdata(L, index);
     return (jojogame::CMenu *) value->m_p;
+}
+
+template<>
+jojogame::CTextFont *lua_tinker::read(lua_State *L, int index)
+{
+    if (lua_isnil(L, index))
+    {
+        return nullptr;
+    }
+
+    auto value = (user *)lua_touserdata(L, index);
+    return (jojogame::CTextFont *) value->m_p;
 }
 
 /*---------------------------------------------------------------------------*/

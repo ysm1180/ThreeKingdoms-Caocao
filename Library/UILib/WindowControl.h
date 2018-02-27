@@ -5,7 +5,6 @@
 
 #include <Windows.h>
 #include <windowsx.h>
-
 #include <string>
 #include <vector>
 

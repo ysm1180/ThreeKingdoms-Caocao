@@ -5,8 +5,6 @@
 #include "MenuControl.h"
 #include "ControlManager.h"
 
-#include "BaseLib\ConsoleOutput.h"
-
 #include <CommonLib/MenuManager.h>
 
 namespace jojogame {
@@ -132,6 +130,38 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     }
 
 
+    case WM_MEASUREITEM:
+    {
+        auto item = (MEASUREITEMSTRUCT *)lParam;
+        if (item->CtlType == ODT_MENU)
+        {
+            auto menuItem = (CMenuItem *)item->itemData;
+            auto hdc = GetDC(hWnd);
+            SIZE size;
+
+            auto originalFont = SelectFont(hdc, menuItem->GetFont()->GetHFont());
+            GetTextExtentPoint32(hdc, menuItem->GetText().c_str(), menuItem->GetText().length(), &size);
+            SelectFont(hdc, originalFont);
+
+            item->itemWidth = size.cx;
+            if (wcscmp(menuItem->GetText().c_str(), L"-") == 0)
+            {
+                item->itemHeight = 3;
+            }
+            else
+            {
+                item->itemHeight = size.cy + 10;
+            }
+            ReleaseDC(hWnd, hdc);
+        }
+        break;
+    }
+
+    case WM_MENUCHAR:
+    {
+        break;
+    }
+
     case WM_DRAWITEM:
     {
         auto item = (DRAWITEMSTRUCT *)lParam;
@@ -158,7 +188,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 borderColor = button->GetBorderColor().normal;
                 SetTextColor(item->hDC, button->GetTextColor().normal);
             }
-
+            
             RECT rect;
             SetRect(&rect, item->rcItem.left, item->rcItem.top, item->rcItem.right, item->rcItem.bottom);
             int borderWidth = button->GetBorderWidth();
@@ -176,6 +206,85 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
             SelectFont(item->hDC, originalFont);
             SetBkMode(item->hDC, OPAQUE);
+        }
+        else if (item->CtlType == ODT_MENU)
+        {
+            auto menu = CMenuManager::GetInstance().GetMenuItem(item->itemID);
+            RECT rect;
+            SetRect(&rect, item->rcItem.left, item->rcItem.top, item->rcItem.right, item->rcItem.bottom);
+
+            COLORREF backgroundColor;
+
+            if (wcscmp(menu->GetText().c_str(), L"-") == 0)
+            {
+                backgroundColor = menu->GetBackgroundColor().normal;
+                HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor);
+                FillRect(item->hDC, &rect, backgroundBrush);
+
+                auto pen = CreatePen(PS_SOLID, 1, menu->GetTextColor().normal);
+                auto oldPen = (HPEN)SelectObject(item->hDC, pen);
+                MoveToEx(item->hDC, rect.left, rect.top + 1, NULL);
+                LineTo(item->hDC, rect.right, rect.top + 1);
+                SelectObject(item->hDC, oldPen);
+            }
+            else
+            {
+                if (item->itemState & ODS_SELECTED)
+                {
+                    if (menu->IsEnabled())
+                    {
+                        backgroundColor = menu->GetBackgroundColor().focused;
+                    }
+                    else
+                    {
+                        backgroundColor = menu->GetBackgroundColor().disableFocused;
+                    }
+                }
+                else
+                {
+                    if (menu->IsEnabled())
+                    {
+                        backgroundColor = menu->GetBackgroundColor().normal;
+                    }
+                    else
+                    {
+                        backgroundColor = menu->GetBackgroundColor().disabled;
+                    }
+                }
+                HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor);
+                FillRect(item->hDC, &rect, backgroundBrush);
+
+                SetRect(&rect, item->rcItem.left + 4, item->rcItem.top, item->rcItem.right, item->rcItem.bottom);
+                if (item->itemState & ODS_SELECTED)
+                {
+                    if (menu->IsEnabled())
+                    {
+                        SetTextColor(item->hDC, menu->GetTextColor().focused);
+                    }
+                    else
+                    {
+                        SetTextColor(item->hDC, menu->GetTextColor().disableFocused);
+                    }
+                }
+                else
+                {
+                    if (menu->IsEnabled())
+                    {
+                        SetTextColor(item->hDC, menu->GetTextColor().normal);
+                    }
+                    else
+                    {
+                        SetTextColor(item->hDC, menu->GetTextColor().disabled);
+                    }
+                }
+
+                auto originalFont = SelectFont(item->hDC, menu->GetFont()->GetHFont());
+                SetBkMode(item->hDC, TRANSPARENT);
+                DrawText(item->hDC, menu->GetText().c_str(), -1, &rect,
+                         DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+                SelectFont(item->hDC, originalFont);
+                SetBkMode(item->hDC, OPAQUE);
+            }
         }
         
         break;
@@ -248,6 +357,7 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(GetTitleName);
     LUA_METHOD(GetActiveEvent);
     LUA_METHOD(GetCloseEvent);
+    LUA_METHOD(GetMenu);
 
     LUA_METHOD(SetMaxButton);
     LUA_METHOD(SetMinButton);
@@ -582,10 +692,17 @@ void CWindowControl::SetBackColor(const COLORREF backColor)
 
 void CWindowControl::SetMenu(CMenu *menu)
 {
+    if (_menu)
+    {
+        _menu->SetParentWindow(nullptr);
+    }
+
     _menu = menu;
+    
     if (_menu)
     {
         ::SetMenu(_hWnd, _menu->GetHMenu());
+        _menu->SetParentWindow(this);
     }
     else
     {

@@ -13,14 +13,16 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/jojogame)
 
 include_directories(
         ./Library/
-        ./Library/ffmpeg/${PROJECT_ARCH}/include)
+        ./Library/ffmpeg/${PROJECT_ARCH}/include
+        ./Library/SDL/include)
 add_definitions(-DUNICODE)
 
 #WIN SDK LIBS
 link_directories(
         "C:/Program Files (x86)/Windows Kits/10/lib/10.0.16299.0/ucrt/x86"
         "C:/Program Files (x86)/Windows Kits/10/lib/10.0.16299.0/um/x86"
-        ./Library/ffmpeg/${PROJECT_ARCH}/lib)
+        ./Library/ffmpeg/${PROJECT_ARCH}/lib
+        ./Library/SDL/lib/${PROJECT_ARCH})
 
 add_library(BaseLib STATIC
         Library/BaseLib/ConsoleOutput.cpp
@@ -148,6 +150,23 @@ foreach (lib "avformat" "avcodec" "avutil" "swscale")
         message(FATAL_ERROR "Could not find header file of library \"${lib}\"")
     endif()
     target_include_directories(${PROJECT_NAME} PRIVATE ${${lib}_INCLUDE})
+endforeach()
+
+set(SDL_ROOT "Library/SDL")
+foreach (lib "SDL2" "SDL2main")
+    # Library files
+    find_library(${lib}_LIB_RELEASE "${lib}" PATH ${SDL_ROOT}/lib/${PROJECT_ARCH}/)
+    if (NOT ${lib}_LIB_RELEASE)
+        message(FATAL_ERROR "Could not find release version of library \"${lib}\"")
+    endif()
+    find_library(${lib}_LIB_DEBUG "${lib}" PATH ${SDL_ROOT}/lib/${PROJECT_ARCH}/)
+    if (NOT ${lib}_LIB_DEBUG)
+        message(FATAL_ERROR "Could not find debug version of library \"${lib}\"")
+    endif()
+    target_link_libraries(${PROJECT_NAME} PUBLIC
+            $<$<CONFIG:Release>:${${lib}_LIB_RELEASE}>
+            $<$<CONFIG:Debug>:${${lib}_LIB_DEBUG}>
+            )
 endforeach()
 
 target_link_libraries(UILib vfw32.lib)

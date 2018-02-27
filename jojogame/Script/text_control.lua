@@ -1,9 +1,9 @@
 require "Script\\control.lua"
 
-TextControl = Control:Instance
+TextControl = ControlObject:Instance
 {
     DEFAULT_FONT_SIZE = 12,
-    DEFAULT_FONT_NAME = "굴림",
+    DEFAULT_FONT_NAME = "돋움",
 
     FontSize = function(self)
         return self.control:GetFont():GetFontSize()
@@ -26,17 +26,20 @@ TextControl = Control:Instance
     end,
 
     SetFontSize = function(self, size)
-        if size then
+        if size ~= nil then
             self.control:GetFont():SetFontSize(size)
         else
-            self.control:GetFont():SetFontSize(DEFAULT_FONT_SIZE)
+            self.control:GetFont():SetFontSize(self.DEFAULT_FONT_SIZE)
         end
 
-        OUTPUT("Set Font Size : " .. (size or "10"))
+        OUTPUT("Set Font Size : " .. (size or self.DEFAULT_FONT_SIZE))
     end,
 
     SetFontName = function(self, name)
-        self.control:GetFont():SetFontName(name)
+        if name ~= nil then
+            self.control:GetFont():SetFontName(name)
+        end
+        OUTPUT("Set Font Name : " .. (name or ""))        
     end,
 
     SetBold = function(self, value)

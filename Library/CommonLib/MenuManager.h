@@ -3,10 +3,8 @@
 #include "LuaLib\LuaTinker.h"
 
 #include <Windows.h>
-
 #include <map>
 #include <vector>
-
 #include <memory>
 #include <mutex>
 

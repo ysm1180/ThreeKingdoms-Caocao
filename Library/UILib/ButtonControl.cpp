@@ -198,17 +198,17 @@ std::wstring CButtonControl::GetText()
     return _text;
 }
 
-StateColor& CButtonControl::GetBackgroundColor()
+ButtonStateColor& CButtonControl::GetBackgroundColor()
 {
     return _backgroundColor;
 }
 
-StateColor& CButtonControl::GetBorderColor()
+ButtonStateColor& CButtonControl::GetBorderColor()
 {
     return _borderColor;
 }
 
-StateColor& CButtonControl::GetTextColor()
+ButtonStateColor& CButtonControl::GetTextColor()
 {
     return _textColor;
 }

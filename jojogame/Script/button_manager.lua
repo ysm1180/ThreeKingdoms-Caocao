@@ -5,7 +5,7 @@ ButtonManager = ControlManager:Instance
 {
     Create = function(self, options)
         OUTPUT("-------- Start Create : Button --------")
-        local newButton = Button:Instance(options.Parent)
+        local newButton = Button:New(options.Parent)
 
         newButton:SetSize(options.Width, options.Height)
 
@@ -23,6 +23,19 @@ ButtonManager = ControlManager:Instance
         newButton:SetMouseLButtonUpEvent(options.MouseLButtonUp)
         newButton:SetMouseLButtonDownEvent(options.MouseLButtonDown)
 
+        if options.Text then    
+            if options.Text.Font then
+                newButton:SetFontName(options.Text.Font.Name)
+                newButton:SetFontSize(options.Text.Font.Size)
+            end
+            if options.Text.Color then
+                newButton:SetNormalTextColor(options.Text.Color.Normal)
+                newButton:SetFocusedTextColor(options.Text.Color.Focused)
+                newButton:SetPushedTextColor(options.Text.Color.Pushed)
+            end
+            newButton:SetText(options.Text.Content)
+        end
+
         if options.Border then
             newButton:SetBorderWidth(options.Border.Width)
             if options.Border.Color then
@@ -39,15 +52,6 @@ ButtonManager = ControlManager:Instance
                 newButton:SetPushedBackgroundColor(options.Background.Color.Pushed)
             end
             newButton:SetTransparentBackground(options.Background.Transparent)        
-        end
-
-        if options.Text then    
-            if options.Text.Color then
-                newButton:SetNormalTextColor(options.Text.Color.Normal)
-                newButton:SetFocusedTextColor(options.Text.Color.Focused)
-                newButton:SetPushedTextColor(options.Text.Color.Pushed)
-            end
-            newButton:SetText(options.Text.Content)
         end
 
         newButton:Create()

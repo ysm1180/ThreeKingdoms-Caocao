@@ -1,9 +1,12 @@
 require "Script\\object.lua"
 
-Control = Object:Instance
+ControlObject = Object:Instance
 {
     control = nil,
+}
 
+Control = ControlObject:Instance
+{
     Create = function(self)
         OUTPUT("Try Create")
         result = self.control:Create()

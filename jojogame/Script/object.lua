@@ -12,25 +12,14 @@ function Object:Instance(instance)
     return instance
 end
 
-function Object:New(instance)
-    instance = instance or {}
-    setmetatable(instance, self)
-    self.__index = self
-
-    instance:Init()
-
-    return instance
-end
-
-
-function search (k, list)
+function search(k, list)
     for i = 1, #list do
         local v = list[i][k]
         if v then return v end
     end
 end
 
-function Inherit (...)
+function Inherit(...)
     local c = {}
     local parents = {...}
 
@@ -43,3 +32,4 @@ function Inherit (...)
     c.__parents = parents
     return c
 end
+

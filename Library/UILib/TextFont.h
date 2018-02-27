@@ -13,6 +13,7 @@ class  CTextFont
 public:
     static void RegisterFunctions(lua_State *L);
 
+    CTextFont();
     CTextFont(CBaseControl *control);
     virtual ~CTextFont();
 

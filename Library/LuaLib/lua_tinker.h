@@ -24,6 +24,7 @@ extern "C"
 namespace jojogame {
 class CWindowControl;
 class CMenu;
+class CTextFont;
 }
 
 namespace lua_tinker {
@@ -525,6 +526,8 @@ template<>
 ::jojogame::CWindowControl *read(lua_State *L, int index);
 template<>
 ::jojogame::CMenu *read(lua_State *L, int index);
+template<>
+::jojogame::CTextFont *read(lua_State *L, int index);
 
 // push a value to lua stack
 template<typename T>
