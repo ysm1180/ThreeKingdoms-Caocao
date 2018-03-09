@@ -8,6 +8,9 @@ void CLayoutControl::RegisterFunctions(lua_State * L)
 {
     LUA_BEGIN(CLayoutControl, "_Layout");
 
+
+    LUA_METHOD(SetX);
+    LUA_METHOD(SetY);
     LUA_METHOD(SetWidth);
     LUA_METHOD(SetHeight);
     LUA_METHOD(SetRatioX);
@@ -35,6 +38,57 @@ CLayoutControl::~CLayoutControl()
         DeleteDC(imageInfo.imageDC);
     }
 }
+
+int CLayoutControl::GetX()
+{
+    return _position.x;
+}
+
+int CLayoutControl::GetY()
+{
+    return _position.y;
+}
+
+int CLayoutControl::GetWidth()
+{
+    return _size.cx;
+}
+
+int CLayoutControl::GetHeight()
+{
+    return _size.cy;
+}
+
+void CLayoutControl::SetX(int x)
+{
+    _position.x = x;
+}
+
+void CLayoutControl::SetY(int y)
+{
+    _position.y = y;
+}
+
+void CLayoutControl::SetWidth(int width)
+{
+    _size.cx = width;
+}
+
+void CLayoutControl::SetHeight(int height)
+{
+    _size.cy = height;
+}
+
+void CLayoutControl::SetRatioX(double ratio)
+{
+    _ratioX = ratio;
+}
+
+void CLayoutControl::SetRatioY(double ratio)
+{
+    _ratioY = ratio;
+}
+
 
 int CLayoutControl::AddImage(CImageControl * image, int x, int y)
 {
@@ -151,35 +205,5 @@ int CLayoutControl::_GetNewIndex()
     }
 
     return index;
-}
-
-int CLayoutControl::GetWidth()
-{
-    return _size.cx;
-}
-
-int CLayoutControl::GetHeight()
-{
-    return _size.cy;
-}
-
-void CLayoutControl::SetWidth(int width)
-{
-    _size.cx = width;
-}
-
-void CLayoutControl::SetHeight(int height)
-{
-    _size.cy = height;
-}
-
-void CLayoutControl::SetRatioX(double ratio)
-{
-    _ratioX = ratio;
-}
-
-void CLayoutControl::SetRatioY(double ratio)
-{
-    _ratioY = ratio;
 }
 }

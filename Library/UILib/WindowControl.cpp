@@ -492,6 +492,8 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(SetMenu);
 
     LUA_METHOD(AddLayout);
+    LUA_METHOD(DeleteLayout);
+
     LUA_METHOD(Create);
     LUA_METHOD(ShowModalWindow);
     LUA_METHOD(Destroy);
@@ -837,8 +839,51 @@ void CWindowControl::AddLayout(CLayoutControl *layout)
 {
     _layouts.push_back(layout);
 
-    InvalidateRect(_hWnd, NULL, TRUE);
+    RECT rect;
+    if (layout->GetWidth() == 0 && layout->GetHeight() == 0)
+    {
+        GetClientRect(_hWnd, &rect);
+    }
+    else
+    {
+        SetRect(&rect, layout->GetX(), layout->GetY(), layout->GetX() + layout->GetWidth(), layout->GetY() + layout->GetHeight());
+    }
+    InvalidateRect(_hWnd, &rect, TRUE);
     UpdateWindow(_hWnd);
+}
+
+void CWindowControl::DeleteLayout(CLayoutControl * layout)
+{
+    auto iter = std::begin(_layouts);
+
+    while (iter != std::end(_layouts))
+    {
+        if (*iter == layout)
+        {
+            RECT rect;
+            auto layout = *iter;
+
+            if (layout->GetWidth() == 0 && layout->GetHeight() == 0)
+            {
+                GetClientRect(_hWnd, &rect);
+            }
+            else
+            {
+                SetRect(&rect, layout->GetX(), layout->GetY(), layout->GetX() + layout->GetWidth(), layout->GetY() + layout->GetHeight());
+            }
+
+            _layouts.erase(iter);
+
+            InvalidateRect(_hWnd, &rect, TRUE);
+            UpdateWindow(_hWnd);
+
+            break;
+        }
+        else
+        {
+            ++iter;
+        }
+    }
 }
 
 bool CWindowControl::Create()

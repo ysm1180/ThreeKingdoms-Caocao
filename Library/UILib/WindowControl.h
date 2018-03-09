@@ -47,6 +47,7 @@ public:
     void SetParentWindow(CWindowControl *parent);
 
     void AddLayout(CLayoutControl *layout);
+    void DeleteLayout(CLayoutControl *layout);
 
     bool Create() override;
     virtual void Destroy() override;

@@ -6,16 +6,45 @@ require "Script\\toolbar_manager.lua"
 require "Script\\image_manager.lua"
 require "Script\\layout_manager.lua"
 
+isClosing = false
+
 function quit()
-    gameManager:Quit()
+    isClosing = true
+    main:Close()
 end
 
 function main_click()
-    openningMovie:Destroy()
+    if openningMovie:IsPlaying() then
+        openningMovie:Destroy()
+    end
+    if isClosing then
+        gameManager:StopDelay()
+    end
+end
+
+function main_close()
+    exitBackgroundImage =
+        ImageManager:CreateImage(
+        {
+            FilePath = "Script\\logo.me5",
+            Group = {
+                Main = 0,
+                Sub = 1
+            },
+            MaskColor = 0xF700FF
+        }
+    )
+    exitBackgroundLayout = LayoutManager:CreateLayout({})
+    exitBackgroundLayout:AddImage(exitBackgroundImage, 0, toolbar:Height())
+
+    main:DeleteLayout(backgroundLayout)  
+    main:AddLayout(exitBackgroundLayout)
+
+    gameManager:Delay(3000)
 end
 
 function main_destroy()
-    quit()
+    gameManager:Quit()
 end
 
 function openning_end()
@@ -151,6 +180,26 @@ function main()
         }
     )
 
+    exitToolbarButton = ToolbarManager:CreateToolbarButton(
+        {
+            Text = {
+                Tooltip = "종료"
+            },
+            Click = "quit",
+            Image = ImageManager:CreateImage(
+                {
+                    FilePath = "Script\\logo.me5",
+                    Group = {
+                        Main = 1,
+                        Sub = 0
+                    },
+                    MaskColor = 0xC0C0C0
+                }
+            ),
+            Enabled = false,
+        }
+    )
+
     toolbar =
         ToolbarManager:CreateToolbar(
         {
@@ -160,24 +209,7 @@ function main()
                 Height = 28
             },
             Buttons = {
-                ToolbarManager:CreateToolbarButton(
-                    {
-                        Text = {
-                            Tooltip = "종료"
-                        },
-                        Click = "quit",
-                        Image = ImageManager:CreateImage(
-                            {
-                                FilePath = "Script\\logo.me5",
-                                Group = {
-                                    Main = 1,
-                                    Sub = 0
-                                },
-                                MaskColor = 0xC0C0C0
-                            }
-                        )
-                    }
-                ),
+                exitToolbarButton,            
                 ToolbarManager:CreateToolbarButton(
                     {
                         Text = {
@@ -234,6 +266,7 @@ function main()
     )
     openningMovie:Play()
 
+    exitToolbarButton:Enable()
     backgroundLayout:AddImage(backgroundImage, 0, toolbar:Height())
     main:Refresh()
 

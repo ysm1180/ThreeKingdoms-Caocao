@@ -10,6 +10,8 @@ LayoutManager = Object:Instance
         if options ~= nil then
             newLayout = Layout:Instance()
 
+            newLayout:Move(options.X, options.Y)
+            
             newLayout:SetWidth(options.Width)
             newLayout:SetHeight(options.Height)
 

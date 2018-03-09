@@ -103,6 +103,12 @@ Window = Control:Instance
         end
     end,
 
+    DeleteLayout = function(self, layout)
+        if layout ~= nil then
+            self.control:DeleteLayout(layout.control)
+        end
+    end,
+
     Refresh = function(self)
         self.control:Refresh()
     end,
@@ -112,4 +118,8 @@ Window = Control:Instance
             self.control:RefreshRegion(rect.Left, rect.Top, rect.Right, rect.Bottom)
         end
     end,
+
+    Close = function(self)
+        self.control:Close()
+    end
 }
