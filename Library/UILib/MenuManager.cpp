@@ -1,5 +1,7 @@
 ﻿#include "MenuManager.h"
 
+#include "MenuControl.h"
+
 namespace jojogame {
 std::once_flag CMenuManager::s_onceFlag;
 std::unique_ptr<CMenuManager> CMenuManager::s_sharedMenuManager;
@@ -21,10 +23,10 @@ CMenuManager& CMenuManager::GetInstance()
     std::call_once(s_onceFlag,
                    []
     {
-        s_sharedMenuManager.reset(new CMenuManager);
+        s_sharedMenuManager = std::make_unique<jojogame::CMenuManager>();
     });
 
-    return *s_sharedMenuManager.get();
+    return *s_sharedMenuManager;
 }
 
 int CMenuManager::AddMenuItemByHandle(CMenuItem *item, HMENU handle)
@@ -44,8 +46,8 @@ int CMenuManager::AddMenuItem(CMenuItem *item)
         return 0;
     }
 
-    _menuItemStorage.insert(std::map<int, CMenuItem *>::value_type(static_cast<int>(index), item));
-    return static_cast<int>(index);
+    _menuItemStorage.insert(std::map<int, CMenuItem *>::value_type(index, item));
+    return index;
 }
 
 CMenuItem *CMenuManager::GetMenuItem(int id)
@@ -61,10 +63,10 @@ CMenuItem *CMenuManager::GetMenuItem(int id)
     }
 }
 
-void CMenuManager::DeleteMenuItem(const int index)
+void CMenuManager::DeleteMenuItem(CMenuItem *item)
 {
-    _reusingIndexStorage.push_back(index);
-    _menuItemStorage.erase(index);
+    _reusingIndexStorage.push(item->GetIndex());
+    _menuItemStorage.erase(item->GetIndex());
 }
 
 int CMenuManager::_GetNewIndex()
@@ -83,6 +85,8 @@ int CMenuManager::_GetNewIndex()
         return index;
     }
 
-    return _reusingIndexStorage[0];
+    auto result = _reusingIndexStorage.front();
+    _reusingIndexStorage.pop();
+    return result;
 }
 }

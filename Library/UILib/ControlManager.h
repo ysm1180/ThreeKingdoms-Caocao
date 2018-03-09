@@ -13,6 +13,10 @@ class CMoviePlayerControl;
 class CButtonControl;
 class CMenu;
 class CMenuItem;
+class CImageControl;
+class CToolbarControl;
+class CToolbarButton;
+class CLayoutControl;
 
 class  CControlManager
 {
@@ -29,10 +33,12 @@ public:
     CButtonControl *CreateButton(CWindowControl *parent);
     CMenu *CreateMenu();
     CMenuItem *CreateMenuItem();
+    CImageControl *CreateImage();
+    CToolbarControl *CreateToolbar();
+    CToolbarButton *CreateToolbarButton();
+    CLayoutControl *CreateLayout();
 
     HINSTANCE GetHInstance();
-
-    void SetHInstance(HINSTANCE hInstance);
 
     static CControlManager& GetInstance();
 protected:

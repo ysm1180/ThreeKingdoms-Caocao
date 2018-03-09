@@ -8,6 +8,9 @@
 #include "MoviePlayerControl.h"
 #include "ButtonControl.h"
 #include "MenuControl.h"
+#include "ImageControl.h"
+#include "ToolbarControl.h"
+#include "LayoutControl.h"
 
 namespace jojogame {
 std::once_flag CControlManager::s_onceFlag;
@@ -22,6 +25,10 @@ void CControlManager::RegisterFunctions(lua_State *L)
     LUA_METHOD(CreateButton);
     LUA_METHOD(CreateMenu);
     LUA_METHOD(CreateMenuItem);
+    LUA_METHOD(CreateImage);
+    LUA_METHOD(CreateToolbar);
+    LUA_METHOD(CreateToolbarButton);
+    LUA_METHOD(CreateLayout);
 }
 
 CControlManager::CControlManager()
@@ -44,6 +51,10 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CButtonControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CMenu>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CMenuItem>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CImageControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CToolbarControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CToolbarButton>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CLayoutControl>();
 }
 
 CWindowControl *CControlManager::CreateWindowForm(CWindowControl *parent)
@@ -76,23 +87,38 @@ CMenuItem * CControlManager::CreateMenuItem()
     return CMemoryPool<CMenuItem>::GetInstance().New();;
 }
 
+CImageControl *CControlManager::CreateImage()
+{
+    return CMemoryPool<CImageControl>::GetInstance().New();
+}
+
+CToolbarControl *CControlManager::CreateToolbar()
+{
+    return CMemoryPool<CToolbarControl>::GetInstance().New();
+}
+
+CToolbarButton *CControlManager::CreateToolbarButton()
+{
+    return CMemoryPool<CToolbarButton>::GetInstance().New();
+}
+
+CLayoutControl *CControlManager::CreateLayout()
+{
+    return CMemoryPool<CLayoutControl>::GetInstance().New();
+}
+
 HINSTANCE CControlManager::GetHInstance()
 {
     return _hInstance;
-}
-
-void CControlManager::SetHInstance(HINSTANCE hInstance)
-{
-    _hInstance = hInstance;
 }
 
 CControlManager& CControlManager::GetInstance()
 {
     std::call_once(s_onceFlag, []
     {
-        s_controlManager.reset(new CControlManager);
+        s_controlManager = std::make_unique<jojogame::CControlManager>();
     });
 
-    return *s_controlManager.get();
+    return *s_controlManager;
 }
 }

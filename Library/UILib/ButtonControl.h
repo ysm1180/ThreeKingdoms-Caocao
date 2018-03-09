@@ -32,7 +32,17 @@ public:
     ButtonStateColor& GetBackgroundColor();
     ButtonStateColor& GetBorderColor();
     ButtonStateColor& GetTextColor();
+    COLORREF GetNormalBackgroundColor();
+    COLORREF GetFocusedBackgroundColor();
+    COLORREF GetPushedBackgroundColor();
+    COLORREF GetNormalBorderColor();
+    COLORREF GetFocusedBorderColor();
+    COLORREF GetPushedBorderColor();
+    COLORREF GetNormalTextColor();
+    COLORREF GetFocusedTextColor();
+    COLORREF GetPushedTextColor();
     int GetBorderWidth();
+    CWindowControl *GetParentWindow();
 
     void SetTransparentBackground(bool isTransparentBackground);
     void SetText(std::wstring text);
@@ -50,6 +60,8 @@ public:
 
     bool Create() override;
     void Destroy() override;
+
+    void Show() override;
 
     static WNDPROC GetOriginalProc();
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

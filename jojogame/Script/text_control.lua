@@ -2,9 +2,6 @@ require "Script\\control.lua"
 
 TextControl = ControlObject:Instance
 {
-    DEFAULT_FONT_SIZE = 12,
-    DEFAULT_FONT_NAME = "돋움",
-
     FontSize = function(self)
         return self.control:GetFont():GetFontSize()
     end,
@@ -28,41 +25,34 @@ TextControl = ControlObject:Instance
     SetFontSize = function(self, size)
         if size ~= nil then
             self.control:GetFont():SetFontSize(size)
-        else
-            self.control:GetFont():SetFontSize(self.DEFAULT_FONT_SIZE)
-        end
 
-        OUTPUT("Set Font Size : " .. (size or self.DEFAULT_FONT_SIZE))
+            OUTPUT("Set Font Size : " .. size)
+        end        
     end,
 
     SetFontName = function(self, name)
         if name ~= nil then
             self.control:GetFont():SetFontName(name)
+    
+            OUTPUT("Set Font Name : " .. name)        
         end
-        OUTPUT("Set Font Name : " .. (name or ""))        
     end,
 
     SetBold = function(self, value)
         if type(value) == "boolean" then        
             self.control:GetFont():SetBold(value)
-        else
-            self.control:GetFont():SetBold(false)
         end
     end,
 
     SetUnderline = function(self, value)
         if type(value) == "boolean" then        
             self.control:GetFont():SetUnderline(value)
-        else
-            self.control:GetFont():SetUnderline(false)
         end
     end,
 
     SetItalic = function(self, value)
         if type(value) == "boolean" then        
             self.control:GetFont():SetItalic(value)
-        else
-            self.control:GetFont():SetItalic(false)
         end
     end,        
 

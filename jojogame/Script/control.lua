@@ -31,12 +31,12 @@ Control = ControlObject:Instance
     SetSize = function(self, w, h)
         if w ~= nil then
             self.control:SetWidth(w)
+            OUTPUT("Set Width " .. w)        
         end
         if h ~= nil then
             self.control:SetHeight(h)
+            OUTPUT("Set Height " .. h)                    
         end
-
-        OUTPUT("SetSize (" .. w .. ", " .. h .. ")")        
     end,
     
     Show = function(self)
@@ -51,50 +51,86 @@ Control = ControlObject:Instance
         return self.control:GetX(), self.control:GetY()
     end,
 
+    Width = function(self)
+        OUTPUT("Get Width " .. self.control:GetWidth())
+        return self.control:GetWidth()
+    end,
+
+    Height = function(self)
+        OUTPUT("Get Height " .. self.control:GetHeight())
+        return self.control:GetHeight()
+    end,
+
     Size = function(self)
         OUTPUT("Get Size (" .. self.control:GetWidth() .. ", " .. self.control:GetHeight() .. ")")
         return self.control:GetWidth(), self.control:GetHeight()
     end,
 
-    SetCreateEvent = function(self, createEventName)
-        self.control:SetCreateEvent(createEventName)
-
-        OUTPUT("Set Create Event : " .. (createEventName or "NULL"))
+    UserData = function(self)
+        return self.control:GetUserData()
     end,
 
-    SetDestroyEvent = function(self, destroyEventName)
-        self.control:SetDestroyEvent(destroyEventName)
+    SetCreateEvent = function(self, event)
+        if event ~= nil then
+            self.control:SetCreateEvent(event)
 
-        OUTPUT("Set Destroy Event : " .. (destroyEventName or "NULL"))
+            OUTPUT("Set Create Event : " .. event)
+        end
     end,
 
-    SetMouseLButtonUpEvent = function(self, mouseLButtonUpEventName)
-        self.control:SetMouseLButtonUpEvent(mouseLButtonUpEventName)
+    SetDestroyEvent = function(self, event)
+        if event ~= nil then            
+            self.control:SetDestroyEvent(event)
 
-        OUTPUT("Set MouseLButtonUp Event : " .. (mouseLButtonUpEventName or "NULL"))
+            OUTPUT("Set Destroy Event : " .. event)
+        end
     end,
 
-    SetMouseLButtonDownEvent = function(self, mouseLButtonDownEventName)
-        self.control:SetMouseLButtonDownEvent(mouseLButtonDownEventName)
-        
-        OUTPUT("Set MouseLButtonDown Event : " .. (mouseLButtonDownEventName or "NULL"))
+    SetMouseLButtonUpEvent = function(self, event)
+        if event ~= nil then
+            self.control:SetMouseLButtonUpEvent(event)
+
+            OUTPUT("Set MouseLButtonUp Event : " .. event)
+        end
     end,
 
-    SetMouseMoveEvent = function(self, mouseMoveEventName)
-        self.control:SetMouseMoveEvent(mouseMoveEventName)
-
-        OUTPUT("Set MouseMove Event : " .. (mouseMoveEventName or "NULL"))
+    SetMouseLButtonDownEvent = function(self, event)
+        if event ~= nil then
+            self.control:SetMouseLButtonDownEvent(event)
+            
+            OUTPUT("Set MouseLButtonDown Event : " .. event)
+        end
     end,
 
-    SetMouseHoverEvent = function(self, mouseHoverEventName)
-        self.control:SetMouseHoverEvent(mouseHoverEventName)
+    SetMouseMoveEvent = function(self, event)
+        if event ~= nil then
+            self.control:SetMouseMoveEvent(event)
 
-        OUTPUT("Set MouseHover Event : " .. (mouseHoverEventName or "NULL"))
+            OUTPUT("Set MouseMove Event : " .. event)
+        end
     end,
 
-    SetMouseLeaveEvent = function(self, mouseLeaveEventName)
-        self.control:SetMouseLeaveEvent(mouseLeaveEventName)
+    SetMouseHoverEvent = function(self, event)
+        if event ~= nil then        
+            self.control:SetMouseHoverEvent(event)
 
-        OUTPUT("Set MouseLeave Event : " .. (mouseLeaveEventName or "NULL"))
-    end
+            OUTPUT("Set MouseHover Event : " .. event)
+        end
+    end,
+
+    SetMouseLeaveEvent = function(self, event)
+        if event ~= nil then
+            self.control:SetMouseLeaveEvent(event)
+
+            OUTPUT("Set MouseLeave Event : " .. event)
+        end
+    end,
+
+    SetUserData = function(self, data)
+        if data ~= nil then
+            self.control:SetUserData(data)
+
+            OUTPUT("Set User Data : " .. data)
+        end
+    end,
 }

@@ -29,10 +29,10 @@ CGameManager& CGameManager::GetInstance()
     std::call_once(s_onceFlag,
                    []
     {
-        s_sharedGameManager.reset(new CGameManager);
+        s_sharedGameManager = std::make_unique<jojogame::CGameManager>();
     });
 
-    return *s_sharedGameManager.get();
+    return *s_sharedGameManager;
 }
 
 int CGameManager::GetDesktopWidth()

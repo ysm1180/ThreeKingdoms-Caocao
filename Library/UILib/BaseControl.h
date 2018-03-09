@@ -31,6 +31,7 @@ public:
     virtual std::wstring GetMouseHoverEvent() const;
     virtual std::wstring GetMouseLeaveEvent() const;
     virtual HWND GetHWnd() const;
+    virtual std::wstring GetUserData();
 
     virtual void SetStyle(LONG style);
     virtual void SetVisible(bool isVisible);
@@ -46,6 +47,7 @@ public:
     virtual void SetMouseMoveEvent(std::wstring mouseMoveEvent);
     virtual void SetMouseHoverEvent(std::wstring mouseHoverEvent);
     virtual void SetMouseLeaveEvent(std::wstring mouseLeaveEvent);
+    virtual void SetUserData(std::wstring data);
 
     virtual void Show();
     virtual void Hide();
@@ -62,7 +64,7 @@ protected:
     bool _isVisible = false;
     bool _isEnabled = true;
     HWND _hWnd = nullptr;
-    HWND _parentHWnd = nullptr;
+    CBaseControl *_parentControl = nullptr;
     SIZE _size = SIZE{ 0, 0 };
     POINT _position = POINT{ 0, 0 };
     LONG _style = 0;
@@ -74,5 +76,7 @@ protected:
     std::wstring _mouseMoveEvent = L"";
     std::wstring _mouseHoverEvent = L"";
     std::wstring _mouseLeaveEvent = L"";
+
+    std::wstring _userData = L"";
 };
 }

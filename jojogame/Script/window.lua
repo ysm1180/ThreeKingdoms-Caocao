@@ -96,4 +96,20 @@ Window = Control:Instance
             OUTPUT("Set Menu")
         end
     end,
+
+    AddLayout = function(self, layout)
+        if layout ~= nil then
+            self.control:AddLayout(layout.control)
+        end
+    end,
+
+    Refresh = function(self)
+        self.control:Refresh()
+    end,
+
+    RefreshRegion = function(self, rect)
+        if rect ~= nil then
+            self.control:RefreshRegion(rect.Left, rect.Top, rect.Right, rect.Bottom)
+        end
+    end,
 }

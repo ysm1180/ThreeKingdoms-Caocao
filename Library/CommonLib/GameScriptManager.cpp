@@ -21,9 +21,9 @@ CGameScriptManager& CGameScriptManager::GetInstance()
     std::call_once(s_onceFlag,
                    []
     {
-        s_sharedGameScriptManager.reset(new CGameScriptManager);
+        s_sharedGameScriptManager = std::make_unique<jojogame::CGameScriptManager>();
     });
 
-    return *s_sharedGameScriptManager.get();
+    return *s_sharedGameScriptManager;
 }
 }

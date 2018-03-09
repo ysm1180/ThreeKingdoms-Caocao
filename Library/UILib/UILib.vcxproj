@@ -22,18 +22,28 @@
     <ClCompile Include="BaseControl.cpp" />
     <ClCompile Include="ButtonControl.cpp" />
     <ClCompile Include="ControlManager.cpp" />
+    <ClCompile Include="ImageControl.cpp" />
+    <ClCompile Include="LayoutControl.cpp" />
     <ClCompile Include="MenuControl.cpp" />
+    <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="MoviePlayerControl.cpp" />
     <ClCompile Include="TextFont.cpp" />
+    <ClCompile Include="ToolbarControl.cpp" />
+    <ClCompile Include="ToolbarManager.cpp" />
     <ClCompile Include="WindowControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseControl.h" />
     <ClInclude Include="ButtonControl.h" />
     <ClInclude Include="ControlManager.h" />
+    <ClInclude Include="ImageControl.h" />
+    <ClInclude Include="LayoutControl.h" />
     <ClInclude Include="MenuControl.h" />
+    <ClInclude Include="MenuManager.h" />
     <ClInclude Include="MoviePlayerControl.h" />
     <ClInclude Include="TextFont.h" />
+    <ClInclude Include="ToolbarControl.h" />
+    <ClInclude Include="ToolbarManager.h" />
     <ClInclude Include="WindowControl.h" />
   </ItemGroup>
   <ItemGroup>

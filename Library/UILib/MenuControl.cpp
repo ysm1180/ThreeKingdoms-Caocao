@@ -1,10 +1,8 @@
 ﻿#include "MenuControl.h"
 
-#include "CommonLib/MenuManager.h"
+#include "MenuManager.h"
 #include "BaseLib/ConsoleOutput.h"
 #include "WindowControl.h"
-
-#include <algorithm>
 
 namespace jojogame {
 void CMenuItem::RegisterFunctions(lua_State *L)
@@ -55,6 +53,11 @@ bool CMenuItem::IsEnabled()
     return _isEnabled;
 }
 
+int CMenuItem::GetIndex()
+{
+    return _index;
+}
+
 CMenu* CMenuItem::GetChildMenu()
 {
     return _childMenu;
@@ -68,11 +71,6 @@ std::wstring CMenuItem::GetText()
 std::wstring CMenuItem::GetClickEvent()
 {
     return _clickEvent;
-}
-
-int CMenuItem::GetPosition()
-{
-    return _position;
 }
 
 CTextFont *CMenuItem::GetFont()
@@ -107,7 +105,7 @@ void CMenuItem::SetEnabled(bool isEnabled)
         {
             itemInfo.fState = MFS_DISABLED;
         }
-        ::SetMenuItemInfo(_parentMenu->GetHMenu(), static_cast<UINT>(_position), TRUE, &itemInfo);
+        ::SetMenuItemInfo(_parentMenu->GetHMenu(), static_cast<UINT>(_index), FALSE, &itemInfo);
 
         if (_parentMenu->GetParentWindow())
         {
@@ -126,7 +124,7 @@ void CMenuItem::SetText(std::wstring text)
         itemInfo.cbSize = sizeof(MENUITEMINFO);
         itemInfo.fMask = MIIM_STRING;
         itemInfo.dwTypeData = const_cast<LPWSTR>(_text.c_str());
-        ::SetMenuItemInfo(_parentMenu->GetHMenu(), static_cast<UINT>(_position), TRUE, &itemInfo);
+        ::SetMenuItemInfo(_parentMenu->GetHMenu(), static_cast<UINT>(_index), TRUE, &itemInfo);
 
         if (_parentMenu->GetParentWindow())
         {
@@ -150,9 +148,9 @@ void CMenuItem::SetParentMenu(CMenu *parentMenu)
     _parentMenu = parentMenu;
 }
 
-void CMenuItem::SetPosition(int position)
+void CMenuItem::SetIndex(int index)
 {
-    _position = position;
+    _index = index;
 }
 
 void CMenuItem::SetNormalBackgroundColor(COLORREF color)
@@ -308,17 +306,34 @@ void CMenu::AddMenuItem(CMenuItem *menuItem)
             }
         }
         menuItem->SetParentMenu(this);
-        menuItem->SetPosition(_count++);
+        menuItem->SetIndex(_count++);
         _menuItems.push_back(menuItem);
     }
 }
 
-void CMenu::DeleteMeuItemByPosition(int position)
+bool CMenu::DeleteMenuitem(CMenuItem *menuItem)
+{
+    auto result = ::DeleteMenu(_menu, menuItem->GetIndex(), MF_BYCOMMAND);
+    if (result == 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+bool CMenu::DeleteMeuItemByPosition(int position)
 {
     auto result = ::DeleteMenu(_menu, position, MF_BYPOSITION);
     if (result == 0)
     {
-        CConsoleOutput::OutputConsoles(L"Fail to delete menu");
+        return false;
+    }
+    else
+    {
+        return true;
     }
 }
 

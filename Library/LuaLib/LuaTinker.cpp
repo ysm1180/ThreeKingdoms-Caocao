@@ -80,9 +80,9 @@ CLuaTinker& CLuaTinker::GetLuaTinker()
     std::call_once(s_onceFlag,
                    []
     {
-        s_luaTinker.reset(new CLuaTinker);
+        s_luaTinker = std::make_unique<jojogame::CLuaTinker>();
     });
 
-    return *s_luaTinker.get();
+    return *s_luaTinker;
 }
 }

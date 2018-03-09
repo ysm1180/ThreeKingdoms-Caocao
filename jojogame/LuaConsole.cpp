@@ -92,10 +92,10 @@ CLuaConsole& CLuaConsole::GetInstance()
 {
     std::call_once(s_onceFlag, []
     {
-        s_sharedLuaConsole.reset(new CLuaConsole);
+        s_sharedLuaConsole = std::make_unique<jojogame::CLuaConsole>();
     });
 
-    return *s_sharedLuaConsole.get();
+    return *s_sharedLuaConsole;
 }
 
 void CLuaConsole::SetDebugFlag(bool flag)

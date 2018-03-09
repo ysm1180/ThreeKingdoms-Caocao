@@ -3,13 +3,18 @@
 #include "MoviePlayerControl.h"
 #include "ButtonControl.h"
 #include "MenuControl.h"
+#include "ToolbarControl.h"
 #include "ControlManager.h"
-
-#include <CommonLib/MenuManager.h>
+#include "MenuManager.h"
+#include "ToolbarManager.h"
+#include "LayoutControl.h"
 
 namespace jojogame {
 LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
+    static bool isHover = false;
+    TRACKMOUSEEVENT trackMouseEvent;
+
     switch (iMessage)
     {
     case WM_CREATE:
@@ -41,7 +46,11 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         auto mouseLButtonUpEvent = window->GetMouseLButtonUpEvent();
         if (mouseLButtonUpEvent.length())
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), window);
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), 
+                                            window,
+                                            (int)wParam,
+                                            GET_X_LPARAM(lParam),
+                                            GET_Y_LPARAM(lParam));
         }
         break;
     }
@@ -52,8 +61,67 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         auto mouseLButtonDownEvent = window->GetMouseLButtonDownEvent();
         if (mouseLButtonDownEvent.length())
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(), window);
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(), 
+                                            window,
+                                            (int)wParam,
+                                            GET_X_LPARAM(lParam),
+                                            GET_Y_LPARAM(lParam));
         }
+        break;
+    }
+
+    case WM_MOUSEMOVE:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseMoveEvent = window->GetMouseMoveEvent();
+        if (mouseMoveEvent.length())
+        {
+            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent.c_str(),
+                                            window,
+                                            (int)wParam,
+                                            GET_X_LPARAM(lParam),
+                                            GET_Y_LPARAM(lParam));
+        }
+
+        if (isHover == false)
+        {
+            trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
+            trackMouseEvent.dwFlags = TME_HOVER;
+            trackMouseEvent.hwndTrack = hWnd;
+            trackMouseEvent.dwHoverTime = 10;
+            TrackMouseEvent(&trackMouseEvent);
+        }
+        break;
+    }
+
+    case WM_MOUSEHOVER:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseHoverEvent = window->GetMouseHoverEvent();
+        if (mouseHoverEvent.length())
+        {
+            CLuaTinker::GetLuaTinker().Call(mouseHoverEvent.c_str(), window);
+        }
+
+        isHover = true;
+        trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
+        trackMouseEvent.dwFlags = TME_LEAVE;
+        trackMouseEvent.hwndTrack = hWnd;
+        trackMouseEvent.dwHoverTime = 500;
+        TrackMouseEvent(&trackMouseEvent);
+        break;
+    }
+
+    case WM_MOUSELEAVE:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLeaveEvent = window->GetMouseLeaveEvent();
+        if (mouseLeaveEvent.length())
+        {
+            CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent.c_str(), window);
+        }
+
+        isHover = false;
         break;
     }
 
@@ -78,6 +146,16 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         if (menuItem)
         {
             auto clickEvent = menuItem->GetClickEvent();
+            if (clickEvent.length())
+            {
+                CLuaTinker::GetLuaTinker().Call(clickEvent.c_str(), menuItem);
+            }
+        }
+
+        auto toolbarButton = CToolbarManager::GetInstance().GetToolbarButton(id);
+        if (toolbarButton)
+        {
+            auto clickEvent = toolbarButton->GetClickEvent();
             if (clickEvent.length())
             {
                 CLuaTinker::GetLuaTinker().Call(clickEvent.c_str(), menuItem);
@@ -126,6 +204,16 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
     case WM_NOTIFY:
     {
+        auto pnmhdr = (LPNMHDR)lParam;
+        auto lpTooltip = (LPTOOLTIPTEXT)lParam;
+
+        if (pnmhdr->code == TTN_NEEDTEXT)
+        {
+            auto index = lpTooltip->hdr.idFrom;
+            auto button = CToolbarManager::GetInstance().GetToolbarButton(index);
+            wcscpy_s(lpTooltip->szText, button->GetTooltipText().c_str());
+        }
+
         break;
     }
 
@@ -192,18 +280,26 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             RECT rect;
             SetRect(&rect, item->rcItem.left, item->rcItem.top, item->rcItem.right, item->rcItem.bottom);
             int borderWidth = button->GetBorderWidth();
-            HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor);
-            HBRUSH borderBrush = CreateSolidBrush(borderColor);
-            FillRect(item->hDC, &rect, borderBrush);
-            SetRect(&rect, rect.left + borderWidth, rect.top + borderWidth, rect.right - borderWidth,
-                    rect.bottom - borderWidth);
-            FillRect(item->hDC, &rect, backgroundBrush);
-
+            if (borderWidth > 0)
+            {
+                HBRUSH borderBrush = CreateSolidBrush(borderColor);
+                FillRect(item->hDC, &rect, borderBrush);
+                DeleteBrush(borderBrush);
+            }
+            
+            if (!button->IsTransparentBackground())
+            {
+                HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor);
+                SetRect(&rect, rect.left + borderWidth, rect.top + borderWidth, rect.right - borderWidth,
+                        rect.bottom - borderWidth);
+                FillRect(item->hDC, &rect, backgroundBrush);
+                DeleteBrush(backgroundBrush);
+            }
+            
             auto originalFont = SelectFont(item->hDC, button->GetFont()->GetHFont());
             SetBkMode(item->hDC, TRANSPARENT);
             DrawText(item->hDC, button->GetText().c_str(), -1, &rect,
                      DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-
             SelectFont(item->hDC, originalFont);
             SetBkMode(item->hDC, OPAQUE);
         }
@@ -323,10 +419,34 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
+        bool isFitWidth = false;
+        bool isFitHeight = false;
 
-        for (auto image : window->_images)
-        {
-            BitBlt(hdc, image->x, image->y, image->width, image->height, image->memDC, 0, 0, SRCCOPY);
+        for (auto layout : window->_layouts)
+        {  
+            isFitWidth = isFitHeight = false;
+            
+            if (layout->GetWidth() == 0)
+            {
+                isFitWidth = true;
+                layout->SetWidth(window->GetWidth());
+            }
+            if (layout->GetHeight() == 0)
+            {
+                isFitHeight = true;
+                layout->SetHeight(window->GetHeight());
+            }
+            
+            layout->Draw(hdc);
+
+            if (isFitWidth)
+            {
+                layout->SetWidth(0);
+            }
+            if (isFitHeight)
+            {
+                layout->SetHeight(0);
+            }
         }
 
         EndPaint(hWnd, &ps);
@@ -371,11 +491,13 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(SetDialogResult);
     LUA_METHOD(SetMenu);
 
+    LUA_METHOD(AddLayout);
     LUA_METHOD(Create);
     LUA_METHOD(ShowModalWindow);
     LUA_METHOD(Destroy);
     LUA_METHOD(Close);
     LUA_METHOD(Refresh);
+    LUA_METHOD(RefreshRegion);
 
     // WNDCLASS 초기화
     WNDCLASS wndClass;
@@ -400,17 +522,6 @@ CWindowControl::CWindowControl()
 
 CWindowControl::~CWindowControl()
 {
-    if (_images.size() > 0)
-    {
-        for (auto image : _images)
-        {
-            HBITMAP newBitmap = (HBITMAP)SelectObject(image->memDC, image->oldBitmap);
-            DeleteBitmap(newBitmap);
-            DeleteDC(image->memDC);
-            delete image;
-        }
-    }
-
     if (_backBrush != nullptr)
     {
         DeleteBrush(_backBrush);
@@ -485,7 +596,7 @@ void CWindowControl::SetY(const int y)
         int diffY = _position.y - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOSIZE || SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSIZE || SWP_NOZORDER);
     }
 }
 
@@ -511,7 +622,7 @@ void CWindowControl::SetX(const int x)
         int diffY = GetY() - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOSIZE || SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSIZE || SWP_NOZORDER);
     }
 }
 
@@ -537,7 +648,7 @@ void CWindowControl::SetWidth(const int width)
         int diffY = GetY() - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOMOVE | SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
     }
 }
 
@@ -563,7 +674,7 @@ void CWindowControl::SetHeight(const int height)
         int diffY = GetY() - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right, rect.bottom, SWP_NOMOVE | SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
     }
 }
 
@@ -714,12 +825,20 @@ void CWindowControl::SetParentWindow(CWindowControl *parent)
 {
     if (parent)
     {
-        _parentHWnd = parent->_hWnd;
+        _parentControl = parent;
     }
     else
     {
-        _parentHWnd = nullptr;
+        _parentControl = nullptr;
     }
+}
+
+void CWindowControl::AddLayout(CLayoutControl *layout)
+{
+    _layouts.push_back(layout);
+
+    InvalidateRect(_hWnd, NULL, TRUE);
+    UpdateWindow(_hWnd);
 }
 
 bool CWindowControl::Create()
@@ -727,10 +846,24 @@ bool CWindowControl::Create()
     RECT rect;
 
     SetRect(&rect, GetX(), GetY(), GetX() + GetWidth(), GetY() + GetHeight());
-    AdjustWindowRect(&rect, _style, FALSE);
+    if (_menu)
+    {
+        AdjustWindowRect(&rect, _style, TRUE);
+    } 
+    else
+    {
+        AdjustWindowRect(&rect, _style, FALSE);
+    }
+
     int diffX = GetX() - rect.left;
     int diffY = GetY() - rect.top;
     SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+
+    HWND parentHWnd = nullptr;
+    if (_parentControl)
+    {
+        parentHWnd = _parentControl->GetHWnd();
+    }
 
     _hWnd = CreateWindow(L"jojo_form",
                          _titleName.c_str(),
@@ -739,7 +872,7 @@ bool CWindowControl::Create()
                          rect.top,
                          rect.right - rect.left,
                          rect.bottom - rect.top,
-                         _parentHWnd,
+                         parentHWnd,
                          nullptr,
                          CControlManager::GetInstance().GetHInstance(),
                          (LPVOID)this);
@@ -763,7 +896,7 @@ int CWindowControl::ShowModalWindow()
     _dialogResult = &dialogResult;
 
     ShowWindow(_hWnd, TRUE);
-    EnableWindow(_parentHWnd, FALSE);
+    EnableWindow(_parentControl->GetHWnd(), FALSE);
 
     MSG msg;
     for (;;)
@@ -785,8 +918,8 @@ int CWindowControl::ShowModalWindow()
             }
         }
     }
-    SetWindowPos(_parentHWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-    EnableWindow(_parentHWnd, TRUE);
+    SetWindowPos(_parentControl->GetHWnd(), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    EnableWindow(_parentControl->GetHWnd(), TRUE);
 
     if (isQuit)
     {
@@ -803,11 +936,23 @@ void CWindowControl::SetDialogResult(const int value) const
 
 void CWindowControl::Refresh() const
 {
-    RECT rect;
-
     if (_hWnd)
     {
+        RECT rect;
+
         GetClientRect(_hWnd, &rect);
+        InvalidateRect(_hWnd, &rect, TRUE);
+        UpdateWindow(_hWnd);
+    }
+}
+
+void CWindowControl::RefreshRegion(int left, int top, int right, int bottom)
+{
+    if (_hWnd)
+    {
+        RECT rect;
+
+        SetRect(&rect, left, top, right, bottom);
         InvalidateRect(_hWnd, &rect, TRUE);
         UpdateWindow(_hWnd);
     }
@@ -822,42 +967,4 @@ void CWindowControl::Destroy()
     }
 }
 
-int CWindowControl::SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bitmapInfo, RECT& rect)
-{
-    int x = rect.left;
-    int y = rect.top;
-    int width = rect.right - x;
-    int height = rect.bottom - y;
-    DrawingImageInfo *image = new DrawingImageInfo();
-    HDC newDC = CreateCompatibleDC(srcDC);
-    HBITMAP newBitmap = CreateDIBSection(srcDC, &bitmapInfo, DIB_RGB_COLORS, (void **)&image->bits, 0, 0);
-
-    image->oldBitmap = (HBITMAP)SelectObject(newDC, newBitmap);
-    BitBlt(newDC, 0, 0, width, height, srcDC, 0, 0, SRCCOPY);
-
-    image->memDC = newDC;
-    image->bitmapInfo = bitmapInfo;
-    image->x = x;
-    image->y = y;
-    image->width = width;
-    image->height = height;
-
-    if (index + 1 > _images.size())
-    {
-        _images.push_back(image);
-
-        return _images.size() - 1;
-    }
-    else
-    {
-        DrawingImageInfo *unusedData = _images[index];
-        HBITMAP newBitmap = (HBITMAP)SelectObject(unusedData->memDC, unusedData->oldBitmap);
-        DeleteBitmap(newBitmap);
-        DeleteDC(_images[index]->memDC);
-        delete _images[index];
-        _images[index] = image;
-
-        return index;
-    }
-}
 }

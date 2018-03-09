@@ -28,10 +28,10 @@ public:
     virtual ~CMenuItem();
 
     bool IsEnabled();
+    int GetIndex();
     CMenu *GetChildMenu();
     std::wstring GetText();
     std::wstring GetClickEvent();
-    int GetPosition();
     CTextFont *GetFont();
     MenuItemStateColor GetBackgroundColor();
     MenuItemStateColor GetTextColor();
@@ -50,7 +50,7 @@ public:
     void SetClickEvent(std::wstring clickEvent);
     void SetChildMenu(CMenu *childMenu);
     void SetParentMenu(CMenu *parentMenu);
-    void SetPosition(int position);
+    void SetIndex(int index);
     void SetNormalBackgroundColor(COLORREF color);
     void SetFocusedBackgroundColor(COLORREF color);
     void SetDisabledBackgroundColor(COLORREF color);
@@ -62,7 +62,7 @@ public:
 
 private:
     CMenu *_parentMenu = nullptr;
-    int _position = -1;
+    int _index = -1;
 
     CMenu *_childMenu = nullptr;
     std::wstring _text = L"";
@@ -90,8 +90,8 @@ public:
     void SetParentWindow(CWindowControl *parent);
 
     void AddMenuItem(CMenuItem *menuItem);
-    void DeleteMenuitem(CMenuItem *menuItem);
-    void DeleteMeuItemByPosition(int position);
+    bool DeleteMenuitem(CMenuItem *menuItem);
+    bool DeleteMeuItemByPosition(int position);
 
 private:
     HMENU _menu = nullptr;

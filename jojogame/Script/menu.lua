@@ -1,6 +1,6 @@
-require "Script\\object.lua"
+require "Script\\text_control.lua"
 
-Menu = Object:Instance
+Menu = ControlObject:Instance
 {
     Instance = function(self)
         local newMenu = {}
@@ -13,8 +13,6 @@ Menu = Object:Instance
         
         return newMenu
     end,
-
-    
 
     AddMenuItem = function(self, menuItem)
         if menuItem ~= nil then

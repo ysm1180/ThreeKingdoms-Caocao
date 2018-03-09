@@ -58,7 +58,7 @@ MoviePlayer = Object:Instance
         OUTPUT("Set End Event : " .. (event or "NULL"))
     end,
 
-    SetPosition = function(self, x, y)
+    Move = function(self, x, y)
         if x ~= nil then
             self.control:SetX(x)
         end

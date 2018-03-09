@@ -36,8 +36,8 @@ add_library(CommonLib STATIC
         Library/CommonLib/GameManager.h
         Library/CommonLib/GameScriptManager.cpp
         Library/CommonLib/GameScriptManager.h
-        Library/CommonLib/MenuManager.cpp
-        Library/CommonLib/MenuManager.h)
+        Library/UILib/MenuManager.cpp
+        Library/UILib/MenuManager.h Library/CommonLib/ME5File.cpp Library/CommonLib/ME5File.h)
 add_library(LuaLib STATIC
         Library/LuaLib/lapi.c
         Library/LuaLib/lapi.h
@@ -117,7 +117,7 @@ add_library(UILib STATIC Library/UILib/BaseControl.cpp
         Library/UILib/TextFont.cpp
         Library/UILib/TextFont.h
         Library/UILib/WindowControl.cpp
-        Library/UILib/WindowControl.h Library/UILib/LayoutControl.cpp Library/UILib/LayoutControl.h)
+        Library/UILib/WindowControl.h Library/UILib/LayoutControl.cpp Library/UILib/LayoutControl.h Library/UILib/ImageControl.cpp Library/UILib/ImageControl.h Library/UILib/ToolbarControl.cpp Library/UILib/ToolbarControl.h Library/UILib/ToolbarManager.cpp Library/UILib/ToolbarManager.h)
 
 add_executable(newjojogame WIN32
         jojogame/Application.cpp

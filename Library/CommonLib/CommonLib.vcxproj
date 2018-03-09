@@ -21,12 +21,14 @@
   <ItemGroup>
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameScriptManager.cpp" />
-    <ClCompile Include="MenuManager.cpp" />
+    <ClCompile Include="lodepng.cpp" />
+    <ClCompile Include="ME5File.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameScriptManager.h" />
-    <ClInclude Include="MenuManager.h" />
+    <ClInclude Include="lodepng.h" />
+    <ClInclude Include="ME5File.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

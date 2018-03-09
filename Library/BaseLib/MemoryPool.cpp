@@ -40,9 +40,9 @@ CMemoryPoolManager& CMemoryPoolManager::GetInstance()
 {
     std::call_once(s_onceFlag, []
     {
-        s_sharedMemoryPoolManager.reset(new CMemoryPoolManager);
+        s_sharedMemoryPoolManager = std::make_unique<jojogame::CMemoryPoolManager>();
     });
 
-    return *s_sharedMemoryPoolManager.get();
+    return *s_sharedMemoryPoolManager;
 }
 }

@@ -11,18 +11,7 @@
 namespace jojogame {
 class CMoviePlayer;
 class CMenu;
-
-struct DrawingImageInfo
-{
-    int x;
-    int y;
-    int width;
-    int height;
-    void *bits;
-    BITMAPINFO bitmapInfo;
-    HDC memDC;
-    HBITMAP oldBitmap;
-};
+class CLayoutControl;
 
 class  CWindowControl : public CBaseControl
 {
@@ -57,7 +46,7 @@ public:
     void SetMenu(CMenu *menu);
     void SetParentWindow(CWindowControl *parent);
 
-    int SetDrawingImage(unsigned int index, HDC srcDC, BITMAPINFO bitmapInfo, RECT& rect);
+    void AddLayout(CLayoutControl *layout);
 
     bool Create() override;
     virtual void Destroy() override;
@@ -68,6 +57,7 @@ public:
     void SetDialogResult(int value) const;
 
     void Refresh() const;
+    void RefreshRegion(int left, int top, int right, int bottom);
 
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -83,7 +73,7 @@ private:
     HICON _icon = LoadIcon(nullptr, IDI_APPLICATION);
     HBRUSH _backBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
 
-    std::vector<DrawingImageInfo *> _images;
+    std::vector<CLayoutControl *> _layouts;
     CMenu *_menu = nullptr;
 };
 }

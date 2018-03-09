@@ -19,7 +19,7 @@ Button.DEFAULT_TEXT_COLOR = {
     PUSHED = {R = 0x00, G = 0x00, B = 0x00}
 }
 
-function Button:New(parent)
+function Button:Instance(parent)
     local newButton = {}
     local parentControl = nil
 
@@ -36,7 +36,9 @@ function Button:New(parent)
 end
 
 function Button:SetText(text)
-    self.control:SetText(text)
+    if text ~= nil then
+        self.control:SetText(text)
+    end
 end
 
 function Button:SetTransparentBackground(value)
@@ -47,7 +49,9 @@ function Button:SetTransparentBackground(value)
 end
 
 function Button:SetBorderWidth(width)
-    self.control:SetBorderWidth(width)
+    if width ~= nil then
+        self.control:SetBorderWidth(width)
+    end
 end
 
 function Button:SetNormalBackgroundColor(color)

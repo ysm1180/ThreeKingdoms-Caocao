@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "LuaLib\LuaTinker.h"
+#include "LuaLib/LuaTinker.h"
 
 #include <Windows.h>
 #include <map>
-#include <vector>
+#include <queue>
 #include <memory>
 #include <mutex>
 
@@ -13,7 +13,7 @@ enum MENU_INDEX
 {
     FULL_INDEX = -1,
     START_INDEX = 1,
-    END_INDEX = 255
+    END_INDEX = 0xFF
 };
 
 class CMenuItem;
@@ -31,14 +31,14 @@ public:
 
     CMenuItem* GetMenuItem(int id);
 
-    void DeleteMenuItem(const int index);
+    void DeleteMenuItem(CMenuItem *item);
 
     static CMenuManager& GetInstance();
 private:
     int _GetNewIndex();
 
     std::map<int, CMenuItem *> _menuItemStorage;
-    std::vector<int> _reusingIndexStorage;
+    std::queue<int> _reusingIndexStorage;
 
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CMenuManager> s_sharedMenuManager;
