@@ -7,7 +7,7 @@ ToolbarManager = Object:Instance
 
         local newToolbar = nil
         if options ~= nil then
-            newToolbar = Toolbar:Instance()
+            newToolbar = Toolbar:New()
 
             newToolbar:Create(options.Parent, options.Image.Width, options.Image.Height)
 
@@ -26,7 +26,7 @@ ToolbarManager = Object:Instance
 
     CreateToolbarButton = function(self, options)
         OUTPUT("-------- Start Create : Toolbar Button --------")
-        local newToolbarButton = ToolbarButton:Instance()
+        local newToolbarButton = ToolbarButton:New()
 
         if options.Enabled == false then
             newToolbarButton:Disable()
@@ -36,7 +36,11 @@ ToolbarManager = Object:Instance
             newToolbarButton:SetText(options.Text.Content)
             newToolbarButton:SetTooltipText(options.Text.Tooltip)
         end
-        newToolbarButton:SetClickEvent(options.Click)
+
+        if options.Event then
+            newToolbarButton:SetClickEvent(options.Event.Click)
+        end
+        
         newToolbarButton:SetImage(options.Image)
 
         newToolbarButton:Create()

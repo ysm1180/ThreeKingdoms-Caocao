@@ -271,7 +271,14 @@ CWindowControl * CMenu::GetParentWindow()
 
 CMenuItem *CMenu::GetMenuItemByPosition(int position)
 {
-    return _menuItems[position];
+    if (position > _menuItems.size() || position < 1)
+    {
+        return nullptr;
+    }
+    else
+    {
+        return _menuItems[position - 1];
+    }
 }
 
 void CMenu::SetParentWindow(CWindowControl * parent)

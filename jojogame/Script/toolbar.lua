@@ -2,7 +2,7 @@ require "Script\\control.lua"
 
 Toolbar = ControlObject:Instance
 {
-    Instance = function(self)
+    New = function(self)
         local newToolbar = {}
 
         newToolbar.control = controlManager:CreateToolbar()
@@ -42,7 +42,7 @@ Toolbar = ControlObject:Instance
 
 ToolbarButton = ControlObject:Instance
 {
-    Instance = function(self)
+    New = function(self)
         local newToolbarButton = {}
 
         newToolbarButton.control = controlManager:CreateToolbarButton()

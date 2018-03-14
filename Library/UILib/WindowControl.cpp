@@ -166,6 +166,15 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
     case WM_SIZE:
     {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        window->SetWidth(LOWORD(lParam));
+        window->SetHeight(HIWORD(lParam));
+
+        auto sizeEvent = window->GetSizeEvent();
+        if (sizeEvent.length())
+        {
+            CLuaTinker::GetLuaTinker().Call(sizeEvent.c_str(), window, LOWORD(lParam), HIWORD(lParam));
+        }
         break;
     }
 
@@ -477,6 +486,7 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(GetTitleName);
     LUA_METHOD(GetActiveEvent);
     LUA_METHOD(GetCloseEvent);
+    LUA_METHOD(GetSizeEvent);
     LUA_METHOD(GetMenu);
 
     LUA_METHOD(SetMaxButton);
@@ -486,6 +496,7 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(SetTitleName);
     LUA_METHOD(SetActiveEvent);
     LUA_METHOD(SetCloseEvent);
+    LUA_METHOD(SetSizeEvent);
     LUA_METHOD(SetIcon);
     LUA_METHOD(SetBackColor);
     LUA_METHOD(SetDialogResult);
@@ -507,7 +518,7 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     wndClass.cbWndExtra = 0;
     wndClass.hbrBackground = static_cast<HBRUSH>(GetSysColorBrush(COLOR_3DFACE));
     wndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    wndClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+    wndClass.hIcon = nullptr;
     wndClass.hInstance = CControlManager::GetInstance().GetHInstance();
     wndClass.lpfnWndProc = static_cast<WNDPROC>(OnControlProc);
     wndClass.lpszClassName = L"jojo_form";
@@ -518,8 +529,8 @@ void CWindowControl::RegisterFunctions(lua_State *L)
 
 CWindowControl::CWindowControl()
 {
-    //_style = WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX;
-    _style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+    _style = WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX;
+    //_style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 }
 
 CWindowControl::~CWindowControl()
@@ -569,6 +580,11 @@ std::wstring CWindowControl::GetActiveEvent() const
 std::wstring CWindowControl::GetCloseEvent() const
 {
     return _closeEvent;
+}
+
+std::wstring CWindowControl::GetSizeEvent() const
+{
+    return _sizeEvent;
 }
 
 CMenu *CWindowControl::GetMenu()
@@ -771,6 +787,11 @@ void CWindowControl::SetCloseEvent(std::wstring closeEvent)
     _closeEvent = closeEvent;
 }
 
+void CWindowControl::SetSizeEvent(std::wstring sizeEvent)
+{
+    _sizeEvent = sizeEvent;
+}
+
 void CWindowControl::SetIcon(std::wstring iconFilePath)
 {
     if (!iconFilePath.empty())
@@ -850,6 +871,8 @@ void CWindowControl::AddLayout(CLayoutControl *layout)
     }
     InvalidateRect(_hWnd, &rect, TRUE);
     UpdateWindow(_hWnd);
+
+    layout->AddParentWindow(this);
 }
 
 void CWindowControl::DeleteLayout(CLayoutControl * layout)
@@ -910,7 +933,7 @@ bool CWindowControl::Create()
         parentHWnd = _parentControl->GetHWnd();
     }
 
-    _hWnd = CreateWindow(L"jojo_form",
+    _hWnd = CreateWindowEx(WS_EX_DLGMODALFRAME, L"jojo_form",
                          _titleName.c_str(),
                          _style,
                          rect.left,
@@ -921,6 +944,9 @@ bool CWindowControl::Create()
                          nullptr,
                          CControlManager::GetInstance().GetHInstance(),
                          (LPVOID)this);
+
+    SendMessage(_hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(_icon));
+
     if (_menu)
     {
         ::SetMenu(_hWnd, _menu->GetHMenu());

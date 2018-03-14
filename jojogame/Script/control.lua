@@ -17,6 +17,11 @@ Control = ControlObject:Instance
         end
     end,
 
+    Destroy = function(self)
+        self.control:Destroy()
+        OUTPUT("Destroy")
+    end,
+
     Move = function(self, x, y)
         if x ~= nil then
             self.control:SetX(x)
@@ -43,6 +48,11 @@ Control = ControlObject:Instance
         self.control:Show()
 
         OUTPUT("Show")                
+    end,
+
+    Hide = function(self)
+        self.control:Hide()
+        OUTPUT("Hide")
     end,
 
     Position = function(self)

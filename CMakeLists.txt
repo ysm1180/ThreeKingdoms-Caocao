@@ -117,7 +117,7 @@ add_library(UILib STATIC Library/UILib/BaseControl.cpp
         Library/UILib/TextFont.cpp
         Library/UILib/TextFont.h
         Library/UILib/WindowControl.cpp
-        Library/UILib/WindowControl.h Library/UILib/LayoutControl.cpp Library/UILib/LayoutControl.h Library/UILib/ImageControl.cpp Library/UILib/ImageControl.h Library/UILib/ToolbarControl.cpp Library/UILib/ToolbarControl.h Library/UILib/ToolbarManager.cpp Library/UILib/ToolbarManager.h)
+        Library/UILib/WindowControl.h Library/UILib/LayoutControl.cpp Library/UILib/LayoutControl.h Library/UILib/ImageControl.cpp Library/UILib/ImageControl.h Library/UILib/ToolbarControl.cpp Library/UILib/ToolbarControl.h Library/UILib/ToolbarManager.cpp Library/UILib/ToolbarManager.h Library/UILib/ListviewControl.cpp Library/UILib/ListviewControl.h)
 
 add_executable(newjojogame WIN32
         jojogame/Application.cpp

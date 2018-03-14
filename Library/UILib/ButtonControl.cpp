@@ -99,7 +99,7 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
         button->_hovered = true;
 
-        if (!button->IsTransparentBackground() && button->GetBorderWidth() == 0)
+        if (!button->IsTransparentBackground() || button->GetBorderWidth() > 0)
         {
             InvalidateRect(button->_hWnd, NULL, TRUE);
             UpdateWindow(button->_hWnd);
@@ -124,7 +124,8 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         }
 
         button->_hovered = false;
-        if (!button->IsTransparentBackground() && button->GetBorderWidth() == 0)
+        button->_pushed = false;
+        if (!button->IsTransparentBackground() || button->GetBorderWidth() > 0)
         {
             InvalidateRect(button->_hWnd, NULL, TRUE);
             UpdateWindow(button->_hWnd);

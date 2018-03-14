@@ -9,9 +9,12 @@ MoviePlayerManager = ControlManager:Instance
         local newMoviePlayer = nil
         
         if options ~= nil then
-            newMoviePlayer = MoviePlayer:Instance(options.Parent, options.FileName)
+            newMoviePlayer = MoviePlayer:New(options.Parent, options.FileName)
 
-            newMoviePlayer:SetEndEvent(options.End)
+            if options.Event then
+                newMoviePlayer:SetEndEvent(options.Event.End)
+            end
+
             newMoviePlayer:Move(options.X, options.Y)
             newMoviePlayer:Create()
 

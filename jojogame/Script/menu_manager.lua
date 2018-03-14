@@ -4,7 +4,7 @@ MenuManager = Object:Instance
 {
     CreateMenu = function(self, items)
         OUTPUT("-------- Start Create : Menu --------")
-        local newMenu = Menu:Instance()
+        local newMenu = Menu:New()
 
         for i = 1, #items do
             newMenu:AddMenuItem(items[i])
@@ -20,10 +20,11 @@ MenuManager = Object:Instance
         local newMenuItem = nil
 
         if options ~= nil then
-            newMenuItem = MenuItem:Instance()
-
             if options.Control ~= nil then
-                newMenuItem.control = options.Control
+                newMenuItem = MenuItem:Instance(options.Control)
+                return newMenuItem
+            else
+                newMenuItem = MenuItem:New()            
             end
 
             if options.Seperator == true then
@@ -36,7 +37,10 @@ MenuManager = Object:Instance
             end
 
             newMenuItem:SetEnabled(options.Enabled)
-            newMenuItem:SetClickEvent(options.Click)
+
+            if options.Event then
+                newMenuItem:SetClickEvent(options.Event.Click)
+            end
 
             if options.Text then    
                 if options.Text.Font then

@@ -2,7 +2,7 @@ require "Script\\control.lua"
 
 Window = Control:Instance
 {
-    Instance = function(self, parent)
+    New = function(self, parent)
         local newWindow = {}
         local parentControl = nil
 
@@ -43,6 +43,12 @@ Window = Control:Instance
         self.control:SetCloseEvent(event)
 
         OUTPUT("Set Active Event : " .. (event or "NULL"))
+    end,
+
+    SetSizeEvent = function(self, event)
+        self.control:SetSizeEvent(event)
+
+        OUTPUT("Set Size Event : " .. (event or "NULL"))
     end,
 
     SetTitleName = function(self, title)

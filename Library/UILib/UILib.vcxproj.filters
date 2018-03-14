@@ -13,6 +13,7 @@
     <ClCompile Include="ToolbarManager.cpp" />
     <ClCompile Include="ImageControl.cpp" />
     <ClCompile Include="LayoutControl.cpp" />
+    <ClCompile Include="ListviewControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseControl.h" />
@@ -27,5 +28,6 @@
     <ClInclude Include="ToolbarManager.h" />
     <ClInclude Include="ImageControl.h" />
     <ClInclude Include="LayoutControl.h" />
+    <ClInclude Include="ListviewControl.h" />
   </ItemGroup>
 </Project>

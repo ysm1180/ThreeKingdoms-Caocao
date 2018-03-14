@@ -11,6 +11,7 @@
 #include "ImageControl.h"
 #include "ToolbarControl.h"
 #include "LayoutControl.h"
+#include "ListviewControl.h"
 
 namespace jojogame {
 std::once_flag CControlManager::s_onceFlag;
@@ -29,6 +30,8 @@ void CControlManager::RegisterFunctions(lua_State *L)
     LUA_METHOD(CreateToolbar);
     LUA_METHOD(CreateToolbarButton);
     LUA_METHOD(CreateLayout);
+    LUA_METHOD(CreateListView);
+    LUA_METHOD(CreateListViewColumn);
 }
 
 CControlManager::CControlManager()
@@ -55,6 +58,8 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CToolbarControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CToolbarButton>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CLayoutControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CListViewControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CListViewColumn>();
 }
 
 CWindowControl *CControlManager::CreateWindowForm(CWindowControl *parent)
@@ -105,6 +110,19 @@ CToolbarButton *CControlManager::CreateToolbarButton()
 CLayoutControl *CControlManager::CreateLayout()
 {
     return CMemoryPool<CLayoutControl>::GetInstance().New();
+}
+
+CListViewControl* CControlManager::CreateListView(CWindowControl* parent)
+{
+    auto newListView = CMemoryPool<CListViewControl>::GetInstance().New();
+    newListView->SetParentWindow(parent);
+    return newListView;
+}
+
+CListViewColumn* CControlManager::CreateListViewColumn()
+{
+    auto newColumn = CMemoryPool<CListViewColumn>::GetInstance().New();
+    return newColumn;
 }
 
 HINSTANCE CControlManager::GetHInstance()

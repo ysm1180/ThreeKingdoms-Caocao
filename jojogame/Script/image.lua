@@ -7,7 +7,8 @@ Image = ControlObject:Instance
         G = 0x00,
         B = 0xF7,
     },
-    Instance = function(self)
+    
+    New = function(self)
         local newImage = {}
 
         newImage.control = controlManager:CreateImage()

@@ -9,16 +9,18 @@ ButtonManager = ControlManager:Instance
         local newButton = nil
 
         if options ~= nil then
-            newButton = Button:Instance(options.Parent)
 
             if options.Control ~= nil then
-                newButton.control = options.Control
+                newButton = Button:Instance(options.Control)
+                return newButton
+            else
+                newButton = Button:New(options.Parent)
             end
 
             newButton:SetSize(options.Width, options.Height)
 
             if options.Center then
-                local x, y = ControlManager.GetCenterPosition(options.Parent, options.Width, options.Height, false)
+                local x, y = ControlManager:GetCenterPosition(options.Parent, options.Width, options.Height, true)
                 if x ~= nil and y ~= nil then
                     options.X = x
                     options.Y = y
@@ -26,13 +28,15 @@ ButtonManager = ControlManager:Instance
             end
             newButton:Move(options.X, options.Y)
 
-            newButton:SetCreateEvent(options.Create)
-            newButton:SetDestroyEvent(options.Destroy)
-            newButton:SetMouseLButtonUpEvent(options.MouseLButtonUp)
-            newButton:SetMouseLButtonDownEvent(options.MouseLButtonDown)
-            newButton:SetMouseMoveEvent(options.MouseMove)
-            newButton:SetMouseHoverEvent(options.MouseHover)
-            newButton:SetMouseLeaveEvent(options.MouseLeave)
+            if options.Event then
+                newButton:SetCreateEvent(options.Event.Create)
+                newButton:SetDestroyEvent(options.Event.Destroy)
+                newButton:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
+                newButton:SetMouseLButtonDownEvent(options.Event.MouseLButtonDown)
+                newButton:SetMouseMoveEvent(options.Event.MouseMove)
+                newButton:SetMouseHoverEvent(options.Event.MouseHover)
+                newButton:SetMouseLeaveEvent(options.Event.MouseLeave)
+            end
 
             if options.Text then    
                 if options.Text.Font then

@@ -8,7 +8,7 @@ ImageManager = Object:Instance
         local newImage = nil
 
         if options ~= nil then
-            newImage = Image:Instance()
+            newImage = Image:New()
 
             newImage:LoadFromMe5({
                 FilePath = options.FilePath,

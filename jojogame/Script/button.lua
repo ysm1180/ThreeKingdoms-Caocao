@@ -19,7 +19,19 @@ Button.DEFAULT_TEXT_COLOR = {
     PUSHED = {R = 0x00, G = 0x00, B = 0x00}
 }
 
-function Button:Instance(parent)
+function Button:Instance(control)
+    local newButton = {}
+
+    newButton.control = control
+    setmetatable(newButton, Button)
+    Button.__index = Button
+
+    OUTPUT("Get Button Instance")
+
+    return newButton
+end
+
+function Button:New(parent)
     local newButton = {}
     local parentControl = nil
 

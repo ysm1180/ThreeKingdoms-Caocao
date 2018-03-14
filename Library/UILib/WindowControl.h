@@ -28,6 +28,7 @@ public:
     std::wstring GetTitleName() const;
     std::wstring GetActiveEvent() const;
     std::wstring GetCloseEvent() const;
+    std::wstring GetSizeEvent() const;
     CMenu *GetMenu();
 
     void SetY(int x) override;
@@ -41,6 +42,7 @@ public:
     void SetTitleName(std::wstring title);
     void SetActiveEvent(std::wstring activeEvent);
     void SetCloseEvent(std::wstring closeEvent);
+    void SetSizeEvent(std::wstring sizeEvent);
     void SetIcon(std::wstring iconFilePath);
     void SetBackColor(COLORREF backColor);
     void SetMenu(CMenu *menu);
@@ -68,10 +70,13 @@ private:
     bool _isControlBox = true;
     bool _isTitlebar = true;
     int *_dialogResult = nullptr;
+
     std::wstring _titleName = L"";
     std::wstring _activeEvent = L"";
     std::wstring _closeEvent = L"";
-    HICON _icon = LoadIcon(nullptr, IDI_APPLICATION);
+    std::wstring _sizeEvent = L"";
+
+    HICON _icon = nullptr;
     HBRUSH _backBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
 
     std::vector<CLayoutControl *> _layouts;

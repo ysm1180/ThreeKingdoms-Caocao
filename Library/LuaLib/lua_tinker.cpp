@@ -12,10 +12,6 @@
 #include "lua_tinker.h"
 
 #include "BaseLib\ConsoleOutput.h"
-#include "UILib\WindowControl.h"
-#include "UILib\MenuControl.h"
-#include "UILib\TextFont.h"
-
 
 
 /*---------------------------------------------------------------------------*/
@@ -480,6 +476,30 @@ jojogame::CTextFont *lua_tinker::read(lua_State *L, int index)
 
     auto value = (user *)lua_touserdata(L, index);
     return (jojogame::CTextFont *) value->m_p;
+}
+
+template <>
+::jojogame::CListViewColumn* lua_tinker::read(lua_State* L, int index)
+{
+    if (lua_isnil(L, index))
+    {
+        return nullptr;
+    }
+
+    auto value = (user *)lua_touserdata(L, index);
+    return (jojogame::CListViewColumn *) value->m_p;
+}
+
+template <>
+::jojogame::CListViewItem* lua_tinker::read(lua_State* L, int index)
+{
+    if (lua_isnil(L, index))
+    {
+        return nullptr;
+    }
+
+    auto value = (user *)lua_touserdata(L, index);
+    return (jojogame::CListViewItem *) value->m_p;
 }
 
 /*---------------------------------------------------------------------------*/

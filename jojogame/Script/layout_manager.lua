@@ -8,7 +8,7 @@ LayoutManager = Object:Instance
         local newLayout = nil
 
         if options ~= nil then
-            newLayout = Layout:Instance()
+            newLayout = Layout:New()
 
             newLayout:Move(options.X, options.Y)
             
@@ -17,7 +17,7 @@ LayoutManager = Object:Instance
 
             if options.Ratio ~= nil then
                 newLayout:SetRatioX(options.Ratio.X)
-                newLayout:SetRatioX(options.Ratio.Y)
+                newLayout:SetRatioY(options.Ratio.Y)
             end
         end
         

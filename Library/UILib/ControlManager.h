@@ -17,6 +17,8 @@ class CImageControl;
 class CToolbarControl;
 class CToolbarButton;
 class CLayoutControl;
+class CListViewControl;
+class CListViewColumn;
 
 class  CControlManager
 {
@@ -37,6 +39,8 @@ public:
     CToolbarControl *CreateToolbar();
     CToolbarButton *CreateToolbarButton();
     CLayoutControl *CreateLayout();
+    CListViewControl *CreateListView(CWindowControl* parent);
+    CListViewColumn *CreateListViewColumn();
 
     HINSTANCE GetHInstance();
 

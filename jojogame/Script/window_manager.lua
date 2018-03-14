@@ -7,7 +7,7 @@ WindowManager = ControlManager:Instance
         OUTPUT("-------- Start Create : Window --------")
         local newWindow = nil
         if options ~= nil then
-            newWindow = Window:Instance(options.Parent)
+            newWindow = Window:New(options.Parent)
 
             newWindow:SetSize(options.Width, options.Height)
 
@@ -31,15 +31,19 @@ WindowManager = ControlManager:Instance
             end
             newWindow:SetControlBox(options.ControlBox)
 
-            newWindow:SetCreateEvent(options.Create)
-            newWindow:SetDestroyEvent(options.Destroy)     
-            newWindow:SetActiveEvent(options.Active)
-            newWindow:SetCloseEvent(options.Close)
-            newWindow:SetMouseLButtonUpEvent(options.MouseLButtonUp)
-            newWindow:SetMouseLButtonDownEvent(options.MouseLButtonDown)
-            newWindow:SetMouseMoveEvent(options.MouseMove)
-            newWindow:SetMouseHoverEvent(options.MouseHover)
-            newWindow:SetMouseLeaveEvent(options.MouseLeave)
+            if options.Event then
+                newWindow:SetCreateEvent(options.Event.Create)
+                newWindow:SetDestroyEvent(options.Event.Destroy)     
+                newWindow:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
+                newWindow:SetMouseLButtonDownEvent(options.Event.MouseLButtonDown)
+                newWindow:SetMouseMoveEvent(options.Event.MouseMove)
+                newWindow:SetMouseHoverEvent(options.Event.MouseHover)
+                newWindow:SetMouseLeaveEvent(options.Event.MouseLeave)
+
+                newWindow:SetActiveEvent(options.Event.Active)
+                newWindow:SetCloseEvent(options.Event.Close)
+                newWindow:SetSizeEvent(options.Event.Size)
+            end
 
             if options.Layouts ~= nil then
                 for i = 1, #options.Layouts do

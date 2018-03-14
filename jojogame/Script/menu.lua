@@ -2,7 +2,7 @@ require "Script\\text_control.lua"
 
 Menu = ControlObject:Instance
 {
-    Instance = function(self)
+    New = function(self)
         local newMenu = {}
 
         newMenu.control = controlManager:CreateMenu()
@@ -37,7 +37,19 @@ MenuItem = TextControl:Instance
         DISABLE_FOCUSED = {R = 0x6D, G = 0x6D, B = 0x6D},
     },
 
-    Instance = function(self)
+    Instance = function(self, control)
+        local newMenuItem = {}
+
+        newMenuItem.control = control
+        setmetatable(newMenuItem, self)
+        self.__index = self
+
+        OUTPUT("Get Menu Item Instance")        
+        
+        return newMenuItem
+    end,
+
+    New = function(self)
         local newMenuItem = {}
 
         newMenuItem.control = controlManager:CreateMenuItem()
