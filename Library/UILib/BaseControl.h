@@ -28,7 +28,7 @@ public:
     virtual std::wstring GetMouseLButtonUpEvent() const;
     virtual std::wstring GetMouseLButtonDownEvent() const;
     virtual std::wstring GetMouseMoveEvent() const;
-    virtual std::wstring GetMouseHoverEvent() const;
+    virtual std::wstring GetMouseEnterEvent() const;
     virtual std::wstring GetMouseLeaveEvent() const;
     virtual HWND GetHWnd() const;
     virtual std::wstring GetUserData();
@@ -36,8 +36,8 @@ public:
     virtual void SetStyle(LONG style);
     virtual void SetVisible(bool isVisible);
     virtual void SetEnabled(bool isEnabled);
-    virtual void SetY(int x);
-    virtual void SetX(int y);
+    virtual void SetY(int y);
+    virtual void SetX(int x);
     virtual void SetWidth(int width);
     virtual void SetHeight(int height);
     virtual void SetCreateEvent(std::wstring createEvent);
@@ -45,9 +45,13 @@ public:
     virtual void SetMouseLButtonUpEvent(std::wstring mouseLButtonUpEvent);
     virtual void SetMouseLButtonDownEvent(std::wstring mouseLButtonDownEvent);
     virtual void SetMouseMoveEvent(std::wstring mouseMoveEvent);
-    virtual void SetMouseHoverEvent(std::wstring mouseHoverEvent);
+    virtual void SetMouseEnterEvent(std::wstring mouseEnterEvent);
     virtual void SetMouseLeaveEvent(std::wstring mouseLeaveEvent);
     virtual void SetUserData(std::wstring data);
+    virtual void SetParentControl(CBaseControl *parent);
+
+    virtual void Refresh();
+    virtual void RefreshRegion(int left, int top, int right, int bottom);
 
     virtual void Show();
     virtual void Hide();
@@ -61,6 +65,8 @@ public:
     }
 
 protected:
+    bool _isHover = false;
+
     bool _isVisible = false;
     bool _isEnabled = true;
     HWND _hWnd = nullptr;
@@ -74,7 +80,7 @@ protected:
     std::wstring _mouseLButtonUpEvent = L"";
     std::wstring _mouseLButtonDownEvent = L"";
     std::wstring _mouseMoveEvent = L"";
-    std::wstring _mouseHoverEvent = L"";
+    std::wstring _mouseEnterEvent = L"";
     std::wstring _mouseLeaveEvent = L"";
 
     std::wstring _userData = L"";

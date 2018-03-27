@@ -24,25 +24,25 @@ public:
     CButtonControl();
     ~CButtonControl() override;
 
-    bool IsTransparentBackground();
-    bool IsHovered();
-    bool IsPushed();
+    bool IsTransparentBackground() const;
+    bool IsHovered() const;
+    bool IsPushed() const;
     CTextFont *GetFont();
-    std::wstring GetText();
+    std::wstring GetText() const;
     ButtonStateColor& GetBackgroundColor();
     ButtonStateColor& GetBorderColor();
     ButtonStateColor& GetTextColor();
-    COLORREF GetNormalBackgroundColor();
-    COLORREF GetFocusedBackgroundColor();
-    COLORREF GetPushedBackgroundColor();
-    COLORREF GetNormalBorderColor();
-    COLORREF GetFocusedBorderColor();
-    COLORREF GetPushedBorderColor();
-    COLORREF GetNormalTextColor();
-    COLORREF GetFocusedTextColor();
-    COLORREF GetPushedTextColor();
-    int GetBorderWidth();
-    CWindowControl *GetParentWindow();
+    COLORREF GetNormalBackgroundColor() const;
+    COLORREF GetFocusedBackgroundColor() const;
+    COLORREF GetPushedBackgroundColor() const;
+    COLORREF GetNormalBorderColor() const;
+    COLORREF GetFocusedBorderColor() const;
+    COLORREF GetPushedBorderColor() const;
+    COLORREF GetNormalTextColor() const;
+    COLORREF GetFocusedTextColor() const;
+    COLORREF GetPushedTextColor() const;
+    int GetBorderWidth() const;
+    CWindowControl *GetParentWindow() const;
 
     void SetTransparentBackground(bool isTransparentBackground);
     void SetText(std::wstring text);
@@ -75,7 +75,6 @@ protected:
     ButtonStateColor _textColor = { RGB(0x00, 0x00, 0x00), RGB(0x00, 0x00, 0x00), RGB(0x00, 0x00, 0x00) };
     int _borderWidth = 1;
 
-    bool _hovered = false;
     bool _pushed = false;
 
     static WNDPROC s_originalProc;

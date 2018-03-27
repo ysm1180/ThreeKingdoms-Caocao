@@ -16,6 +16,8 @@ void CToolbarControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(AddButton);
     LUA_METHOD(DeleteButton);
 
+    LUA_METHOD(AutoSize);
+
     LUA_METHOD(Show);
     LUA_METHOD(Hide);
 }
@@ -39,12 +41,12 @@ CToolbarControl::~CToolbarControl()
     }
 }
 
-HWND CToolbarControl::GetHWnd()
+HWND CToolbarControl::GetHWnd() const
 {
     return _hWnd;
 }
 
-int CToolbarControl::GetHeight()
+int CToolbarControl::GetHeight() const
 {
     RECT rect;
 
@@ -58,7 +60,7 @@ bool CToolbarControl::Create(CWindowControl *parentWindow, int imageWidth, int i
     if (parentWindow)
     {
         _hWnd = CreateWindowEx(0, TOOLBARCLASSNAME, nullptr, WS_CHILD | TBSTYLE_WRAPABLE | WS_CLIPSIBLINGS | TBSTYLE_TOOLTIPS, 0, 0, 0, 0,
-                               parentWindow->GetHWnd(), nullptr, CControlManager::GetInstance().GetHInstance(),
+                               parentWindow->GetHWnd(), (HMENU)this, CControlManager::GetInstance().GetHInstance(),
                                nullptr);
         _hImageList = ImageList_Create(imageWidth, imageHeight, ILC_MASK | ILC_COLOR24, 16, 4);
         SendMessage(_hWnd, TB_SETIMAGELIST, (WPARAM)0, (LPARAM)_hImageList);
@@ -126,6 +128,11 @@ void CToolbarControl::DeleteButton(CToolbarButton *button)
     CToolbarManager::GetInstance().DeleteToolbarButton(button);
     
     SendMessage(_hWnd, TB_DELETEBUTTON, (WPARAM)button->GetIndex(), (LPARAM)0);
+}
+
+void CToolbarControl::AutoSize()
+{
+    SendMessage(_hWnd, TB_AUTOSIZE, 0, 0);
 }
 
 void CToolbarControl::Show()

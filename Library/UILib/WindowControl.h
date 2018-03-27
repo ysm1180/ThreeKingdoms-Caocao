@@ -25,26 +25,28 @@ public:
     bool IsMaxButton() const;
     bool IsMinButton() const;
     bool IsTitleBar() const;
+    bool IsSizable() const;
     std::wstring GetTitleName() const;
     std::wstring GetActiveEvent() const;
     std::wstring GetCloseEvent() const;
     std::wstring GetSizeEvent() const;
     CMenu *GetMenu();
 
-    void SetY(int x) override;
-    void SetX(int y) override;
+    void SetY(int y) override;
+    void SetX(int x) override;
     void SetWidth(int width) override;
     void SetHeight(int height) override;
     void SetControlBox(bool isControlBox);
     void SetMaxButton(bool isMaxButton);
     void SetMinButton(bool isMinButton);
     void SetTitlebar(bool isTitlebar);
+    void SetSizable(bool isSizable);
     void SetTitleName(std::wstring title);
     void SetActiveEvent(std::wstring activeEvent);
     void SetCloseEvent(std::wstring closeEvent);
     void SetSizeEvent(std::wstring sizeEvent);
     void SetIcon(std::wstring iconFilePath);
-    void SetBackColor(COLORREF backColor);
+    void SetBackgroundColor(COLORREF backColor);
     void SetMenu(CMenu *menu);
     void SetParentWindow(CWindowControl *parent);
 
@@ -59,9 +61,6 @@ public:
 
     void SetDialogResult(int value) const;
 
-    void Refresh() const;
-    void RefreshRegion(int left, int top, int right, int bottom);
-
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
@@ -69,6 +68,7 @@ private:
     bool _isMinButton = true;
     bool _isControlBox = true;
     bool _isTitlebar = true;
+    bool _isSizable = false;
     int *_dialogResult = nullptr;
 
     std::wstring _titleName = L"";
@@ -77,6 +77,7 @@ private:
     std::wstring _sizeEvent = L"";
 
     HICON _icon = nullptr;
+    COLORREF _backgroundColor = GetSysColor(COLOR_3DFACE);
     HBRUSH _backBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
 
     std::vector<CLayoutControl *> _layouts;

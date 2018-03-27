@@ -48,27 +48,27 @@ CMenuItem::~CMenuItem()
 {
 }
 
-bool CMenuItem::IsEnabled()
+bool CMenuItem::IsEnabled() const
 {
     return _isEnabled;
 }
 
-int CMenuItem::GetIndex()
+int CMenuItem::GetIndex() const
 {
     return _index;
 }
 
-CMenu* CMenuItem::GetChildMenu()
+CMenu* CMenuItem::GetChildMenu() const
 {
     return _childMenu;
 }
 
-std::wstring CMenuItem::GetText()
+std::wstring CMenuItem::GetText() const
 {
     return _text;
 }
 
-std::wstring CMenuItem::GetClickEvent()
+std::wstring CMenuItem::GetClickEvent() const
 {
     return _clickEvent;
 }
@@ -78,12 +78,12 @@ CTextFont *CMenuItem::GetFont()
     return &_font;
 }
 
-MenuItemStateColor CMenuItem::GetBackgroundColor()
+MenuItemStateColor CMenuItem::GetBackgroundColor() const
 {
     return _backgroundColor;
 }
 
-MenuItemStateColor CMenuItem::GetTextColor()
+MenuItemStateColor CMenuItem::GetTextColor() const
 {
     return _textColor;
 }

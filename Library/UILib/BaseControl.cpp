@@ -1,6 +1,7 @@
 #include "BaseControl.h"
 #include "ControlManager.h"
 #include "LuaLib\LuaTinker.h"
+#include <CommCtrl.h>
 
 namespace jojogame {
 void CBaseControl::RegisterFunctions(lua_State *L)
@@ -18,7 +19,7 @@ void CBaseControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(GetMouseLButtonUpEvent);
     LUA_METHOD(GetMouseLButtonDownEvent);
     LUA_METHOD(GetMouseMoveEvent);
-    LUA_METHOD(GetMouseHoverEvent);
+    LUA_METHOD(GetMouseEnterEvent);
     LUA_METHOD(GetMouseLeaveEvent);
     LUA_METHOD(GetStyle);
     LUA_METHOD(GetUserData);
@@ -34,10 +35,13 @@ void CBaseControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(SetMouseLButtonUpEvent);
     LUA_METHOD(SetMouseLButtonDownEvent);
     LUA_METHOD(SetMouseMoveEvent);
-    LUA_METHOD(SetMouseHoverEvent);
+    LUA_METHOD(SetMouseEnterEvent);
     LUA_METHOD(SetMouseLeaveEvent);
     LUA_METHOD(SetStyle);
     LUA_METHOD(SetUserData);
+
+    LUA_METHOD(Refresh);
+    LUA_METHOD(RefreshRegion);
 
     LUA_METHOD(Show);
     LUA_METHOD(Hide);
@@ -79,10 +83,7 @@ int CBaseControl::GetX() const
         GetWindowRect(_hWnd, &rect);
         return rect.left;
     }
-    else
-    {
-        return _position.x;
-    }
+    return _position.x;
 }
 
 int CBaseControl::GetY() const
@@ -93,10 +94,7 @@ int CBaseControl::GetY() const
         GetWindowRect(_hWnd, &rect);
         return rect.top;
     }
-    else
-    {
-        return _position.y;
-    }
+    return _position.y;
 }
 
 inline LONG CBaseControl::GetStyle() const
@@ -129,9 +127,9 @@ std::wstring CBaseControl::GetMouseMoveEvent() const
     return _mouseMoveEvent;
 }
 
-std::wstring CBaseControl::GetMouseHoverEvent() const
+std::wstring CBaseControl::GetMouseEnterEvent() const
 {
-    return _mouseHoverEvent;
+    return _mouseEnterEvent;
 }
 
 std::wstring CBaseControl::GetMouseLeaveEvent() const
@@ -151,135 +149,210 @@ std::wstring CBaseControl::GetUserData()
 
 void CBaseControl::SetStyle(const LONG style)
 {
-    _style = style;
-}
-
-void CBaseControl::SetVisible(const bool visible)
-{
-    _isVisible = visible;
-}
-
-void CBaseControl::SetEnabled(const bool enabled)
-{
-    _isEnabled = enabled;
-    
-    if (_hWnd)
+    if (_style != style)
     {
-        EnableWindow(_hWnd, _isEnabled);
+        _style = style;
+    }
+}
+
+void CBaseControl::SetVisible(const bool isVisible)
+{
+    if (_isVisible != isVisible)
+    {
+        _isVisible = isVisible;
+    }
+}
+
+void CBaseControl::SetEnabled(const bool isEnabled)
+{
+    if (_isEnabled != isEnabled)
+    {
+        _isEnabled = isEnabled;
+
+        if (_hWnd)
+        {
+            EnableWindow(_hWnd, _isEnabled);
+        }
     }
 }
 
 void CBaseControl::SetY(const int y)
 {
-    _position.y = y;
-
-    if (_hWnd != nullptr)
+    if (_position.y != y)
     {
-        RECT rect;
+        _position.y = y;
 
-        SetRect(&rect, GetX(), _position.y, GetX() + GetWidth(), _position.y + GetHeight());
-        AdjustWindowRect(&rect, _style, FALSE);
-        int diffX = GetX() - rect.left;
-        int diffY = _position.y - rect.top;
-        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+        if (_hWnd != nullptr)
+        {
+            RECT rect;
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSIZE || SWP_NOZORDER);
+            SetRect(&rect, GetX(), _position.y, GetX() + GetWidth(), _position.y + GetHeight());
+            AdjustWindowRect(&rect, _style, FALSE);
+            int diffX = GetX() - rect.left;
+            int diffY = _position.y - rect.top;
+            SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+
+            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSIZE || SWP_NOZORDER);
+        }
     }
 }
 
 void CBaseControl::SetX(const int x)
 {
-    _position.x = x;
-
-    if (_hWnd != nullptr)
+    if (_position.x != x)
     {
-        RECT rect;
+        _position.x = x;
 
-        SetRect(&rect, _position.x, GetY(), _position.x + GetWidth(), GetY() + GetHeight());
-        AdjustWindowRect(&rect, _style, FALSE);
-        int diffX = _position.x - rect.left;
-        int diffY = GetY() - rect.top;
-        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+        if (_hWnd != nullptr)
+        {
+            RECT rect;
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSIZE || SWP_NOZORDER);
+            SetRect(&rect, _position.x, GetY(), _position.x + GetWidth(), GetY() + GetHeight());
+            AdjustWindowRect(&rect, _style, FALSE);
+            int diffX = _position.x - rect.left;
+            int diffY = GetY() - rect.top;
+            SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+
+            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSIZE || SWP_NOZORDER);
+        }
     }
 }
 
 void CBaseControl::SetWidth(const int width)
 {
-    _size.cx = width;
-
-    if (_hWnd != nullptr)
+    if (_size.cx != width)
     {
-        RECT rect;
+        _size.cx = width;
 
-        SetRect(&rect, GetX(), GetY(), GetX() + _size.cx, GetY() + GetHeight());
-        AdjustWindowRect(&rect, _style, FALSE);
-        int diffX = GetX() - rect.left;
-        int diffY = GetY() - rect.top;
-        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+        if (_hWnd != nullptr)
+        {
+            RECT rect;
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+            SetRect(&rect, GetX(), GetY(), GetX() + _size.cx, GetY() + GetHeight());
+            AdjustWindowRect(&rect, _style, FALSE);
+            int diffX = GetX() - rect.left;
+            int diffY = GetY() - rect.top;
+            SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+
+            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+        }
     }
 }
 
 void CBaseControl::SetHeight(const int height)
 {
-    _size.cy = height;
-
-    if (_hWnd != nullptr)
+    if (_size.cy != height)
     {
-        RECT rect;
+        _size.cy = height;
 
-        SetRect(&rect, GetX(), GetY(), GetX() + GetWidth(), GetY() + _size.cy);
-        AdjustWindowRect(&rect, _style, FALSE);
-        int diffX = GetX() - rect.left;
-        int diffY = GetY() - rect.top;
-        SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+        if (_hWnd != nullptr)
+        {
+            RECT rect;
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+            SetRect(&rect, GetX(), GetY(), GetX() + GetWidth(), GetY() + _size.cy);
+            AdjustWindowRect(&rect, _style, FALSE);
+            int diffX = GetX() - rect.left;
+            int diffY = GetY() - rect.top;
+            SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
+
+            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+        }
     }
 }
 
 void CBaseControl::SetCreateEvent(const std::wstring createEvent)
 {
-    _createEvent = createEvent;
+    if (_createEvent.compare(createEvent) != 0)
+    {
+        _createEvent = createEvent;
+    }
 }
 
 void CBaseControl::SetDestroyEvent(const std::wstring destroyEvent)
 {
-    _destroyEvent = destroyEvent;
+    if (_destroyEvent.compare(destroyEvent) != 0)
+    {
+        _destroyEvent = destroyEvent;
+    }
 }
 
 void CBaseControl::SetMouseLButtonUpEvent(const std::wstring mouseLButtonUpEvent)
 {
-    _mouseLButtonUpEvent = mouseLButtonUpEvent;
+    if (_mouseLButtonUpEvent.compare(mouseLButtonUpEvent) != 0)
+    {
+        _mouseLButtonUpEvent = mouseLButtonUpEvent;
+    }
 }
 
 void CBaseControl::SetMouseLButtonDownEvent(std::wstring mouseLButtonDownEvent)
 {
-    _mouseLButtonDownEvent = mouseLButtonDownEvent;
+    if (_mouseLButtonDownEvent.compare(mouseLButtonDownEvent) != 0)
+    {
+        _mouseLButtonDownEvent = mouseLButtonDownEvent;
+    }
 }
 
 void CBaseControl::SetMouseMoveEvent(std::wstring mouseMoveEvent)
 {
-    _mouseMoveEvent = mouseMoveEvent;
+    if (_mouseMoveEvent.compare(mouseMoveEvent) != 0)
+    {
+        _mouseMoveEvent = mouseMoveEvent;
+    }
 }
 
-void CBaseControl::SetMouseHoverEvent(std::wstring mouseHoverEvent)
+void CBaseControl::SetMouseEnterEvent(std::wstring mouseEnterEvent)
 {
-    _mouseHoverEvent = mouseHoverEvent;
+    if (_mouseEnterEvent.compare(mouseEnterEvent) != 0)
+    {
+        _mouseEnterEvent = mouseEnterEvent;
+    }
 }
 
 void CBaseControl::SetMouseLeaveEvent(std::wstring mouseLeaveEvent)
 {
-    _mouseLeaveEvent = mouseLeaveEvent;
+    if (_mouseLeaveEvent.compare(mouseLeaveEvent) != 0)
+    {
+        _mouseLeaveEvent = mouseLeaveEvent;
+    }
 }
 
 void CBaseControl::SetUserData(std::wstring data)
 {
-    _userData = data;
+    if (_userData.compare(data) != 0)
+    {
+        _userData = data;
+    }
 }
+
+void CBaseControl::SetParentControl(CBaseControl* parent)
+{
+    _parentControl = parent;
+}
+
+void CBaseControl::Refresh()
+{
+    if (_hWnd)
+    {
+        RECT rect;
+
+        GetClientRect(_hWnd, &rect);
+        InvalidateRect(_hWnd, &rect, TRUE);
+        UpdateWindow(_hWnd);
+    }
+}
+
+void CBaseControl::RefreshRegion(int left, int top, int right, int bottom)
+{
+    if (_hWnd)
+    {
+        RECT rect;
+
+        SetRect(&rect, left, top, right, bottom);
+        InvalidateRect(_hWnd, &rect, TRUE);
+        UpdateWindow(_hWnd);
+    }
+}
+
 
 void CBaseControl::Show()
 {
@@ -288,7 +361,6 @@ void CBaseControl::Show()
     {
         ShowWindow(_hWnd, TRUE);
     }
-    
 }
 
 void CBaseControl::Hide()

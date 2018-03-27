@@ -157,12 +157,6 @@ CImageControl::~CImageControl()
 void CImageControl::LoadImageFromMe5File(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor)
 {
     CME5File imageFile;
-    BITMAPFILEHEADER *bmpFileHeader;
-    BITMAPINFO *bmpInfo;
-    BITMAPINFOHEADER *bmpInfoHeader;
-    COLORREF oldColor;
-    HDC dc, imageDC, maskDC;
-    HBITMAP oldImage, oldMask;
 
     imageFile.Open(filePath);
 
@@ -176,23 +170,23 @@ void CImageControl::LoadImageFromMe5File(std::wstring filePath, int groupIndex, 
     BYTE *bmpBytes = new BYTE[bmp.size()];
     std::copy(bmp.begin(), bmp.end(), stdext::checked_array_iterator<BYTE *>(bmpBytes, bmp.size()));
 
-    bmpFileHeader = (BITMAPFILEHEADER *) bmpBytes;
-    bmpInfoHeader = (BITMAPINFOHEADER *) (bmpBytes + sizeof(BITMAPFILEHEADER));
-    bmpInfo = (BITMAPINFO *) bmpInfoHeader;
+    BITMAPFILEHEADER *bmpFileHeader = (BITMAPFILEHEADER *) bmpBytes;
+    BITMAPINFOHEADER *bmpInfoHeader = (BITMAPINFOHEADER *) (bmpBytes + sizeof(BITMAPFILEHEADER));
+    BITMAPINFO *bmpInfo = (BITMAPINFO *) bmpInfoHeader;
     BYTE *bits = (bmpBytes + bmpFileHeader->bfOffBits);
     _size.cx = bmpInfoHeader->biWidth;
     _size.cy = bmpInfoHeader->biHeight;
 
-    dc = GetDC(nullptr);
-    imageDC = CreateCompatibleDC(dc);
-    maskDC = CreateCompatibleDC(dc);
+    HDC dc = GetDC(nullptr);
+    HDC imageDC = CreateCompatibleDC(dc);
+    HDC maskDC = CreateCompatibleDC(dc);
 
     _image = CreateDIBitmap(dc, bmpInfoHeader, CBM_INIT, (void *) bits, bmpInfo, DIB_RGB_COLORS);
     _maskImage = CreateBitmap(_size.cx, _size.cy, 1, 1, nullptr);
 
-    oldImage = (HBITMAP) SelectObject(imageDC, _image);
-    oldMask = (HBITMAP) SelectObject(maskDC, _maskImage);
-    oldColor = SetBkColor(imageDC, maskColor);
+    HBITMAP oldImage = (HBITMAP) SelectObject(imageDC, _image);
+    HBITMAP oldMask = (HBITMAP) SelectObject(maskDC, _maskImage);
+    COLORREF oldColor = SetBkColor(imageDC, maskColor);
 
     BitBlt(maskDC, 0, 0, _size.cx, _size.cy, imageDC, 0, 0, SRCCOPY);
     BitBlt(imageDC, 0, 0, _size.cx, _size.cy, maskDC, 0, 0, SRCINVERT);
@@ -204,7 +198,7 @@ void CImageControl::LoadImageFromMe5File(std::wstring filePath, int groupIndex, 
     DeleteDC(imageDC);
     DeleteDC(maskDC);
 
-    ReleaseDC(NULL, dc);
+    ReleaseDC(nullptr, dc);
 
     delete[]by;
     delete[]bmpBytes;

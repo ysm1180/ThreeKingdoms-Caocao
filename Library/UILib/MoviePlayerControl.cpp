@@ -40,7 +40,7 @@ CMoviePlayerControl::CMoviePlayerControl(CWindowControl *parent, std::string fil
 
 CMoviePlayerControl::~CMoviePlayerControl()
 {
-    CMoviePlayerControl::Destroy();
+    Destroy();
 }
 
 bool CMoviePlayerControl::IsPlaying()
@@ -62,8 +62,7 @@ void InitPacketQueue(PacketQueue *queue)
 
 int PutPacketQueue(PacketQueue *queue, AVPacket *packet)
 {
-    AVPacketList *packetList;
-    packetList = (AVPacketList *)av_malloc(sizeof(AVPacketList));
+    AVPacketList *packetList = (AVPacketList *)av_malloc(sizeof(AVPacketList));
     if (!packetList)
     {
         return AVERROR(ENOMEM);
@@ -128,10 +127,9 @@ static int GetPacketQueue(VideoState *videoState, PacketQueue *queue, AVPacket *
         }
         else
         {
-            if (videoState->finishQueue)
+            if (videoState->finishQueue || !videoState->playing)
             {
                 videoState->playing = false;
-                SDL_CloseAudio();
                 result = -1;
                 break;
             }
@@ -145,13 +143,11 @@ static int GetPacketQueue(VideoState *videoState, PacketQueue *queue, AVPacket *
 
 double GetAudioClock(VideoState *videoState)
 {
-    double pts;
-    int hwBufSize, bytesPerSec, n;
+    double pts = videoState->audioClock; /* maintained in the audio thread */
+    int hwBufSize = videoState->audioBufferSize - videoState->audioBufferIndex;
+    int bytesPerSec = 0;
+    int n = videoState->audioCodecContext->channels * 2;
 
-    pts = videoState->audioClock; /* maintained in the audio thread */
-    hwBufSize = videoState->audioBufferSize - videoState->audioBufferIndex;
-    bytesPerSec = 0;
-    n = videoState->audioCodecContext->channels * 2;
     if (videoState->audioStream)
     {
         bytesPerSec = videoState->audioCodecContext->sample_rate * n;
@@ -165,9 +161,7 @@ double GetAudioClock(VideoState *videoState)
 
 double GetVideoClock(VideoState *is)
 {
-    double delta;
-
-    delta = (av_gettime() - is->videoCurrentPtsTime) / 1000000.0;
+    double delta = (av_gettime() - is->videoCurrentPtsTime) / 1000000.0;
     return is->videoCurrentPts + delta;
 }
 
@@ -185,18 +179,12 @@ double GetMasterClock(VideoState *videoState)
 
 int SynchronizeAudio(VideoState *videoState, short *samples, int samplesSize)
 {
-    int n;
-    double refClock;
-
-    n = 2 * videoState->audioCodecContext->channels;
+    int n = 2 * videoState->audioCodecContext->channels;
 
     if (videoState->syncType != SyncType::AudioMaster)
     {
-        double diff, avgDiff;
-        int wantedSize, minSize, maxSize /*, nb_samples */;
-
-        refClock = GetMasterClock(videoState);
-        diff = GetAudioClock(videoState) - refClock;
+        double refClock = GetMasterClock(videoState);
+        double diff = GetAudioClock(videoState) - refClock;
 
         if (diff < AV_NOSYNC_THRESHOLD)
         {
@@ -209,12 +197,13 @@ int SynchronizeAudio(VideoState *videoState, short *samples, int samplesSize)
             }
             else
             {
-                avgDiff = videoState->audioDiffCum * (1.0 - videoState->audioDiffAvgCoef);
+                double avgDiff = videoState->audioDiffCum * (1.0 - videoState->audioDiffAvgCoef);
                 if (fabs(avgDiff) >= videoState->audioDiffThreshold)
                 {
-                    wantedSize = samplesSize + ((int)(diff * videoState->audioCodecContext->sample_rate) * n);
-                    minSize = samplesSize * ((100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100);
-                    maxSize = samplesSize * ((100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100);
+                    int wantedSize = samplesSize + ((int)(diff * videoState->audioCodecContext->sample_rate) * n);
+                    int minSize = samplesSize * ((100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100);
+                    int maxSize = samplesSize * ((100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100);
+
                     if (wantedSize < minSize)
                     {
                         wantedSize = minSize;
@@ -230,13 +219,11 @@ int SynchronizeAudio(VideoState *videoState, short *samples, int samplesSize)
                     }
                     else if (wantedSize > samplesSize)
                     {
-                        uint8_t *samples_end, *q;
-                        int nb;
-
                         /* add samples by copying final sample*/
-                        nb = (samplesSize - wantedSize);
-                        samples_end = (uint8_t *)samples + samplesSize - n;
-                        q = samples_end + n;
+                        int nb = (samplesSize - wantedSize);
+                        uint8_t *samples_end = (uint8_t *)samples + samplesSize - n;
+                        uint8_t *q = samples_end + n;
+
                         while (nb > 0)
                         {
                             memcpy(q, samples_end, n);
@@ -260,16 +247,14 @@ int SynchronizeAudio(VideoState *videoState, short *samples, int samplesSize)
 
 int DecodeAudioFrame(VideoState *videoState, uint8_t *audioBuffer, int bufferSize, double *ptsPtr)
 {
-    int packetError, dataSize = 0;
-    int n;
-    double pts;
+    int dataSize = 0;
     AVPacket *packet = &videoState->audioPacket;
 
     for (;;)
     {
         while (videoState->audioPacketSize > 0)
         {
-            packetError = avcodec_send_packet(videoState->audioCodecContext, packet);
+            int packetError = avcodec_send_packet(videoState->audioCodecContext, packet);
             if (packet->size < 0 || packetError < 0)
             {
                 // If error, skip frame
@@ -296,9 +281,9 @@ int DecodeAudioFrame(VideoState *videoState, uint8_t *audioBuffer, int bufferSiz
                 continue;
             }
 
-            pts = videoState->audioClock;
+            double pts = videoState->audioClock;
             *ptsPtr = pts;
-            n = 2 * videoState->audioCodecContext->channels;
+            int n = 2 * videoState->audioCodecContext->channels;
             videoState->audioClock += (double)dataSize /
                 (double)(n * videoState->audioCodecContext->sample_rate);
             // We have data, return it and come back for more later
@@ -328,7 +313,6 @@ int DecodeAudioFrame(VideoState *videoState, uint8_t *audioBuffer, int bufferSiz
 void AudioCallback(void *userdata, Uint8 *stream, int len)
 {
     auto videoState = (VideoState *)userdata;
-    int computedLen, audioSize;
     double pts;
 
     while (videoState->playing && len > 0)
@@ -336,7 +320,7 @@ void AudioCallback(void *userdata, Uint8 *stream, int len)
         if (videoState->audioBufferIndex >= videoState->audioBufferSize)
         {
             // We have already sent all our data; get more
-            audioSize = DecodeAudioFrame(videoState, videoState->audioBuffer, sizeof(videoState->audioBuffer), &pts);
+            int audioSize = DecodeAudioFrame(videoState, videoState->audioBuffer, sizeof(videoState->audioBuffer), &pts);
             if (audioSize < 0)
             {
                 // If error, output silence
@@ -350,7 +334,8 @@ void AudioCallback(void *userdata, Uint8 *stream, int len)
             }
             videoState->audioBufferIndex = 0;
         }
-        computedLen = videoState->audioBufferSize - videoState->audioBufferIndex;
+
+        int computedLen = videoState->audioBufferSize - videoState->audioBufferIndex;
         if (computedLen > len)
         {
             computedLen = len;
@@ -395,9 +380,7 @@ static void ScheduleRefresh(VideoState *is, int delay)
 
 void DisplayVideo(VideoState *videoState)
 {
-    VideoFrame *videoFrame;
-
-    videoFrame = &videoState->frameQueue[videoState->frameQueueRearIndex];
+    VideoFrame *videoFrame = &videoState->frameQueue[videoState->frameQueueRearIndex];
     if (videoFrame->dc)
     {
         std::unique_lock<std::mutex> lock(videoState->screenMutex);
@@ -417,8 +400,6 @@ void DisplayVideo(VideoState *videoState)
 void RefreshVideoTimer(void *userdata)
 {
     auto *videoState = (VideoState *)userdata;
-    VideoFrame *videoFrame;
-    double actualDelay, delay, syncThreshold, refClock, diff;
 
     if (videoState->videoStream)
     {
@@ -428,11 +409,11 @@ void RefreshVideoTimer(void *userdata)
         }
         else
         {
-            videoFrame = &videoState->frameQueue[videoState->frameQueueRearIndex];
+            VideoFrame *videoFrame = &videoState->frameQueue[videoState->frameQueueRearIndex];
 
             videoState->videoCurrentPts = videoFrame->pts;
             videoState->videoCurrentPtsTime = av_gettime();
-            delay = videoFrame->pts - videoState->frameLastPts; // the pts from last time
+            double delay = videoFrame->pts - videoState->frameLastPts; // the pts from last time
             if (delay <= 0 || delay >= 1.0)
             {
                 // if incorrect delay, use previous one
@@ -445,12 +426,12 @@ void RefreshVideoTimer(void *userdata)
             // update delay to sync to audio if not master source
             if (videoState->syncType != SyncType::VideoMaster)
             {
-                refClock = GetMasterClock(videoState);
-                diff = videoFrame->pts - refClock;
+                double refClock = GetMasterClock(videoState);
+                double diff = videoFrame->pts - refClock;
 
                 // Skip or repeat the frame. Take delay into account
                 // FFPlay still doesn't "know if this is the best guess."
-                syncThreshold = (delay > AV_SYNC_THRESHOLD) ? delay : AV_SYNC_THRESHOLD;
+                double syncThreshold = (delay > AV_SYNC_THRESHOLD) ? delay : AV_SYNC_THRESHOLD;
                 if (fabs(diff) < AV_NOSYNC_THRESHOLD)
                 {
                     if (diff <= -syncThreshold)
@@ -465,7 +446,7 @@ void RefreshVideoTimer(void *userdata)
             }
             videoState->frameTimer += delay;
             // computer the REAL delay
-            actualDelay = videoState->frameTimer - (av_gettime() / 1000000.0);
+            double actualDelay = videoState->frameTimer - (av_gettime() / 1000000.0);
             if (actualDelay < 0.010)
             {
                 // Really it should skip the picture instead
@@ -495,9 +476,8 @@ void RefreshVideoTimer(void *userdata)
 void AllocPicture(void *userdata)
 {
     auto *videoState = (VideoState *)userdata;
-    VideoFrame *videoFrame;
+    VideoFrame *videoFrame = &videoState->frameQueue[videoState->frameQueueWIndex];
 
-    videoFrame = &videoState->frameQueue[videoState->frameQueueWIndex];
     if (videoFrame->dc)
     {
         SelectObject(videoFrame->dc, videoFrame->oldBitmap);
@@ -542,8 +522,6 @@ void AllocPicture(void *userdata)
 
 int QueuePicture(VideoState *videoState, AVFrame *frame, double pts)
 {
-    VideoFrame *videoFrame;
-
     // wait until we have space for a new pic
     std::unique_lock<std::mutex> lock(videoState->frameQueueMutex);
     while (videoState->frameQueueSize >= VIDEO_FRAME_QUEUE_SIZE &&
@@ -558,7 +536,7 @@ int QueuePicture(VideoState *videoState, AVFrame *frame, double pts)
         return -1;
     }
 
-    videoFrame = &videoState->frameQueue[videoState->frameQueueWIndex];
+    VideoFrame *videoFrame = &videoState->frameQueue[videoState->frameQueueWIndex];
 
     if (!videoFrame->buffer ||
         videoFrame->width != videoState->videoCodecContext->width ||
@@ -602,8 +580,6 @@ int QueuePicture(VideoState *videoState, AVFrame *frame, double pts)
 
 double SynchronizeVideo(VideoState *videoState, AVFrame *srcFrame, double pts)
 {
-    double frameDelay;
-
     if (pts != 0)
     {
         // if we have pts, set video clock to it
@@ -614,8 +590,9 @@ double SynchronizeVideo(VideoState *videoState, AVFrame *srcFrame, double pts)
         // if we aren't given a pts, set it to the clock
         pts = videoState->videoClock;
     }
+
     // update the video clock
-    frameDelay = av_q2d(videoState->videoCodecContext->time_base);
+    double frameDelay = av_q2d(videoState->videoCodecContext->time_base);
     // if we are repeating a frame, adjust clock accordingly
     frameDelay += srcFrame->repeat_pict * (frameDelay * 0.5);
     videoState->videoClock += frameDelay;
@@ -626,10 +603,8 @@ int ThreadVideo(void *arg)
 {
     VideoState *videoState = (VideoState *)arg;
     AVPacket packet;
-    AVFrame *frame;
-    double pts;
 
-    frame = av_frame_alloc();
+    AVFrame *frame = av_frame_alloc();
 
     for (; videoState->playing;)
     {
@@ -638,7 +613,7 @@ int ThreadVideo(void *arg)
             break;
         }
 
-        pts = 0;
+        double pts = 0;
         if (avcodec_send_packet(videoState->videoCodecContext, &packet) == 0)
         {
             if (avcodec_receive_frame(videoState->videoCodecContext, frame) == 0)
@@ -666,8 +641,6 @@ bool CMoviePlayerControl::Create()
 {
     AVCodecParameters *videoCodecParameters = nullptr;
     AVCodecParameters *audioCodecParameters = nullptr;
-    AVCodec *videoCodec;
-    AVCodec *audioCodec;
     int error = 0;
 
     _state.formatContext = nullptr;
@@ -708,13 +681,13 @@ bool CMoviePlayerControl::Create()
         return false;
     }
 
-    videoCodec = avcodec_find_decoder(videoCodecParameters->codec_id);
+    AVCodec *videoCodec = avcodec_find_decoder(videoCodecParameters->codec_id);
     if (videoCodec == nullptr)
     {
         CConsoleOutput::OutputConsoles(L"Cannot find video decoder");
         return false;
     }
-    audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
+    AVCodec *audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
     if (audioCodec == nullptr)
     {
         CConsoleOutput::OutputConsoles(L"Cannot find audio decoder");
@@ -855,6 +828,8 @@ bool PlayMovie(VideoState *videoState)
             if (videoState->formatContext->pb->error == 0)
             {
                 videoState->finishQueue = true;
+                videoState->videoQueue.cond.notify_all();
+                videoState->audioQueue.cond.notify_all();
                 continue;
             }
             else
@@ -948,6 +923,7 @@ void CMoviePlayerControl::Play()
 
     CLuaTinker::GetLuaTinker().Call(_endEvent.c_str(), this);
     _parent->Refresh();
+    SDL_CloseAudio();
 
     if (quit)
     {

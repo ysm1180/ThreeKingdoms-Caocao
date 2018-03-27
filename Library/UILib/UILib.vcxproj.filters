@@ -14,6 +14,7 @@
     <ClCompile Include="ImageControl.cpp" />
     <ClCompile Include="LayoutControl.cpp" />
     <ClCompile Include="ListviewControl.cpp" />
+    <ClCompile Include="StaticControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseControl.h" />
@@ -29,5 +30,6 @@
     <ClInclude Include="ImageControl.h" />
     <ClInclude Include="LayoutControl.h" />
     <ClInclude Include="ListviewControl.h" />
+    <ClInclude Include="StaticControl.h" />
   </ItemGroup>
 </Project>

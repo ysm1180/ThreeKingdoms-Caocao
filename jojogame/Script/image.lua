@@ -34,6 +34,7 @@ Image = ControlObject:Instance
                     R = nil, G = nil, B = nil,
                 }
             end
+
             options.MaskColor.R = options.MaskColor.R or self.DEFAULT_MASK_COLOR.R
             options.MaskColor.G = options.MaskColor.G or self.DEFAULT_MASK_COLOR.G
             options.MaskColor.B = options.MaskColor.B or self.DEFAULT_MASK_COLOR.B

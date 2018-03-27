@@ -22,6 +22,7 @@
     <ClCompile Include="BaseControl.cpp" />
     <ClCompile Include="ButtonControl.cpp" />
     <ClCompile Include="ControlManager.cpp" />
+    <ClCompile Include="StaticControl.cpp" />
     <ClCompile Include="ImageControl.cpp" />
     <ClCompile Include="LayoutControl.cpp" />
     <ClCompile Include="ListviewControl.cpp" />
@@ -37,6 +38,7 @@
     <ClInclude Include="BaseControl.h" />
     <ClInclude Include="ButtonControl.h" />
     <ClInclude Include="ControlManager.h" />
+    <ClInclude Include="StaticControl.h" />
     <ClInclude Include="ImageControl.h" />
     <ClInclude Include="LayoutControl.h" />
     <ClInclude Include="ListviewControl.h" />

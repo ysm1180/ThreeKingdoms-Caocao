@@ -67,12 +67,14 @@ public:
     CToolbarControl();
     ~CToolbarControl();
 
-    HWND GetHWnd();
-    int GetHeight();
+    HWND GetHWnd() const;
+    int GetHeight() const;
 
     bool Create(CWindowControl *parentWindow, int imageWidth, int imageHeight);
     void AddButton(CToolbarButton *button);
     void DeleteButton(CToolbarButton *button);
+
+    void AutoSize();
 
     void Show();
     void Hide();

@@ -8,11 +8,12 @@
 #include "MenuManager.h"
 #include "ToolbarManager.h"
 #include "LayoutControl.h"
+#include "ListviewControl.h"
+#include "StaticControl.h"
 
 namespace jojogame {
 LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
-    static bool isHover = false;
     TRACKMOUSEEVENT trackMouseEvent;
 
     switch (iMessage)
@@ -46,7 +47,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         auto mouseLButtonUpEvent = window->GetMouseLButtonUpEvent();
         if (mouseLButtonUpEvent.length())
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(), 
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(),
                                             window,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
@@ -61,7 +62,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         auto mouseLButtonDownEvent = window->GetMouseLButtonDownEvent();
         if (mouseLButtonDownEvent.length())
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(), 
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(),
                                             window,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
@@ -83,7 +84,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                                             GET_Y_LPARAM(lParam));
         }
 
-        if (isHover == false)
+        if (!window->_isHover)
         {
             trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
             trackMouseEvent.dwFlags = TME_HOVER;
@@ -97,17 +98,16 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     case WM_MOUSEHOVER:
     {
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseHoverEvent = window->GetMouseHoverEvent();
+        auto mouseHoverEvent = window->GetMouseEnterEvent();
         if (mouseHoverEvent.length())
         {
             CLuaTinker::GetLuaTinker().Call(mouseHoverEvent.c_str(), window);
         }
 
-        isHover = true;
+        window->_isHover = true;
         trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
         trackMouseEvent.dwFlags = TME_LEAVE;
         trackMouseEvent.hwndTrack = hWnd;
-        trackMouseEvent.dwHoverTime = 500;
         TrackMouseEvent(&trackMouseEvent);
         break;
     }
@@ -121,7 +121,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent.c_str(), window);
         }
 
-        isHover = false;
+        window->_isHover = false;
         break;
     }
 
@@ -222,10 +222,30 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             auto button = CToolbarManager::GetInstance().GetToolbarButton(index);
             wcscpy_s(lpTooltip->szText, button->GetTooltipText().c_str());
         }
+        else if (pnmhdr->code == LVN_ITEMACTIVATE)
+        {
+            auto listView = reinterpret_cast<CListViewControl *>(GetWindowLongPtr(pnmhdr->hwndFrom, GWLP_USERDATA));
+
+            if (listView)
+            {
+                auto lpnmia = (LPNMITEMACTIVATE)lParam;
+                auto row = listView->GetRow(lpnmia->iItem + 1);
+                if (row->IsEnabled())
+                {
+                    auto itemActiveEvent = row->GetActiveEvent();
+                    if (itemActiveEvent.length() > 0)
+                    {
+                        CLuaTinker::GetLuaTinker().Call<void>(itemActiveEvent.c_str(),
+                                                              listView,
+                                                              static_cast<int>(lpnmia->iItem),
+                                                              static_cast<int>(lpnmia->uKeyFlags));
+                    }
+                }
+            }
+        }
 
         break;
     }
-
 
     case WM_MEASUREITEM:
     {
@@ -250,6 +270,11 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 item->itemHeight = size.cy + 10;
             }
             ReleaseDC(hWnd, hdc);
+        }
+        else if (item->CtlType == ODT_LISTVIEW)
+        {
+            CListViewControl *listView = (CListViewControl *)item->CtlID;
+            item->itemHeight = listView->GetRowHeight();
         }
         break;
     }
@@ -285,7 +310,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 borderColor = button->GetBorderColor().normal;
                 SetTextColor(item->hDC, button->GetTextColor().normal);
             }
-            
+
             RECT rect;
             SetRect(&rect, item->rcItem.left, item->rcItem.top, item->rcItem.right, item->rcItem.bottom);
             int borderWidth = button->GetBorderWidth();
@@ -295,7 +320,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 FillRect(item->hDC, &rect, borderBrush);
                 DeleteBrush(borderBrush);
             }
-            
+
             if (!button->IsTransparentBackground())
             {
                 HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor);
@@ -304,7 +329,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 FillRect(item->hDC, &rect, backgroundBrush);
                 DeleteBrush(backgroundBrush);
             }
-            
+
             auto originalFont = SelectFont(item->hDC, button->GetFont()->GetHFont());
             SetBkMode(item->hDC, TRANSPARENT);
             DrawText(item->hDC, button->GetText().c_str(), -1, &rect,
@@ -391,9 +416,99 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 SetBkMode(item->hDC, OPAQUE);
             }
         }
-        
+        else if (item->CtlType == ODT_LISTVIEW)
+        {
+            auto listview = (CListViewControl *)item->CtlID;
+            auto row = (CListViewRow *)item->itemData;
+
+            int left = item->rcItem.left;
+            for (int i = 0; i < listview->GetColumnCount(); ++i)
+            {
+                auto listViewItem = row->GetItem(i + 1);
+                HBRUSH backgroundBrush;
+
+                if (row->IsEnabled())
+                {
+                    if (item->itemState & ODS_SELECTED)
+                    {
+                        backgroundBrush = CreateSolidBrush(listViewItem->GetFocusedBackgroundColor());
+                        SetTextColor(item->hDC, listViewItem->GetFocusedTextColor());
+                    }
+                    else
+                    {
+                        backgroundBrush = CreateSolidBrush(listViewItem->GetNormalBackgroundColor());
+                        SetTextColor(item->hDC, listViewItem->GetNormalTextColor());
+                    }
+                } 
+                else
+                {
+                    if (item->itemState & ODS_SELECTED)
+                    {
+                        backgroundBrush = CreateSolidBrush(listViewItem->GetDisableFocusedBackgroundColor());
+                        SetTextColor(item->hDC, listViewItem->GetDisableFocusedTextColor());
+                    }
+                    else
+                    {
+                        backgroundBrush = CreateSolidBrush(listViewItem->GetDisabledBackgroundColor());
+                        SetTextColor(item->hDC, listViewItem->GetDisabledTextColor());
+                    }
+                }
+                
+
+                RECT rect;
+                auto columnWidth = ListView_GetColumnWidth(item->hwndItem, i);
+
+                SetRect(&rect, left, item->rcItem.top, left + columnWidth, item->rcItem.bottom);
+                FillRect(item->hDC, &rect, backgroundBrush);
+                DeleteBrush(backgroundBrush);
+
+                auto originalFont = SelectFont(item->hDC, listViewItem->GetFont()->GetHFont());
+                SetBkMode(item->hDC, TRANSPARENT);
+                if (listViewItem->GetAlign() == 0)
+                {
+                    DrawText(item->hDC, listViewItem->GetText().c_str(), -1, &rect,
+                             DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+                } 
+                else if (listViewItem->GetAlign() == 1)
+                {
+                    DrawText(item->hDC, listViewItem->GetText().c_str(), -1, &rect,
+                             DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+                }
+                else if (listViewItem->GetAlign() == 2)
+                {
+                    DrawText(item->hDC, listViewItem->GetText().c_str(), -1, &rect,
+                             DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+                }
+                SelectFont(item->hDC, originalFont);
+                SetBkMode(item->hDC, OPAQUE);
+
+                left += columnWidth;
+            }
+        }
+        else if (item->CtlType == ODT_STATIC)
+        {
+            auto staticControl = (CStaticControl *)item->CtlID;
+
+            RECT rect;
+            SetRect(&rect, item->rcItem.left, item->rcItem.top, item->rcItem.right, item->rcItem.bottom);
+
+            if (!staticControl->IsBackgroundTransparent())
+            {
+                FillRect(item->hDC, &rect, staticControl->GetBackgroundBrush());
+            }
+
+            auto originalFont = SelectFont(item->hDC, staticControl->GetFont()->GetHFont());
+            SetBkMode(item->hDC, TRANSPARENT);
+            DrawText(item->hDC, staticControl->GetText().c_str(), -1, &rect, DT_CENTER | DT_VCENTER |  DT_WORD_ELLIPSIS);
+            SetBkMode(item->hDC, OPAQUE);
+            SelectFont(item->hDC, originalFont);
+
+
+        }
+
         break;
     }
+
 
     case WM_CTLCOLORBTN:
     {
@@ -432,9 +547,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         bool isFitHeight = false;
 
         for (auto layout : window->_layouts)
-        {  
+        {
             isFitWidth = isFitHeight = false;
-            
+
             if (layout->GetWidth() == 0)
             {
                 isFitWidth = true;
@@ -445,7 +560,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 isFitHeight = true;
                 layout->SetHeight(window->GetHeight());
             }
-            
+
             layout->Draw(hdc);
 
             if (isFitWidth)
@@ -483,6 +598,7 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(IsMinButton);
     LUA_METHOD(IsControlBox);
     LUA_METHOD(IsTitleBar);
+    LUA_METHOD(IsSizable);
     LUA_METHOD(GetTitleName);
     LUA_METHOD(GetActiveEvent);
     LUA_METHOD(GetCloseEvent);
@@ -493,12 +609,13 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(SetMinButton);
     LUA_METHOD(SetControlBox);
     LUA_METHOD(SetTitlebar);
+    LUA_METHOD(SetSizable);
     LUA_METHOD(SetTitleName);
     LUA_METHOD(SetActiveEvent);
     LUA_METHOD(SetCloseEvent);
     LUA_METHOD(SetSizeEvent);
     LUA_METHOD(SetIcon);
-    LUA_METHOD(SetBackColor);
+    LUA_METHOD(SetBackgroundColor);
     LUA_METHOD(SetDialogResult);
     LUA_METHOD(SetMenu);
 
@@ -509,8 +626,6 @@ void CWindowControl::RegisterFunctions(lua_State *L)
     LUA_METHOD(ShowModalWindow);
     LUA_METHOD(Destroy);
     LUA_METHOD(Close);
-    LUA_METHOD(Refresh);
-    LUA_METHOD(RefreshRegion);
 
     // WNDCLASS 초기화
     WNDCLASS wndClass;
@@ -529,7 +644,7 @@ void CWindowControl::RegisterFunctions(lua_State *L)
 
 CWindowControl::CWindowControl()
 {
-    _style = WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX;
+    _style = WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX;
     //_style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 }
 
@@ -570,6 +685,11 @@ std::wstring CWindowControl::GetTitleName() const
 bool CWindowControl::IsTitleBar() const
 {
     return _isTitlebar;
+}
+
+bool CWindowControl::IsSizable() const
+{
+    return _isSizable;
 }
 
 std::wstring CWindowControl::GetActiveEvent() const
@@ -777,6 +897,24 @@ void CWindowControl::SetTitlebar(bool isTitlebar)
     }
 }
 
+void CWindowControl::SetSizable(bool isSizable)
+{
+    _isSizable = isSizable;
+    if (_isSizable)
+    {
+        _style |= WS_THICKFRAME;
+    }
+    else
+    {
+        _style &= ~WS_THICKFRAME;
+    }
+
+    if (_hWnd != nullptr)
+    {
+        SetWindowLongPtr(_hWnd, GWL_STYLE, _style);
+    }
+}
+
 void CWindowControl::SetActiveEvent(std::wstring activeEvent)
 {
     _activeEvent = activeEvent;
@@ -814,14 +952,19 @@ void CWindowControl::SetIcon(std::wstring iconFilePath)
     SendMessage(_hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(_icon));
 }
 
-void CWindowControl::SetBackColor(const COLORREF backColor)
+void CWindowControl::SetBackgroundColor(const COLORREF backColor)
 {
-    if (_backBrush != nullptr)
+    if (_backgroundColor != backColor)
     {
-        DeleteBrush(_backBrush);
+        _backgroundColor = backColor;
+
+        if (_backBrush != nullptr)
+        {
+            DeleteBrush(_backBrush);
+        }
+        _backBrush = CreateSolidBrush(_backgroundColor);
+        Refresh();
     }
-    _backBrush = CreateSolidBrush(backColor);
-    Refresh();
 }
 
 void CWindowControl::SetMenu(CMenu *menu)
@@ -832,7 +975,7 @@ void CWindowControl::SetMenu(CMenu *menu)
     }
 
     _menu = menu;
-    
+
     if (_menu)
     {
         ::SetMenu(_hWnd, _menu->GetHMenu());
@@ -917,7 +1060,7 @@ bool CWindowControl::Create()
     if (_menu)
     {
         AdjustWindowRect(&rect, _style, TRUE);
-    } 
+    }
     else
     {
         AdjustWindowRect(&rect, _style, FALSE);
@@ -934,16 +1077,16 @@ bool CWindowControl::Create()
     }
 
     _hWnd = CreateWindowEx(WS_EX_DLGMODALFRAME, L"jojo_form",
-                         _titleName.c_str(),
-                         _style,
-                         rect.left,
-                         rect.top,
-                         rect.right - rect.left,
-                         rect.bottom - rect.top,
-                         parentHWnd,
-                         nullptr,
-                         CControlManager::GetInstance().GetHInstance(),
-                         (LPVOID)this);
+                           _titleName.c_str(),
+                           _style,
+                           rect.left,
+                           rect.top,
+                           rect.right - rect.left,
+                           rect.bottom - rect.top,
+                           parentHWnd,
+                           nullptr,
+                           CControlManager::GetInstance().GetHInstance(),
+                           (LPVOID)this);
 
     SendMessage(_hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(_icon));
 
@@ -1005,30 +1148,6 @@ void CWindowControl::SetDialogResult(const int value) const
     *_dialogResult = value;
 }
 
-void CWindowControl::Refresh() const
-{
-    if (_hWnd)
-    {
-        RECT rect;
-
-        GetClientRect(_hWnd, &rect);
-        InvalidateRect(_hWnd, &rect, TRUE);
-        UpdateWindow(_hWnd);
-    }
-}
-
-void CWindowControl::RefreshRegion(int left, int top, int right, int bottom)
-{
-    if (_hWnd)
-    {
-        RECT rect;
-
-        SetRect(&rect, left, top, right, bottom);
-        InvalidateRect(_hWnd, &rect, TRUE);
-        UpdateWindow(_hWnd);
-    }
-}
-
 void CWindowControl::Destroy()
 {
     if (_hWnd)
@@ -1037,5 +1156,4 @@ void CWindowControl::Destroy()
         _hWnd = nullptr;
     }
 }
-
 }

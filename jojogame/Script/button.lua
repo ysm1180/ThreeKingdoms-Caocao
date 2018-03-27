@@ -21,7 +21,7 @@ Button.DEFAULT_TEXT_COLOR = {
 
 function Button:Instance(control)
     local newButton = {}
-
+        
     newButton.control = control
     setmetatable(newButton, Button)
     Button.__index = Button
@@ -34,7 +34,6 @@ end
 function Button:New(parent)
     local newButton = {}
     local parentControl = nil
-
     if parent ~= nil then
         parentControl = parent.control
     end

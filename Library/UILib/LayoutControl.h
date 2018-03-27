@@ -27,10 +27,10 @@ public:
     CLayoutControl();
     virtual ~CLayoutControl();
 
-    int GetX();
-    int GetY();
-    int GetWidth();
-    int GetHeight();
+    int GetX() const;
+    int GetY() const;
+    int GetWidth() const;
+    int GetHeight() const;
 
     void SetX(int x, bool isRedraw = false);
     void SetY(int y, bool isRedraw = false);

@@ -27,14 +27,14 @@ public:
     CMenuItem();
     virtual ~CMenuItem();
 
-    bool IsEnabled();
-    int GetIndex();
-    CMenu *GetChildMenu();
-    std::wstring GetText();
-    std::wstring GetClickEvent();
+    bool IsEnabled() const;
+    int GetIndex() const;
+    CMenu *GetChildMenu() const;
+    std::wstring GetText() const;
+    std::wstring GetClickEvent() const;
     CTextFont *GetFont();
-    MenuItemStateColor GetBackgroundColor();
-    MenuItemStateColor GetTextColor();
+    MenuItemStateColor GetBackgroundColor() const;
+    MenuItemStateColor GetTextColor() const;
 
     COLORREF GetNormalBackgroundColor();
     COLORREF GetFocusedBackgroundColor();

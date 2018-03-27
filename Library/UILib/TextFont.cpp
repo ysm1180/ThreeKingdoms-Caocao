@@ -22,7 +22,7 @@ void CTextFont::RegisterFunctions(lua_State *L)
 CTextFont::CTextFont()
 {
     _control = nullptr;
-    _fontName = L"µ¸¿ò";
+    _fontName = L"±¼¸²Ã¼";
     _fontSize = 12;
 
     ResetFont();
@@ -31,7 +31,7 @@ CTextFont::CTextFont()
 CTextFont::CTextFont(CBaseControl *control)
 {
     _control = control;
-    _fontName = L"µ¸¿ò";
+    _fontName = L"±¼¸²Ã¼";
     _fontSize = 12;
 
     ResetFont();
@@ -46,32 +46,32 @@ CTextFont::~CTextFont()
     }
 }
 
-HFONT CTextFont::GetHFont()
+HFONT CTextFont::GetHFont() const
 {
     return _font;
 }
 
-bool CTextFont::IsBold()
+bool CTextFont::IsBold() const
 {
     return _isBold;
 }
 
-bool CTextFont::IsItalic()
+bool CTextFont::IsItalic() const
 {
     return _isItalic;
 }
 
-bool CTextFont::IsUnderline()
+bool CTextFont::IsUnderline() const
 {
     return _isUnderline;
 }
 
-int CTextFont::GetFontSize()
+int CTextFont::GetFontSize() const
 {
     return _fontSize;
 }
 
-std::wstring CTextFont::GetFontName()
+std::wstring CTextFont::GetFontName() const
 {
     return _fontName;
 }

@@ -20,8 +20,8 @@ MenuManager = Object:Instance
         local newMenuItem = nil
 
         if options ~= nil then
-            if options.Control ~= nil then
-                newMenuItem = MenuItem:Instance(options.Control)
+            if options._Control ~= nil then
+                newMenuItem = MenuItem:Instance(options._Control)
                 return newMenuItem
             else
                 newMenuItem = MenuItem:New()            
@@ -89,34 +89,7 @@ MenuManager = Object:Instance
         
         local control = menu.control:GetMenuItemByPosition(index - 1)
         local options = {
-            Control = control,
-            -- Text = {
-            --     Content = control:GetText(),
-            --     Color = {
-            --         Normal = control:GetNormalTextColor(),
-            --         Focused = control:GetFocusedTextColor(),
-            --         Disabled = control:GetDisabledTextColor(),
-            --         DisableFocused = control:GetDisableFocusedTextColor(),
-            --     },
-            --     Font = {
-            --         Name = control:GetFont():GetFontName(),
-            --         Size = control:GetFont():GetFontSize(),
-            --         Bold = control:GetFont():IsBold(),
-            --         Underline = control:GetFont():IsUnderline(),
-            --         Italic = control:GetFont():IsItalic(),
-            --     }
-            -- },
-            -- Background = {
-            --     Color = {
-            --         Normal = control:GetNormalBackgroundColor(),
-            --         Focused = control:GetFocusedBackgroundColor(),
-            --         Disabled = control:GetDisabledBackgroundColor(),
-            --         DisableFocused = control:GetDisableFocusedBackgroundColor(),
-            --     }
-            -- },
-            -- Enabled = control:IsEnabled(),
-            -- Click = control:GetClickEvent(),
-            -- Child = {control = control:GetChildMenu()}
+            _Control = control,
         }
 
         OUTPUT("-------- End Get MenuItem By Position --------")        

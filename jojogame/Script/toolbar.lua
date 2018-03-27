@@ -25,6 +25,10 @@ Toolbar = ControlObject:Instance
         end
     end,
 
+    AutoSize = function(self)
+        self.control:AutoSize()
+    end,
+
     Create = function(self, parentWindow, imageWidth, imageHeight)
         if parentWindow ~= nil then
             self.control:Create(parentWindow.control, imageWidth, imageHeight)

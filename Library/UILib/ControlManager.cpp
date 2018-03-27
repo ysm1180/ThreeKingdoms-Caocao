@@ -12,6 +12,7 @@
 #include "ToolbarControl.h"
 #include "LayoutControl.h"
 #include "ListviewControl.h"
+#include "StaticControl.h"
 
 namespace jojogame {
 std::once_flag CControlManager::s_onceFlag;
@@ -32,6 +33,9 @@ void CControlManager::RegisterFunctions(lua_State *L)
     LUA_METHOD(CreateLayout);
     LUA_METHOD(CreateListView);
     LUA_METHOD(CreateListViewColumn);
+    LUA_METHOD(CreateListViewRow);
+    LUA_METHOD(CreateListViewItem);
+    LUA_METHOD(CreateStatic);
 }
 
 CControlManager::CControlManager()
@@ -60,6 +64,10 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CLayoutControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CListViewControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CListViewColumn>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CListViewRow>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CListViewItem>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CStaticControl>();
+
 }
 
 CWindowControl *CControlManager::CreateWindowForm(CWindowControl *parent)
@@ -123,6 +131,25 @@ CListViewColumn* CControlManager::CreateListViewColumn()
 {
     auto newColumn = CMemoryPool<CListViewColumn>::GetInstance().New();
     return newColumn;
+}
+
+CListViewRow* CControlManager::CreateListViewRow()
+{
+    auto newRow = CMemoryPool<CListViewRow>::GetInstance().New();
+    return newRow;
+}
+
+CListViewItem* CControlManager::CreateListViewItem()
+{
+    auto newItem = CMemoryPool<CListViewItem>::GetInstance().New();
+    return newItem;
+}
+
+CStaticControl* CControlManager::CreateStatic(CWindowControl* parent)
+{
+    auto newStatic = CMemoryPool<CStaticControl>::GetInstance().New();
+    newStatic->SetParentControl(parent);
+    return newStatic;
 }
 
 HINSTANCE CControlManager::GetHInstance()

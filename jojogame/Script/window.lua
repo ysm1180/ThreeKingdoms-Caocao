@@ -18,16 +18,32 @@ Window = Control:Instance
         return newWindow
     end,
 
-    SetBackColor = function(self, color)
+    Instance = function(self, control)
+        local newWindow = {}
+
+        newWindow.control = control
+        setmetatable(newWindow, self)
+        self.__index = self
+
+        OUTPUT("Get Window Instance")
+
+        return newWindow
+    end,
+
+    SetBackgroundColor = function(self, color)
         if color ~= nil then
+            if type(color) == "number" then
+                color = {R = color % 0x100, G = math.floor(color / 0x100) % 0x100, B = math.floor(color / 0x10000) % 0x100}
+            end
+            
             color.R = color.R or 0
             color.G = color.G or 0
             color.B = color.B or 0
-            self.control:SetBackColor(gameManager:Color(color.R, color.G, color.B))
+            self.control:SetBackgroundColor(gameManager:Color(color.R, color.G, color.B))
 
             OUTPUT("Set Background Color #" .. string.format('%02x', color.R) .. string.format('%02x', color.G) .. string.format('%02x', color.B) )
         else
-            self.control:SetBackColor(gameManager:Color(0, 0, 0))
+            self.control:SetBackgroundColor(gameManager:Color(0, 0, 0))
 
             OUTPUT("Set Background Color #000")
         end
@@ -112,16 +128,6 @@ Window = Control:Instance
     DeleteLayout = function(self, layout)
         if layout ~= nil then
             self.control:DeleteLayout(layout.control)
-        end
-    end,
-
-    Refresh = function(self)
-        self.control:Refresh()
-    end,
-
-    RefreshRegion = function(self, rect)
-        if rect ~= nil then
-            self.control:RefreshRegion(rect.Left, rect.Top, rect.Right, rect.Bottom)
         end
     end,
 

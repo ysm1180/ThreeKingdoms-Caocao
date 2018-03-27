@@ -19,6 +19,9 @@ class CToolbarButton;
 class CLayoutControl;
 class CListViewControl;
 class CListViewColumn;
+class CListViewRow;
+class CListViewItem;
+class CStaticControl;
 
 class  CControlManager
 {
@@ -41,6 +44,9 @@ public:
     CLayoutControl *CreateLayout();
     CListViewControl *CreateListView(CWindowControl* parent);
     CListViewColumn *CreateListViewColumn();
+    CListViewRow* CreateListViewRow();
+    CListViewItem* CreateListViewItem();
+    CStaticControl* CreateStatic(CWindowControl *parent);
 
     HINSTANCE GetHInstance();
 

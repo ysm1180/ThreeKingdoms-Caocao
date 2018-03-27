@@ -10,12 +10,11 @@ ButtonManager = ControlManager:Instance
 
         if options ~= nil then
 
-            if options.Control ~= nil then
-                newButton = Button:Instance(options.Control)
-                return newButton
-            else
-                newButton = Button:New(options.Parent)
+            if options._Control ~= nil then
+                return Button:Instance(options._Control)
             end
+            
+            newButton = Button:New(options.Parent)
 
             newButton:SetSize(options.Width, options.Height)
 
@@ -28,46 +27,64 @@ ButtonManager = ControlManager:Instance
             end
             newButton:Move(options.X, options.Y)
 
-            if options.Event then
+            if options.Event ~= nil then
                 newButton:SetCreateEvent(options.Event.Create)
                 newButton:SetDestroyEvent(options.Event.Destroy)
                 newButton:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
                 newButton:SetMouseLButtonDownEvent(options.Event.MouseLButtonDown)
                 newButton:SetMouseMoveEvent(options.Event.MouseMove)
-                newButton:SetMouseHoverEvent(options.Event.MouseHover)
+                newButton:SetMouseEnterEvent(options.Event.MouseEnter)
                 newButton:SetMouseLeaveEvent(options.Event.MouseLeave)
             end
 
-            if options.Text then    
-                if options.Text.Font then
+            if options.Text ~= nil then    
+                if options.Text.Font ~= nil then
                     newButton:SetFontName(options.Text.Font.Name)
                     newButton:SetFontSize(options.Text.Font.Size)
                     newButton:SetBold(options.Text.Font.Bold)
                     newButton:SetUnderline(options.Text.Font.Underline)
                     newButton:SetItalic(options.Text.Font.Italic)
                 end
-                if options.Text.Color then
-                    newButton:SetNormalTextColor(options.Text.Color.Normal)
-                    newButton:SetFocusedTextColor(options.Text.Color.Focused)
-                    newButton:SetPushedTextColor(options.Text.Color.Pushed)
+                if options.Text.Color ~= nil then
+                    if options.Text.Color.R ~= nil and options.Text.Color.G ~= nil and options.Text.Color.B ~= nil then
+                        newButton:SetNormalTextColor(options.Text.Color)                        
+                        newButton:SetFocusedTextColor(options.Text.Color)
+                        newButton:SetPushedTextColor(options.Text.Color)                    
+                    else
+                        newButton:SetNormalTextColor(options.Text.Color.Normal)
+                        newButton:SetFocusedTextColor(options.Text.Color.Focused)
+                        newButton:SetPushedTextColor(options.Text.Color.Pushed)
+                    end
                 end
                 newButton:SetText(options.Text.Content)
             end
 
-            if options.Border then
+            if options.Border ~= nil then
                 newButton:SetBorderWidth(options.Border.Width)
-                if options.Border.Color then
-                    newButton:SetNormalBorderColor(options.Border.Color.Normal)
-                    newButton:SetFocusedBorderColor(options.Border.Color.Focused)
-                    newButton:SetPushedBorderColor(options.Border.Color.Pushed)
+                if options.Border.Color ~= nil then
+                    if options.Border.Color.R ~= nil and options.Border.Color.G ~= nil and options.Border.Color.B ~= nil then
+                        newButton:SetNormalBorderColor(options.Border.Color)
+                        newButton:SetFocusedBorderColor(options.Border.Color)
+                        newButton:SetPushedBorderColor(options.Border.Color)
+                    else
+                        newButton:SetNormalBorderColor(options.Border.Color.Normal)
+                        newButton:SetFocusedBorderColor(options.Border.Color.Focused)
+                        newButton:SetPushedBorderColor(options.Border.Color.Pushed)
+                    end
                 end
             end
 
-            if options.Background then
-                if options.Background.Color then
-                    newButton:SetNormalBackgroundColor(options.Background.Color.Normal)
-                    newButton:SetFocusedBackgroundColor(options.Background.Color.Focused)
-                    newButton:SetPushedBackgroundColor(options.Background.Color.Pushed)
+            if options.Background ~= nil then
+                if options.Background.Color ~= nil then
+                    if options.Background.Color.R ~= nil and options.Background.Color.G ~= nil and options.Background.Color.B ~= nil then
+                        newButton:SetNormalBackgroundColor(options.Background.Color)
+                        newButton:SetFocusedBackgroundColor(options.Background.Color)
+                        newButton:SetPushedBackgroundColor(options.Background.Color)
+                    else
+                        newButton:SetNormalBackgroundColor(options.Background.Color.Normal)
+                        newButton:SetFocusedBackgroundColor(options.Background.Color.Focused)
+                        newButton:SetPushedBackgroundColor(options.Background.Color.Pushed)
+                    end
                 end
                 newButton:SetTransparentBackground(options.Background.Transparent)        
             end
@@ -85,58 +102,12 @@ ButtonManager = ControlManager:Instance
         return newButton
     end,
 
-    CreateInstance = function(self, button)
+    CreateInstance = function(self, control)
         OUTPUT("-------- Create Button By Instance --------")
         
 
         local options = {
-            Control = button,
-        --     Parent = button:GetParentWindow(),
-        --     Width = button:GetWidth(),
-        --     Height = button:GetHeight(),
-        --     X = button:GetX(),
-        --     Y = button:GetY(),
-        --     Create = button:GetCreateEvent(),
-        --     Destroy = button:GetDestroyEvent(),
-        --     MouseLButtonUp = button:GetMouseLButtonUpEvent(),
-        --     MouseLButtonDown = button:GetMouseLButtonDownEvent(),
-        --     MouseMove = button:GetMouseMoveEvent(),
-        --     MouseHover = button:GetMouseHoverEvent(),
-        --     MouseLeave = button:GetMouseLeaveEvent(),
-        --     Text = {
-        --         Content = button:GetText(),
-        --         Color = {
-        --             Normal = button:GetNormalTextColor(),
-        --             Focused = button:GetFocusedTextColor(),
-        --             Pushed = button:GetPushedTextColor(),
-        --         },
-        --         Font = {
-        --             Name = button:GetFont():GetFontName(),
-        --             Size = button:GetFont():GetFontSize(),
-        --             Bold = button:GetFont():IsBold(),
-        --             Underline = button:GetFont():IsUnderline(),
-        --             Italic = button:GetFont():IsItalic(),
-        --         }
-        --     },
-        --     Border = {
-        --         Width = button:GetBorderWidth(),
-        --         Color = {
-        --             Normal = button:GetNormalBorderColor(),
-        --             Focused = button:GetFocusedBorderColor(),
-        --             Pushed = button:GetPushedBorderColor(),
-        --         }
-        --     },
-        --     Background = {
-        --         Transparent = button:IsTransparentBackground(),
-        --         Color = {
-        --             Normal = button:GetNormalBackgroundColor(),
-        --             Focused = button:GetFocusedBackgroundColor(),
-        --             Pushed = button:GetPushedBackgroundColor(),
-        --         },
-        --     },
-        --     Enabled = button:IsEnabled(),
-        --     Show = button:IsVisible(),
-        --     UserData = button:GetUserData(),
+            _Control = control,
         }
 
         OUTPUT("-------- End Create Button By Instance --------")        

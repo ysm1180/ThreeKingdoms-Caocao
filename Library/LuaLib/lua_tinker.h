@@ -26,7 +26,7 @@ class CWindowControl;
 class CMenu;
 class CTextFont;
 class CListViewColumn;
-class CListViewItem;
+class CListViewRow;
 }
 
 namespace lua_tinker {
@@ -533,7 +533,7 @@ template<>
 template<>
 ::jojogame::CListViewColumn *read(lua_State *L, int index);
 template<>
-::jojogame::CListViewItem *read(lua_State *L, int index);
+::jojogame::CListViewRow *read(lua_State *L, int index);
 
 
 // push a value to lua stack

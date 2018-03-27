@@ -7,6 +7,10 @@ WindowManager = ControlManager:Instance
         OUTPUT("-------- Start Create : Window --------")
         local newWindow = nil
         if options ~= nil then
+            if options.Control ~= nil then
+                return Window:Instance(options.Control)
+            end
+
             newWindow = Window:New(options.Parent)
 
             newWindow:SetSize(options.Width, options.Height)
@@ -21,7 +25,9 @@ WindowManager = ControlManager:Instance
             newWindow:Move(options.X, options.Y)
 
             newWindow:SetTitleName(options.TitleName)
-            newWindow:SetBackColor(options.BackColor)
+            if options.Background ~= nil then
+                newWindow:SetBackgroundColor(options.Background.Color)
+            end
 
             newWindow:SetTitlebar(options.Titlebar)
             newWindow:SetMaxButton(options.MaxButton)
@@ -37,7 +43,7 @@ WindowManager = ControlManager:Instance
                 newWindow:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
                 newWindow:SetMouseLButtonDownEvent(options.Event.MouseLButtonDown)
                 newWindow:SetMouseMoveEvent(options.Event.MouseMove)
-                newWindow:SetMouseHoverEvent(options.Event.MouseHover)
+                newWindow:SetMouseEnterEvent(options.Event.MouseEnter)
                 newWindow:SetMouseLeaveEvent(options.Event.MouseLeave)
 
                 newWindow:SetActiveEvent(options.Event.Active)
@@ -66,5 +72,17 @@ WindowManager = ControlManager:Instance
 
         OUTPUT("-------- End Create : Window --------")
         return newWindow
-    end
+    end,
+
+    CreateInstance = function(self, control)
+        OUTPUT("-------- Create Window By Instance --------")
+
+        local options = {
+            Control = control,
+        }
+
+        OUTPUT("-------- End Window By Instance --------")        
+        
+        return self:Create(options)
+    end,
 }

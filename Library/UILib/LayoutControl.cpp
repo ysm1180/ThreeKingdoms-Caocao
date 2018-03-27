@@ -37,194 +37,202 @@ CLayoutControl::~CLayoutControl()
     }
 }
 
-int CLayoutControl::GetX()
+int CLayoutControl::GetX() const
 {
     return _position.x;
 }
 
-int CLayoutControl::GetY()
+int CLayoutControl::GetY() const
 {
     return _position.y;
 }
 
-int CLayoutControl::GetWidth()
+int CLayoutControl::GetWidth() const
 {
     return _size.cx;
 }
 
-int CLayoutControl::GetHeight()
+int CLayoutControl::GetHeight() const
 {
     return _size.cy;
 }
 
 void CLayoutControl::SetX(int x, bool isRedraw)
 {
-    if (isRedraw)
+    if (_position.x != x)
     {
-        if (!_parents.empty())
+        if (isRedraw)
         {
-            for (auto& parent : _parents)
+            if (!_parents.empty())
             {
-                int width = _size.cx;
-                int height = _size.cy;
-                if (width == 0)
+                for (auto& parent : _parents)
                 {
-                    width = parent->GetWidth();
-                }
-                if (height == 0)
-                {
-                    height = parent->GetHeight();
-                }
+                    int width = _size.cx;
+                    int height = _size.cy;
+                    if (width == 0)
+                    {
+                        width = parent->GetWidth();
+                    }
+                    if (height == 0)
+                    {
+                        height = parent->GetHeight();
+                    }
 
-                RECT rect;
-                SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
-                InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+                    RECT rect;
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+                }
+            }
+
+            _position.x = x;
+
+            if (!_parents.empty())
+            {
+                for (auto& parent : _parents)
+                {
+                    int width = _size.cx;
+                    int height = _size.cy;
+                    if (width == 0)
+                    {
+                        width = parent->GetWidth();
+                    }
+                    if (height == 0)
+                    {
+                        height = parent->GetHeight();
+                    }
+
+                    RECT rect;
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+
+                    UpdateWindow(parent->GetHWnd());
+                }
             }
         }
-
-        _position.x = x;
-
-        if (!_parents.empty())
+        else
         {
-            for (auto& parent : _parents)
-            {
-                int width = _size.cx;
-                int height = _size.cy;
-                if (width == 0)
-                {
-                    width = parent->GetWidth();
-                }
-                if (height == 0)
-                {
-                    height = parent->GetHeight();
-                }
-
-                RECT rect;
-                SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
-                InvalidateRect(parent->GetHWnd(), &rect, TRUE);
-
-                UpdateWindow(parent->GetHWnd());
-            }
+            _position.x = x;
         }
-    }
-    else
-    {
-        _position.x = x;
     }
 }
 
 void CLayoutControl::SetY(int y, bool isRedraw)
 {
-
-    if (isRedraw)
+    if (_position.y != y)
     {
-
-    
-    if (!_parents.empty())
-    {
-        for (auto& parent : _parents)
+        if (isRedraw)
         {
-            int width = _size.cx;
-            int height = _size.cy;
-            if (width == 0)
+
+
+            if (!_parents.empty())
             {
-                width = parent->GetWidth();
-            }
-            if (height == 0)
-            {
-                height = parent->GetHeight();
+                for (auto& parent : _parents)
+                {
+                    int width = _size.cx;
+                    int height = _size.cy;
+                    if (width == 0)
+                    {
+                        width = parent->GetWidth();
+                    }
+                    if (height == 0)
+                    {
+                        height = parent->GetHeight();
+                    }
+
+                    RECT rect;
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+                }
             }
 
-            RECT rect;
-            SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
-            InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+            _position.y = y;
+
+            if (!_parents.empty())
+            {
+                for (auto& parent : _parents)
+                {
+                    int width = _size.cx;
+                    int height = _size.cy;
+                    if (width == 0)
+                    {
+                        width = parent->GetWidth();
+                    }
+                    if (height == 0)
+                    {
+                        height = parent->GetHeight();
+                    }
+
+                    RECT rect;
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+
+                    UpdateWindow(parent->GetHWnd());
+                }
+            }
         }
-    }
-
-    _position.y = y;
-
-    if (!_parents.empty())
-    {
-        for (auto& parent : _parents)
+        else
         {
-            int width = _size.cx;
-            int height = _size.cy;
-            if (width == 0)
-            {
-                width = parent->GetWidth();
-            }
-            if (height == 0)
-            {
-                height = parent->GetHeight();
-            }
-
-            RECT rect;
-            SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
-            InvalidateRect(parent->GetHWnd(), &rect, TRUE);
-
-            UpdateWindow(parent->GetHWnd());
+            _position.y = y;
         }
-    }
-} 
-    else
-    {
-        _position.y = y;
     }
 }
 
 void CLayoutControl::SetWidth(int cx, bool isRedraw)
 {
-    if (isRedraw)
+    if (_size.cx != cx)
     {
-        if (!_parents.empty())
+        if (isRedraw)
         {
-            for (auto& parent : _parents)
+            if (!_parents.empty())
             {
-                int width = _size.cx;
-                int height = _size.cy;
-                if (width == 0)
+                for (auto& parent : _parents)
                 {
-                    width = parent->GetWidth();
-                }
-                if (height == 0)
-                {
-                    height = parent->GetHeight();
-                }
+                    int width = _size.cx;
+                    int height = _size.cy;
+                    if (width == 0)
+                    {
+                        width = parent->GetWidth();
+                    }
+                    if (height == 0)
+                    {
+                        height = parent->GetHeight();
+                    }
 
-                RECT rect;
-                SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
-                InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+                    RECT rect;
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+                }
+            }
+
+            _size.cx = cx;
+
+            if (!_parents.empty())
+            {
+                for (auto& parent : _parents)
+                {
+                    int width = _size.cx;
+                    int height = _size.cy;
+                    if (width == 0)
+                    {
+                        width = parent->GetWidth();
+                    }
+                    if (height == 0)
+                    {
+                        height = parent->GetHeight();
+                    }
+
+                    RECT rect;
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+
+                    UpdateWindow(parent->GetHWnd());
+                }
             }
         }
-
-        _size.cx = cx;
-
-        if (!_parents.empty())
+        else
         {
-            for (auto& parent : _parents)
-            {
-                int width = _size.cx;
-                int height = _size.cy;
-                if (width == 0)
-                {
-                    width = parent->GetWidth();
-                }
-                if (height == 0)
-                {
-                    height = parent->GetHeight();
-                }
-
-                RECT rect;
-                SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
-                InvalidateRect(parent->GetHWnd(), &rect, TRUE);
-
-                UpdateWindow(parent->GetHWnd());
-            }
+            _size.cx = cx;
         }
-    }
-    else
-    {
-        _size.cx = cx;
     }
 }
 

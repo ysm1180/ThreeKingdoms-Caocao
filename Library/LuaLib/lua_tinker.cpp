@@ -491,7 +491,7 @@ template <>
 }
 
 template <>
-::jojogame::CListViewItem* lua_tinker::read(lua_State* L, int index)
+::jojogame::CListViewRow* lua_tinker::read(lua_State* L, int index)
 {
     if (lua_isnil(L, index))
     {
@@ -499,7 +499,7 @@ template <>
     }
 
     auto value = (user *)lua_touserdata(L, index);
-    return (jojogame::CListViewItem *) value->m_p;
+    return (jojogame::CListViewRow *) value->m_p;
 }
 
 /*---------------------------------------------------------------------------*/

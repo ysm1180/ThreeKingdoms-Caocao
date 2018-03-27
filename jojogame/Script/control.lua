@@ -120,11 +120,11 @@ Control = ControlObject:Instance
         end
     end,
 
-    SetMouseHoverEvent = function(self, event)
+    SetMouseEnterEvent = function(self, event)
         if event ~= nil then        
-            self.control:SetMouseHoverEvent(event)
+            self.control:SetMouseEnterEvent(event)
 
-            OUTPUT("Set MouseHover Event : " .. event)
+            OUTPUT("Set MouseEnter Event : " .. event)
         end
     end,
 
@@ -141,6 +141,16 @@ Control = ControlObject:Instance
             self.control:SetUserData(data)
 
             OUTPUT("Set User Data : " .. data)
+        end
+    end,
+
+    Refresh = function(self)
+        self.control:Refresh()
+    end,
+
+    RefreshRegion = function(self, rect)
+        if rect ~= nil then
+            self.control:RefreshRegion(rect.Left, rect.Top, rect.Right, rect.Bottom)
         end
     end,
 }

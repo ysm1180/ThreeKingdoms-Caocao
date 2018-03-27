@@ -17,13 +17,13 @@ public:
     CTextFont(CBaseControl *control);
     virtual ~CTextFont();
 
-    HFONT GetHFont();
+    HFONT GetHFont() const;
 
-    bool IsBold();
-    bool IsItalic();
-    bool IsUnderline();
-    int GetFontSize();
-    std::wstring GetFontName();
+    bool IsBold() const;
+    bool IsItalic() const;
+    bool IsUnderline() const;
+    int GetFontSize() const;
+    std::wstring GetFontName() const;
 
     void SetBold(bool isBold);
     void SetItalic(bool isItalic);
