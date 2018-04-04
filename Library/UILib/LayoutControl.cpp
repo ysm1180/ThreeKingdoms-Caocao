@@ -122,8 +122,6 @@ void CLayoutControl::SetY(int y, bool isRedraw)
     {
         if (isRedraw)
         {
-
-
             if (!_parents.empty())
             {
                 for (auto& parent : _parents)
@@ -508,6 +506,71 @@ void CLayoutControl::Draw(HDC destDC)
             }
 
             BitBlt(destDC, imageX, imageY, imageWidth, imageHeight, image.imageDC, 0, 0, SRCCOPY);
+        }
+        else
+        {
+            auto memDc = CreateCompatibleDC(destDC);
+            auto memBitmap = CreateCompatibleBitmap(destDC, imageWidth, imageHeight);
+            auto oldBitmap = SelectBitmap(memDc, memBitmap);
+
+            SetStretchBltMode(memDc, COLORONCOLOR);
+            StretchBlt(memDc, 0, 0, imageWidth, imageHeight, image.imageDC, 0, 0, image.image->GetWidth(), image.image->GetHeight(), SRCCOPY);
+
+            if (imageX + imageWidth > _size.cx)
+            {
+                imageWidth = _size.cx - imageX;
+            }
+            if (imageY + imageHeight > _size.cy)
+            {
+                imageHeight = _size.cy - imageY;
+            }
+
+            BitBlt(destDC, imageX, imageY, imageWidth, imageHeight, memDc, 0, 0, SRCCOPY);
+
+            SelectBitmap(memDc, oldBitmap);
+            DeleteBitmap(memBitmap);
+            DeleteDC(memDc);
+        }
+    }
+}
+
+void CLayoutControl::Draw(HDC destDC, RECT& rect)
+{
+    for (ImageInformation image : _images)
+    {
+        RECT realClipingRect;
+        RECT layoutRect;
+        SetRect(&layoutRect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
+        if (!IntersectRect(&realClipingRect, &layoutRect, &rect))
+        {
+            continue;
+        }
+
+        int imageX = (image.position.x * _ratioX) + _position.x;
+        int imageY = (image.position.y * +_ratioY) + _position.y;
+        int imageWidth = image.image->GetWidth() * _ratioX;
+        int imageHeight = image.image->GetHeight() * _ratioY;
+
+        if (_ratioX == 1.0 && _ratioY == 1.0)
+        {
+            if (imageX + imageWidth > _size.cx)
+            {
+                imageWidth = _size.cx - imageX;
+            }
+            if (imageY + imageHeight > _size.cy)
+            {
+                imageHeight = _size.cy - imageY;
+            }
+
+            RECT imageRect;
+            RECT realDrawRect;
+            SetRect(&imageRect, imageX, imageY, imageX + imageWidth, imageY + imageHeight);
+            if (!IntersectRect(&realDrawRect, &imageRect, &realClipingRect))
+            {
+                continue;
+            }
+
+            BitBlt(destDC, realDrawRect.left, realDrawRect.top, realDrawRect.right - realDrawRect.left, realDrawRect.bottom - realDrawRect.top, image.imageDC, realDrawRect.left - imageRect.left, realDrawRect.top - imageRect.top, SRCCOPY);
         }
         else
         {

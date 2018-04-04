@@ -3,15 +3,15 @@ require "Script\\text_control.lua"
 Menu = ControlObject:Instance
 {
     New = function(self)
-        local newMenu = {}
+        local newControl = {}
 
-        newMenu.control = controlManager:CreateMenu()
-        setmetatable(newMenu, self)
+        newControl.control = controlManager:CreateMenu()
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Make Menu Instance")        
         
-        return newMenu
+        return newControl
     end,
 
     AddMenuItem = function(self, menuItem)
@@ -38,27 +38,27 @@ MenuItem = TextControl:Instance
     },
 
     Instance = function(self, control)
-        local newMenuItem = {}
+        local newControl = {}
 
-        newMenuItem.control = control
-        setmetatable(newMenuItem, self)
+        newControl.control = control
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Get Menu Item Instance")        
         
-        return newMenuItem
+        return newControl
     end,
 
     New = function(self)
-        local newMenuItem = {}
+        local newControl = {}
 
-        newMenuItem.control = controlManager:CreateMenuItem()
-        setmetatable(newMenuItem, self)
+        newControl.control = controlManager:CreateMenuItem()
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Make Menu Item Instance")        
         
-        return newMenuItem
+        return newControl
     end,
 
     Text = function(self)

@@ -3,7 +3,7 @@ require "Script\\control.lua"
 MoviePlayer = ControlObject:Instance
 {
     New = function(self, parent, fileName)
-        local newMoviePlayer = {}
+        local newControl = {}
         local parentControl = nil
 
         if parent ~= nil then
@@ -13,11 +13,11 @@ MoviePlayer = ControlObject:Instance
             fileName = ""
         end
 
-        newMoviePlayer.control = controlManager:CreateMoviePlayer(parentControl, fileName)
-        setmetatable(newMoviePlayer, self)
+        newControl.control = controlManager:CreateMoviePlayer(parentControl, fileName)
+        setmetatable(newControl, self)
         self.__index = self
         
-        return newMoviePlayer
+        return newControl
     end,
 
     Create = function(self)

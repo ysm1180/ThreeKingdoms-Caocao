@@ -6,29 +6,29 @@ MoviePlayerManager = ControlManager:Instance
     Create = function(self, options)
         OUTPUT("-------- Start Create : Movie Player --------")
 
-        local newMoviePlayer = nil
+        local newControl = nil
         
         if options ~= nil then
-            newMoviePlayer = MoviePlayer:New(options.Parent, options.FileName)
+            newControl = MoviePlayer:New(options.Parent, options.FileName)
 
             if options.Event then
-                newMoviePlayer:SetEndEvent(options.Event.End)
+                newControl:SetEndEvent(options.Event.End)
             end
 
-            newMoviePlayer:Move(options.X, options.Y)
-            newMoviePlayer:Create()
+            newControl:Move(options.X, options.Y)
+            newControl:Create()
 
             if options.Center then
-                local movieWidth, movieHeight = newMoviePlayer:Size()
+                local movieWidth, movieHeight = newControl:Size()
                 if options.Parent then
                     local parentWidth, parentHeight = options.Parent:Size()
-                    newMoviePlayer:Move(parentWidth / 2 - movieWidth / 2, parentHeight / 2 - movieHeight / 2)
+                    newControl:Move(parentWidth / 2 - movieWidth / 2, parentHeight / 2 - movieHeight / 2)
                 end
             end
         end
 
         OUTPUT("-------- End Create : Movie Player --------")
 
-        return newMoviePlayer
+        return newControl
     end,
 }

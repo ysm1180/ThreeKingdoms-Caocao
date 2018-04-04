@@ -20,30 +20,30 @@ Button.DEFAULT_TEXT_COLOR = {
 }
 
 function Button:Instance(control)
-    local newButton = {}
+    local newControl = {}
         
-    newButton.control = control
-    setmetatable(newButton, Button)
+    newControl.control = control
+    setmetatable(newControl, Button)
     Button.__index = Button
 
     OUTPUT("Get Button Instance")
 
-    return newButton
+    return newControl
 end
 
 function Button:New(parent)
-    local newButton = {}
+    local newControl = {}
     local parentControl = nil
     if parent ~= nil then
         parentControl = parent.control
     end
-    newButton.control = controlManager:CreateButton(parentControl)
-    setmetatable(newButton, Button)
+    newControl.control = controlManager:CreateButton(parentControl)
+    setmetatable(newControl, Button)
     Button.__index = Button
 
     OUTPUT("Make Button Instance")
 
-    return newButton
+    return newControl
 end
 
 function Button:SetText(text)

@@ -5,12 +5,12 @@ ImageManager = Object:Instance
     CreateImage = function(self, options)
         OUTPUT("-------- Start Create : Image --------")
 
-        local newImage = nil
+        local newControl = nil
 
         if options ~= nil then
-            newImage = Image:New()
+            newControl = Image:New()
 
-            newImage:LoadFromMe5({
+            newControl:LoadFromMe5({
                 FilePath = options.FilePath,
                 Group = {
                     Main = options.Group.Main,
@@ -21,6 +21,6 @@ ImageManager = Object:Instance
         end
 
         OUTPUT("-------- End Create : Image --------")
-        return newImage
+        return newControl
     end,
 }

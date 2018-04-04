@@ -32,9 +32,9 @@ public:
     virtual std::wstring GetMouseLeaveEvent() const;
     virtual HWND GetHWnd() const;
     virtual std::wstring GetUserData();
+    virtual std::wstring GetType();
 
     virtual void SetStyle(LONG style);
-    virtual void SetVisible(bool isVisible);
     virtual void SetEnabled(bool isEnabled);
     virtual void SetY(int y);
     virtual void SetX(int x);
@@ -84,5 +84,7 @@ protected:
     std::wstring _mouseLeaveEvent = L"";
 
     std::wstring _userData = L"";
+
+    std::wstring _type = L"";
 };
 }

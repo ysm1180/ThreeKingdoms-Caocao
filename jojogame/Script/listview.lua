@@ -10,27 +10,27 @@ ListViewColumn = ControlObject:Instance
     },
 
     Instance = function(self, control)
-        local newListViewColumn = {}
+        local newControl = {}
 
-        newListViewColumn.control = control
-        setmetatable(newListViewColumn, self)
+        newControl.control = control
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Get ListView Column Instance")        
         
-        return newListViewColumn
+        return newControl
     end,
 
     New = function(self)
-        local newListViewColumn = {}
+        local newControl = {}
         
-        newListViewColumn.control = controlManager:CreateListViewColumn()
-        setmetatable(newListViewColumn, self)
+        newControl.control = controlManager:CreateListViewColumn()
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Make ListView Column Instance")
         
-        return newListViewColumn
+        return newControl
     end,
 
     Width = function(self)
@@ -127,27 +127,27 @@ ListViewItem = TextControl:Instance
     },
 
     Instance = function(self, control)
-        local newListViewItem = {}
+        local newControl = {}
 
-        newListViewItem.control = control
-        setmetatable(newListViewItem, self)
+        newControl.control = control
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Get ListView Item Instance")        
         
-        return newListViewItem
+        return newControl
     end,
 
     New = function(self)
-        local newListViewItem = {}
+        local newControl = {}
         
-        newListViewItem.control = controlManager:CreateListViewItem()
-        setmetatable(newListViewItem, self)
+        newControl.control = controlManager:CreateListViewItem()
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Make ListView Item Instance")
         
-        return newListViewItem
+        return newControl
     end,
 
     Text = function(self)
@@ -359,27 +359,27 @@ ListViewRow = ControlObject:Instance
     },
 
     Instance = function(self, control)
-        local newListViewRow = {}
+        local newControl = {}
 
-        newListViewRow.control = control
-        setmetatable(newListViewRow, self)
+        newControl.control = control
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Get ListView Row Instance")        
         
-        return newListViewRow
+        return newControl
     end,
 
     New = function(self)
-        local newListViewRow = {}
+        local newControl = {}
         
-        newListViewRow.control = controlManager:CreateListViewRow()
-        setmetatable(newListViewRow, self)
+        newControl.control = controlManager:CreateListViewRow()
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Make ListView Row Instance")
         
-        return newListViewRow
+        return newControl
     end,
 
     Enabled = function(self)
@@ -552,30 +552,30 @@ ListViewRow = ControlObject:Instance
 ListView = Control:Instance
 {
     Instance = function(self, control)
-        local newListView = {}
+        local newControl = {}
 
-        newListView.control = control
-        setmetatable(newListView, self)
+        newControl.control = control
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Get ListView Instance")        
         
-        return newListView
+        return newControl
     end,
 
     New = function(self, parent)
-        local newListView = {}
+        local newControl = {}
         local parentControl = nil
 
         if parent ~= nil then
             parentControl = parent.control
         end
 
-        newListView.control = controlManager:CreateListView(parentControl)
-        setmetatable(newListView, self)
+        newControl.control = controlManager:CreateListView(parentControl)
+        setmetatable(newControl, self)
         self.__index = self
         
-        return newListView
+        return newControl
     end,
 
     Create = function(self)

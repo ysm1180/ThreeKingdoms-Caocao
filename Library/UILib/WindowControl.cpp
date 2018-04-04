@@ -10,6 +10,7 @@
 #include "LayoutControl.h"
 #include "ListviewControl.h"
 #include "StaticControl.h"
+#include "GroupBoxControl.h"
 
 namespace jojogame {
 LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
@@ -70,7 +71,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         }
         break;
     }
-
+    
     case WM_MOUSEMOVE:
     {
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
@@ -492,14 +493,25 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             RECT rect;
             SetRect(&rect, item->rcItem.left, item->rcItem.top, item->rcItem.right, item->rcItem.bottom);
 
-            if (!staticControl->IsBackgroundTransparent())
+            if (!staticControl->IsTransparentBackground())
             {
                 FillRect(item->hDC, &rect, staticControl->GetBackgroundBrush());
             }
 
             auto originalFont = SelectFont(item->hDC, staticControl->GetFont()->GetHFont());
             SetBkMode(item->hDC, TRANSPARENT);
-            DrawText(item->hDC, staticControl->GetText().c_str(), -1, &rect, DT_CENTER | DT_VCENTER |  DT_WORD_ELLIPSIS);
+            if (staticControl->GetAlign() == 0)
+            {
+                DrawText(item->hDC, staticControl->GetText().c_str(), -1, &rect, DT_LEFT | DT_WORD_ELLIPSIS);
+            }
+            else if (staticControl->GetAlign() == 1)
+            {
+                DrawText(item->hDC, staticControl->GetText().c_str(), -1, &rect, DT_RIGHT | DT_WORD_ELLIPSIS);
+            }
+            else if (staticControl->GetAlign() == 2)
+            {
+                DrawText(item->hDC, staticControl->GetText().c_str(), -1, &rect, DT_CENTER | DT_WORD_ELLIPSIS);
+            }
             SetBkMode(item->hDC, OPAQUE);
             SelectFont(item->hDC, originalFont);
 
@@ -509,30 +521,100 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         break;
     }
 
+        case WM_CTLCOLORSTATIC:
+        {
+            auto groupBox = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
+            if (groupBox->GetType() == L"groupbox")
+            {
+                RECT rect;
+                SIZE size;
+
+                auto originalFont = SelectFont((HDC)wParam, groupBox->GetFont()->GetHFont());
+                GetTextExtentPoint32((HDC)wParam, groupBox->GetText().c_str(), groupBox->GetText().length(), &size);
+
+                GetClientRect(groupBox->GetHWnd(), &rect);
+                auto rgn = CreateRectRgn(rect.left, rect.top, rect.right, rect.bottom);
+                SelectClipRgn((HDC)wParam, rgn);
+
+                RECT parentRect;
+                SetRect(&rect, rect.left + 4, rect.top, rect.right, rect.top + size.cy);
+                SetRect(&parentRect, rect.left, rect.top, rect.right, rect.bottom);
+                ClientToScreen(groupBox->GetHWnd(), reinterpret_cast<POINT*>(&parentRect.left)); // convert top-left
+                ClientToScreen(groupBox->GetHWnd(), reinterpret_cast<POINT*>(&parentRect.right)); // convert bottom-right
+                ScreenToClient(hWnd, reinterpret_cast<POINT*>(&parentRect.left));
+                ScreenToClient(hWnd, reinterpret_cast<POINT*>(&parentRect.right));
+
+                auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+                bool isFitWidth = false;
+                bool isFitHeight = false;
+                HDC hdc = GetDC(hWnd);
+
+                FillRect(hdc, &parentRect, window->_backBrush);
+                for (auto layout : window->_layouts)
+                {
+                    isFitWidth = isFitHeight = false;
+
+                    if (layout->GetWidth() == 0)
+                    {
+                        isFitWidth = true;
+                        layout->SetWidth(window->GetWidth());
+                    }
+                    if (layout->GetHeight() == 0)
+                    {
+                        isFitHeight = true;
+                        layout->SetHeight(window->GetHeight());
+                    }
+
+                    layout->Draw(hdc, parentRect);
+
+                    if (isFitWidth)
+                    {
+                        layout->SetWidth(0);
+                    }
+                    if (isFitHeight)
+                    {
+                        layout->SetHeight(0);
+                    }
+                }
+                ReleaseDC(hWnd, hdc);
+
+                SetRect(&rect, rect.left, rect.top, rect.left + size.cx, rect.bottom);
+                SetBkMode((HDC)wParam, TRANSPARENT);
+                DrawText((HDC)wParam, groupBox->GetText().c_str(), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+                SelectFont((HDC)wParam, originalFont);
+                SetBkMode((HDC)wParam, OPAQUE);
+
+                ExcludeClipRect((HDC)wParam, rect.left, rect.top, rect.right, rect.bottom + 2);
+            }
+            break;
+        }
 
     case WM_CTLCOLORBTN:
     {
         auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
-        RECT rect;
-
-        GetClientRect(button->GetHWnd(), &rect);
-
-        if (button->IsTransparentBackground())
+        if (button->GetType() == L"button")
         {
+            RECT rect;
+
             GetClientRect(button->GetHWnd(), &rect);
-            auto rgn = CreateRectRgn(rect.left, rect.top, rect.right, rect.bottom);
-            SelectClipRgn((HDC)wParam, rgn);
 
-            auto originalFont = SelectFont((HDC)wParam, button->GetFont()->GetHFont());
-            SetBkMode((HDC)wParam, TRANSPARENT);
-            DrawText((HDC)wParam, button->GetText().c_str(), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+            if (button->IsTransparentBackground())
+            {
+                GetClientRect(button->GetHWnd(), &rect);
+                auto rgn = CreateRectRgn(rect.left, rect.top, rect.right, rect.bottom);
+                SelectClipRgn((HDC)wParam, rgn);
 
-            SelectFont((HDC)wParam, originalFont);
-            SetBkMode((HDC)wParam, OPAQUE);
+                auto originalFont = SelectFont((HDC)wParam, button->GetFont()->GetHFont());
+                SetBkMode((HDC)wParam, TRANSPARENT);
+                DrawText((HDC)wParam, button->GetText().c_str(), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
-            int borderWidth = button->GetBorderWidth();
-            ExcludeClipRect((HDC)wParam, rect.left + borderWidth, rect.top + borderWidth, rect.right - borderWidth,
-                            rect.bottom - borderWidth);
+                SelectFont((HDC)wParam, originalFont);
+                SetBkMode((HDC)wParam, OPAQUE);
+
+                int borderWidth = button->GetBorderWidth();
+                ExcludeClipRect((HDC)wParam, rect.left + borderWidth, rect.top + borderWidth, rect.right - borderWidth,
+                                rect.bottom - borderWidth);
+            }
         }
 
         break;
@@ -561,7 +643,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 layout->SetHeight(window->GetHeight());
             }
 
-            layout->Draw(hdc);
+            layout->Draw(hdc, ps.rcPaint);
 
             if (isFitWidth)
             {
@@ -646,6 +728,7 @@ CWindowControl::CWindowControl()
 {
     _style = WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX;
     //_style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+    _type = L"window";
 }
 
 CWindowControl::~CWindowControl()
@@ -1071,7 +1154,7 @@ bool CWindowControl::Create()
     SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
     HWND parentHWnd = nullptr;
-    if (_parentControl)
+    if (_parentControl != nullptr)
     {
         parentHWnd = _parentControl->GetHWnd();
     }
@@ -1088,14 +1171,18 @@ bool CWindowControl::Create()
                            CControlManager::GetInstance().GetHInstance(),
                            (LPVOID)this);
 
-    SendMessage(_hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(_icon));
+    
+    if (_hWnd != nullptr)
+    {
+        SendMessage(_hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(_icon));
+    }
 
     if (_menu)
     {
         ::SetMenu(_hWnd, _menu->GetHMenu());
     }
 
-    return true;
+    return _hWnd != nullptr;
 }
 
 void CWindowControl::Close() const
@@ -1150,7 +1237,7 @@ void CWindowControl::SetDialogResult(const int value) const
 
 void CWindowControl::Destroy()
 {
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         DestroyWindow(_hWnd);
         _hWnd = nullptr;

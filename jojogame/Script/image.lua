@@ -9,15 +9,15 @@ Image = ControlObject:Instance
     },
     
     New = function(self)
-        local newImage = {}
+        local newControl = {}
 
-        newImage.control = controlManager:CreateImage()
-        setmetatable(newImage, self)
+        newControl.control = controlManager:CreateImage()
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Make Image Instance")
 
-        return newImage
+        return newControl
     end,
 
     LoadFromMe5 = function(self, options)

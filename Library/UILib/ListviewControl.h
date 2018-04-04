@@ -148,7 +148,7 @@ public:
     static void RegisterFunctions(lua_State *L);
 
     CListViewControl();
-    ~CListViewControl();
+    virtual ~CListViewControl();
 
     bool IsShowBorder() const;
     bool IsShowColumn() const;

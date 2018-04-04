@@ -13,6 +13,8 @@
 #include "LayoutControl.h"
 #include "ListviewControl.h"
 #include "StaticControl.h"
+#include "GroupBoxControl.h"
+#include "CheckBoxControl.h"
 
 namespace jojogame {
 std::once_flag CControlManager::s_onceFlag;
@@ -36,6 +38,7 @@ void CControlManager::RegisterFunctions(lua_State *L)
     LUA_METHOD(CreateListViewRow);
     LUA_METHOD(CreateListViewItem);
     LUA_METHOD(CreateStatic);
+    LUA_METHOD(CreateGroupBox);
 }
 
 CControlManager::CControlManager()
@@ -67,6 +70,7 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CListViewRow>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CListViewItem>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CStaticControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CGroupBoxControl>();
 
 }
 
@@ -150,6 +154,20 @@ CStaticControl* CControlManager::CreateStatic(CWindowControl* parent)
     auto newStatic = CMemoryPool<CStaticControl>::GetInstance().New();
     newStatic->SetParentControl(parent);
     return newStatic;
+}
+
+CGroupBoxControl* CControlManager::CreateGroupBox(CWindowControl* parent)
+{
+    auto newGroupBox = CMemoryPool<CGroupBoxControl>::GetInstance().New();
+    newGroupBox->SetParentControl(parent);
+    return newGroupBox;
+}
+
+CCheckBoxControl* CControlManager::CreateCheckBox(CWindowControl* parent)
+{
+    auto newCheckBox = CMemoryPool<CGroupBoxControl>::GetInstance().New();
+    newCheckBox->SetParentControl(parent);
+    return newCheckBox;
 }
 
 HINSTANCE CControlManager::GetHInstance()

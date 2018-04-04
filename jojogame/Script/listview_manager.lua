@@ -6,16 +6,16 @@ ListViewManager = ControlManager:Instance
     CreateListView = function(self, options)
         OUTPUT("-------- Start Create : ListView --------")
 
-        local newListView = nil
+        local newControl = nil
 
         if options ~= nil then
             if options._Control ~= nil then
                 return ListView:Instance(options._Control)
             end
 
-            newListView = ListView:New(options.Parent)
+            newControl = ListView:New(options.Parent)
 
-            newListView:SetSize(options.Width, options.Height)
+            newControl:SetSize(options.Width, options.Height)
 
             if options.Center then
                 local x, y = ControlManager:GetCenterPosition(options.Parent, options.Width, options.Height, true)
@@ -24,51 +24,51 @@ ListViewManager = ControlManager:Instance
                     options.Y = y
                 end
             end
-            newListView:Move(options.X, options.Y)
+            newControl:Move(options.X, options.Y)
 
-            newListView:SetRowHeight(options.RowHeight)
+            newControl:SetRowHeight(options.RowHeight)
 
             if options.Event then
-                newListView:SetCreateEvent(options.Event.Create)
-                newListView:SetDestroyEvent(options.Event.Destroy)
-                newListView:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
-                newListView:SetMouseLButtonDownEvent(options.Event.MouseLButtonDown)
-                newListView:SetMouseMoveEvent(options.Event.MouseMove)
-                newListView:SetMouseEnterEvent(options.Event.MouseEnter)
-                newListView:SetMouseLeaveEvent(options.Event.MouseLeave)
+                newControl:SetCreateEvent(options.Event.Create)
+                newControl:SetDestroyEvent(options.Event.Destroy)
+                newControl:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
+                newControl:SetMouseLButtonDownEvent(options.Event.MouseLButtonDown)
+                newControl:SetMouseMoveEvent(options.Event.MouseMove)
+                newControl:SetMouseEnterEvent(options.Event.MouseEnter)
+                newControl:SetMouseLeaveEvent(options.Event.MouseLeave)
             end
 
             if options.Option then
-                newListView:SetShowBorder(options.Option.ShowBorder)
-                newListView:SetShowColumn(options.Option.ShowColumn)
-                newListView:SetSortClickedColumn(options.Option.SortClickedColumn)
-                newListView:SetOneClickItemActivated(options.Option.OneClickItemActivated)
-                newListView:SetTrackingSelect(options.Option.TrackingSelect)
+                newControl:SetShowBorder(options.Option.ShowBorder)
+                newControl:SetShowColumn(options.Option.ShowColumn)
+                newControl:SetSortClickedColumn(options.Option.SortClickedColumn)
+                newControl:SetOneClickItemActivated(options.Option.OneClickItemActivated)
+                newControl:SetTrackingSelect(options.Option.TrackingSelect)
             end
 
-            newListView:SetUserData(options.UserData)
+            newControl:SetUserData(options.UserData)
 
-            newListView:Create()
+            newControl:Create()
 
             if options.Columns then    
                 for i = 1, #options.Columns do
-                    newListView:AddColumn(options.Columns[i])
+                    newControl:AddColumn(options.Columns[i])
                 end
             end
 
             if options.Rows then
                 for i = 1, #options.Rows do
-                    newListView:AddRow(options.Rows[i])
+                    newControl:AddRow(options.Rows[i])
                 end
             end
 
             if options.Show then
-                newListView:Show()
+                newControl:Show()
             end
         end
 
         OUTPUT("-------- End Create : ListView --------")
-        return newListView
+        return newControl
     end,
 
     CreateListViewInstance = function(self, control)
@@ -87,28 +87,28 @@ ListViewManager = ControlManager:Instance
     CreateColumn = function(self, options)
         OUTPUT("-------- Start Create : ListView Column --------")
 
-        local newListViewColumn = nil
+        local newControl = nil
 
         if options ~= nil then
             if options._Control ~= nil then
                 return ListViewColumn:Instance(options._Control)
             end
 
-            newListViewColumn = ListViewColumn:New()
+            newControl = ListViewColumn:New()
 
-            newListViewColumn:SetWidth(options.Width)            
+            newControl:SetWidth(options.Width)            
 
-            newListViewColumn:SetAutoSizeFitItem(options.AutoSizeFitItem)
-            newListViewColumn:SetAutoSizeFitHeader(options.AutoSizeFitHeader)
+            newControl:SetAutoSizeFitItem(options.AutoSizeFitItem)
+            newControl:SetAutoSizeFitHeader(options.AutoSizeFitHeader)
 
             if options.Text then
-                newListViewColumn:SetText(options.Text.Content)
-                newListViewColumn:SetAlign(options.Text.Align)
+                newControl:SetText(options.Text.Content)
+                newControl:SetAlign(options.Text.Align)
             end
         end
 
         OUTPUT("-------- End Create : ListView Column --------")
-        return newListViewColumn
+        return newControl
     end,
 
     CreateColumnInstance = function(self, control)
@@ -126,16 +126,16 @@ ListViewManager = ControlManager:Instance
     CreateRow = function(self, options)
         OUTPUT("-------- Start Create : ListView Row --------")
 
-        local newListViewRow = nil
+        local newControl = nil
 
         if options ~= nil then
             if options._Control ~= nil then
                 return ListViewRow:Instance(options._Control)
             end
 
-            newListViewRow = ListViewRow:New()            
+            newControl = ListViewRow:New()            
 
-            newListViewRow:SetEnabled(options.Enabled)
+            newControl:SetEnabled(options.Enabled)
 
             if options.Event ~= nil then
                 newListRow:SetActiveEvent(options.Event.Active)
@@ -143,31 +143,31 @@ ListViewManager = ControlManager:Instance
 
             if options.Items ~= nil then
                 for i = 1, #options.Items do
-                    newListViewRow:AddItem(options.Items[i])
+                    newControl:AddItem(options.Items[i])
                 end
             end
 
             if options.Background ~= nil then
                 if options.Background.Color ~= nil then
-                    newListViewRow:SetNormalBackgroundColor(options.Background.Color.Normal)
-                    newListViewRow:SetFocusedBackgroundColor(options.Background.Color.Focused)
-                    newListViewRow:SetDisabledBackgroundColor(options.Background.Color.Disabled)
-                    newListViewRow:SetDisableFocusedBackgroundColor(options.Background.Color.DisableFocused)
+                    newControl:SetNormalBackgroundColor(options.Background.Color.Normal)
+                    newControl:SetFocusedBackgroundColor(options.Background.Color.Focused)
+                    newControl:SetDisabledBackgroundColor(options.Background.Color.Disabled)
+                    newControl:SetDisableFocusedBackgroundColor(options.Background.Color.DisableFocused)
                 end
             end
 
             if options.Text ~= nil then
                 if options.Text.Color ~= nil then
-                    newListViewRow:SetNormalTextColor(options.Text.Color.Normal)
-                    newListViewRow:SetFocusedTextColor(options.Text.Color.Focused)
-                    newListViewRow:SetDisabledTextColor(options.Text.Color.Disabled)
-                    newListViewRow:SetDisableFocusedTextColor(options.Text.Color.DisableFocused)
+                    newControl:SetNormalTextColor(options.Text.Color.Normal)
+                    newControl:SetFocusedTextColor(options.Text.Color.Focused)
+                    newControl:SetDisabledTextColor(options.Text.Color.Disabled)
+                    newControl:SetDisableFocusedTextColor(options.Text.Color.DisableFocused)
                 end
             end                     
         end
 		
         OUTPUT("-------- End Create : ListView Row --------")
-        return newListViewRow
+        return newControl
     end,
 
     CreateRowInstnace = function(self, control)
@@ -185,45 +185,45 @@ ListViewManager = ControlManager:Instance
     CreateItem = function(self, options)
         OUTPUT("-------- Start Create : ListView Item --------")
 
-        local newListViewItem = nil
+        local newControl = nil
 
         if options ~= nil then
             if options._Control ~= nil then
                 return ListViewItem:Instance(options._Control)
             end
 
-            newListViewItem = ListViewItem:New()
+            newControl = ListViewItem:New()
 
             if options.Background ~= nil then
                 if options.Background.Color ~= nil then
-                    newListViewItem:SetNormalBackgroundColor(options.Background.Color.Normal)
-                    newListViewItem:SetFocusedBackgroundColor(options.Background.Color.Focused)
-                    newListViewItem:SetDisabledBackgroundColor(options.Background.Color.Disabled)
-                    newListViewItem:SetDisableFocusedBackgroundColor(options.Background.Color.DisableFocused)
+                    newControl:SetNormalBackgroundColor(options.Background.Color.Normal)
+                    newControl:SetFocusedBackgroundColor(options.Background.Color.Focused)
+                    newControl:SetDisabledBackgroundColor(options.Background.Color.Disabled)
+                    newControl:SetDisableFocusedBackgroundColor(options.Background.Color.DisableFocused)
                 end
             end
 
             if options.Text ~= nil then
                 if options.Text.Font ~= nil then
-                    newListViewItem:SetFontName(options.Text.Font.Name)
-                    newListViewItem:SetFontSize(options.Text.Font.Size)
-                    newListViewItem:SetBold(options.Text.Font.Bold)
-                    newListViewItem:SetUnderline(options.Text.Font.Underline)
-                    newListViewItem:SetItalic(options.Text.Font.Italic)
+                    newControl:SetFontName(options.Text.Font.Name)
+                    newControl:SetFontSize(options.Text.Font.Size)
+                    newControl:SetBold(options.Text.Font.Bold)
+                    newControl:SetUnderline(options.Text.Font.Underline)
+                    newControl:SetItalic(options.Text.Font.Italic)
                 end
 
-                newListViewItem:SetAlign(options.Text.Align)
-                newListViewItem:SetText(options.Text.Content)
+                newControl:SetAlign(options.Text.Align)
+                newControl:SetText(options.Text.Content)
                 if options.Text.Color ~= nil then
-                    newListViewItem:SetNormalTextColor(options.Text.Color.Normal)
-                    newListViewItem:SetFocusedTextColor(options.Text.Color.Focused)
-                    newListViewItem:SetDisabledTextColor(options.Text.Color.Disabled)
-                    newListViewItem:SetDisableFocusedTextColor(options.Text.Color.DisableFocused)
+                    newControl:SetNormalTextColor(options.Text.Color.Normal)
+                    newControl:SetFocusedTextColor(options.Text.Color.Focused)
+                    newControl:SetDisabledTextColor(options.Text.Color.Disabled)
+                    newControl:SetDisableFocusedTextColor(options.Text.Color.DisableFocused)
                 end
             end      
         end
 		
         OUTPUT("-------- End Create : ListView Item --------")
-        return newListViewItem
+        return newControl
     end,
 }

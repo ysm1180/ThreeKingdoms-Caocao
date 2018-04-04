@@ -3,15 +3,15 @@ require "Script\\control.lua"
 Toolbar = ControlObject:Instance
 {
     New = function(self)
-        local newToolbar = {}
+        local newControl = {}
 
-        newToolbar.control = controlManager:CreateToolbar()
-        setmetatable(newToolbar, self)
+        newControl.control = controlManager:CreateToolbar()
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Make Toolbar Instance")        
         
-        return newToolbar
+        return newControl
     end,
 
     Height = function(self)
@@ -47,15 +47,15 @@ Toolbar = ControlObject:Instance
 ToolbarButton = ControlObject:Instance
 {
     New = function(self)
-        local newToolbarButton = {}
+        local newControlButton = {}
 
-        newToolbarButton.control = controlManager:CreateToolbarButton()
-        setmetatable(newToolbarButton, self)
+        newControlButton.control = controlManager:CreateToolbarButton()
+        setmetatable(newControlButton, self)
         self.__index = self
 
         OUTPUT("Make Toolbar Button Instance")        
         
-        return newToolbarButton
+        return newControlButton
     end,
 
     Text = function(self)

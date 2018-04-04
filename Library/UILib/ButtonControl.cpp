@@ -193,6 +193,7 @@ CButtonControl::CButtonControl()
 {
     //_style = WS_TABSTOP | WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON | BS_NOTIFY;
     _style = WS_TABSTOP | BS_OWNERDRAW | WS_CHILD;
+    _type = L"button";
 }
 
 CButtonControl::~CButtonControl()
@@ -306,11 +307,11 @@ void CButtonControl::SetTransparentBackground(bool isTransparentBackground)
 
 void CButtonControl::SetText(std::wstring text)
 {
-    if (_text.compare(text) != 0)
+    if (_text != text)
     {
         _text = text;
 
-        if (_hWnd)
+        if (_hWnd != nullptr)
         {
             SetWindowText(_hWnd, _text.c_str());
         }
@@ -406,25 +407,28 @@ void CButtonControl::SetBorderWidth(int width)
 
 bool CButtonControl::Create()
 {
-    _hWnd = CreateWindow(L"jojo_button",
-                         _text.c_str(),
-                         _style,
-                         _position.x,
-                         _position.y,
-                         _size.cx,
-                         _size.cy,
-                         _parentControl->GetHWnd(),
-                         (HMENU)this,
-                         CControlManager::GetInstance().GetHInstance(),
-                         (LPVOID)this);
-    _font.ResetFont();
+    if (_parentControl != nullptr)
+    {
+        _hWnd = CreateWindow(L"jojo_button",
+                             _text.c_str(),
+                             _style,
+                             _position.x,
+                             _position.y,
+                             _size.cx,
+                             _size.cy,
+                             _parentControl->GetHWnd(),
+                             (HMENU)this,
+                             CControlManager::GetInstance().GetHInstance(),
+                             (LPVOID)this);
+        _font.ResetFont();
+    }
 
-    return true;
+    return _hWnd != nullptr;
 }
 
 void CButtonControl::Destroy()
 {
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         DestroyWindow(_hWnd);
         _hWnd = nullptr;
@@ -434,7 +438,7 @@ void CButtonControl::Destroy()
 void CButtonControl::Show()
 {
     _isVisible = true;
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         ShowWindow(_hWnd, TRUE);
         UpdateWindow(_parentControl->GetHWnd());

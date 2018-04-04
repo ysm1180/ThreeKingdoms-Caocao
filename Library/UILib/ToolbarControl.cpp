@@ -29,7 +29,7 @@ CToolbarControl::CToolbarControl()
 
 CToolbarControl::~CToolbarControl()
 {
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         DestroyWindow(_hWnd);
         _hWnd = nullptr;

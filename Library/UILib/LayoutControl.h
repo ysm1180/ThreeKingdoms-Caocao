@@ -34,8 +34,8 @@ public:
 
     void SetX(int x, bool isRedraw = false);
     void SetY(int y, bool isRedraw = false);
-    void SetWidth(int width, bool isRedraw = false);
-    void SetHeight(int height, bool isRedraw = false);
+    void SetWidth(int cx, bool isRedraw = false);
+    void SetHeight(int cy, bool isRedraw = false);
     void SetRatioX(double ratio, bool isRedraw = false);
     void SetRatioY(double ratio, bool isRedraw = false);
 
@@ -45,6 +45,7 @@ public:
     void DeleteImage(CImageControl *image, bool isUpdate);
 
     void Draw(HDC destDC);
+    void Draw(HDC destDC, RECT& rect);
     void Erase();
 
 private:

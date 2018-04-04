@@ -22,6 +22,8 @@ class CListViewColumn;
 class CListViewRow;
 class CListViewItem;
 class CStaticControl;
+class CGroupBoxControl;
+class CCheckBoxControl;
 
 class  CControlManager
 {
@@ -47,6 +49,8 @@ public:
     CListViewRow* CreateListViewRow();
     CListViewItem* CreateListViewItem();
     CStaticControl* CreateStatic(CWindowControl *parent);
+    CGroupBoxControl* CreateGroupBox(CWindowControl *parent);
+    CCheckBoxControl* CreateCheckBox(CWindowControl *parent);
 
     HINSTANCE GetHInstance();
 

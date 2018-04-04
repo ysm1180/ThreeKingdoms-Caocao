@@ -4,30 +4,30 @@ require "Script\\text_control.lua"
 Static = Inherit(Control, TextControl)
 
 function Static:Instance(control)
-    local newStatic = {}
+    local newControl = {}
         
-    newStatic.control = control
-    setmetatable(newStatic, Static)
+    newControl.control = control
+    setmetatable(newControl, Static)
     Static.__index = Static
 
     OUTPUT("Get Static Instance")
 
-    return newStatic
+    return newControl
 end
 
 function Static:New(parent)
-    local newStatic = {}
+    local newControl = {}
     local parentControl = nil
     if parent ~= nil then
         parentControl = parent.control
     end
-    newStatic.control = controlManager:CreateStatic(parentControl)
-    setmetatable(newStatic, Static)
+    newControl.control = controlManager:CreateStatic(parentControl)
+    setmetatable(newControl, Static)
     Static.__index = Static
 
     OUTPUT("Make Static Instance")
 
-    return newStatic
+    return newControl
 end
 
 function Static:SetText(text)
@@ -45,6 +45,12 @@ end
 function Static:SetAlign(align)
     if align ~= nil then
         self.control:SetAlign(align)
+    end
+end
+
+function Static:SetTransparentBackground(value)
+    if type(value) == "boolean" then
+        self.control:SetTransparentBackground(value)
     end
 end
 

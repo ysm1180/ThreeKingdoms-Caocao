@@ -321,27 +321,13 @@ void CMenu::AddMenuItem(CMenuItem *menuItem)
 bool CMenu::DeleteMenuitem(CMenuItem *menuItem)
 {
     auto result = ::DeleteMenu(_menu, menuItem->GetIndex(), MF_BYCOMMAND);
-    if (result == 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return result != 0;
 }
 
 bool CMenu::DeleteMeuItemByPosition(int position)
 {
     auto result = ::DeleteMenu(_menu, position, MF_BYPOSITION);
-    if (result == 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return result != 0;
 }
 
 }

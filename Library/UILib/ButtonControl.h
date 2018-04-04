@@ -22,7 +22,7 @@ public:
     static void RegisterFunctions(lua_State *L);
 
     CButtonControl();
-    ~CButtonControl() override;
+    virtual ~CButtonControl();
 
     bool IsTransparentBackground() const;
     bool IsHovered() const;

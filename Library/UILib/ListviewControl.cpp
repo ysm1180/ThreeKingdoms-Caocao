@@ -626,6 +626,7 @@ CListViewControl::CListViewControl()
 {
     _style = LVS_REPORT | LVS_SINGLESEL | WS_CHILD | WS_TABSTOP | LVS_OWNERDRAWFIXED | WS_BORDER;
     _exStyle = LVS_EX_TWOCLICKACTIVATE;
+    _type = L"listview";
 }
 
 CListViewControl::~CListViewControl()
@@ -754,7 +755,7 @@ void CListViewControl::SetSortClickedColumn(bool isSortClickedColumn)
         _style &= ~LVS_NOSORTHEADER;
     }
 
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         SetWindowLongPtr(_hWnd, GWL_STYLE, _style);
     }
@@ -775,7 +776,7 @@ void CListViewControl::SetOneClickItemActivated(bool isHotClick)
         _exStyle |= LVS_EX_TWOCLICKACTIVATE;
     }
 
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         ListView_SetExtendedListViewStyle(_hWnd, _exStyle);
     }
@@ -794,7 +795,7 @@ void CListViewControl::SetTrackingSelect(bool isTrackingSelect)
         _exStyle &= ~LVS_EX_TRACKSELECT;
     }
 
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         ListView_SetExtendedListViewStyle(_hWnd, _exStyle);
         ListView_SetHoverTime(_hWnd, 1);
@@ -831,7 +832,7 @@ void CListViewControl::SetRowHeight(int rowHeight)
 
 void CListViewControl::AddColumn(CListViewColumn* column)
 {
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         LVCOLUMN lvColumn;
         const int index = _columns.size();
@@ -861,7 +862,7 @@ void CListViewControl::AddColumn(CListViewColumn* column)
 
 void CListViewControl::AddRow(CListViewRow* row)
 {
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         const int itemIndex = _rows.size();
         row->SetRowIndex(itemIndex);
@@ -922,7 +923,7 @@ bool CListViewControl::Create()
                          CControlManager::GetInstance().GetHInstance(),
                          this);
 
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         ListView_SetExtendedListViewStyle(_hWnd, _exStyle | LVS_EX_FULLROWSELECT);
         ListView_SetHoverTime(_hWnd, 1);

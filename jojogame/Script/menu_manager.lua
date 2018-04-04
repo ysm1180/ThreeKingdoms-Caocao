@@ -4,27 +4,27 @@ MenuManager = Object:Instance
 {
     CreateMenu = function(self, items)
         OUTPUT("-------- Start Create : Menu --------")
-        local newMenu = Menu:New()
+        local newControl = Menu:New()
 
         for i = 1, #items do
-            newMenu:AddMenuItem(items[i])
+            newControl:AddMenuItem(items[i])
         end
 
         OUTPUT("-------- End Create : Menu --------")
-        return newMenu
+        return newControl
     end,
 
     CreateMenuItem = function(self, options)
         OUTPUT("-------- Start Create : MenuItem --------")
 
-        local newMenuItem = nil
+        local newControl = nil
 
         if options ~= nil then
             if options._Control ~= nil then
-                newMenuItem = MenuItem:Instance(options._Control)
-                return newMenuItem
+                newControl = MenuItem:Instance(options._Control)
+                return newControl
             else
-                newMenuItem = MenuItem:New()            
+                newControl = MenuItem:New()            
             end
 
             if options.Seperator == true then
@@ -36,48 +36,48 @@ MenuManager = Object:Instance
                 }
             end
 
-            newMenuItem:SetEnabled(options.Enabled)
+            newControl:SetEnabled(options.Enabled)
 
             if options.Event then
-                newMenuItem:SetClickEvent(options.Event.Click)
+                newControl:SetClickEvent(options.Event.Click)
             end
 
             if options.Text then    
                 if options.Text.Font then
-                    newMenuItem:SetFontName(options.Text.Font.Name)
-                    newMenuItem:SetFontSize(options.Text.Font.Size)
-                    newMenuItem:SetBold(options.Text.Font.Bold)
-                    newMenuItem:SetUnderline(options.Text.Font.Underline)
-                    newMenuItem:SetItalic(options.Text.Font.Italic)
+                    newControl:SetFontName(options.Text.Font.Name)
+                    newControl:SetFontSize(options.Text.Font.Size)
+                    newControl:SetBold(options.Text.Font.Bold)
+                    newControl:SetUnderline(options.Text.Font.Underline)
+                    newControl:SetItalic(options.Text.Font.Italic)
                 end
                 if options.Text.Color then
-                    newMenuItem:SetNormalTextColor(options.Text.Color.Normal)
-                    newMenuItem:SetFocusedTextColor(options.Text.Color.Focused)
-                    newMenuItem:SetDisabledTextColor(options.Text.Color.Disabled)
-                    newMenuItem:SetDisableFocusedTextColor(options.Text.Color.DisableFocused)
+                    newControl:SetNormalTextColor(options.Text.Color.Normal)
+                    newControl:SetFocusedTextColor(options.Text.Color.Focused)
+                    newControl:SetDisabledTextColor(options.Text.Color.Disabled)
+                    newControl:SetDisableFocusedTextColor(options.Text.Color.DisableFocused)
                 end
-                newMenuItem:SetText(options.Text.Content)
+                newControl:SetText(options.Text.Content)
             end
 
             if options.Background then
                 if options.Background.Color then
-                    newMenuItem:SetNormalBackgroundColor(options.Background.Color.Normal)
-                    newMenuItem:SetFocusedBackgroundColor(options.Background.Color.Focused)
-                    newMenuItem:SetDisabledBackgroundColor(options.Background.Color.Disabled)
-                    newMenuItem:SetDisableFocusedBackgroundColor(options.Background.Color.DisableFocused)
+                    newControl:SetNormalBackgroundColor(options.Background.Color.Normal)
+                    newControl:SetFocusedBackgroundColor(options.Background.Color.Focused)
+                    newControl:SetDisabledBackgroundColor(options.Background.Color.Disabled)
+                    newControl:SetDisableFocusedBackgroundColor(options.Background.Color.DisableFocused)
                 end
             end
 
 
             if options.Child ~= nil then
-                newMenuItem:SetChildMenu(options.Child.control)
+                newControl:SetChildMenu(options.Child.control)
             elseif options.ChildItems ~= nil then
-                newMenuItem:SetChildMenu((MenuManager:CreateMenu(options.ChildItems)).control)
+                newControl:SetChildMenu((MenuManager:CreateMenu(options.ChildItems)).control)
             end
         end
 
         OUTPUT("-------- End Create : MenuItem --------")
-        return newMenuItem
+        return newControl
     end,
 
     GetMenuItemByPosition = function(self, menu, index)

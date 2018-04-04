@@ -3,31 +3,31 @@ require "Script\\control.lua"
 Window = Control:Instance
 {
     New = function(self, parent)
-        local newWindow = {}
+        local newControl = {}
         local parentControl = nil
 
         if parent ~= nil then
             parentControl = parent.control
         end
-        newWindow.control = controlManager:CreateWindowForm(parentControl)
-        setmetatable(newWindow, self)
+        newControl.control = controlManager:CreateWindowForm(parentControl)
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Make Window Instance")        
         
-        return newWindow
+        return newControl
     end,
 
     Instance = function(self, control)
-        local newWindow = {}
+        local newControl = {}
 
-        newWindow.control = control
-        setmetatable(newWindow, self)
+        newControl.control = control
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Get Window Instance")
 
-        return newWindow
+        return newControl
     end,
 
     SetBackgroundColor = function(self, color)

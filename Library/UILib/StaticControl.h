@@ -11,10 +11,10 @@ public:
     static void RegisterFunctions(lua_State *L);
 
     CStaticControl();
-    ~CStaticControl();
+    virtual ~CStaticControl();
 
     bool IsAutoSize();
-    bool IsBackgroundTransparent();
+    bool IsTransparentBackground();
     int GetAlign();
     std::wstring GetText();
     CTextFont *GetFont();
@@ -22,7 +22,7 @@ public:
     HBRUSH GetBackgroundBrush();
 
     void SetAutoSize(bool value);
-    void SetBackgroundTransparent(bool value);
+    void SetTransparentBackground(bool value);
     void SetAlign(int align);
     void SetText(std::wstring text);
     void SetTextColor(COLORREF color);
@@ -42,7 +42,7 @@ private:
     CTextFont _font;
 
     bool _isAutoSize = true;
-    bool _isBackgroundTransparent = true;
+    bool _isTransparentBackground = true;
 
     int _align = 0; // 0 : left, 1 : right, 2 : center
     std::wstring _text = L"";

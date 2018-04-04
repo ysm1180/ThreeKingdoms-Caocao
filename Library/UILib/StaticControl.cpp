@@ -94,6 +94,7 @@ void CStaticControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(SetText);
     LUA_METHOD(SetTextColor);
     LUA_METHOD(SetBackgroundColor);
+    LUA_METHOD(SetTransparentBackground);
     LUA_METHOD(SetAlign);
 
     LUA_METHOD(Create);
@@ -108,6 +109,7 @@ void CStaticControl::RegisterFunctions(lua_State* L)
 }
 
 CStaticControl::CStaticControl()
+    : _font(this)
 {
     _style = WS_CHILD | SS_OWNERDRAW;
 }
@@ -125,9 +127,9 @@ bool CStaticControl::IsAutoSize()
     return _isAutoSize;
 }
 
-bool CStaticControl::IsBackgroundTransparent()
+bool CStaticControl::IsTransparentBackground()
 {
-    return _isBackgroundTransparent;
+    return _isTransparentBackground;
 }
 
 int CStaticControl::GetAlign()
@@ -165,11 +167,11 @@ void CStaticControl::SetAutoSize(bool value)
     }
 }
 
-void CStaticControl::SetBackgroundTransparent(bool value)
+void CStaticControl::SetTransparentBackground(bool value)
 {
-    if (_isBackgroundTransparent != value)
+    if (_isTransparentBackground != value)
     {
-        _isBackgroundTransparent = value;
+        _isTransparentBackground = value;
 
         Refresh();
     }
@@ -187,11 +189,11 @@ void CStaticControl::SetAlign(int align)
 
 void CStaticControl::SetText(std::wstring text)
 {
-    if (_text.compare(text) != 0)
+    if (_text != text)
     {
         _text = text;
 
-        if (_hWnd)
+        if (_hWnd != nullptr)
         {
             SetWindowText(_hWnd, _text.c_str());
         }
@@ -230,7 +232,7 @@ void CStaticControl::SetBackgroundColor(COLORREF color)
 
 bool CStaticControl::Create()
 {
-    if (_parentControl)
+    if (_parentControl != nullptr)
     {
         _hWnd = CreateWindow(L"jojo_static",
                              _text.c_str(),
@@ -246,26 +248,24 @@ bool CStaticControl::Create()
 
         _AutoSizing();
 
-        return _hWnd != nullptr;
     } 
-    else
-    {
-        return false;
-    }
+
+    return _hWnd != nullptr;
 }
 
 void CStaticControl::Destroy()
 {
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         DestroyWindow(_hWnd);
+        _hWnd = nullptr;
     }
 }
 
 void CStaticControl::Show()
 {
     _isVisible = true;
-    if (_hWnd)
+    if (_hWnd != nullptr)
     {
         ShowWindow(_hWnd, TRUE);
         UpdateWindow(_parentControl->GetHWnd());

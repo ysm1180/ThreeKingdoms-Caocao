@@ -5,15 +5,15 @@ WindowManager = ControlManager:Instance
 {
     Create = function(self, options)
         OUTPUT("-------- Start Create : Window --------")
-        local newWindow = nil
+        local newControl = nil
         if options ~= nil then
             if options.Control ~= nil then
                 return Window:Instance(options.Control)
             end
 
-            newWindow = Window:New(options.Parent)
+            newControl = Window:New(options.Parent)
 
-            newWindow:SetSize(options.Width, options.Height)
+            newControl:SetSize(options.Width, options.Height)
 
             if options.Center then
                 local x, y = ControlManager:GetCenterPosition(options.Parent, options.Width, options.Height, false)
@@ -22,56 +22,56 @@ WindowManager = ControlManager:Instance
                     options.Y = y
                 end
             end
-            newWindow:Move(options.X, options.Y)
+            newControl:Move(options.X, options.Y)
 
-            newWindow:SetTitleName(options.TitleName)
+            newControl:SetTitleName(options.TitleName)
             if options.Background ~= nil then
-                newWindow:SetBackgroundColor(options.Background.Color)
+                newControl:SetBackgroundColor(options.Background.Color)
             end
 
-            newWindow:SetTitlebar(options.Titlebar)
-            newWindow:SetMaxButton(options.MaxButton)
-            newWindow:SetMinButton(options.MinButton)
+            newControl:SetTitlebar(options.Titlebar)
+            newControl:SetMaxButton(options.MaxButton)
+            newControl:SetMinButton(options.MinButton)
             if options.ControlBox == nil then
                 options.ControlBox = true
             end
-            newWindow:SetControlBox(options.ControlBox)
+            newControl:SetControlBox(options.ControlBox)
 
             if options.Event then
-                newWindow:SetCreateEvent(options.Event.Create)
-                newWindow:SetDestroyEvent(options.Event.Destroy)     
-                newWindow:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
-                newWindow:SetMouseLButtonDownEvent(options.Event.MouseLButtonDown)
-                newWindow:SetMouseMoveEvent(options.Event.MouseMove)
-                newWindow:SetMouseEnterEvent(options.Event.MouseEnter)
-                newWindow:SetMouseLeaveEvent(options.Event.MouseLeave)
+                newControl:SetCreateEvent(options.Event.Create)
+                newControl:SetDestroyEvent(options.Event.Destroy)     
+                newControl:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
+                newControl:SetMouseLButtonDownEvent(options.Event.MouseLButtonDown)
+                newControl:SetMouseMoveEvent(options.Event.MouseMove)
+                newControl:SetMouseEnterEvent(options.Event.MouseEnter)
+                newControl:SetMouseLeaveEvent(options.Event.MouseLeave)
 
-                newWindow:SetActiveEvent(options.Event.Active)
-                newWindow:SetCloseEvent(options.Event.Close)
-                newWindow:SetSizeEvent(options.Event.Size)
+                newControl:SetActiveEvent(options.Event.Active)
+                newControl:SetCloseEvent(options.Event.Close)
+                newControl:SetSizeEvent(options.Event.Size)
             end
 
             if options.Layouts ~= nil then
                 for i = 1, #options.Layouts do
-                    newWindow:AddLayout(options.Layouts[i])
+                    newControl:AddLayout(options.Layouts[i])
                 end
             end
 
-            newWindow:SetMenu(options.Menu)
+            newControl:SetMenu(options.Menu)
 
-            newWindow:Create()
+            newControl:Create()
 
             if options.Show then
                 if options.Modal then
-                    newWindow:ShowModalWindow()
+                    newControl:ShowModalWindow()
                 else
-                    newWindow:Show()
+                    newControl:Show()
                 end
             end
         end
 
         OUTPUT("-------- End Create : Window --------")
-        return newWindow
+        return newControl
     end,
 
     CreateInstance = function(self, control)

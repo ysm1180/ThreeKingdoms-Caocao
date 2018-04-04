@@ -7,6 +7,7 @@ require "Script\\image_manager.lua"
 require "Script\\layout_manager.lua"
 require "Script\\listview_manager.lua"
 require "Script\\static_manager.lua"
+require "Script\\groupbox_manager.lua"
 
 isClosing = false
 dialog = false
@@ -18,8 +19,17 @@ function quit()
     main:Close()
 end
 
-function CloseLoadDialog()
+function close_load_dialog()
     loadDialog:Close()
+end
+
+function ok_config_dialog()
+    group1:SetText("WOW")
+    configCancelButton:SetText("WOW")
+end
+
+function close_config_dialog()
+    configDialog:Close()
 end
 
 function main_click()
@@ -75,6 +85,10 @@ function openning_end()
     openningMovie:Destroy()
 end
 
+function buttonStart_click()
+    group2:SetText("Text")
+end
+
 function buttonLoad_click()
     loadDialog = WindowManager:Create({
         Parent = main,
@@ -83,21 +97,22 @@ function buttonLoad_click()
         TitleName = "데이터 불러오기",
         MinButton = false,
         MaxButton = false,
-        BackColor = {R = 0xF0, G = 0xF0, B = 0xF0},
+        Background = {
+            Color = {R = 0xF0, G = 0xF0, B = 0xF0},
+        },
         Center = true,
         Modal = true
     })
     
     local static = StaticManager:Create({
         Parent = loadDialog,
-        Width = 300,
-        Height = 20,
+        AutoSize = true,
         Text = {
             Content = "데이터",
         },
         Show = true,
     })
-
+    
     local rows = {}
     for i = 1, 10 do
         rows[i] = ListViewManager:CreateRow({
@@ -121,8 +136,7 @@ function buttonLoad_click()
                     },
                 }),
             },
-        }
-    )
+        })
     end
     
     local loadListView = ListViewManager:CreateListView({
@@ -160,25 +174,102 @@ function buttonLoad_click()
             SortClickedColumn = false,
         },
         Show = true,
-    }
-    )
-    local loadCancelButton = ButtonManager:Create(
-        {
-            Parent = loadDialog,
-            Text = {
-                Content = "취소"
-            },
-            Event = {
-                MouseLButtonUp = "CloseLoadDialog",
-            },
-            Width = 75,
-            Height = 21,
-            X = 305,
-            Y = 182,
-            Show = true
-        }
-    )
+    })
+    local loadCancelButton = ButtonManager:Create({
+        Parent = loadDialog,
+        Text = {
+            Content = "취소"
+        },
+        Event = {
+            MouseLButtonUp = "close_load_dialog",
+        },
+        Width = 75,
+        Height = 21,
+        X = 305,
+        Y = 182,
+        Show = true
+    })
     loadDialog:ShowModalWindow()
+end
+
+function buttonConfig_click()
+    configDialog = WindowManager:Create({
+        Parent = main,
+        Width = 283,
+        Height = 328,
+        TitleName = "환경설정",
+        MinButton = false,
+        MaxButton = false,
+        Background = {
+            Color = {R = 0xF0, G = 0xF0, B = 0xF0},
+        },
+        Center = true,
+        Modal = true
+    })
+    
+    local static = StaticManager:Create({
+        Parent = configDialog,
+        AutoSize = true,
+        X = 13,
+        Y = 4,
+        Text = {
+            Content = "항목을 누르고 설정해 주십시오.\n설정을 종료한 후 「OK」를 선택해 주십시오.",
+        },
+        Show = true,
+    })
+
+    group1 = GroupBoxManager:Create({
+        Parent = configDialog,
+        Width = 255,
+        Height = 33,
+        X = 13,
+        Y = 169,
+        Text = {
+            Content = "메세지 대기시간",
+        },
+        Show = true,
+    })
+
+    local static1 = StaticManager:Create({
+        Parent = configDialog,
+        AutoSize = true,
+        X = 13,
+        Y = 184,
+        Text = {
+            Content = "길다",
+        },
+        Show = true,
+    })
+
+    local configOKButton = ButtonManager:Create({
+        Parent = configDialog,
+        Text = {
+            Content = "OK"
+        },
+        Event = {
+            MouseLButtonUp = "ok_config_dialog",
+        },
+        Width = 75,
+        Height = 21,
+        X = 52,
+        Y = 294,
+        Show = true
+    })
+    configCancelButton = ButtonManager:Create({
+        Parent = configDialog,
+        Text = {
+            Content = "취소"
+        },
+        Event = {
+            MouseLButtonUp = "close_config_dialog",
+        },
+        Width = 75,
+        Height = 21,
+        X = 156,
+        Y = 294,
+        Show = true
+    })
+    configDialog:ShowModalWindow()
 end
 
 function mainButton_enter(self)
@@ -355,7 +446,9 @@ function main()
             ControlBox = false,
             MinButton = false,
             MaxButton = false,
-            BackColor = {R = 0xF0, G = 0xF0, B = 0xF0},
+            Background = {
+                Color = {R = 0xF0, G = 0xF0, B = 0xF0},
+            },
             Center = true,
             Modal = true,
         })
@@ -387,12 +480,14 @@ function main()
         mainDialog:ShowModalWindow()
     
     else
-        local staticControl = StaticManager:Create({
+        group2 = GroupBoxManager:Create({
             Parent = main,
-            Y = 100,
-            AutoSize = true,
+            Width = 255,
+            Height = 33,
+            X = 13,
+            Y = 169,
             Text = {
-                Content = "테스트합니다.\n줄바꿈인데 밑에가 더 길면 어떻게 되는지\n볼까요?",
+                Content = "메세지 대기시간",
             },
             Show = true,
         })
@@ -434,7 +529,7 @@ function main()
         end
         
         mainDialogButtons = {
-            MouseLButtonUp = {"", "buttonLoad_click", "", "quit"},
+            MouseLButtonUp = {"buttonStart_click", "buttonLoad_click", "buttonConfig_click", "quit"},
             MouseEnter = {"mainButton_enter", "mainButton_enter", "mainButton_enter", "mainButton_enter"},
             MouseLeave = {"mainButton_leave", "mainButton_leave", "mainButton_leave", "mainButton_leave"},
         }

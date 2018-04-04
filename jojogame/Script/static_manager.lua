@@ -5,16 +5,16 @@ StaticManager = ControlManager:Instance
 {
     Create = function(self, options)
         OUTPUT("-------- Start Create : Static --------")
-        local newStatic = nil
+        local newControl = nil
         if options ~= nil then
             if options.Control ~= nil then
                 return Static:Instance(options.Control)
             end
 
-            newStatic = Static:New(options.Parent)
+            newControl = Static:New(options.Parent)
 
-            newStatic:SetSize(options.Width, options.Height)
-            newStatic:SetAutoSize(options.AutoSize)
+            newControl:SetSize(options.Width, options.Height)
+            newControl:SetAutoSize(options.AutoSize)
 
             if options.Center then
                 local x, y = ControlManager:GetCenterPosition(options.Parent, options.Width, options.Height, false)
@@ -23,38 +23,39 @@ StaticManager = ControlManager:Instance
                     options.Y = y
                 end
             end
-            newStatic:Move(options.X, options.Y)
+            newControl:Move(options.X, options.Y)
 
 
             if options.Text ~= nil then
-                newStatic:SetAlign(options.Text.Align)
-                newStatic:SetText(options.Text.Content)
-                newStatic:SetTextColor(options.Text.Color)
+                newControl:SetAlign(options.Text.Align)
+                newControl:SetText(options.Text.Content)
+                newControl:SetTextColor(options.Text.Color)
             end
 
             if options.Background ~= nil then
-                newStatic:SetBackgroundColor(options.Background.Color)
+                newControl:SetBackgroundColor(options.Background.Color)
+                newControl:SetTransparentBackground(options.Background.Transparent)
             end
 
             if options.Event ~= nil then
-                newStatic:SetCreateEvent(options.Event.Create)
-                newStatic:SetDestroyEvent(options.Event.Destroy)     
-                newStatic:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
-                newStatic:SetMouseLButtonDownEvent(options.Event.MouseLButtonDown)
-                newStatic:SetMouseMoveEvent(options.Event.MouseMove)
-                newStatic:SetMouseEnterEvent(options.Event.MouseEnter)
-                newStatic:SetMouseLeaveEvent(options.Event.MouseLeave)
+                newControl:SetCreateEvent(options.Event.Create)
+                newControl:SetDestroyEvent(options.Event.Destroy)     
+                newControl:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
+                newControl:SetMouseLButtonDownEvent(options.Event.MouseLButtonDown)
+                newControl:SetMouseMoveEvent(options.Event.MouseMove)
+                newControl:SetMouseEnterEvent(options.Event.MouseEnter)
+                newControl:SetMouseLeaveEvent(options.Event.MouseLeave)
             end
 
-            newStatic:Create()
+            newControl:Create()
 
             if options.Show then
-                newStatic:Show()
+                newControl:Show()
             end
         end
 
         OUTPUT("-------- End Create : Static --------")
-        return newStatic
+        return newControl
     end,
 
     CreateInstance = function(self, control)

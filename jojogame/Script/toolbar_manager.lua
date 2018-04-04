@@ -5,51 +5,51 @@ ToolbarManager = Object:Instance
     CreateToolbar = function(self, options)
         OUTPUT("-------- Start Create : Toolbar --------")
 
-        local newToolbar = nil
+        local newControl = nil
         if options ~= nil then
-            newToolbar = Toolbar:New()
+            newControl = Toolbar:New()
 
-            newToolbar:Create(options.Parent, options.Image.Width, options.Image.Height)
+            newControl:Create(options.Parent, options.Image.Width, options.Image.Height)
 
             for i = 1, #options.Buttons do
-                newToolbar:AddButton(options.Buttons[i])
+                newControl:AddButton(options.Buttons[i])
             end
 
             if options.Show then
-                newToolbar:Show()
+                newControl:Show()
             end
         end
 
         OUTPUT("-------- End Create : Toolbar --------")
-        return newToolbar
+        return newControl
     end,
 
     CreateToolbarButton = function(self, options)
         OUTPUT("-------- Start Create : Toolbar Button --------")
-        local newToolbarButton = ToolbarButton:New()
+        local newControlButton = ToolbarButton:New()
 
         if options.Enabled == false then
-            newToolbarButton:Disable()
+            newControlButton:Disable()
         end
 
         if options.Text ~= nil then
-            newToolbarButton:SetText(options.Text.Content)
-            newToolbarButton:SetTooltipText(options.Text.Tooltip)
+            newControlButton:SetText(options.Text.Content)
+            newControlButton:SetTooltipText(options.Text.Tooltip)
         end
 
         if options.Event then
-            newToolbarButton:SetClickEvent(options.Event.Click)
+            newControlButton:SetClickEvent(options.Event.Click)
         end
         
-        newToolbarButton:SetImage(options.Image)
+        newControlButton:SetImage(options.Image)
 
-        newToolbarButton:Create()
+        newControlButton:Create()
 
         if options.Show then
-            newToolbarButton:Show()
+            newControlButton:Show()
         end
 
         OUTPUT("-------- End Create : Toolbar Button --------")
-        return newToolbarButton
+        return newControlButton
     end
 }

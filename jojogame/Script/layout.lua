@@ -3,15 +3,15 @@ require "Script\\control.lua"
 Layout = ControlObject:Instance
 {
     New = function(self)
-        local newLayout = {}
+        local newControl = {}
 
-        newLayout.control = controlManager:CreateLayout()
-        setmetatable(newLayout, self)
+        newControl.control = controlManager:CreateLayout()
+        setmetatable(newControl, self)
         self.__index = self
 
         OUTPUT("Make Layout Instance")        
         
-        return newLayout
+        return newControl
     end,
     
     Move = function(self, x, y, isRedraw)
