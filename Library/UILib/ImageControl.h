@@ -9,7 +9,7 @@ namespace jojogame {
 class CImageControl
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CImageControl();
     ~CImageControl();
@@ -27,5 +27,3 @@ private:
     HBITMAP _maskImage = nullptr;
 };
 };
-
-

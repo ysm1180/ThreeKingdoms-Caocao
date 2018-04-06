@@ -15,14 +15,14 @@ struct ImageInformation
     int index;
     HDC imageDC;
     HBITMAP oldBitmap;
-    CImageControl *image;
+    CImageControl* image;
     POINT position;
 };
 
 class CLayoutControl
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CLayoutControl();
     virtual ~CLayoutControl();
@@ -39,10 +39,10 @@ public:
     void SetRatioX(double ratio, bool isRedraw = false);
     void SetRatioY(double ratio, bool isRedraw = false);
 
-    void AddParentWindow(CWindowControl *parent);
+    void AddParentWindow(CWindowControl* parent);
 
-    int AddImage(CImageControl *image, int x, int y, bool isUpdate);
-    void DeleteImage(CImageControl *image, bool isUpdate);
+    int AddImage(CImageControl* image, int x, int y, bool isUpdate);
+    void DeleteImage(CImageControl* image, bool isUpdate);
 
     void Draw(HDC destDC);
     void Draw(HDC destDC, RECT& rect);

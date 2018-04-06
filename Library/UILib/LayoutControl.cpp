@@ -4,7 +4,7 @@
 #include "ImageControl.h"
 
 namespace jojogame {
-void CLayoutControl::RegisterFunctions(lua_State * L)
+void CLayoutControl::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN(CLayoutControl, "_Layout");
 
@@ -79,7 +79,8 @@ void CLayoutControl::SetX(int x, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
+                            _position.y + height * _ratioY);
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
                 }
             }
@@ -102,7 +103,8 @@ void CLayoutControl::SetX(int x, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
+                            _position.y + height * _ratioY);
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
 
                     UpdateWindow(parent->GetHWnd());
@@ -138,7 +140,8 @@ void CLayoutControl::SetY(int y, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
+                            _position.y + height * _ratioY);
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
                 }
             }
@@ -161,7 +164,8 @@ void CLayoutControl::SetY(int y, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
+                            _position.y + height * _ratioY);
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
 
                     UpdateWindow(parent->GetHWnd());
@@ -197,7 +201,8 @@ void CLayoutControl::SetWidth(int cx, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
+                            _position.y + height * _ratioY);
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
                 }
             }
@@ -220,7 +225,8 @@ void CLayoutControl::SetWidth(int cx, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
+                            _position.y + height * _ratioY);
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
 
                     UpdateWindow(parent->GetHWnd());
@@ -407,7 +413,7 @@ void CLayoutControl::AddParentWindow(CWindowControl* parent)
     _parents.push_back(parent);
 }
 
-int CLayoutControl::AddImage(CImageControl *image, int x, int y, bool isUpdate)
+int CLayoutControl::AddImage(CImageControl* image, int x, int y, bool isUpdate)
 {
     HDC imageDC = CreateCompatibleDC(_dc);
     ImageInformation imageInfo;
@@ -443,7 +449,7 @@ int CLayoutControl::AddImage(CImageControl *image, int x, int y, bool isUpdate)
     return index;
 }
 
-void CLayoutControl::DeleteImage(CImageControl * image, bool isUpdate)
+void CLayoutControl::DeleteImage(CImageControl* image, bool isUpdate)
 {
     auto iter = std::begin(_images);
 
@@ -466,7 +472,8 @@ void CLayoutControl::DeleteImage(CImageControl * image, bool isUpdate)
                     int imageY = (position.y * _ratioY) + _position.y;
                     RECT rect;
 
-                    SetRect(&rect, imageX, imageY, imageX + image->GetWidth() * _ratioX, imageY + image->GetHeight() * _ratioY);
+                    SetRect(&rect, imageX, imageY, imageX + image->GetWidth() * _ratioX,
+                            imageY + image->GetHeight() * _ratioY);
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
 
                     if (isUpdate)
@@ -514,7 +521,8 @@ void CLayoutControl::Draw(HDC destDC)
             auto oldBitmap = SelectBitmap(memDc, memBitmap);
 
             SetStretchBltMode(memDc, COLORONCOLOR);
-            StretchBlt(memDc, 0, 0, imageWidth, imageHeight, image.imageDC, 0, 0, image.image->GetWidth(), image.image->GetHeight(), SRCCOPY);
+            StretchBlt(memDc, 0, 0, imageWidth, imageHeight, image.imageDC, 0, 0, image.image->GetWidth(),
+                       image.image->GetHeight(), SRCCOPY);
 
             if (imageX + imageWidth > _size.cx)
             {
@@ -570,7 +578,9 @@ void CLayoutControl::Draw(HDC destDC, RECT& rect)
                 continue;
             }
 
-            BitBlt(destDC, realDrawRect.left, realDrawRect.top, realDrawRect.right - realDrawRect.left, realDrawRect.bottom - realDrawRect.top, image.imageDC, realDrawRect.left - imageRect.left, realDrawRect.top - imageRect.top, SRCCOPY);
+            BitBlt(destDC, realDrawRect.left, realDrawRect.top, realDrawRect.right - realDrawRect.left,
+                   realDrawRect.bottom - realDrawRect.top, image.imageDC, realDrawRect.left - imageRect.left,
+                   realDrawRect.top - imageRect.top, SRCCOPY);
         }
         else
         {
@@ -579,7 +589,8 @@ void CLayoutControl::Draw(HDC destDC, RECT& rect)
             auto oldBitmap = SelectBitmap(memDc, memBitmap);
 
             SetStretchBltMode(memDc, COLORONCOLOR);
-            StretchBlt(memDc, 0, 0, imageWidth, imageHeight, image.imageDC, 0, 0, image.image->GetWidth(), image.image->GetHeight(), SRCCOPY);
+            StretchBlt(memDc, 0, 0, imageWidth, imageHeight, image.imageDC, 0, 0, image.image->GetWidth(),
+                       image.image->GetHeight(), SRCCOPY);
 
             if (imageX + imageWidth > _size.cx)
             {

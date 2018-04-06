@@ -13,10 +13,10 @@ class CMoviePlayer;
 class CMenu;
 class CLayoutControl;
 
-class  CWindowControl : public CBaseControl
+class CWindowControl : public CBaseControl
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CWindowControl();
     virtual ~CWindowControl();
@@ -27,10 +27,10 @@ public:
     bool IsTitleBar() const;
     bool IsSizable() const;
     std::wstring GetTitleName() const;
-    std::wstring GetActiveEvent() const;
-    std::wstring GetCloseEvent() const;
-    std::wstring GetSizeEvent() const;
-    CMenu *GetMenu();
+    int GetActiveEvent() const;
+    int GetCloseEvent() const;
+    int GetSizeEvent() const;
+    CMenu* GetMenu();
 
     void SetY(int y) override;
     void SetX(int x) override;
@@ -42,16 +42,16 @@ public:
     void SetTitlebar(bool isTitlebar);
     void SetSizable(bool isSizable);
     void SetTitleName(std::wstring title);
-    void SetActiveEvent(std::wstring activeEvent);
-    void SetCloseEvent(std::wstring closeEvent);
-    void SetSizeEvent(std::wstring sizeEvent);
+    void SetActiveEvent();
+    void SetCloseEvent();
+    void SetSizeEvent();
     void SetIcon(std::wstring iconFilePath);
     void SetBackgroundColor(COLORREF backColor);
-    void SetMenu(CMenu *menu);
-    void SetParentWindow(CWindowControl *parent);
+    void SetMenu(CMenu* menu);
+    void SetParentWindow(CWindowControl* parent);
 
-    void AddLayout(CLayoutControl *layout);
-    void DeleteLayout(CLayoutControl *layout);
+    void AddLayout(CLayoutControl* layout);
+    void DeleteLayout(CLayoutControl* layout);
 
     bool Create() override;
     virtual void Destroy() override;
@@ -69,18 +69,19 @@ private:
     bool _isControlBox = true;
     bool _isTitlebar = true;
     bool _isSizable = false;
-    int *_dialogResult = nullptr;
+    int* _dialogResult = nullptr;
 
     std::wstring _titleName = L"";
-    std::wstring _activeEvent = L"";
-    std::wstring _closeEvent = L"";
-    std::wstring _sizeEvent = L"";
+
+    int _activeEvent = LUA_NOREF;
+    int _closeEvent = LUA_NOREF;
+    int _sizeEvent = LUA_NOREF;
 
     HICON _icon = nullptr;
     COLORREF _backgroundColor = GetSysColor(COLOR_3DFACE);
     HBRUSH _backBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
 
     std::vector<CLayoutControl *> _layouts;
-    CMenu *_menu = nullptr;
+    CMenu* _menu = nullptr;
 };
 }

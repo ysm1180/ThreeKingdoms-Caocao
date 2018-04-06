@@ -1,4 +1,5 @@
 #include "LuaConsole.h"
+#include "resource.h"
 
 namespace jojogame {
 std::once_flag CLuaConsole::s_onceFlag;

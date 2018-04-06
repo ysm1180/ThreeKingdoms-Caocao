@@ -16,7 +16,7 @@ class CToolbarControl;
 class CToolbarButton
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CToolbarButton();
     virtual ~CToolbarButton();
@@ -24,20 +24,20 @@ public:
     bool IsEnabled();
     int GetIndex();
     TBBUTTON& GetButtonStruct();
-    CImageControl *GetImage();
+    CImageControl* GetImage();
     std::wstring GetText();
-    std::wstring GetClickEvent();
+    int GetClickEvent();
     std::wstring GetTooltipText();
-    CToolbarControl *GetParentToolbar();
+    CToolbarControl* GetParentToolbar();
 
     void SetEnabled(bool isEnabled);
     void SetIndex(int index);
     void SetImageIndex(int imageIndex);
-    void SetImage(CImageControl *image);
+    void SetImage(CImageControl* image);
     void SetText(std::wstring text);
-    void SetClickEvent(std::wstring clickEvent);
+    void SetClickEvent();
     void SetTooltipText(std::wstring tooltipText);
-    void SetParentToolbar(CToolbarControl *parent);
+    void SetParentToolbar(CToolbarControl* parent);
 
     bool Create();
 
@@ -48,21 +48,20 @@ private:
     BYTE _state;
     bool _isEnabled = true;
 
-    CToolbarControl *_parent = nullptr;
-    CImageControl *_image = nullptr;
+    CToolbarControl* _parent = nullptr;
+    CImageControl* _image = nullptr;
 
     TBBUTTON _button{};
 
     std::wstring _text = L"";
-    std::wstring _clickEvent = L"";
+    int _clickEvent = LUA_NOREF;
     std::wstring _tooltipText = L"";
 };
-
 
 class CToolbarControl
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CToolbarControl();
     ~CToolbarControl();
@@ -70,9 +69,9 @@ public:
     HWND GetHWnd() const;
     int GetHeight() const;
 
-    bool Create(CWindowControl *parentWindow, int imageWidth, int imageHeight);
-    void AddButton(CToolbarButton *button);
-    void DeleteButton(CToolbarButton *button);
+    bool Create(CWindowControl* parentWindow, int imageWidth, int imageHeight);
+    void AddButton(CToolbarButton* button);
+    void DeleteButton(CToolbarButton* button);
 
     void AutoSize();
 

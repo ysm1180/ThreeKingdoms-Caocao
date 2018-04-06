@@ -5,7 +5,7 @@
 #include "WindowControl.h"
 
 namespace jojogame {
-void CMenuItem::RegisterFunctions(lua_State *L)
+void CMenuItem::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN(CMenuItem, "_MenuItem");
 
@@ -39,13 +39,17 @@ void CMenuItem::RegisterFunctions(lua_State *L)
 }
 
 CMenuItem::CMenuItem()
-        : _font()
+    : _font()
 {
     _childMenu = nullptr;
 }
 
 CMenuItem::~CMenuItem()
 {
+    if (_clickEvent != LUA_NOREF)
+    {
+        luaL_unref(CLuaTinker::GetLuaTinker().GetLuaState(), LUA_REGISTRYINDEX, _clickEvent);
+    }
 }
 
 bool CMenuItem::IsEnabled() const
@@ -68,12 +72,12 @@ std::wstring CMenuItem::GetText() const
     return _text;
 }
 
-std::wstring CMenuItem::GetClickEvent() const
+int CMenuItem::GetClickEvent() const
 {
     return _clickEvent;
 }
 
-CTextFont *CMenuItem::GetFont()
+CTextFont* CMenuItem::GetFont()
 {
     return &_font;
 }
@@ -133,17 +137,24 @@ void CMenuItem::SetText(std::wstring text)
     }
 }
 
-void CMenuItem::SetClickEvent(std::wstring clickEvent)
+void CMenuItem::SetClickEvent()
 {
-    _clickEvent = clickEvent;
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
+    {
+        lua_pushvalue(l, -1);
+        _clickEvent = luaL_ref(l, LUA_REGISTRYINDEX);
+    }
+
+    lua_pop(l, 1);
 }
 
-void CMenuItem::SetChildMenu(CMenu *childMenu)
+void CMenuItem::SetChildMenu(CMenu* childMenu)
 {
     _childMenu = childMenu;
 }
 
-void CMenuItem::SetParentMenu(CMenu *parentMenu)
+void CMenuItem::SetParentMenu(CMenu* parentMenu)
 {
     _parentMenu = parentMenu;
 }
@@ -237,7 +248,7 @@ COLORREF CMenuItem::GetDisableFocusedTextColor()
                 CMenu
 *****************************************/
 
-void CMenu::RegisterFunctions(lua_State *L)
+void CMenu::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN(CMenu, "_Menu");
 
@@ -264,12 +275,12 @@ HMENU CMenu::GetHMenu()
     return _menu;
 }
 
-CWindowControl * CMenu::GetParentWindow()
+CWindowControl* CMenu::GetParentWindow()
 {
     return _parentWindow;
 }
 
-CMenuItem *CMenu::GetMenuItemByPosition(int position)
+CMenuItem* CMenu::GetMenuItemByPosition(int position)
 {
     if (position > _menuItems.size() || position < 1)
     {
@@ -281,12 +292,12 @@ CMenuItem *CMenu::GetMenuItemByPosition(int position)
     }
 }
 
-void CMenu::SetParentWindow(CWindowControl * parent)
+void CMenu::SetParentWindow(CWindowControl* parent)
 {
     _parentWindow = parent;
 }
 
-void CMenu::AddMenuItem(CMenuItem *menuItem)
+void CMenu::AddMenuItem(CMenuItem* menuItem)
 {
     auto iter = std::find(_menuItems.begin(), _menuItems.end(), menuItem);
     if (iter != _menuItems.end())
@@ -298,7 +309,8 @@ void CMenu::AddMenuItem(CMenuItem *menuItem)
         if (menuItem->GetChildMenu())
         {
             int index = CMenuManager::GetInstance().AddMenuItemByHandle(menuItem, menuItem->GetChildMenu()->GetHMenu());
-            AppendMenu(_menu, MF_STRING | MF_POPUP, (UINT) menuItem->GetChildMenu()->GetHMenu(), menuItem->GetText().c_str());
+            AppendMenu(_menu, MF_STRING | MF_POPUP, (UINT)menuItem->GetChildMenu()->GetHMenu(),
+                       menuItem->GetText().c_str());
         }
         else
         {
@@ -318,7 +330,7 @@ void CMenu::AddMenuItem(CMenuItem *menuItem)
     }
 }
 
-bool CMenu::DeleteMenuitem(CMenuItem *menuItem)
+bool CMenu::DeleteMenuitem(CMenuItem* menuItem)
 {
     auto result = ::DeleteMenu(_menu, menuItem->GetIndex(), MF_BYCOMMAND);
     return result != 0;

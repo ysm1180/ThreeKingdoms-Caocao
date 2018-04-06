@@ -24,33 +24,35 @@ class CListViewItem;
 class CStaticControl;
 class CGroupBoxControl;
 class CCheckBoxControl;
+class CRadioButtonControl;
 
-class  CControlManager
+class CControlManager
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CControlManager();
     virtual ~CControlManager();
 
     void Init(HINSTANCE hInstance);
 
-    CWindowControl *CreateWindowForm(CWindowControl *parent);
-    CMoviePlayerControl *CreateMoviePlayer(CWindowControl *parent, std::string fileName);
-    CButtonControl *CreateButton(CWindowControl *parent);
-    CMenu *CreateMenu();
-    CMenuItem *CreateMenuItem();
-    CImageControl *CreateImage();
-    CToolbarControl *CreateToolbar();
-    CToolbarButton *CreateToolbarButton();
-    CLayoutControl *CreateLayout();
-    CListViewControl *CreateListView(CWindowControl* parent);
-    CListViewColumn *CreateListViewColumn();
+    CWindowControl* CreateWindowForm(CWindowControl* parent);
+    CMoviePlayerControl* CreateMoviePlayer(CWindowControl* parent, std::string fileName);
+    CButtonControl* CreateButton(CWindowControl* parent);
+    CMenu* CreateMenu();
+    CMenuItem* CreateMenuItem();
+    CImageControl* CreateImage();
+    CToolbarControl* CreateToolbar();
+    CToolbarButton* CreateToolbarButton();
+    CLayoutControl* CreateLayout();
+    CListViewControl* CreateListView(CWindowControl* parent);
+    CListViewColumn* CreateListViewColumn();
     CListViewRow* CreateListViewRow();
     CListViewItem* CreateListViewItem();
-    CStaticControl* CreateStatic(CWindowControl *parent);
-    CGroupBoxControl* CreateGroupBox(CWindowControl *parent);
-    CCheckBoxControl* CreateCheckBox(CWindowControl *parent);
+    CStaticControl* CreateStatic(CWindowControl* parent);
+    CGroupBoxControl* CreateGroupBox(CWindowControl* parent);
+    CCheckBoxControl* CreateCheckBox(CWindowControl* parent);
+    CRadioButtonControl* CreateRadioButton(CWindowControl* parent);
 
     HINSTANCE GetHInstance();
 

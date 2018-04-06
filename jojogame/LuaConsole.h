@@ -1,11 +1,6 @@
 #pragma once
 
 #include "BaseLib\ConsoleOutput.h"
-#ifndef _MSVC_LANG
-#include "BaseLib\mingw.mutex.h"
-#endif
-
-#include "resource.h"
 
 #include <memory>
 #include <mutex>

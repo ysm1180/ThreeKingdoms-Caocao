@@ -80,7 +80,7 @@ MenuItem = TextControl:Instance
     SetClickEvent = function(self, event)
         self.control:SetClickEvent(event)
 
-        OUTPUT("Set Click Event : " .. (event or ""))
+        OUTPUT("Set Click Event")
     end,
 
     SetChildMenu = function(self, menuControl)

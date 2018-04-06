@@ -1,20 +1,20 @@
 require "Script\\control_manager.lua"
-require "Script\\checkbox.lua"
+require "Script\\radiobutton.lua"
 
-CheckBoxManager = ControlManager:Instance 
+RadioButtonManager = ControlManager:Instance 
 {
     Create = function(self, options)
-        OUTPUT("-------- Start Create : Check Box --------")
+        OUTPUT("-------- Start Create : Radio Button --------")
 
         local newControl = nil
 
         if options ~= nil then
 
             if options._Control ~= nil then
-                return CheckBox:Instance(options._Control)
+                return RadioButton:Instance(options._Control)
             end
             
-            newControl = CheckBox:New(options.Parent)
+            newControl = RadioButton:New(options.Parent)
 
             newControl:SetSize(options.Width, options.Height)
 
@@ -69,19 +69,19 @@ CheckBoxManager = ControlManager:Instance
             end
         end
 
-        OUTPUT("-------- End Create : Check Box --------")
+        OUTPUT("-------- End Create : Radio Button --------")
         return newControl
     end,
 
     CreateInstance = function(self, control)
-        OUTPUT("-------- Create Check Box By Instance --------")
+        OUTPUT("-------- Create Radio Button By Instance --------")
         
 
         local options = {
             _Control = control,
         }
 
-        OUTPUT("-------- End Create Check Box By Instance --------")        
+        OUTPUT("-------- End Create Radio Button By Instance --------")        
         
         return self:Create(options)
     end

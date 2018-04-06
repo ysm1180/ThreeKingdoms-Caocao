@@ -24,6 +24,7 @@
     <ClCompile Include="CheckBoxControl.cpp" />
     <ClCompile Include="ControlManager.cpp" />
     <ClCompile Include="GroupBoxControl.cpp" />
+    <ClCompile Include="RadioButtonControl.cpp" />
     <ClCompile Include="StaticControl.cpp" />
     <ClCompile Include="ImageControl.cpp" />
     <ClCompile Include="LayoutControl.cpp" />
@@ -42,6 +43,7 @@
     <ClInclude Include="CheckBoxControl.h" />
     <ClInclude Include="ControlManager.h" />
     <ClInclude Include="GroupBoxControl.h" />
+    <ClInclude Include="RadioButtonControl.h" />
     <ClInclude Include="StaticControl.h" />
     <ClInclude Include="ImageControl.h" />
     <ClInclude Include="LayoutControl.h" />
@@ -89,7 +91,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">

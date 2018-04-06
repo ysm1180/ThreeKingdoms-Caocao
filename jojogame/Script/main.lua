@@ -8,37 +8,20 @@ require "Script\\layout_manager.lua"
 require "Script\\listview_manager.lua"
 require "Script\\static_manager.lua"
 require "Script\\groupbox_manager.lua"
+require "Script\\checkbox_manager.lua"
+require "Script\\radiobutton_manager.lua"
 
 isClosing = false
 dialog = false
 
 function quit()
     if dialog then
-        mainDialog:Close()
-    end
-    main:Close()
+        
+        end
 end
 
 function close_load_dialog()
     loadDialog:Close()
-end
-
-function ok_config_dialog()
-    group1:SetText("WOW")
-    configCancelButton:SetText("WOW")
-end
-
-function close_config_dialog()
-    configDialog:Close()
-end
-
-function main_click()
-    if openningMovie:IsPlaying() then
-        openningMovie:Destroy()
-    end
-    if isClosing then
-        gameManager:StopDelay()
-    end
 end
 
 function main_close()
@@ -75,18 +58,6 @@ function main_size(self, x, y)
         backgroundLayout:SetRatioX(ratioX)
         backgroundLayout:SetRatioY(ratioY)
     end
-end
-
-function main_destroy()
-    gameManager:Quit()
-end
-
-function openning_end()
-    openningMovie:Destroy()
-end
-
-function buttonStart_click()
-    group2:SetText("Text")
 end
 
 function buttonLoad_click()
@@ -181,7 +152,7 @@ function buttonLoad_click()
             Content = "취소"
         },
         Event = {
-            MouseLButtonUp = "close_load_dialog",
+            MouseLButtonUp = close_load_dialog,
         },
         Width = 75,
         Height = 21,
@@ -201,24 +172,81 @@ function buttonConfig_click()
         MinButton = false,
         MaxButton = false,
         Background = {
-            Color = {R = 0xF0, G = 0xF0, B = 0xF0},
+            Color = {R = 0xFF, G = 0xFF, B = 0xFF},
         },
         Center = true,
         Modal = true
     })
     
-    local static = StaticManager:Create({
+    StaticManager:Create({
         Parent = configDialog,
         AutoSize = true,
         X = 13,
         Y = 4,
         Text = {
-            Content = "항목을 누르고 설정해 주십시오.\n설정을 종료한 후 「OK」를 선택해 주십시오.",
+            Content = "항목을 누르고 설정해 주십시오.",
         },
         Show = true,
     })
-
-    group1 = GroupBoxManager:Create({
+    StaticManager:Create({
+        Parent = configDialog,
+        AutoSize = true,
+        X = 13,
+        Y = 24,
+        Text = {
+            Content = "설정을 종료한 후 「OK」를 선택해 주십시오.",
+        },
+        Show = true,
+    })
+    
+    checks = {
+        Text = {
+            "게임 중의 BGM을 듣는다",
+            "게임 중의 효과음을 듣는다",
+            "전투시에 윈도우를 자동적으로 최대화",
+            "전투시에 축소 전장도를 자동적으로 표시",
+            "클릭할 때까지 대화창을 닫지 않는다",
+        },
+    }
+    for i = 1, 5 do
+        checks[i] = CheckBoxManager:Create({
+            Parent = configDialog,
+            X = 13,
+            Y = 51 + 20 * (i - 1),
+            Width = 255,
+            Height = 21,
+            Text = {
+                Content = checks.Text[i],
+            },
+            Show = true,
+        })
+    end
+    
+    radios = {
+        Text = {
+            "길다",
+            "보통",
+            "짧다",
+            "빠름",
+            "보통",
+            "느림",
+        }
+    }
+    for i = 1, 6 do
+        radios[i] = RadioButtonManager:Create({
+            Parent = configDialog,
+            X = 43 + 79 * ((i - 1) % 3),
+            Y = 184 + 44 * math.floor((i - 1) / 3),
+            Width = 48,
+            Height = 12,
+            Text = {
+                Content = radios.Text[i],
+            },
+            Show = true
+        })
+    end
+    
+    GroupBoxManager:Create({
         Parent = configDialog,
         Width = 255,
         Height = 33,
@@ -229,25 +257,25 @@ function buttonConfig_click()
         },
         Show = true,
     })
-
-    local static1 = StaticManager:Create({
+    GroupBoxManager:Create({
         Parent = configDialog,
-        AutoSize = true,
+        Width = 255,
+        Height = 33,
         X = 13,
-        Y = 184,
+        Y = 213,
         Text = {
-            Content = "길다",
+            Content = "장수 이동 속도",
         },
         Show = true,
     })
-
+    
     local configOKButton = ButtonManager:Create({
         Parent = configDialog,
         Text = {
             Content = "OK"
         },
         Event = {
-            MouseLButtonUp = "ok_config_dialog",
+            MouseLButtonUp = function() end,
         },
         Width = 75,
         Height = 21,
@@ -261,7 +289,9 @@ function buttonConfig_click()
             Content = "취소"
         },
         Event = {
-            MouseLButtonUp = "close_config_dialog",
+            MouseLButtonUp = function()
+                configDialog:Close()
+            end,
         },
         Width = 75,
         Height = 21,
@@ -321,7 +351,9 @@ function main()
                         Content = "종료",
                     },
                     Event = {
-                        Click = "quit",
+                        Click = function()
+                            main:Close()
+                        end,
                     },
                 })
             },
@@ -345,10 +377,19 @@ function main()
             Color = {R = 0, G = 0, B = 0},
         },
         Event = {
-            MouseLButtonUp = "main_click",
-            Close = "main_close",
-            Destroy = "main_destroy",
-            Size = "main_size",
+            MouseLButtonUp = function()
+                if openningMovie:IsPlaying() then
+                    openningMovie:Destroy()
+                end
+                if isClosing then
+                    gameManager:StopDelay()
+                end
+            end,
+            Close = main_close,
+            Destroy = function()
+                gameManager:Quit()
+            end,
+            Size = main_size,
         },
         Menu = mainMenu,
     })
@@ -357,7 +398,9 @@ function main()
             Tooltip = "종료",
         },
         Event = {
-            Click = "quit",
+            Click = function()
+                main:Close()
+            end,
         },
         Image = ImageManager:CreateImage(
             {
@@ -427,7 +470,9 @@ function main()
         FileName = "Script\\LOGO.avi",
         Parent = main,
         Event = {
-            End = "openning_end",
+            End = function()
+                openningMovie:Destroy()
+            end,
         },
         Center = true,
     })
@@ -454,7 +499,15 @@ function main()
         })
         mainDialogButtons = {
             Text = {"새로운 게임을 시작한다", "저장 데이터를 불러온다", "환경 설정", "게임 종료"},
-            MouseLButtonUp = {"", "buttonLoad_click", "", "quit"},
+            MouseLButtonUp = {
+                nil,
+                buttonLoad_click,
+                nil,
+                function()
+                    mainDialog:Close()
+                    main:Close()
+                end
+            },
         }
         for i = 1, 4 do
             mainDialogButtons[i] = ButtonManager:Create({
@@ -480,18 +533,6 @@ function main()
         mainDialog:ShowModalWindow()
     
     else
-        group2 = GroupBoxManager:Create({
-            Parent = main,
-            Width = 255,
-            Height = 33,
-            X = 13,
-            Y = 169,
-            Text = {
-                Content = "메세지 대기시간",
-            },
-            Show = true,
-        })
-
         mainDialogButtonImages = {}
         for i = 1, 8 do
             mainDialogButtonImages[i] = ImageManager:CreateImage({
@@ -529,9 +570,9 @@ function main()
         end
         
         mainDialogButtons = {
-            MouseLButtonUp = {"buttonStart_click", "buttonLoad_click", "buttonConfig_click", "quit"},
-            MouseEnter = {"mainButton_enter", "mainButton_enter", "mainButton_enter", "mainButton_enter"},
-            MouseLeave = {"mainButton_leave", "mainButton_leave", "mainButton_leave", "mainButton_leave"},
+            MouseLButtonUp = {nil, buttonLoad_click, buttonConfig_click, function()main:Close() end},
+            MouseEnter = {mainButton_enter, mainButton_enter, mainButton_enter, mainButton_enter},
+            MouseLeave = {mainButton_leave, mainButton_leave, mainButton_leave, mainButton_leave},
         }
         for i = 1, 4 do
             mainDialogButtons[i] = ButtonManager:Create({

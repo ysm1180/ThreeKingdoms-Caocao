@@ -4,7 +4,7 @@
 #include <CommCtrl.h>
 
 namespace jojogame {
-void CBaseControl::RegisterFunctions(lua_State *L)
+void CBaseControl::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN(CBaseControl, "_BaseControl");
 
@@ -52,6 +52,44 @@ CBaseControl::CBaseControl()
 
 CBaseControl::~CBaseControl()
 {
+    if (_createEvent != LUA_NOREF)
+    {
+        luaL_unref(CLuaTinker::GetLuaTinker().GetLuaState(), LUA_REGISTRYINDEX, _createEvent);
+    }
+    if (_destroyEvent != LUA_NOREF)
+    {
+        luaL_unref(CLuaTinker::GetLuaTinker().GetLuaState(), LUA_REGISTRYINDEX, _destroyEvent);
+    }
+    if (_mouseLButtonUpEvent != LUA_NOREF)
+    {
+        luaL_unref(CLuaTinker::GetLuaTinker().GetLuaState(), LUA_REGISTRYINDEX, _mouseLButtonUpEvent);
+    }
+    if (_mouseLButtonDownEvent != LUA_NOREF)
+    {
+        luaL_unref(CLuaTinker::GetLuaTinker().GetLuaState(), LUA_REGISTRYINDEX, _mouseLButtonDownEvent);
+    }
+    if (_mouseMoveEvent != LUA_NOREF)
+    {
+        luaL_unref(CLuaTinker::GetLuaTinker().GetLuaState(), LUA_REGISTRYINDEX, _mouseMoveEvent);
+    }
+    if (_mouseEnterEvent != LUA_NOREF)
+    {
+        luaL_unref(CLuaTinker::GetLuaTinker().GetLuaState(), LUA_REGISTRYINDEX, _mouseEnterEvent);
+    }
+    if (_mouseLeaveEvent != LUA_NOREF)
+    {
+        luaL_unref(CLuaTinker::GetLuaTinker().GetLuaState(), LUA_REGISTRYINDEX, _mouseLeaveEvent);
+    }
+}
+
+bool CBaseControl::IsHover() const
+{
+    return _isHover;
+}
+
+bool CBaseControl::IsPressed() const
+{
+    return _isPressed;
 }
 
 inline bool CBaseControl::IsEnabled() const
@@ -101,37 +139,37 @@ inline LONG CBaseControl::GetStyle() const
     return _style;
 }
 
-inline std::wstring CBaseControl::GetCreateEvent() const
+int CBaseControl::GetCreateEvent() const
 {
     return _createEvent;
 }
 
-inline std::wstring CBaseControl::GetDestroyEvent() const
+int CBaseControl::GetDestroyEvent() const
 {
     return _destroyEvent;
 }
 
-inline std::wstring CBaseControl::GetMouseLButtonUpEvent() const
+int CBaseControl::GetMouseLButtonUpEvent() const
 {
     return _mouseLButtonUpEvent;
 }
 
-std::wstring CBaseControl::GetMouseLButtonDownEvent() const
+int CBaseControl::GetMouseLButtonDownEvent() const
 {
     return _mouseLButtonDownEvent;
 }
 
-std::wstring CBaseControl::GetMouseMoveEvent() const
+int CBaseControl::GetMouseMoveEvent() const
 {
     return _mouseMoveEvent;
 }
 
-std::wstring CBaseControl::GetMouseEnterEvent() const
+int CBaseControl::GetMouseEnterEvent() const
 {
     return _mouseEnterEvent;
 }
 
-std::wstring CBaseControl::GetMouseLeaveEvent() const
+int CBaseControl::GetMouseLeaveEvent() const
 {
     return _mouseLeaveEvent;
 }
@@ -158,7 +196,6 @@ void CBaseControl::SetStyle(const LONG style)
         _style = style;
     }
 }
-
 
 void CBaseControl::SetEnabled(const bool isEnabled)
 {
@@ -189,7 +226,8 @@ void CBaseControl::SetY(const int y)
             const int diffY = _position.y - rect.top;
             SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSIZE || SWP_NOZORDER);
+            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
+                         SWP_NOSIZE || SWP_NOZORDER);
         }
     }
 }
@@ -210,7 +248,8 @@ void CBaseControl::SetX(const int x)
             const int diffY = GetY() - rect.top;
             SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSIZE || SWP_NOZORDER);
+            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
+                         SWP_NOSIZE || SWP_NOZORDER);
         }
     }
 }
@@ -231,7 +270,8 @@ void CBaseControl::SetWidth(const int width)
             const int diffY = GetY() - rect.top;
             SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
+                         SWP_NOMOVE | SWP_NOZORDER);
         }
     }
 }
@@ -252,65 +292,94 @@ void CBaseControl::SetHeight(const int height)
             const int diffY = GetY() - rect.top;
             SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+            SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
+                         SWP_NOMOVE | SWP_NOZORDER);
         }
     }
 }
 
-void CBaseControl::SetCreateEvent(const std::wstring createEvent)
+void CBaseControl::SetCreateEvent()
 {
-    if (_createEvent != createEvent)
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
     {
-        _createEvent = createEvent;
+        lua_pushvalue(l, -1);
+        _createEvent = luaL_ref(l, LUA_REGISTRYINDEX);
     }
+
+    lua_pop(l, 1);
 }
 
-void CBaseControl::SetDestroyEvent(const std::wstring destroyEvent)
+void CBaseControl::SetDestroyEvent()
 {
-    if (_destroyEvent != destroyEvent)
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
     {
-        _destroyEvent = destroyEvent;
+        lua_pushvalue(l, -1);
+        _destroyEvent = luaL_ref(l, LUA_REGISTRYINDEX);
     }
+
+    lua_pop(l, 1);
 }
 
-void CBaseControl::SetMouseLButtonUpEvent(const std::wstring mouseLButtonUpEvent)
+void CBaseControl::SetMouseLButtonUpEvent()
 {
-    if (_mouseLButtonUpEvent != mouseLButtonUpEvent)
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
     {
-        _mouseLButtonUpEvent = mouseLButtonUpEvent;
+        lua_pushvalue(l, -1);
+        _mouseLButtonUpEvent = luaL_ref(l, LUA_REGISTRYINDEX);
     }
+
+    lua_pop(l, 1);
 }
 
-void CBaseControl::SetMouseLButtonDownEvent(std::wstring mouseLButtonDownEvent)
+void CBaseControl::SetMouseLButtonDownEvent()
 {
-    if (_mouseLButtonDownEvent != mouseLButtonDownEvent)
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
     {
-        _mouseLButtonDownEvent = mouseLButtonDownEvent;
+        lua_pushvalue(l, -1);
+        _mouseLButtonDownEvent = luaL_ref(l, LUA_REGISTRYINDEX);
     }
+
+    lua_pop(l, 1);
 }
 
-void CBaseControl::SetMouseMoveEvent(std::wstring mouseMoveEvent)
+void CBaseControl::SetMouseMoveEvent()
 {
-    if (_mouseMoveEvent != mouseMoveEvent)
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
     {
-        _mouseMoveEvent = mouseMoveEvent;
+        lua_pushvalue(l, -1);
+        _mouseMoveEvent = luaL_ref(l, LUA_REGISTRYINDEX);
     }
+
+    lua_pop(l, 1);
 }
 
-void CBaseControl::SetMouseEnterEvent(std::wstring mouseEnterEvent)
+void CBaseControl::SetMouseEnterEvent()
 {
-    if (_mouseEnterEvent != mouseEnterEvent)
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
     {
-        _mouseEnterEvent = mouseEnterEvent;
+        lua_pushvalue(l, -1);
+        _mouseEnterEvent = luaL_ref(l, LUA_REGISTRYINDEX);
     }
+
+    lua_pop(l, 1);
 }
 
-void CBaseControl::SetMouseLeaveEvent(std::wstring mouseLeaveEvent)
+void CBaseControl::SetMouseLeaveEvent()
 {
-    if (_mouseLeaveEvent != mouseLeaveEvent)
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
     {
-        _mouseLeaveEvent = mouseLeaveEvent;
+        lua_pushvalue(l, -1);
+        _mouseLeaveEvent = luaL_ref(l, LUA_REGISTRYINDEX);
     }
+
+    lua_pop(l, 1);
 }
 
 void CBaseControl::SetUserData(std::wstring data)
@@ -350,13 +419,12 @@ void CBaseControl::RefreshRegion(int left, int top, int right, int bottom)
     }
 }
 
-
 void CBaseControl::Show()
 {
     _isVisible = true;
     if (_hWnd != nullptr)
     {
-       ShowWindow(_hWnd, TRUE);
+        ShowWindow(_hWnd, TRUE);
         if (_parentControl != nullptr)
         {
             UpdateWindow(_parentControl->GetHWnd());

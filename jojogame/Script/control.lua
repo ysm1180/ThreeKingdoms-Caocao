@@ -84,7 +84,7 @@ Control = ControlObject:Instance
         if event ~= nil then
             self.control:SetCreateEvent(event)
 
-            OUTPUT("Set Create Event : " .. event)
+            OUTPUT("Set Create Event" )
         end
     end,
 
@@ -92,7 +92,7 @@ Control = ControlObject:Instance
         if event ~= nil then            
             self.control:SetDestroyEvent(event)
 
-            OUTPUT("Set Destroy Event : " .. event)
+            OUTPUT("Set Destroy Event")
         end
     end,
 
@@ -100,7 +100,7 @@ Control = ControlObject:Instance
         if event ~= nil then
             self.control:SetMouseLButtonUpEvent(event)
 
-            OUTPUT("Set MouseLButtonUp Event : " .. event)
+            OUTPUT("Set MouseLButtonUp Event")
         end
     end,
 
@@ -108,7 +108,7 @@ Control = ControlObject:Instance
         if event ~= nil then
             self.control:SetMouseLButtonDownEvent(event)
             
-            OUTPUT("Set MouseLButtonDown Event : " .. event)
+            OUTPUT("Set MouseLButtonDown Event")
         end
     end,
 
@@ -116,7 +116,7 @@ Control = ControlObject:Instance
         if event ~= nil then
             self.control:SetMouseMoveEvent(event)
 
-            OUTPUT("Set MouseMove Event : " .. event)
+            OUTPUT("Set MouseMove Event")
         end
     end,
 
@@ -124,7 +124,7 @@ Control = ControlObject:Instance
         if event ~= nil then        
             self.control:SetMouseEnterEvent(event)
 
-            OUTPUT("Set MouseEnter Event : " .. event)
+            OUTPUT("Set MouseEnter Event")
         end
     end,
 
@@ -132,7 +132,7 @@ Control = ControlObject:Instance
         if event ~= nil then
             self.control:SetMouseLeaveEvent(event)
 
-            OUTPUT("Set MouseLeave Event : " .. event)
+            OUTPUT("Set MouseLeave Event")
         end
     end,
 

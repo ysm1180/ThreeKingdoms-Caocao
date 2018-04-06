@@ -14,26 +14,26 @@ LRESULT CGroupBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     case WM_CREATE:
     {
         auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        void *lpParamCreate = createStruct->lpCreateParams;
-        auto groupControl = reinterpret_cast<CGroupBoxControl *>(lpParamCreate);
-        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(groupControl));
+        void* lpParamCreate = createStruct->lpCreateParams;
+        auto groupBoxControl = reinterpret_cast<CGroupBoxControl *>(lpParamCreate);
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(groupBoxControl));
 
-        auto createEvent = groupControl->GetCreateEvent();
-        if (createEvent.length())
+        auto createEvent = groupBoxControl->GetCreateEvent();
+        if (createEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(createEvent.c_str(), groupControl);
+            CLuaTinker::GetLuaTinker().Call(createEvent, groupBoxControl);
         }
         break;
     }
 
     case WM_LBUTTONUP:
     {
-        auto groupControl = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseLButtonUpEvent = groupControl->GetMouseLButtonUpEvent();
-        if (mouseLButtonUpEvent.length())
+        auto groupBoxControl = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLButtonUpEvent = groupBoxControl->GetMouseLButtonUpEvent();
+        if (mouseLButtonUpEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(),
-                                            groupControl,
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent,
+                                            groupBoxControl,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
                                             GET_Y_LPARAM(lParam));
@@ -44,13 +44,13 @@ LRESULT CGroupBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_LBUTTONDOWN:
     {
-        auto button = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseLButtonUpEvent = button->GetMouseLButtonDownEvent();
+        auto groupBoxControl = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLButtonUpEvent = groupBoxControl->GetMouseLButtonDownEvent();
 
-        if (mouseLButtonUpEvent.length())
+        if (mouseLButtonUpEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(),
-                                            button,
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent,
+                                            groupBoxControl,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
                                             GET_Y_LPARAM(lParam));
@@ -61,18 +61,18 @@ LRESULT CGroupBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_MOUSEMOVE:
     {
-        auto groupControl = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseMoveEvent = groupControl->GetMouseMoveEvent();
-        if (mouseMoveEvent.length())
+        auto groupBoxControl = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseMoveEvent = groupBoxControl->GetMouseMoveEvent();
+        if (mouseMoveEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent.c_str(),
-                                            groupControl,
+            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent,
+                                            groupBoxControl,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
                                             GET_Y_LPARAM(lParam));
         }
 
-        if (!groupControl->_isHover)
+        if (!groupBoxControl->_isHover)
         {
             trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
             trackMouseEvent.dwFlags = TME_HOVER;
@@ -85,14 +85,14 @@ LRESULT CGroupBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_MOUSEHOVER:
     {
-        auto groupControl = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseHoverEvent = groupControl->GetMouseEnterEvent();
-        if (mouseHoverEvent.length())
+        auto groupBoxControl = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseHoverEvent = groupBoxControl->GetMouseEnterEvent();
+        if (mouseHoverEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseHoverEvent.c_str(), groupControl);
+            CLuaTinker::GetLuaTinker().Call(mouseHoverEvent, groupBoxControl);
         }
 
-        groupControl->_isHover = true;
+        groupBoxControl->_isHover = true;
 
         trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
         trackMouseEvent.dwFlags = TME_LEAVE;
@@ -104,20 +104,28 @@ LRESULT CGroupBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_MOUSELEAVE:
     {
-        auto groupControl = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseLeaveEvent = groupControl->GetMouseLeaveEvent();
-        if (mouseLeaveEvent.length())
+        auto groupBoxControl = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLeaveEvent = groupBoxControl->GetMouseLeaveEvent();
+        if (mouseLeaveEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent.c_str(), groupControl);
+            CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent, groupBoxControl);
         }
 
-        groupControl->_isHover = false;
+        groupBoxControl->_isHover = false;
 
         break;
     }
 
     case WM_DESTROY:
     {
+        auto groupBoxControl = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto destroyEvent = groupBoxControl->GetDestroyEvent();
+
+        if (destroyEvent != LUA_NOREF)
+        {
+            CLuaTinker::GetLuaTinker().Call(destroyEvent, groupBoxControl);
+        }
+
         break;
     }
     }
@@ -185,19 +193,19 @@ bool CGroupBoxControl::Create()
     if (_parentControl != nullptr)
     {
         _hWnd = CreateWindow(L"jojo_group",
-                             L"",
-                             _style,
-                             _position.x,
-                             _position.y,
-                             _size.cx,
-                             _size.cy,
-                             _parentControl->GetHWnd(),
-                             (HMENU)this,
-                             CControlManager::GetInstance().GetHInstance(),
-                             this);
+            L"",
+            _style,
+            _position.x,
+            _position.y,
+            _size.cx,
+            _size.cy,
+            _parentControl->GetHWnd(),
+            (HMENU)this,
+            CControlManager::GetInstance().GetHInstance(),
+            this);
 
         _font.ResetFont();
-    }    
+    }
 
     return _hWnd != nullptr;
 }
@@ -215,6 +223,5 @@ WNDPROC CGroupBoxControl::GetOriginalProc()
 {
     return s_originalProc;
 }
-
 
 }

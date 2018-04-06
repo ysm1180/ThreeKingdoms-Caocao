@@ -92,7 +92,7 @@ ToolbarButton = ControlObject:Instance
         if event ~= nil then
             self.control:SetClickEvent(event)
 
-            OUTPUT("Set Click Event : " .. event)
+            OUTPUT("Set Click Event")
         end
     end,
 

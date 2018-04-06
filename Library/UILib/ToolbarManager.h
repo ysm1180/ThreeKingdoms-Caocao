@@ -23,9 +23,9 @@ public:
 
     CToolbarButton* GetToolbarButton(int id);
 
-    int AddToolbarButton(CToolbarButton *button);
+    int AddToolbarButton(CToolbarButton* button);
 
-    void DeleteToolbarButton(CToolbarButton *button);
+    void DeleteToolbarButton(CToolbarButton* button);
 
     static CToolbarManager& GetInstance();
 private:

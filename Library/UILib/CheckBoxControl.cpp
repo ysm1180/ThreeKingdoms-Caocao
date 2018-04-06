@@ -13,65 +13,74 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     case WM_CREATE:
     {
         auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        void *lpParamCreate = createStruct->lpCreateParams;
-        auto groupControl = reinterpret_cast<CCheckBoxControl *>(lpParamCreate);
-        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(groupControl));
+        void* lpParamCreate = createStruct->lpCreateParams;
+        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(lpParamCreate);
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(checkBoxControl));
 
-        auto createEvent = groupControl->GetCreateEvent();
-        if (createEvent.length())
+        auto createEvent = checkBoxControl->GetCreateEvent();
+        if (createEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(createEvent.c_str(), groupControl);
+            CLuaTinker::GetLuaTinker().Call(createEvent, checkBoxControl);
         }
         break;
     }
 
     case WM_LBUTTONUP:
     {
-        auto groupControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseLButtonUpEvent = groupControl->GetMouseLButtonUpEvent();
-        if (mouseLButtonUpEvent.length())
+        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLButtonUpEvent = checkBoxControl->GetMouseLButtonUpEvent();
+        if (mouseLButtonUpEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(),
-                                            groupControl,
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent,
+                                            checkBoxControl,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
                                             GET_Y_LPARAM(lParam));
         }
 
+        checkBoxControl->_isPressed = false;
+
+        InvalidateRect(checkBoxControl->_hWnd, NULL, TRUE);
+        UpdateWindow(checkBoxControl->_hWnd);
         break;
     }
 
     case WM_LBUTTONDOWN:
     {
-        auto button = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseLButtonUpEvent = button->GetMouseLButtonDownEvent();
+        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLButtonUpEvent = checkBoxControl->GetMouseLButtonDownEvent();
 
-        if (mouseLButtonUpEvent.length())
+        checkBoxControl->_isPressed = true;
+
+        if (mouseLButtonUpEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(),
-                                            button,
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent,
+                                            checkBoxControl,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
                                             GET_Y_LPARAM(lParam));
         }
+
+        InvalidateRect(checkBoxControl->_hWnd, NULL, TRUE);
+        UpdateWindow(checkBoxControl->_hWnd);
 
         break;
     }
 
     case WM_MOUSEMOVE:
     {
-        auto groupControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseMoveEvent = groupControl->GetMouseMoveEvent();
-        if (mouseMoveEvent.length())
+        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseMoveEvent = checkBoxControl->GetMouseMoveEvent();
+        if (mouseMoveEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent.c_str(),
-                                            groupControl,
+            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent,
+                                            checkBoxControl,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
                                             GET_Y_LPARAM(lParam));
         }
 
-        if (!groupControl->_isHover)
+        if (!checkBoxControl->_isHover)
         {
             trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
             trackMouseEvent.dwFlags = TME_HOVER;
@@ -84,39 +93,53 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_MOUSEHOVER:
     {
-        auto groupControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseHoverEvent = groupControl->GetMouseEnterEvent();
-        if (mouseHoverEvent.length())
+        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseHoverEvent = checkBoxControl->GetMouseEnterEvent();
+        if (mouseHoverEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseHoverEvent.c_str(), groupControl);
+            CLuaTinker::GetLuaTinker().Call(mouseHoverEvent, checkBoxControl);
         }
 
-        groupControl->_isHover = true;
+        checkBoxControl->_isHover = true;
 
         trackMouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
         trackMouseEvent.dwFlags = TME_LEAVE;
         trackMouseEvent.hwndTrack = hWnd;
         trackMouseEvent.dwHoverTime = 100;
         TrackMouseEvent(&trackMouseEvent);
+
+        InvalidateRect(checkBoxControl->_hWnd, NULL, TRUE);
+        UpdateWindow(checkBoxControl->_hWnd);
         break;
     }
 
     case WM_MOUSELEAVE:
     {
-        auto groupControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        auto mouseLeaveEvent = groupControl->GetMouseLeaveEvent();
-        if (mouseLeaveEvent.length())
+        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto mouseLeaveEvent = checkBoxControl->GetMouseLeaveEvent();
+        if (mouseLeaveEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent.c_str(), groupControl);
+            CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent, checkBoxControl);
         }
 
-        groupControl->_isHover = false;
+        checkBoxControl->_isPressed = false;
+        checkBoxControl->_isHover = false;
+
+        InvalidateRect(checkBoxControl->_hWnd, NULL, TRUE);
+        UpdateWindow(checkBoxControl->_hWnd);
 
         break;
     }
 
     case WM_DESTROY:
     {
+        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto destroyEvent = checkBoxControl->GetDestroyEvent();
+
+        if (destroyEvent != LUA_NOREF)
+        {
+            CLuaTinker::GetLuaTinker().Call(destroyEvent, checkBoxControl);
+        }
         break;
     }
     }
@@ -127,9 +150,11 @@ void CCheckBoxControl::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN_CHILD(CCheckBoxControl, "_CheckBoxControl", CBaseControl);
 
+    LUA_METHOD(IsChecked);
     LUA_METHOD(GetText);
 
     LUA_METHOD(SetText);
+    LUA_METHOD(SetChecked);
 
     LUA_METHOD(Create);
     LUA_METHOD(Destroy);
@@ -144,13 +169,19 @@ void CCheckBoxControl::RegisterFunctions(lua_State* L)
 }
 
 CCheckBoxControl::CCheckBoxControl()
+    : _font(this)
 {
-    _style = WS_CHILD | BS_CHECKBOX;
+    _style = WS_CHILD | BS_CHECKBOX | BS_AUTOCHECKBOX;
     _type = L"checkbox";
 }
 
 CCheckBoxControl::~CCheckBoxControl()
 {
+}
+
+bool CCheckBoxControl::IsChecked()
+{
+    return SendMessage(_hWnd, BM_GETCHECK, 0, 0) == BST_CHECKED;
 }
 
 std::wstring CCheckBoxControl::GetText()
@@ -168,6 +199,23 @@ void CCheckBoxControl::SetText(std::wstring text)
     if (_text != text)
     {
         _text = text;
+
+        if (_hWnd != nullptr)
+        {
+            SetWindowText(_hWnd, _text.c_str());
+        }
+    }
+}
+
+void CCheckBoxControl::SetChecked(bool checked)
+{
+    if (checked)
+    {
+        SendMessage(_hWnd, BM_SETCHECK, BST_CHECKED, 0);
+    }
+    else
+    {
+        SendMessage(_hWnd, BM_SETCHECK, BST_UNCHECKED, 0);
     }
 }
 
@@ -176,16 +224,16 @@ bool CCheckBoxControl::Create()
     if (_parentControl != nullptr)
     {
         _hWnd = CreateWindow(L"jojo_check",
-                             _text.c_str(),
-                             _style,
-                             _position.x,
-                             _position.y,
-                             _size.cx,
-                             _size.cy,
-                             _parentControl->GetHWnd(),
-                             (HMENU)this,
-                             CControlManager::GetInstance().GetHInstance(),
-                             this);
+            _text.c_str(),
+            _style,
+            _position.x,
+            _position.y,
+            _size.cx,
+            _size.cy,
+            _parentControl->GetHWnd(),
+            (HMENU)this,
+            CControlManager::GetInstance().GetHInstance(),
+            this);
 
         _font.ResetFont();
     }

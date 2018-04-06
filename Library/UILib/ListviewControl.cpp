@@ -23,9 +23,9 @@ LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(listView));
 
         auto createEvent = listView->GetCreateEvent();
-        if (createEvent.length())
+        if (createEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(createEvent.c_str(), listView);
+            CLuaTinker::GetLuaTinker().Call(createEvent, listView);
         }
         break;
     }
@@ -34,9 +34,9 @@ LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     {
         auto listView = reinterpret_cast<CListViewControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseLButtonUpEvent = listView->GetMouseLButtonUpEvent();
-        if (mouseLButtonUpEvent.length())
+        if (mouseLButtonUpEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(),
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent,
                                             listView,
                                             static_cast<int>(wParam),
                                             GET_X_LPARAM(lParam),
@@ -51,9 +51,9 @@ LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
         auto listView = reinterpret_cast<CListViewControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseLButtonUpEvent = listView->GetMouseLButtonDownEvent();
 
-        if (mouseLButtonUpEvent.length())
+        if (mouseLButtonUpEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(),
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent,
                                             listView,
                                             static_cast<int>(wParam),
                                             GET_X_LPARAM(lParam),
@@ -67,9 +67,9 @@ LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     {
         auto listView = reinterpret_cast<CListViewControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseMoveEvent = listView->GetMouseMoveEvent();
-        if (mouseMoveEvent.length())
+        if (mouseMoveEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent.c_str(),
+            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent,
                                             listView,
                                             static_cast<int>(wParam),
                                             GET_X_LPARAM(lParam),
@@ -94,9 +94,9 @@ LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
         if (!listView->_isHover)
         {
             auto mouseEnterEvent = listView->GetMouseEnterEvent();
-            if (mouseEnterEvent.length())
+            if (mouseEnterEvent != LUA_NOREF)
             {
-                CLuaTinker::GetLuaTinker().Call(mouseEnterEvent.c_str(), listView);
+                CLuaTinker::GetLuaTinker().Call(mouseEnterEvent, listView);
             }
         }
 
@@ -118,9 +118,9 @@ LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     {
         auto listView = reinterpret_cast<CListViewControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseLeaveEvent = listView->GetMouseLeaveEvent();
-        if (mouseLeaveEvent.length())
+        if (mouseLeaveEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent.c_str(), listView);
+            CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent, listView);
         }
 
         listView->_isHover = false;
@@ -129,6 +129,14 @@ LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_DESTROY:
     {
+        auto listView = reinterpret_cast<CListViewControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto destroyEvent = listView->GetDestroyEvent();
+
+        if (destroyEvent != LUA_NOREF)
+        {
+            CLuaTinker::GetLuaTinker().Call(destroyEvent, listView);
+        }
+
         break;
     }
 
@@ -482,6 +490,10 @@ CListViewRow::CListViewRow()
 
 CListViewRow::~CListViewRow()
 {
+    if (_activeEvent != LUA_NOREF)
+    {
+        luaL_unref(CLuaTinker::GetLuaTinker().GetLuaState(), LUA_REGISTRYINDEX, _activeEvent);
+    }
 }
 
 bool CListViewRow::IsEnabled()
@@ -494,7 +506,7 @@ CListViewControl* CListViewRow::GetParentListView()
     return _parentListView;
 }
 
-std::wstring CListViewRow::GetActiveEvent()
+int CListViewRow::GetActiveEvent()
 {
     return _activeEvent;
 }
@@ -530,7 +542,6 @@ void CListViewRow::SetEnabled(bool isEnabled)
 void CListViewRow::SetParentListView(CListViewControl* parent)
 {
     _parentListView = parent;
-    
 }
 
 void CListViewRow::SetNormalBackgroundColor(COLORREF color)
@@ -565,14 +576,20 @@ void CListViewRow::SetFocusedTextColor(COLORREF color)
     }
 }
 
-void CListViewRow::SetActiveEvent(std::wstring eventName)
+void CListViewRow::SetActiveEvent()
 {
-    _activeEvent = eventName;
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
+    {
+        lua_pushvalue(l, -1);
+        _activeEvent = luaL_ref(l, LUA_REGISTRYINDEX);
+    }
+
+    lua_pop(l, 1);
 }
 
-void CListViewRow::SetItem(int subIndex, CListViewItem *item)
-{   
-    
+void CListViewRow::SetItem(int subIndex, CListViewItem* item)
+{
     if (subIndex > _items.size() || subIndex < 1)
     {
         return;
@@ -914,14 +931,14 @@ void CListViewControl::AddRow(CListViewRow* row)
 bool CListViewControl::Create()
 {
     _hWnd = CreateWindow(L"jojo_listview",
-                         L"",
-                         _style,
-                         _position.x, _position.y,
-                         _size.cx, _size.cy,
-                         _parentControl->GetHWnd(),
-                         (HMENU)this,
-                         CControlManager::GetInstance().GetHInstance(),
-                         this);
+        L"",
+        _style,
+        _position.x, _position.y,
+        _size.cx, _size.cy,
+        _parentControl->GetHWnd(),
+        (HMENU)this,
+        CControlManager::GetInstance().GetHInstance(),
+        this);
 
     if (_hWnd != nullptr)
     {

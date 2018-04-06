@@ -6,7 +6,6 @@ namespace jojogame {
 
 WNDPROC CStaticControl::s_originalProc = nullptr;
 
-
 LRESULT CStaticControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     TRACKMOUSEEVENT trackMouseEvent;
@@ -21,15 +20,22 @@ LRESULT CStaticControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(staticControl));
 
         auto createEvent = staticControl->GetCreateEvent();
-        if (createEvent.length())
+        if (createEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(createEvent.c_str(), staticControl);
+            CLuaTinker::GetLuaTinker().Call(createEvent, staticControl);
         }
         break;
     }
 
     case WM_DESTROY:
     {
+        auto staticControl = reinterpret_cast<CStaticControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto destroyEvent = staticControl->GetDestroyEvent();
+
+        if (destroyEvent != LUA_NOREF)
+        {
+            CLuaTinker::GetLuaTinker().Call(destroyEvent, staticControl);
+        }
         break;
     }
     }
@@ -38,7 +44,7 @@ LRESULT CStaticControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
     return CallWindowProc(CStaticControl::GetOriginalProc(), hWnd, msg, wParam, lParam);
 }
 
-void SplitString(std::wstring src, std::wstring delimiter, std::vector<std::wstring> *out)
+void SplitString(std::wstring src, std::wstring delimiter, std::vector<std::wstring>* out)
 {
     size_t pos = 0;
 
@@ -80,7 +86,6 @@ void CStaticControl::_AutoSizing()
         SetHeight(realSize.cy);
 
         ReleaseDC(_hWnd, hdc);
-
     }
 }
 
@@ -235,20 +240,19 @@ bool CStaticControl::Create()
     if (_parentControl != nullptr)
     {
         _hWnd = CreateWindow(L"jojo_static",
-                             _text.c_str(),
-                             _style,
-                             _position.x,
-                             _position.y,
-                             _size.cx,
-                             _size.cy,
-                             _parentControl->GetHWnd(),
-                             (HMENU)this,
-                             CControlManager::GetInstance().GetHInstance(),
-                             this);
+            _text.c_str(),
+            _style,
+            _position.x,
+            _position.y,
+            _size.cx,
+            _size.cy,
+            _parentControl->GetHWnd(),
+            (HMENU)this,
+            CControlManager::GetInstance().GetHInstance(),
+            this);
 
         _AutoSizing();
-
-    } 
+    }
 
     return _hWnd != nullptr;
 }

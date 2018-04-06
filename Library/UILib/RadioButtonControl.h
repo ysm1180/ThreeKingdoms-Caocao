@@ -1,15 +1,16 @@
 ﻿#pragma once
+
 #include "BaseControl.h"
 #include "TextFont.h"
 
 namespace jojogame {
-class CCheckBoxControl : public CBaseControl
+class CRadioButtonControl : public CBaseControl
 {
 public:
     static void RegisterFunctions(lua_State* L);
 
-    CCheckBoxControl();
-    virtual ~CCheckBoxControl();
+    CRadioButtonControl();
+    virtual ~CRadioButtonControl();
 
     bool IsChecked();
     std::wstring GetText();

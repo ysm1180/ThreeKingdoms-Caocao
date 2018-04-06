@@ -21,17 +21,17 @@ class CMenuItem;
 class CMenuManager
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CMenuManager();
     ~CMenuManager();
 
-    int AddMenuItemByHandle(CMenuItem *item, HMENU handle);
-    int AddMenuItem(CMenuItem *item);
+    int AddMenuItemByHandle(CMenuItem* item, HMENU handle);
+    int AddMenuItem(CMenuItem* item);
 
     CMenuItem* GetMenuItem(int id);
 
-    void DeleteMenuItem(CMenuItem *item);
+    void DeleteMenuItem(CMenuItem* item);
 
     static CMenuManager& GetInstance();
 private:

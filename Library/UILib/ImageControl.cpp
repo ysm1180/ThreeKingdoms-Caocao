@@ -5,7 +5,7 @@
 #include <iterator>
 
 namespace jojogame {
-void PngToBmp(std::vector<BYTE>& bmp, const BYTE *pngImage, int size)
+void PngToBmp(std::vector<BYTE>& bmp, const BYTE* pngImage, int size)
 {
     std::vector<BYTE> png, image; // the raw pixels
     unsigned w, h;
@@ -37,7 +37,7 @@ void PngToBmp(std::vector<BYTE>& bmp, const BYTE *pngImage, int size)
     bmp.push_back(40);
     bmp.push_back(0);
     bmp.push_back(0);
-    bmp.push_back(0);  // 14: biSize
+    bmp.push_back(0); // 14: biSize
     bmp.push_back(static_cast<unsigned char>(w % 256));
     bmp.push_back(static_cast<unsigned char>(w / 256));
     bmp.push_back(0);
@@ -53,27 +53,27 @@ void PngToBmp(std::vector<BYTE>& bmp, const BYTE *pngImage, int size)
     bmp.push_back(0);
     bmp.push_back(0);
     bmp.push_back(0);
-    bmp.push_back(0);  // 30: biCompression
+    bmp.push_back(0); // 30: biCompression
     bmp.push_back(0);
     bmp.push_back(0);
     bmp.push_back(0);
-    bmp.push_back(0);  // 34: biSizeImage
+    bmp.push_back(0); // 34: biSizeImage
     bmp.push_back(0);
     bmp.push_back(0);
     bmp.push_back(0);
-    bmp.push_back(0);  // 38: biXPelsPerMeter
+    bmp.push_back(0); // 38: biXPelsPerMeter
     bmp.push_back(0);
     bmp.push_back(0);
     bmp.push_back(0);
-    bmp.push_back(0);  // 42: biYPelsPerMeter
+    bmp.push_back(0); // 42: biYPelsPerMeter
     bmp.push_back(0);
     bmp.push_back(0);
     bmp.push_back(0);
-    bmp.push_back(0);  // 46: biClrUsed
+    bmp.push_back(0); // 46: biClrUsed
     bmp.push_back(0);
     bmp.push_back(0);
     bmp.push_back(0);
-    bmp.push_back(0);  // 50: biClrImportant
+    bmp.push_back(0); // 50: biClrImportant
 
     /*
     Convert the input RGBRGBRGB pixel buffer to the BMP pixel buffer format. There are 3 differences with the input buffer:
@@ -83,15 +83,15 @@ void PngToBmp(std::vector<BYTE>& bmp, const BYTE *pngImage, int size)
     */
 
     int imagerowbytes = outputChannels * w;
-    imagerowbytes = imagerowbytes % 4 == 0 ?
-                    imagerowbytes : imagerowbytes + (4 - imagerowbytes % 4); // must be multiple of 4
+    imagerowbytes = imagerowbytes % 4 == 0 ? imagerowbytes : imagerowbytes + (4 - imagerowbytes % 4);
+    // must be multiple of 4
 
     for (int y = h - 1; y >= 0; y--) // the rows are stored inversed in bmp
     {
         int c = 0;
         for (int x = 0; x < imagerowbytes; x++)
         {
-            if (x < (int) w * outputChannels)
+            if (x < (int)w * outputChannels)
             {
                 int inc = c;
                 // Convert RGB(A) into BGR(A)
@@ -124,8 +124,7 @@ void PngToBmp(std::vector<BYTE>& bmp, const BYTE *pngImage, int size)
     bmp[5] = static_cast<unsigned char>(bmp.size() / 16777216);
 }
 
-
-void CImageControl::RegisterFunctions(lua_State *L)
+void CImageControl::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN(CImageControl, "_Image");
 
@@ -137,7 +136,6 @@ void CImageControl::RegisterFunctions(lua_State *L)
 
 CImageControl::CImageControl()
 {
-
 }
 
 CImageControl::~CImageControl()
@@ -161,19 +159,19 @@ void CImageControl::LoadImageFromMe5File(std::wstring filePath, int groupIndex, 
     imageFile.Open(filePath);
 
     int size = imageFile.GetItemByteSize(groupIndex, subIndex);
-    auto *by = new BYTE[size];
+    auto* by = new BYTE[size];
     std::vector<BYTE> bmp;
 
     imageFile.GetItemByteArr(by, groupIndex, subIndex);
     PngToBmp(bmp, by, size);
 
-    BYTE *bmpBytes = new BYTE[bmp.size()];
+    BYTE* bmpBytes = new BYTE[bmp.size()];
     std::copy(bmp.begin(), bmp.end(), stdext::checked_array_iterator<BYTE *>(bmpBytes, bmp.size()));
 
-    BITMAPFILEHEADER *bmpFileHeader = (BITMAPFILEHEADER *) bmpBytes;
-    BITMAPINFOHEADER *bmpInfoHeader = (BITMAPINFOHEADER *) (bmpBytes + sizeof(BITMAPFILEHEADER));
-    BITMAPINFO *bmpInfo = (BITMAPINFO *) bmpInfoHeader;
-    BYTE *bits = (bmpBytes + bmpFileHeader->bfOffBits);
+    BITMAPFILEHEADER* bmpFileHeader = (BITMAPFILEHEADER *)bmpBytes;
+    BITMAPINFOHEADER* bmpInfoHeader = (BITMAPINFOHEADER *)(bmpBytes + sizeof(BITMAPFILEHEADER));
+    BITMAPINFO* bmpInfo = (BITMAPINFO *)bmpInfoHeader;
+    BYTE* bits = (bmpBytes + bmpFileHeader->bfOffBits);
     _size.cx = bmpInfoHeader->biWidth;
     _size.cy = bmpInfoHeader->biHeight;
 
@@ -181,11 +179,11 @@ void CImageControl::LoadImageFromMe5File(std::wstring filePath, int groupIndex, 
     HDC imageDC = CreateCompatibleDC(dc);
     HDC maskDC = CreateCompatibleDC(dc);
 
-    _image = CreateDIBitmap(dc, bmpInfoHeader, CBM_INIT, (void *) bits, bmpInfo, DIB_RGB_COLORS);
+    _image = CreateDIBitmap(dc, bmpInfoHeader, CBM_INIT, (void *)bits, bmpInfo, DIB_RGB_COLORS);
     _maskImage = CreateBitmap(_size.cx, _size.cy, 1, 1, nullptr);
 
-    HBITMAP oldImage = (HBITMAP) SelectObject(imageDC, _image);
-    HBITMAP oldMask = (HBITMAP) SelectObject(maskDC, _maskImage);
+    HBITMAP oldImage = (HBITMAP)SelectObject(imageDC, _image);
+    HBITMAP oldMask = (HBITMAP)SelectObject(maskDC, _maskImage);
     COLORREF oldColor = SetBkColor(imageDC, maskColor);
 
     BitBlt(maskDC, 0, 0, _size.cx, _size.cy, imageDC, 0, 0, SRCCOPY);

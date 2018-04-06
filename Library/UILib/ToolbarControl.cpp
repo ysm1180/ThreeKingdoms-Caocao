@@ -6,7 +6,7 @@
 #include "ToolbarManager.h"
 
 namespace jojogame {
-void CToolbarControl::RegisterFunctions(lua_State *L)
+void CToolbarControl::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN(CToolbarControl, "_ToolbarControl");
 
@@ -24,7 +24,6 @@ void CToolbarControl::RegisterFunctions(lua_State *L)
 
 CToolbarControl::CToolbarControl()
 {
-
 }
 
 CToolbarControl::~CToolbarControl()
@@ -55,11 +54,12 @@ int CToolbarControl::GetHeight() const
     return rect.bottom - rect.top;
 }
 
-bool CToolbarControl::Create(CWindowControl *parentWindow, int imageWidth, int imageHeight)
+bool CToolbarControl::Create(CWindowControl* parentWindow, int imageWidth, int imageHeight)
 {
     if (parentWindow)
     {
-        _hWnd = CreateWindowEx(0, TOOLBARCLASSNAME, nullptr, WS_CHILD | TBSTYLE_WRAPABLE | WS_CLIPSIBLINGS | TBSTYLE_TOOLTIPS, 0, 0, 0, 0,
+        _hWnd = CreateWindowEx(0, TOOLBARCLASSNAME, nullptr,
+                               WS_CHILD | TBSTYLE_WRAPABLE | WS_CLIPSIBLINGS | TBSTYLE_TOOLTIPS, 0, 0, 0, 0,
                                parentWindow->GetHWnd(), (HMENU)this, CControlManager::GetInstance().GetHInstance(),
                                nullptr);
         _hImageList = ImageList_Create(imageWidth, imageHeight, ILC_MASK | ILC_COLOR24, 16, 4);
@@ -74,7 +74,7 @@ bool CToolbarControl::Create(CWindowControl *parentWindow, int imageWidth, int i
     return false;
 }
 
-void CToolbarControl::AddButton(CToolbarButton *button)
+void CToolbarControl::AddButton(CToolbarButton* button)
 {
     auto index = CToolbarManager::GetInstance().AddToolbarButton(button);
 
@@ -90,7 +90,8 @@ void CToolbarControl::AddButton(CToolbarButton *button)
             {
                 _imageList.push_back(button->GetImage());
                 imageIndex = _imageList.size() - 1;
-                ImageList_Add(_hImageList, button->GetImage()->GetImageHandle(), button->GetImage()->GetMaskImageHandle());
+                ImageList_Add(_hImageList, button->GetImage()->GetImageHandle(),
+                              button->GetImage()->GetMaskImageHandle());
             }
             else
             {
@@ -100,7 +101,7 @@ void CToolbarControl::AddButton(CToolbarButton *button)
         }
         _buttons.push_back(button);
 
-        SendMessage(_hWnd, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), 0);
+        SendMessage(_hWnd, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
         SendMessage(_hWnd, TB_ADDBUTTONS, (WPARAM)1, (LPARAM)&button->GetButtonStruct());
 
         SendMessage(_hWnd, TB_AUTOSIZE, 0, 0);
@@ -108,9 +109,8 @@ void CToolbarControl::AddButton(CToolbarButton *button)
     }
 }
 
-void CToolbarControl::DeleteButton(CToolbarButton *button)
+void CToolbarControl::DeleteButton(CToolbarButton* button)
 {
-
     auto iter = std::begin(_buttons);
 
     while (iter != std::end(_buttons))
@@ -126,7 +126,7 @@ void CToolbarControl::DeleteButton(CToolbarButton *button)
         }
     }
     CToolbarManager::GetInstance().DeleteToolbarButton(button);
-    
+
     SendMessage(_hWnd, TB_DELETEBUTTON, (WPARAM)button->GetIndex(), (LPARAM)0);
 }
 
@@ -145,8 +145,7 @@ void CToolbarControl::Hide()
     ::ShowWindow(_hWnd, FALSE);
 }
 
-
-void CToolbarButton::RegisterFunctions(lua_State *L)
+void CToolbarButton::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN(CToolbarButton, "_ToolbarButton");
 
@@ -169,7 +168,10 @@ CToolbarButton::CToolbarButton()
 
 CToolbarButton::~CToolbarButton()
 {
-
+    if (_clickEvent != LUA_NOREF)
+    {
+        luaL_unref(CLuaTinker::GetLuaTinker().GetLuaState(), LUA_REGISTRYINDEX, _clickEvent);
+    }
 }
 
 bool CToolbarButton::IsEnabled()
@@ -187,7 +189,7 @@ TBBUTTON& CToolbarButton::GetButtonStruct()
     return _button;
 }
 
-CImageControl *CToolbarButton::GetImage()
+CImageControl* CToolbarButton::GetImage()
 {
     return _image;
 }
@@ -197,7 +199,7 @@ std::wstring CToolbarButton::GetText()
     return _text;
 }
 
-std::wstring CToolbarButton::GetClickEvent()
+int CToolbarButton::GetClickEvent()
 {
     return _clickEvent;
 }
@@ -207,7 +209,7 @@ std::wstring CToolbarButton::GetTooltipText()
     return _tooltipText;
 }
 
-CToolbarControl * CToolbarButton::GetParentToolbar()
+CToolbarControl* CToolbarButton::GetParentToolbar()
 {
     return _parent;
 }
@@ -255,20 +257,22 @@ void CToolbarButton::SetText(std::wstring text)
     }
 }
 
-void CToolbarButton::SetImage(CImageControl *image)
+void CToolbarButton::SetImage(CImageControl* image)
 {
     _image = image;
 }
 
 bool CToolbarButton::Create()
 {
-    _button = { 0,
+    _button = {
+        0,
         0,
         _state,
         BTNS_AUTOSIZE,
-        { 0 },
+        {0},
         0,
-        0 };
+        0
+    };
 
     if (_text.length() != 0)
     {
@@ -287,16 +291,24 @@ void CToolbarButton::Hide()
 {
 }
 
-void CToolbarButton::SetClickEvent(std::wstring clickEvent)
+void CToolbarButton::SetClickEvent()
 {
-    _clickEvent = clickEvent;
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
+    {
+        lua_pushvalue(l, -1);
+        _clickEvent = luaL_ref(l, LUA_REGISTRYINDEX);
+    }
+
+    lua_pop(l, 1);
 }
 
 void CToolbarButton::SetTooltipText(std::wstring tooltipText)
 {
     _tooltipText = tooltipText;
 }
-void CToolbarButton::SetParentToolbar(CToolbarControl * parent)
+
+void CToolbarButton::SetParentToolbar(CToolbarControl* parent)
 {
     _parent = parent;
 }

@@ -8,13 +8,13 @@
 namespace jojogame {
 class CBaseControl;
 
-class  CTextFont
+class CTextFont
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CTextFont();
-    CTextFont(CBaseControl *control);
+    CTextFont(CBaseControl* control);
     virtual ~CTextFont();
 
     HFONT GetHFont() const;
@@ -34,7 +34,7 @@ public:
     void ResetFont();
 
 protected:
-    CBaseControl * _control = nullptr;
+    CBaseControl* _control = nullptr;
 
     HFONT _font = nullptr;
     bool _isBold = false;

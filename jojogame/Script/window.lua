@@ -52,19 +52,19 @@ Window = Control:Instance
     SetActiveEvent = function(self, event)
         self.control:SetActiveEvent(event)
 
-        OUTPUT("Set Active Event : " .. (event or "NULL"))
+        OUTPUT("Set Active Event")
     end,
 
     SetCloseEvent = function(self, event)
         self.control:SetCloseEvent(event)
 
-        OUTPUT("Set Active Event : " .. (event or "NULL"))
+        OUTPUT("Set Active Event" )
     end,
 
     SetSizeEvent = function(self, event)
         self.control:SetSizeEvent(event)
 
-        OUTPUT("Set Size Event : " .. (event or "NULL"))
+        OUTPUT("Set Size Event" )
     end,
 
     SetTitleName = function(self, title)

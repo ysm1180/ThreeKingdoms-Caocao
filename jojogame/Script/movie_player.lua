@@ -55,7 +55,7 @@ MoviePlayer = ControlObject:Instance
     SetEndEvent = function(self, event)
         self.control:SetEndEvent(event)
 
-        OUTPUT("Set End Event : " .. (event or "NULL"))
+        OUTPUT("Set End Event")
     end,
 
     Move = function(self, x, y)

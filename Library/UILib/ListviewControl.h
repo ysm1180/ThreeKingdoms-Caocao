@@ -21,7 +21,7 @@ struct ListViewItemColorState
 class CListViewColumn
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CListViewColumn();
     ~CListViewColumn();
@@ -42,12 +42,12 @@ public:
     void SetText(std::wstring text);
 
 private:
-    CListViewControl *_parentListView = nullptr;
+    CListViewControl* _parentListView = nullptr;
 
     int _index = -1;
     int _align = LVCFMT_LEFT;
     int _width = 0;
-    
+
     bool _isAutoSizeFitItem = false;
     bool _isAutoSizeFitHeader = false;
 
@@ -57,7 +57,7 @@ private:
 class CListViewItem
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CListViewItem();
     ~CListViewItem();
@@ -90,15 +90,19 @@ public:
 private:
     void _Update();
 
-    CListViewRow * _parentListRow = nullptr;
+    CListViewRow* _parentListRow = nullptr;
 
     int _itemIndex = -1;
     std::wstring _text = L"";
 
     CTextFont _font;
 
-    ListViewItemColorState _backgroundColor{ RGB(0xFF, 0xFF, 0xFF), RGB(0x00, 0x78, 0xD7), RGB(0xFF, 0xFF, 0xFF), RGB(0xE6, 0xE6, 0xE6) };
-    ListViewItemColorState _textColor{ RGB(0x00, 0x00, 0x00), RGB(0xFF, 0xFF, 0xFF), RGB(0x6D, 0x6D, 0x6D), RGB(0x6D, 0x6D, 0x6D) };
+    ListViewItemColorState _backgroundColor{
+        RGB(0xFF, 0xFF, 0xFF), RGB(0x00, 0x78, 0xD7), RGB(0xFF, 0xFF, 0xFF), RGB(0xE6, 0xE6, 0xE6)
+    };
+    ListViewItemColorState _textColor{
+        RGB(0x00, 0x00, 0x00), RGB(0xFF, 0xFF, 0xFF), RGB(0x6D, 0x6D, 0x6D), RGB(0x6D, 0x6D, 0x6D)
+    };
 
     int _align = 0; // 0 : LEFT, 1 : RIGHT, 2 : CENTER
 };
@@ -106,15 +110,15 @@ private:
 class CListViewRow
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CListViewRow();
-    ~CListViewRow();
+    virtual ~CListViewRow();
 
     bool IsEnabled();
-    CListViewControl *GetParentListView();
-    std::wstring GetActiveEvent();
-    CListViewItem *GetItem(int subIndex);
+    CListViewControl* GetParentListView();
+    int GetActiveEvent();
+    CListViewItem* GetItem(int subIndex);
     int GetRowIndex();
 
     void SetEnabled(bool isEnabled);
@@ -123,8 +127,8 @@ public:
     void SetFocusedBackgroundColor(COLORREF color);
     void SetNormalTextColor(COLORREF color);
     void SetFocusedTextColor(COLORREF color);
-    void SetActiveEvent(std::wstring eventName);
-    void SetItem(int subIndex, CListViewItem *item);
+    void SetActiveEvent();
+    void SetItem(int subIndex, CListViewItem* item);
     void SetRowIndex(int index);
 
     void AddItem(CListViewItem* item);
@@ -133,19 +137,17 @@ private:
 
     bool _isEnabled = true;
 
-    CListViewControl * _parentListView = nullptr;
+    CListViewControl* _parentListView = nullptr;
 
     int _rowIndex = -1;
-    std::wstring _activeEvent = L"";
+    int _activeEvent = LUA_NOREF;
     std::vector<CListViewItem *> _items;
 };
-
-
 
 class CListViewControl : public CBaseControl
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CListViewControl();
     virtual ~CListViewControl();
@@ -155,8 +157,8 @@ public:
     bool IsSortClickedColumn() const;
     bool IsOneClickItemActivated() const;
     bool IsTrackingSelect() const;
-    CListViewColumn *GetColumn(int columnIndex);
-    CListViewRow *GetRow(int rowIndex);
+    CListViewColumn* GetColumn(int columnIndex);
+    CListViewRow* GetRow(int rowIndex);
     int GetColumnCount();
     COLORREF GetBackgroundColor();
     HBRUSH GetBackgroundBrush();
@@ -167,12 +169,12 @@ public:
     void SetSortClickedColumn(bool isSortClickedColumn);
     void SetOneClickItemActivated(bool isHotClick);
     void SetTrackingSelect(bool isTrackingSelect);
-    void SetParentWindow(CWindowControl *parent);
+    void SetParentWindow(CWindowControl* parent);
     void SetBackgroundColor(COLORREF color);
     void SetRowHeight(int rowHeight);
 
-    void AddColumn(CListViewColumn *column);
-    void AddRow(CListViewRow *row);
+    void AddColumn(CListViewColumn* column);
+    void AddRow(CListViewRow* row);
 
     bool Create() override;
     void Destroy() override;

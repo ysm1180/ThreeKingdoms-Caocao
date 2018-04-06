@@ -404,6 +404,12 @@ ListViewRow = ControlObject:Instance
         end
     end,
 
+    SetActiveEvent = function(self, event)
+        if event ~= nil then
+            self.control:SetActiveEvent(event)
+        end
+    end,
+
     SetNormalBackgroundColor = function(self, color)
         if color ~= nil then
             if type(color) == "number" then

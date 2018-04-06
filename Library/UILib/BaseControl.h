@@ -8,14 +8,16 @@
 #include <string>
 
 namespace jojogame {
-class  CBaseControl
+class CBaseControl
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CBaseControl();
     virtual ~CBaseControl();
 
+    virtual bool IsHover() const;
+    virtual bool IsPressed() const;
     virtual bool IsEnabled() const;
     virtual bool IsVisible() const;
     virtual int GetWidth() const;
@@ -23,13 +25,13 @@ public:
     virtual int GetX() const;
     virtual int GetY() const;
     virtual LONG GetStyle() const;
-    virtual std::wstring GetCreateEvent() const;
-    virtual std::wstring GetDestroyEvent() const;
-    virtual std::wstring GetMouseLButtonUpEvent() const;
-    virtual std::wstring GetMouseLButtonDownEvent() const;
-    virtual std::wstring GetMouseMoveEvent() const;
-    virtual std::wstring GetMouseEnterEvent() const;
-    virtual std::wstring GetMouseLeaveEvent() const;
+    virtual int GetCreateEvent() const;
+    virtual int GetDestroyEvent() const;
+    virtual int GetMouseLButtonUpEvent() const;
+    virtual int GetMouseLButtonDownEvent() const;
+    virtual int GetMouseMoveEvent() const;
+    virtual int GetMouseEnterEvent() const;
+    virtual int GetMouseLeaveEvent() const;
     virtual HWND GetHWnd() const;
     virtual std::wstring GetUserData();
     virtual std::wstring GetType();
@@ -40,15 +42,15 @@ public:
     virtual void SetX(int x);
     virtual void SetWidth(int width);
     virtual void SetHeight(int height);
-    virtual void SetCreateEvent(std::wstring createEvent);
-    virtual void SetDestroyEvent(std::wstring destroyEvent);
-    virtual void SetMouseLButtonUpEvent(std::wstring mouseLButtonUpEvent);
-    virtual void SetMouseLButtonDownEvent(std::wstring mouseLButtonDownEvent);
-    virtual void SetMouseMoveEvent(std::wstring mouseMoveEvent);
-    virtual void SetMouseEnterEvent(std::wstring mouseEnterEvent);
-    virtual void SetMouseLeaveEvent(std::wstring mouseLeaveEvent);
+    virtual void SetCreateEvent();
+    virtual void SetDestroyEvent();
+    virtual void SetMouseLButtonUpEvent();
+    virtual void SetMouseLButtonDownEvent();
+    virtual void SetMouseMoveEvent();
+    virtual void SetMouseEnterEvent();
+    virtual void SetMouseLeaveEvent();
     virtual void SetUserData(std::wstring data);
-    virtual void SetParentControl(CBaseControl *parent);
+    virtual void SetParentControl(CBaseControl* parent);
 
     virtual void Refresh();
     virtual void RefreshRegion(int left, int top, int right, int bottom);
@@ -66,22 +68,23 @@ public:
 
 protected:
     bool _isHover = false;
+    bool _isPressed = false;
 
     bool _isVisible = false;
     bool _isEnabled = true;
     HWND _hWnd = nullptr;
-    CBaseControl *_parentControl = nullptr;
-    SIZE _size = SIZE{ 0, 0 };
-    POINT _position = POINT{ 0, 0 };
+    CBaseControl* _parentControl = nullptr;
+    SIZE _size = SIZE{0, 0};
+    POINT _position = POINT{0, 0};
     LONG _style = 0;
 
-    std::wstring _createEvent = L"";
-    std::wstring _destroyEvent = L"";
-    std::wstring _mouseLButtonUpEvent = L"";
-    std::wstring _mouseLButtonDownEvent = L"";
-    std::wstring _mouseMoveEvent = L"";
-    std::wstring _mouseEnterEvent = L"";
-    std::wstring _mouseLeaveEvent = L"";
+    int _createEvent = LUA_NOREF;
+    int _destroyEvent = LUA_NOREF;
+    int _mouseLButtonUpEvent = LUA_NOREF;
+    int _mouseLButtonDownEvent = LUA_NOREF;
+    int _mouseMoveEvent = LUA_NOREF;
+    int _mouseEnterEvent = LUA_NOREF;
+    int _mouseLeaveEvent = LUA_NOREF;
 
     std::wstring _userData = L"";
 

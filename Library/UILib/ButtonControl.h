@@ -19,15 +19,13 @@ struct ButtonStateColor
 class CButtonControl : public CBaseControl
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CButtonControl();
     virtual ~CButtonControl();
 
     bool IsTransparentBackground() const;
-    bool IsHovered() const;
-    bool IsPushed() const;
-    CTextFont *GetFont();
+    CTextFont* GetFont();
     std::wstring GetText() const;
     ButtonStateColor& GetBackgroundColor();
     ButtonStateColor& GetBorderColor();
@@ -42,11 +40,11 @@ public:
     COLORREF GetFocusedTextColor() const;
     COLORREF GetPushedTextColor() const;
     int GetBorderWidth() const;
-    CWindowControl *GetParentWindow() const;
+    CWindowControl* GetParentWindow() const;
 
     void SetTransparentBackground(bool isTransparentBackground);
     void SetText(std::wstring text);
-    void SetParentWindow(CWindowControl *parent);
+    void SetParentWindow(CWindowControl* parent);
     void SetBackgroundColor(COLORREF color);
     void SetFocusedBackgroundColor(COLORREF color);
     void SetPushedBackgroundColor(COLORREF color);
@@ -70,12 +68,10 @@ protected:
     CTextFont _font;
     std::wstring _text = L"";
     bool _isTransparentBackground = false;
-    ButtonStateColor _backgroundColor = { RGB(0xE1, 0xE1, 0xE1), RGB(0xE5, 0xF1, 0xFB), RGB(0xCC, 0xE4, 0xF7) };
-    ButtonStateColor _borderColor = { RGB(0xAD, 0xAD, 0xAD), RGB(0x00, 0x78, 0xD7), RGB(0x00, 0x54, 0x99) };
-    ButtonStateColor _textColor = { RGB(0x00, 0x00, 0x00), RGB(0x00, 0x00, 0x00), RGB(0x00, 0x00, 0x00) };
+    ButtonStateColor _backgroundColor = {RGB(0xE1, 0xE1, 0xE1), RGB(0xE5, 0xF1, 0xFB), RGB(0xCC, 0xE4, 0xF7)};
+    ButtonStateColor _borderColor = {RGB(0xAD, 0xAD, 0xAD), RGB(0x00, 0x78, 0xD7), RGB(0x00, 0x54, 0x99)};
+    ButtonStateColor _textColor = {RGB(0x00, 0x00, 0x00), RGB(0x00, 0x00, 0x00), RGB(0x00, 0x00, 0x00)};
     int _borderWidth = 1;
-
-    bool _pushed = false;
 
     static WNDPROC s_originalProc;
 };

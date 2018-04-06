@@ -6,7 +6,7 @@ namespace jojogame {
 class CGroupBoxControl : public CBaseControl
 {
 public:
-    static void RegisterFunctions(lua_State *L);
+    static void RegisterFunctions(lua_State* L);
 
     CGroupBoxControl();
     virtual ~CGroupBoxControl();

@@ -11,6 +11,11 @@
 #include "ListviewControl.h"
 #include "StaticControl.h"
 #include "GroupBoxControl.h"
+#include "CheckBoxControl.h"
+#include "RadioButtonControl.h"
+
+#include <Uxtheme.h>
+#include <Vsstyle.h>
 
 namespace jojogame {
 LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
@@ -28,10 +33,10 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         auto window = reinterpret_cast<CWindowControl *>(lpParamCreate);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
 
-        auto createFunction = window->GetCreateEvent();
-        if (createFunction.length())
+        auto createEvent = window->GetCreateEvent();
+        if (createEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(createFunction.c_str(), window);
+            CLuaTinker::GetLuaTinker().Call(createEvent, window);
         }
 
         return 0;
@@ -46,9 +51,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseLButtonUpEvent = window->GetMouseLButtonUpEvent();
-        if (mouseLButtonUpEvent.length())
+        if (mouseLButtonUpEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent.c_str(),
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent,
                                             window,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
@@ -61,9 +66,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseLButtonDownEvent = window->GetMouseLButtonDownEvent();
-        if (mouseLButtonDownEvent.length())
+        if (mouseLButtonDownEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent.c_str(),
+            CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent,
                                             window,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
@@ -71,14 +76,14 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         }
         break;
     }
-    
+
     case WM_MOUSEMOVE:
     {
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseMoveEvent = window->GetMouseMoveEvent();
-        if (mouseMoveEvent.length())
+        if (mouseMoveEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent.c_str(),
+            CLuaTinker::GetLuaTinker().Call(mouseMoveEvent,
                                             window,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
@@ -100,9 +105,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseHoverEvent = window->GetMouseEnterEvent();
-        if (mouseHoverEvent.length())
+        if (mouseHoverEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseHoverEvent.c_str(), window);
+            CLuaTinker::GetLuaTinker().Call(mouseHoverEvent, window);
         }
 
         window->_isHover = true;
@@ -117,9 +122,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseLeaveEvent = window->GetMouseLeaveEvent();
-        if (mouseLeaveEvent.length())
+        if (mouseLeaveEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent.c_str(), window);
+            CLuaTinker::GetLuaTinker().Call(mouseLeaveEvent, window);
         }
 
         window->_isHover = false;
@@ -132,9 +137,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         {
             auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
             auto activeEvent = window->GetActiveEvent();
-            if (activeEvent.length())
+            if (activeEvent != LUA_NOREF)
             {
-                CLuaTinker::GetLuaTinker().Call(activeEvent.c_str(), window);
+                CLuaTinker::GetLuaTinker().Call(activeEvent, window);
             }
         }
         return 0;
@@ -147,9 +152,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         if (menuItem)
         {
             auto clickEvent = menuItem->GetClickEvent();
-            if (clickEvent.length())
+            if (clickEvent != LUA_NOREF)
             {
-                CLuaTinker::GetLuaTinker().Call(clickEvent.c_str(), menuItem);
+                CLuaTinker::GetLuaTinker().Call(clickEvent, menuItem);
             }
         }
 
@@ -157,9 +162,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         if (toolbarButton)
         {
             auto clickEvent = toolbarButton->GetClickEvent();
-            if (clickEvent.length())
+            if (clickEvent != LUA_NOREF)
             {
-                CLuaTinker::GetLuaTinker().Call(clickEvent.c_str(), menuItem);
+                CLuaTinker::GetLuaTinker().Call(clickEvent, menuItem);
             }
         }
         break;
@@ -172,9 +177,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         window->SetHeight(HIWORD(lParam));
 
         auto sizeEvent = window->GetSizeEvent();
-        if (sizeEvent.length())
+        if (sizeEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(sizeEvent.c_str(), window, LOWORD(lParam), HIWORD(lParam));
+            CLuaTinker::GetLuaTinker().Call(sizeEvent, window, LOWORD(lParam), HIWORD(lParam));
         }
         break;
     }
@@ -188,10 +193,10 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto closeEvent = window->GetCloseEvent();
-        if (closeEvent.length())
+        if (closeEvent != LUA_NOREF)
         {
             // notClose = true 이면 종료 취소
-            const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeEvent.c_str(), window);
+            const auto notClose = CLuaTinker::GetLuaTinker().Call<bool>(closeEvent, window);
             if (notClose)
             {
                 return 0;
@@ -204,9 +209,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     {
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto destroyEvent = window->GetDestroyEvent();
-        if (destroyEvent.length())
+        if (destroyEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call<void>(destroyEvent.c_str(), window);
+            CLuaTinker::GetLuaTinker().Call<void>(destroyEvent, window);
         }
 
         return 0;
@@ -234,9 +239,9 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 if (row->IsEnabled())
                 {
                     auto itemActiveEvent = row->GetActiveEvent();
-                    if (itemActiveEvent.length() > 0)
+                    if (itemActiveEvent != LUA_NOREF)
                     {
-                        CLuaTinker::GetLuaTinker().Call<void>(itemActiveEvent.c_str(),
+                        CLuaTinker::GetLuaTinker().Call<void>(itemActiveEvent,
                                                               listView,
                                                               static_cast<int>(lpnmia->iItem),
                                                               static_cast<int>(lpnmia->uKeyFlags));
@@ -274,7 +279,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         }
         else if (item->CtlType == ODT_LISTVIEW)
         {
-            CListViewControl *listView = (CListViewControl *)item->CtlID;
+            CListViewControl* listView = (CListViewControl *)item->CtlID;
             item->itemHeight = listView->GetRowHeight();
         }
         break;
@@ -293,13 +298,13 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             auto button = reinterpret_cast<CButtonControl *>(GetWindowLongPtr(item->hwndItem, GWLP_USERDATA));
 
             COLORREF backgroundColor, borderColor;
-            if (button->IsPushed())
+            if (button->IsPressed())
             {
                 backgroundColor = button->GetBackgroundColor().pushed;
                 borderColor = button->GetBorderColor().pushed;
                 SetTextColor(item->hDC, button->GetTextColor().pushed);
             }
-            else if (button->IsHovered())
+            else if (button->IsHover())
             {
                 backgroundColor = button->GetBackgroundColor().focused;
                 borderColor = button->GetBorderColor().focused;
@@ -440,7 +445,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                         backgroundBrush = CreateSolidBrush(listViewItem->GetNormalBackgroundColor());
                         SetTextColor(item->hDC, listViewItem->GetNormalTextColor());
                     }
-                } 
+                }
                 else
                 {
                     if (item->itemState & ODS_SELECTED)
@@ -454,7 +459,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                         SetTextColor(item->hDC, listViewItem->GetDisabledTextColor());
                     }
                 }
-                
+
 
                 RECT rect;
                 auto columnWidth = ListView_GetColumnWidth(item->hwndItem, i);
@@ -469,7 +474,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 {
                     DrawText(item->hDC, listViewItem->GetText().c_str(), -1, &rect,
                              DT_LEFT | DT_VCENTER | DT_SINGLELINE);
-                } 
+                }
                 else if (listViewItem->GetAlign() == 1)
                 {
                     DrawText(item->hDC, listViewItem->GetText().c_str(), -1, &rect,
@@ -514,80 +519,233 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             }
             SetBkMode(item->hDC, OPAQUE);
             SelectFont(item->hDC, originalFont);
-
-
         }
 
         break;
     }
 
-        case WM_CTLCOLORSTATIC:
+    case WM_CTLCOLORSTATIC:
+    {
+        auto control = reinterpret_cast<CBaseControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
+        if (control->GetType() == L"groupbox")
         {
             auto groupBox = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
-            if (groupBox->GetType() == L"groupbox")
+
+            RECT rect;
+            SIZE size;
+
+            auto originalFont = SelectFont((HDC)wParam, groupBox->GetFont()->GetHFont());
+            GetTextExtentPoint32((HDC)wParam, groupBox->GetText().c_str(), groupBox->GetText().length(), &size);
+
+            GetClientRect(groupBox->GetHWnd(), &rect);
+            auto rgn = CreateRectRgn(rect.left, rect.top, rect.right, rect.bottom);
+            SelectClipRgn((HDC)wParam, rgn);
+
+            RECT parentRect;
+            SetRect(&rect, rect.left + 4, rect.top, rect.right, rect.top + size.cy);
+            SetRect(&parentRect, rect.left, rect.top, rect.right, rect.bottom);
+            ClientToScreen(groupBox->GetHWnd(), reinterpret_cast<POINT*>(&parentRect.left));  // convert top-left
+            ClientToScreen(groupBox->GetHWnd(), reinterpret_cast<POINT*>(&parentRect.right)); // convert bottom-right
+            ScreenToClient(hWnd, reinterpret_cast<POINT*>(&parentRect.left));
+            ScreenToClient(hWnd, reinterpret_cast<POINT*>(&parentRect.right));
+
+            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            bool isFitWidth = false;
+            bool isFitHeight = false;
+            HDC hdc = GetDC(hWnd);
+
+            FillRect(hdc, &parentRect, window->_backBrush);
+            for (auto layout : window->_layouts)
             {
-                RECT rect;
-                SIZE size;
+                isFitWidth = isFitHeight = false;
 
-                auto originalFont = SelectFont((HDC)wParam, groupBox->GetFont()->GetHFont());
-                GetTextExtentPoint32((HDC)wParam, groupBox->GetText().c_str(), groupBox->GetText().length(), &size);
-
-                GetClientRect(groupBox->GetHWnd(), &rect);
-                auto rgn = CreateRectRgn(rect.left, rect.top, rect.right, rect.bottom);
-                SelectClipRgn((HDC)wParam, rgn);
-
-                RECT parentRect;
-                SetRect(&rect, rect.left + 4, rect.top, rect.right, rect.top + size.cy);
-                SetRect(&parentRect, rect.left, rect.top, rect.right, rect.bottom);
-                ClientToScreen(groupBox->GetHWnd(), reinterpret_cast<POINT*>(&parentRect.left)); // convert top-left
-                ClientToScreen(groupBox->GetHWnd(), reinterpret_cast<POINT*>(&parentRect.right)); // convert bottom-right
-                ScreenToClient(hWnd, reinterpret_cast<POINT*>(&parentRect.left));
-                ScreenToClient(hWnd, reinterpret_cast<POINT*>(&parentRect.right));
-
-                auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-                bool isFitWidth = false;
-                bool isFitHeight = false;
-                HDC hdc = GetDC(hWnd);
-
-                FillRect(hdc, &parentRect, window->_backBrush);
-                for (auto layout : window->_layouts)
+                if (layout->GetWidth() == 0)
                 {
-                    isFitWidth = isFitHeight = false;
+                    isFitWidth = true;
+                    layout->SetWidth(window->GetWidth());
+                }
+                if (layout->GetHeight() == 0)
+                {
+                    isFitHeight = true;
+                    layout->SetHeight(window->GetHeight());
+                }
 
-                    if (layout->GetWidth() == 0)
-                    {
-                        isFitWidth = true;
-                        layout->SetWidth(window->GetWidth());
-                    }
-                    if (layout->GetHeight() == 0)
-                    {
-                        isFitHeight = true;
-                        layout->SetHeight(window->GetHeight());
-                    }
+                layout->Draw(hdc, parentRect);
 
-                    layout->Draw(hdc, parentRect);
+                if (isFitWidth)
+                {
+                    layout->SetWidth(0);
+                }
+                if (isFitHeight)
+                {
+                    layout->SetHeight(0);
+                }
+            }
+            ReleaseDC(hWnd, hdc);
 
-                    if (isFitWidth)
+            SetRect(&rect, rect.left, rect.top, rect.left + size.cx, rect.bottom);
+            SetBkMode((HDC)wParam, TRANSPARENT);
+            DrawText((HDC)wParam, groupBox->GetText().c_str(), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+            SelectFont((HDC)wParam, originalFont);
+            SetBkMode((HDC)wParam, OPAQUE);
+
+            ExcludeClipRect((HDC)wParam, rect.left, rect.top, rect.right, rect.bottom + 2);
+        }
+        else if (control->GetType() == L"checkbox")
+        {
+            auto checkBox = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
+
+            RECT rect; 
+            GetClientRect(checkBox->GetHWnd(), &rect);
+
+            int checkBoxWidth = GetSystemMetrics(SM_CXMENUCHECK) - GetSystemMetrics(SM_CXEDGE);
+            int checkBoxHeight = GetSystemMetrics(SM_CYMENUCHECK) - GetSystemMetrics(SM_CYEDGE);
+            int height = rect.bottom - rect.top;
+
+            if (checkBoxHeight > height)
+            {
+                checkBoxHeight = height;
+            }
+
+            RECT textRect;
+            SetRect(&textRect, rect.left + checkBoxWidth + 4, rect.top + (height - 1) / 2 - checkBoxHeight / 2, rect.right, rect.bottom - (height / 2 - checkBoxHeight / 2) + 1);
+            auto originalFont = SelectFont((HDC)wParam, checkBox->GetFont()->GetHFont());
+            SetBkMode((HDC)wParam, TRANSPARENT);
+            DrawText((HDC)wParam, checkBox->GetText().c_str(), -1, &textRect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+            SelectFont((HDC)wParam, originalFont);
+            SetBkMode((HDC)wParam, OPAQUE);
+
+            RECT checkBoxRect;
+            SetRect(&checkBoxRect, rect.left, rect.top + height / 2 - checkBoxHeight / 2, rect.left + checkBoxWidth, rect.bottom - (height / 2 - checkBoxHeight / 2));
+            auto theme = OpenThemeData((HWND)lParam, L"Button");
+            if (checkBox->IsChecked())
+            {
+                if (checkBox->IsPressed())
+                {
+                    DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_CHECKEDPRESSED, &checkBoxRect, nullptr);
+                }
+                else if (checkBox->IsHover())
+                {
+                    DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_CHECKEDHOT, &checkBoxRect, nullptr);
+                }
+                else
+                {
+                    if (checkBox->IsEnabled())
                     {
-                        layout->SetWidth(0);
+                        DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_CHECKEDNORMAL, &checkBoxRect, nullptr);
                     }
-                    if (isFitHeight)
+                    else
                     {
-                        layout->SetHeight(0);
+                        DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_CHECKEDDISABLED, &checkBoxRect, nullptr);
                     }
                 }
-                ReleaseDC(hWnd, hdc);
-
-                SetRect(&rect, rect.left, rect.top, rect.left + size.cx, rect.bottom);
-                SetBkMode((HDC)wParam, TRANSPARENT);
-                DrawText((HDC)wParam, groupBox->GetText().c_str(), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-                SelectFont((HDC)wParam, originalFont);
-                SetBkMode((HDC)wParam, OPAQUE);
-
-                ExcludeClipRect((HDC)wParam, rect.left, rect.top, rect.right, rect.bottom + 2);
             }
-            break;
+            else
+            {
+                if (checkBox->IsPressed())
+                {
+                    DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_UNCHECKEDPRESSED, &checkBoxRect, nullptr);
+                }
+                else if (checkBox->IsHover())
+                {
+                    DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_UNCHECKEDHOT, &checkBoxRect, nullptr);
+                }
+                else
+                {
+                    if (checkBox->IsEnabled())
+                    {
+                        DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_UNCHECKEDNORMAL, &checkBoxRect, nullptr);
+                    }
+                    else
+                    {
+                        DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_UNCHECKEDDISABLED, &checkBoxRect, nullptr);
+                    }
+                }
+            }
+
+            GetClientRect(checkBox->GetHWnd(), &rect);
+            ExcludeClipRect((HDC)wParam, rect.left, rect.top, rect.right, rect.bottom );
         }
+        else if (control->GetType() == L"radiobutton")
+        {
+            auto radioButton = reinterpret_cast<CRadioButtonControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
+
+            RECT rect;
+            GetClientRect(radioButton->GetHWnd(), &rect);
+
+            int radioWidth = GetSystemMetrics(SM_CXMENUCHECK) - GetSystemMetrics(SM_CXEDGE);
+            int radioHeight = GetSystemMetrics(SM_CYMENUCHECK) - GetSystemMetrics(SM_CYEDGE);
+            int height = rect.bottom - rect.top;
+
+            if (radioHeight > height)
+            {
+                radioHeight = height;
+            }
+
+            RECT textRect;
+            SetRect(&textRect, rect.left + radioWidth + 4, rect.top + (height - 1) / 2 - radioHeight / 2, rect.right, rect.bottom - (height / 2 - radioHeight / 2) + 1);
+            auto originalFont = SelectFont((HDC)wParam, radioButton->GetFont()->GetHFont());
+            SetBkMode((HDC)wParam, TRANSPARENT);
+            DrawText((HDC)wParam, radioButton->GetText().c_str(), -1, &textRect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+            SelectFont((HDC)wParam, originalFont);
+            SetBkMode((HDC)wParam, OPAQUE);
+
+            RECT radioButtonRect;
+            SetRect(&radioButtonRect, rect.left, rect.top + height / 2 - radioHeight / 2, rect.left + radioWidth, rect.bottom - (height / 2 - radioHeight / 2));
+            auto theme = OpenThemeData((HWND)lParam, L"Button");
+            if (radioButton->IsChecked())
+            {
+                if (radioButton->IsPressed())
+                {
+                    DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_CHECKEDPRESSED, &radioButtonRect, nullptr);
+                }
+                else if (radioButton->IsHover())
+                {
+                    DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_CHECKEDHOT, &radioButtonRect, nullptr);
+                }
+                else
+                {
+                    if (radioButton->IsEnabled())
+                    {
+                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_CHECKEDNORMAL, &radioButtonRect, nullptr);
+                    }
+                    else
+                    {
+                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_CHECKEDDISABLED, &radioButtonRect, nullptr);
+                    }
+                }
+            }
+            else
+            {
+                if (radioButton->IsPressed())
+                {
+                    DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDPRESSED, &radioButtonRect, nullptr);
+                }
+                else if (radioButton->IsHover())
+                {
+                    DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDHOT, &radioButtonRect, nullptr);
+                }
+                else
+                {
+                    if (radioButton->IsEnabled())
+                    {
+                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDNORMAL, &radioButtonRect, nullptr);
+                    }
+                    else
+                    {
+                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDDISABLED, &radioButtonRect, nullptr);
+                    }
+                }
+            }
+
+            GetClientRect(radioButton->GetHWnd(), &rect);
+            ExcludeClipRect((HDC)wParam, rect.left, rect.top, rect.right, rect.bottom);
+        }
+        
+
+
+        break;
+    }
 
     case WM_CTLCOLORBTN:
     {
@@ -672,7 +830,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     return DefWindowProc(hWnd, iMessage, wParam, lParam);
 }
 
-void CWindowControl::RegisterFunctions(lua_State *L)
+void CWindowControl::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN_CHILD(CWindowControl, "_Window", CBaseControl);
 
@@ -775,22 +933,22 @@ bool CWindowControl::IsSizable() const
     return _isSizable;
 }
 
-std::wstring CWindowControl::GetActiveEvent() const
+int CWindowControl::GetActiveEvent() const
 {
     return _activeEvent;
 }
 
-std::wstring CWindowControl::GetCloseEvent() const
+int CWindowControl::GetCloseEvent() const
 {
     return _closeEvent;
 }
 
-std::wstring CWindowControl::GetSizeEvent() const
+int CWindowControl::GetSizeEvent() const
 {
     return _sizeEvent;
 }
 
-CMenu *CWindowControl::GetMenu()
+CMenu* CWindowControl::GetMenu()
 {
     return _menu;
 }
@@ -817,7 +975,8 @@ void CWindowControl::SetY(const int y)
         int diffY = _position.y - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSIZE || SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
+                     SWP_NOSIZE || SWP_NOZORDER);
     }
 }
 
@@ -843,7 +1002,8 @@ void CWindowControl::SetX(const int x)
         int diffY = GetY() - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSIZE || SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
+                     SWP_NOSIZE || SWP_NOZORDER);
     }
 }
 
@@ -869,7 +1029,8 @@ void CWindowControl::SetWidth(const int width)
         int diffY = GetY() - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
+                     SWP_NOMOVE | SWP_NOZORDER);
     }
 }
 
@@ -895,7 +1056,8 @@ void CWindowControl::SetHeight(const int height)
         int diffY = GetY() - rect.top;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
-        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+        SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
+                     SWP_NOMOVE | SWP_NOZORDER);
     }
 }
 
@@ -998,19 +1160,40 @@ void CWindowControl::SetSizable(bool isSizable)
     }
 }
 
-void CWindowControl::SetActiveEvent(std::wstring activeEvent)
+void CWindowControl::SetActiveEvent()
 {
-    _activeEvent = activeEvent;
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
+    {
+        lua_pushvalue(l, -1);
+        _activeEvent = luaL_ref(l, LUA_REGISTRYINDEX);
+    }
+
+    lua_pop(l, 1);
 }
 
-void CWindowControl::SetCloseEvent(std::wstring closeEvent)
+void CWindowControl::SetCloseEvent()
 {
-    _closeEvent = closeEvent;
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
+    {
+        lua_pushvalue(l, -1);
+        _closeEvent = luaL_ref(l, LUA_REGISTRYINDEX);
+    }
+
+    lua_pop(l, 1);
 }
 
-void CWindowControl::SetSizeEvent(std::wstring sizeEvent)
+void CWindowControl::SetSizeEvent()
 {
-    _sizeEvent = sizeEvent;
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
+    {
+        lua_pushvalue(l, -1);
+        _sizeEvent = luaL_ref(l, LUA_REGISTRYINDEX);
+    }
+
+    lua_pop(l, 1);
 }
 
 void CWindowControl::SetIcon(std::wstring iconFilePath)
@@ -1050,7 +1233,7 @@ void CWindowControl::SetBackgroundColor(const COLORREF backColor)
     }
 }
 
-void CWindowControl::SetMenu(CMenu *menu)
+void CWindowControl::SetMenu(CMenu* menu)
 {
     if (_menu)
     {
@@ -1070,7 +1253,7 @@ void CWindowControl::SetMenu(CMenu *menu)
     }
 }
 
-void CWindowControl::SetParentWindow(CWindowControl *parent)
+void CWindowControl::SetParentWindow(CWindowControl* parent)
 {
     if (parent)
     {
@@ -1082,7 +1265,7 @@ void CWindowControl::SetParentWindow(CWindowControl *parent)
     }
 }
 
-void CWindowControl::AddLayout(CLayoutControl *layout)
+void CWindowControl::AddLayout(CLayoutControl* layout)
 {
     _layouts.push_back(layout);
 
@@ -1093,7 +1276,8 @@ void CWindowControl::AddLayout(CLayoutControl *layout)
     }
     else
     {
-        SetRect(&rect, layout->GetX(), layout->GetY(), layout->GetX() + layout->GetWidth(), layout->GetY() + layout->GetHeight());
+        SetRect(&rect, layout->GetX(), layout->GetY(), layout->GetX() + layout->GetWidth(),
+                layout->GetY() + layout->GetHeight());
     }
     InvalidateRect(_hWnd, &rect, TRUE);
     UpdateWindow(_hWnd);
@@ -1101,7 +1285,7 @@ void CWindowControl::AddLayout(CLayoutControl *layout)
     layout->AddParentWindow(this);
 }
 
-void CWindowControl::DeleteLayout(CLayoutControl * layout)
+void CWindowControl::DeleteLayout(CLayoutControl* layout)
 {
     auto iter = std::begin(_layouts);
 
@@ -1118,7 +1302,8 @@ void CWindowControl::DeleteLayout(CLayoutControl * layout)
             }
             else
             {
-                SetRect(&rect, layout->GetX(), layout->GetY(), layout->GetX() + layout->GetWidth(), layout->GetY() + layout->GetHeight());
+                SetRect(&rect, layout->GetX(), layout->GetY(), layout->GetX() + layout->GetWidth(),
+                        layout->GetY() + layout->GetHeight());
             }
 
             _layouts.erase(iter);
@@ -1171,7 +1356,7 @@ bool CWindowControl::Create()
                            CControlManager::GetInstance().GetHInstance(),
                            (LPVOID)this);
 
-    
+
     if (_hWnd != nullptr)
     {
         SendMessage(_hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(_icon));
