@@ -59,7 +59,14 @@ public:
     virtual void Hide();
 
     virtual bool Create() = 0;
-    virtual void Destroy() = 0;
+    virtual void Destroy()
+    {
+        if (_hWnd != nullptr)
+        {
+            DestroyWindow(_hWnd);
+            _hWnd = nullptr;
+        }
+    }
 
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {

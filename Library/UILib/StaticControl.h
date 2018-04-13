@@ -29,7 +29,6 @@ public:
     void SetBackgroundColor(COLORREF color);
 
     bool Create() override;
-    void Destroy() override;
 
     void Show() override;
 

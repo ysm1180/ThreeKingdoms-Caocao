@@ -1,4 +1,6 @@
 #include "GameManager.h"
+#include "BaseLib/MemoryPool.h"
+#include "ME5File.h"
 
 namespace jojogame {
 std::once_flag CGameManager::s_onceFlag;
@@ -6,7 +8,7 @@ std::unique_ptr<CGameManager> CGameManager::s_sharedGameManager;
 
 void CGameManager::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN(CGameManager, "GameManager");
+    LUA_BEGIN(CGameManager, "_GameManager");
 
     LUA_METHOD(GetDesktopWidth);
     LUA_METHOD(GetDesktopHeight);
@@ -14,6 +16,9 @@ void CGameManager::RegisterFunctions(lua_State *L)
     LUA_METHOD(Delay);
     LUA_METHOD(StopDelay);
     LUA_METHOD(Color);
+    LUA_METHOD(Clock);
+    LUA_METHOD(OpenFile);
+    LUA_METHOD(CloseFile);
 }
 
 CGameManager::CGameManager()
@@ -47,6 +52,11 @@ int CGameManager::GetDesktopHeight()
     RECT rect;
     GetWindowRect(GetDesktopWindow(), &rect);
     return rect.bottom - rect.top;
+}
+
+int CGameManager::Clock()
+{
+    return GetTickCount();
 }
 
 COLORREF CGameManager::Color(int r, int g, int b)
@@ -99,5 +109,17 @@ void CGameManager::Delay(int time)
 void CGameManager::StopDelay()
 {
     PostMessage(nullptr, WM_STOP_DELAY, 0, 0);
+}
+
+CME5File* CGameManager::OpenFile(std::wstring path)
+{
+    auto file = CMemoryPool<CME5File>::GetInstance().New();
+    file->Open(path);
+    return file;
+}
+
+void CGameManager::CloseFile(CME5File* file)
+{
+    CMemoryPool<CME5File>::GetInstance().Delete(file);
 }
 }

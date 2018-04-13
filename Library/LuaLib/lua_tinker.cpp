@@ -173,12 +173,12 @@ void lua_tinker::dostring(lua_State *L, const char *buff)
 }
 
 /*---------------------------------------------------------------------------*/
-void lua_tinker::dobuffer(lua_State *L, const char *buff, size_t len)
+void lua_tinker::dobuffer(lua_State *L, const char *buff, size_t len, const char *n)
 {
     lua_pushcclosure(L, on_error, 0);
     int errfunc = lua_gettop(L);
 
-    if (luaL_loadbuffer(L, buff, len, "lua_tinker::dobuffer()") == 0)
+    if (luaL_loadbuffer(L, buff, len, n) == 0)
     {
         lua_pcall(L, 0, 1, errfunc);
     }
@@ -500,6 +500,30 @@ template <>
 
     auto value = (user *)lua_touserdata(L, index);
     return (jojogame::CListViewRow *) value->m_p;
+}
+
+template <>
+::jojogame::CME5File* lua_tinker::read<jojogame::CME5File*>(lua_State* L, int index)
+{
+    if (lua_isnil(L, index))
+    {
+        return nullptr;
+    }
+
+    auto value = (user *)lua_touserdata(L, index);
+    return (jojogame::CME5File *) value->m_p;
+}
+
+template <>
+::jojogame::CFile* lua_tinker::read<jojogame::CFile*>(lua_State* L, int index)
+{
+    if (lua_isnil(L, index))
+    {
+        return nullptr;
+    }
+
+    auto value = (user *)lua_touserdata(L, index);
+    return (jojogame::CFile *) value->m_p;
 }
 
 /*---------------------------------------------------------------------------*/

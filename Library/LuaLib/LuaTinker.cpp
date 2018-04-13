@@ -1,6 +1,10 @@
 #include "LuaTinker.h"
 
 #include "UILib\WindowControl.h"
+#include "CommonLib/FileManager.h"
+#include "BaseLib/File.h"
+
+#include <Shlwapi.h>
 
 namespace jojogame {
 std::once_flag CLuaTinker::s_onceFlag;
@@ -14,8 +18,28 @@ int CustomLuaRequire(lua_State *L)
     {
         return 0;
     }
+    
+    std::string workingDirectory(filePath);
+    const size_t last_slash_idx = workingDirectory.rfind('/');
+    if (std::string::npos != last_slash_idx)
+    {
+        workingDirectory = workingDirectory.substr(0, last_slash_idx) + "/";
+    }
+    else
+    {
+        workingDirectory = "";
+    }
 
-    lua_tinker::dofile(L, filePath);
+    CFile file;
+    auto path = CFileManager::GetInstance().GetFilePath(std::string(filePath));
+    file.Open(path);
+
+    std::string originalWorkingPath = CFileManager::GetInstance().GetWorkingPathA();
+    CFileManager::GetInstance().SetWorkingPath(originalWorkingPath + workingDirectory);
+
+    lua_tinker::dobuffer(L, file.GetData(), file.GetSize(), path.c_str());
+
+    CFileManager::GetInstance().SetWorkingPath(originalWorkingPath);
 
     lua_pop(L, 1);
 

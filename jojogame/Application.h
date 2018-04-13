@@ -11,6 +11,7 @@ namespace jojogame {
 class CControlManager;
 class CGameManager;
 class CGameScriptManager;
+class CFileManager;
 
 class Application
 {
@@ -27,6 +28,7 @@ protected:
     HINSTANCE _hInstance;
     CControlManager *_controlManager;
     CGameManager *_gameManager;
+    CFileManager *_fileManager;
 
     static Application *s_sharedApplication;
 };

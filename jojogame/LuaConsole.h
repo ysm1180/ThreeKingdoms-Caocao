@@ -1,5 +1,7 @@
 #pragma once
 
+#define OUTPUT_MAX_LENGTH 4096
+
 #include "BaseLib\ConsoleOutput.h"
 
 #include <memory>

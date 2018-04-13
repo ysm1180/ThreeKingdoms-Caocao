@@ -3,6 +3,7 @@
 #include "CommonLib/ME5File.h"
 
 #include <iterator>
+#include "CommonLib/FileManager.h"
 
 namespace jojogame {
 void PngToBmp(std::vector<BYTE>& bmp, const BYTE* pngImage, int size)
@@ -131,7 +132,7 @@ void CImageControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(GetWidth);
     LUA_METHOD(GetHeight);
 
-    LUA_METHOD(LoadImageFromMe5File);
+    LUA_METHOD(LoadImageFromMe5FileByIndex);
 }
 
 CImageControl::CImageControl()
@@ -152,7 +153,7 @@ CImageControl::~CImageControl()
     }
 }
 
-void CImageControl::LoadImageFromMe5File(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor)
+void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor)
 {
     CME5File imageFile;
 

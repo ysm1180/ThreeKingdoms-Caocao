@@ -19,7 +19,7 @@ public:
     HBITMAP GetImageHandle();
     HBITMAP GetMaskImageHandle();
 
-    void LoadImageFromMe5File(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor);
+    void LoadImageFromMe5FileByIndex(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor);
 
 private:
     SIZE _size;

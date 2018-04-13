@@ -1,6 +1,19 @@
 #include "ME5File.h"
+#include "FileManager.h"
 
 namespace jojogame {
+void CME5File::RegisterFunctions(lua_State* L)
+{
+    LUA_BEGIN(CME5File, "_Me5File");
+
+    LUA_METHOD(GetGroupStartItemIndex);
+    LUA_METHOD(GetGroupEndItemIndex);
+    LUA_METHOD(GetGroupName);
+    LUA_METHOD(GetGroupCount);
+    LUA_METHOD(FindGroupIndexByName);
+    LUA_METHOD(FindItemIndexByName);
+}
+
 CME5File::CME5File()
 {
 
@@ -30,18 +43,18 @@ int CME5File::GetGroupCount()
 
 int CME5File::GetGroupStartItemIndex(int groupIndex)
 {
-    return _ReadInt(GROUP_HEADER_START_OFFSET + groupIndex * GROUP_HEADER_SIZE);
+    return _ReadInt(GROUP_HEADER_START_OFFSET + 4 + groupIndex * GROUP_HEADER_SIZE);
 }
 
 int CME5File::GetGroupEndItemIndex(int groupIndex)
 {
-    return _ReadInt(GROUP_HEADER_START_OFFSET + 4 + groupIndex * GROUP_HEADER_SIZE);
+    return _ReadInt(GROUP_HEADER_START_OFFSET + 8 + groupIndex * GROUP_HEADER_SIZE);
 }
 
 int CME5File::GetOffset(int index)
 {
     int groupCount = GetGroupCount();
-    return _ReadInt(index * HEADER_SIZE + groupCount * GROUP_HEADER_SIZE + 9);
+    return _ReadInt(index * HEADER_SIZE + groupCount * GROUP_HEADER_SIZE + GROUP_HEADER_START_OFFSET);
 }
 
 int CME5File::GetOffset(int groupIndex, int itemIndex)
@@ -52,13 +65,13 @@ int CME5File::GetOffset(int groupIndex, int itemIndex)
 
 size_t CME5File::GetGroupNameLength(int groupIndex)
 {
-    return _ReadUnsignedInt(9 + groupIndex * GROUP_HEADER_SIZE);
+    return _ReadUnsignedInt(GROUP_HEADER_START_OFFSET + groupIndex * GROUP_HEADER_SIZE);
 }
 
 size_t CME5File::GetNameLength(int index)
 {
     int groupCount = GetGroupCount();
-    return _ReadUnsignedInt(index * HEADER_SIZE + groupCount * GROUP_HEADER_SIZE + 13);
+    return _ReadUnsignedInt(index * HEADER_SIZE + groupCount * GROUP_HEADER_SIZE + GROUP_HEADER_START_OFFSET + 4);
 }
 
 size_t CME5File::GetNameLength(int groupIndex, int itemIndex)
@@ -70,7 +83,7 @@ size_t CME5File::GetNameLength(int groupIndex, int itemIndex)
 size_t CME5File::GetItemByteSize(int index)
 {
     int groupCount = GetGroupCount();
-    return _ReadUnsignedInt(index * HEADER_SIZE + groupCount * GROUP_HEADER_SIZE + 17);
+    return _ReadUnsignedInt(index * HEADER_SIZE + groupCount * GROUP_HEADER_SIZE + GROUP_HEADER_START_OFFSET + 8);
 }
 
 size_t CME5File::GetItemByteSize(int groupIndex, int itemIndex)
@@ -111,6 +124,21 @@ std::string CME5File::GetGroupName(int groupIndex)
     return str;
 }
 
+int CME5File::FindGroupIndexByName(std::string name)
+{
+    int count = GetGroupCount();
+    for (int i = 0; i < count; ++i)
+    {
+        auto groupName = GetGroupName(i);
+        if (groupName == name)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 std::string CME5File::GetItemName(int index)
 {
     auto offset = GetOffset(index);
@@ -129,6 +157,22 @@ std::string CME5File::GetItemName(int groupIndex, int itemIndex)
 {
     int startIndex = GetGroupStartItemIndex(groupIndex);
     return GetItemName(startIndex + itemIndex);
+}
+
+int CME5File::FindItemIndexByName(int groupIndex, std::string name)
+{
+    int startIndex = GetGroupStartItemIndex(groupIndex);
+    int endIndex = GetGroupEndItemIndex(groupIndex);
+
+    for (int i = startIndex; i <= endIndex; ++i)
+    {
+        if (GetItemName(i) == name)
+        {
+            return i;
+        }
+    }
+    
+    return -1;
 }
 
 int CME5File::_ReadInt(int offset)
@@ -165,7 +209,9 @@ void CME5File::_ReadByteArr(BYTE *dest, int offset, size_t count)
 
 bool CME5File::Open(std::wstring filePath)
 {
-    auto error = _wfopen_s(&_file, filePath.c_str(), L"r+b");
+    auto path = CFileManager::GetInstance().GetFilePath(filePath);
+
+    auto error = _wfopen_s(&_file, path.c_str(), L"r+b");
     return error == 0;
 }
 
@@ -175,6 +221,11 @@ void CME5File::Close()
     {
         fclose(_file);
     }
+}
+
+void CME5File::Dispose()
+{
+
 }
 
 }

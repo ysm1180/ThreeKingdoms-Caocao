@@ -171,7 +171,7 @@ void CRadioButtonControl::RegisterFunctions(lua_State* L)
 CRadioButtonControl::CRadioButtonControl()
     : _font(this)
 {
-    _style = WS_CHILD | BS_AUTORADIOBUTTON;
+    _style = WS_TABSTOP | WS_CHILD | BS_AUTORADIOBUTTON;
     _type = L"radiobutton";
     
 }
@@ -240,15 +240,6 @@ bool CRadioButtonControl::Create()
     }
 
     return _hWnd != nullptr;
-}
-
-void CRadioButtonControl::Destroy()
-{
-    if (_hWnd != nullptr)
-    {
-        DestroyWindow(_hWnd);
-        _hWnd = nullptr;
-    }
 }
 
 WNDPROC CRadioButtonControl::GetOriginalProc()

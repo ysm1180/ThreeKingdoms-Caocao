@@ -8,8 +8,6 @@ WNDPROC CStaticControl::s_originalProc = nullptr;
 
 LRESULT CStaticControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    TRACKMOUSEEVENT trackMouseEvent;
-
     switch (msg)
     {
     case WM_CREATE:
@@ -255,15 +253,6 @@ bool CStaticControl::Create()
     }
 
     return _hWnd != nullptr;
-}
-
-void CStaticControl::Destroy()
-{
-    if (_hWnd != nullptr)
-    {
-        DestroyWindow(_hWnd);
-        _hWnd = nullptr;
-    }
 }
 
 void CStaticControl::Show()

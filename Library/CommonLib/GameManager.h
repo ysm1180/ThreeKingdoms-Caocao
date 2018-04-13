@@ -9,6 +9,8 @@
 #include <memory>
 
 namespace jojogame {
+class CME5File;
+
 class CGameManager
 {
 public:
@@ -19,6 +21,7 @@ public:
 
     int GetDesktopWidth();
     int GetDesktopHeight();
+    int Clock();
 
     COLORREF Color(int r, int g, int b);
 
@@ -26,6 +29,9 @@ public:
 
     void Delay(int time);
     void StopDelay();
+
+    CME5File *OpenFile(std::wstring path);
+    void CloseFile(CME5File *file);
 
     static CGameManager& GetInstance();
 private:

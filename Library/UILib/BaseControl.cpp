@@ -80,6 +80,8 @@ CBaseControl::~CBaseControl()
     {
         luaL_unref(CLuaTinker::GetLuaTinker().GetLuaState(), LUA_REGISTRYINDEX, _mouseLeaveEvent);
     }
+
+    Destroy();
 }
 
 bool CBaseControl::IsHover() const

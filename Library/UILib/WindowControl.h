@@ -54,7 +54,6 @@ public:
     void DeleteLayout(CLayoutControl* layout);
 
     bool Create() override;
-    virtual void Destroy() override;
 
     int ShowModalWindow();
     void Close() const;

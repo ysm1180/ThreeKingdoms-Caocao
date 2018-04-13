@@ -1,7 +1,5 @@
 #pragma once
 
-#define OUTPUT_MAX_LENGTH 4096
-
 #include <string>
 #include <vector>
 

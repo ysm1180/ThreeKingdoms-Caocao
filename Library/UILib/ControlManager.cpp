@@ -16,6 +16,7 @@
 #include "GroupBoxControl.h"
 #include "CheckBoxControl.h"
 #include "RadioButtonControl.h"
+#include "ComboBoxControl.h"
 
 namespace jojogame {
 std::once_flag CControlManager::s_onceFlag;
@@ -42,6 +43,7 @@ void CControlManager::RegisterFunctions(lua_State* L)
     LUA_METHOD(CreateGroupBox);
     LUA_METHOD(CreateCheckBox);
     LUA_METHOD(CreateRadioButton);
+    LUA_METHOD(CreateComboBox);
 }
 
 CControlManager::CControlManager()
@@ -76,6 +78,7 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CGroupBoxControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CCheckBoxControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CRadioButtonControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CComboBoxControl>();
 
 }
 
@@ -178,6 +181,13 @@ CCheckBoxControl* CControlManager::CreateCheckBox(CWindowControl* parent)
 CRadioButtonControl* CControlManager::CreateRadioButton(CWindowControl* parent)
 {
     auto control = CMemoryPool<CRadioButtonControl>::GetInstance().New();
+    control->SetParentControl(parent);
+    return control;
+}
+
+CComboBoxControl* CControlManager::CreateComboBox(CWindowControl* parent)
+{
+    auto control = CMemoryPool<CComboBoxControl>::GetInstance().New();
     control->SetParentControl(parent);
     return control;
 }

@@ -210,15 +210,6 @@ bool CGroupBoxControl::Create()
     return _hWnd != nullptr;
 }
 
-void CGroupBoxControl::Destroy()
-{
-    if (_hWnd != nullptr)
-    {
-        DestroyWindow(_hWnd);
-        _hWnd = nullptr;
-    }
-}
-
 WNDPROC CGroupBoxControl::GetOriginalProc()
 {
     return s_originalProc;

@@ -3,9 +3,11 @@
   <ItemGroup>
     <ClInclude Include="MemoryPool.h" />
     <ClInclude Include="ConsoleOutput.h" />
+    <ClInclude Include="File.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryPool.cpp" />
     <ClCompile Include="ConsoleOutput.cpp" />
+    <ClCompile Include="File.cpp" />
   </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "BaseLib\ConsoleOutput.h"
+#include "CommonLib/FileManager.h"
 
 namespace jojogame {
 void CMoviePlayerControl::RegisterFunctions(lua_State* L)
@@ -35,7 +36,7 @@ CMoviePlayerControl::CMoviePlayerControl(CWindowControl* parent, std::string fil
         _parent = parent;
         _state.parentControlHWnd = parent->GetHWnd();
     }
-    _state.fileName = fileName;
+    _state.fileName = CFileManager::GetInstance().GetFilePath(fileName);
 }
 
 CMoviePlayerControl::~CMoviePlayerControl()

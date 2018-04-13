@@ -5,11 +5,13 @@
     <ClCompile Include="GameScriptManager.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="ME5File.cpp" />
+    <ClCompile Include="FileManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameScriptManager.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="ME5File.h" />
+    <ClInclude Include="FileManager.h" />
   </ItemGroup>
 </Project>

@@ -57,7 +57,6 @@ public:
     void SetBorderWidth(int width);
 
     bool Create() override;
-    void Destroy() override;
 
     void Show() override;
 

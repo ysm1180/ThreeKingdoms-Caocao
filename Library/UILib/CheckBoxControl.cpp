@@ -171,7 +171,7 @@ void CCheckBoxControl::RegisterFunctions(lua_State* L)
 CCheckBoxControl::CCheckBoxControl()
     : _font(this)
 {
-    _style = WS_CHILD | BS_CHECKBOX | BS_AUTOCHECKBOX;
+    _style = WS_TABSTOP | WS_CHILD | BS_CHECKBOX | BS_AUTOCHECKBOX;
     _type = L"checkbox";
 }
 
@@ -239,15 +239,6 @@ bool CCheckBoxControl::Create()
     }
 
     return _hWnd != nullptr;
-}
-
-void CCheckBoxControl::Destroy()
-{
-    if (_hWnd != nullptr)
-    {
-        DestroyWindow(_hWnd);
-        _hWnd = nullptr;
-    }
 }
 
 WNDPROC CCheckBoxControl::GetOriginalProc()

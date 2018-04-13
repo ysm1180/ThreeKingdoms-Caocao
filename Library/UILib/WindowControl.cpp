@@ -595,7 +595,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         {
             auto checkBox = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
 
-            RECT rect; 
+            RECT rect;
             GetClientRect(checkBox->GetHWnd(), &rect);
 
             int checkBoxWidth = GetSystemMetrics(SM_CXMENUCHECK) - GetSystemMetrics(SM_CXEDGE);
@@ -608,7 +608,8 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             }
 
             RECT textRect;
-            SetRect(&textRect, rect.left + checkBoxWidth + 4, rect.top + (height - 1) / 2 - checkBoxHeight / 2, rect.right, rect.bottom - (height / 2 - checkBoxHeight / 2) + 1);
+            SetRect(&textRect, rect.left + checkBoxWidth + 4, rect.top + (height - 1) / 2 - checkBoxHeight / 2,
+                    rect.right, rect.bottom - (height / 2 - checkBoxHeight / 2) + 1);
             auto originalFont = SelectFont((HDC)wParam, checkBox->GetFont()->GetHFont());
             SetBkMode((HDC)wParam, TRANSPARENT);
             DrawText((HDC)wParam, checkBox->GetText().c_str(), -1, &textRect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
@@ -616,7 +617,8 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             SetBkMode((HDC)wParam, OPAQUE);
 
             RECT checkBoxRect;
-            SetRect(&checkBoxRect, rect.left, rect.top + height / 2 - checkBoxHeight / 2, rect.left + checkBoxWidth, rect.bottom - (height / 2 - checkBoxHeight / 2));
+            SetRect(&checkBoxRect, rect.left, rect.top + height / 2 - checkBoxHeight / 2, rect.left + checkBoxWidth,
+                    rect.bottom - (height / 2 - checkBoxHeight / 2));
             auto theme = OpenThemeData((HWND)lParam, L"Button");
             if (checkBox->IsChecked())
             {
@@ -636,7 +638,8 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                     }
                     else
                     {
-                        DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_CHECKEDDISABLED, &checkBoxRect, nullptr);
+                        DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_CHECKEDDISABLED, &checkBoxRect,
+                                            nullptr);
                     }
                 }
             }
@@ -654,17 +657,19 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 {
                     if (checkBox->IsEnabled())
                     {
-                        DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_UNCHECKEDNORMAL, &checkBoxRect, nullptr);
+                        DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_UNCHECKEDNORMAL, &checkBoxRect,
+                                            nullptr);
                     }
                     else
                     {
-                        DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_UNCHECKEDDISABLED, &checkBoxRect, nullptr);
+                        DrawThemeBackground(theme, (HDC)wParam, BP_CHECKBOX, CBS_UNCHECKEDDISABLED, &checkBoxRect,
+                                            nullptr);
                     }
                 }
             }
 
             GetClientRect(checkBox->GetHWnd(), &rect);
-            ExcludeClipRect((HDC)wParam, rect.left, rect.top, rect.right, rect.bottom );
+            ExcludeClipRect((HDC)wParam, rect.left, rect.top, rect.right, rect.bottom);
         }
         else if (control->GetType() == L"radiobutton")
         {
@@ -683,7 +688,8 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             }
 
             RECT textRect;
-            SetRect(&textRect, rect.left + radioWidth + 4, rect.top + (height - 1) / 2 - radioHeight / 2, rect.right, rect.bottom - (height / 2 - radioHeight / 2) + 1);
+            SetRect(&textRect, rect.left + radioWidth + 4, rect.top + (height - 1) / 2 - radioHeight / 2, rect.right,
+                    rect.bottom - (height / 2 - radioHeight / 2) + 1);
             auto originalFont = SelectFont((HDC)wParam, radioButton->GetFont()->GetHFont());
             SetBkMode((HDC)wParam, TRANSPARENT);
             DrawText((HDC)wParam, radioButton->GetText().c_str(), -1, &textRect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
@@ -691,13 +697,15 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             SetBkMode((HDC)wParam, OPAQUE);
 
             RECT radioButtonRect;
-            SetRect(&radioButtonRect, rect.left, rect.top + height / 2 - radioHeight / 2, rect.left + radioWidth, rect.bottom - (height / 2 - radioHeight / 2));
+            SetRect(&radioButtonRect, rect.left, rect.top + height / 2 - radioHeight / 2, rect.left + radioWidth,
+                    rect.bottom - (height / 2 - radioHeight / 2));
             auto theme = OpenThemeData((HWND)lParam, L"Button");
             if (radioButton->IsChecked())
             {
                 if (radioButton->IsPressed())
                 {
-                    DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_CHECKEDPRESSED, &radioButtonRect, nullptr);
+                    DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_CHECKEDPRESSED, &radioButtonRect,
+                                        nullptr);
                 }
                 else if (radioButton->IsHover())
                 {
@@ -707,11 +715,13 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 {
                     if (radioButton->IsEnabled())
                     {
-                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_CHECKEDNORMAL, &radioButtonRect, nullptr);
+                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_CHECKEDNORMAL, &radioButtonRect,
+                                            nullptr);
                     }
                     else
                     {
-                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_CHECKEDDISABLED, &radioButtonRect, nullptr);
+                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_CHECKEDDISABLED, &radioButtonRect,
+                                            nullptr);
                     }
                 }
             }
@@ -719,21 +729,25 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             {
                 if (radioButton->IsPressed())
                 {
-                    DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDPRESSED, &radioButtonRect, nullptr);
+                    DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDPRESSED, &radioButtonRect,
+                                        nullptr);
                 }
                 else if (radioButton->IsHover())
                 {
-                    DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDHOT, &radioButtonRect, nullptr);
+                    DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDHOT, &radioButtonRect,
+                                        nullptr);
                 }
                 else
                 {
                     if (radioButton->IsEnabled())
                     {
-                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDNORMAL, &radioButtonRect, nullptr);
+                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDNORMAL, &radioButtonRect,
+                                            nullptr);
                     }
                     else
                     {
-                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDDISABLED, &radioButtonRect, nullptr);
+                        DrawThemeBackground(theme, (HDC)wParam, BP_RADIOBUTTON, RBS_UNCHECKEDDISABLED, &radioButtonRect,
+                                            nullptr);
                     }
                 }
             }
@@ -741,7 +755,6 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             GetClientRect(radioButton->GetHWnd(), &rect);
             ExcludeClipRect((HDC)wParam, rect.left, rect.top, rect.right, rect.bottom);
         }
-        
 
 
         break;
@@ -1420,12 +1433,4 @@ void CWindowControl::SetDialogResult(const int value) const
     *_dialogResult = value;
 }
 
-void CWindowControl::Destroy()
-{
-    if (_hWnd != nullptr)
-    {
-        DestroyWindow(_hWnd);
-        _hWnd = nullptr;
-    }
-}
 }

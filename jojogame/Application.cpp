@@ -3,8 +3,10 @@
 
 #include "BaseLib\MemoryPool.h"
 #include "CommonLib\GameManager.h"
+#include "CommonLib/FileManager.h"
 #include "LuaLib\LuaTinker.h"
 #include "UILib\ControlManager.h"
+#include "CommonLib/ME5File.h"
 
 namespace jojogame {
 Application *Application::s_sharedApplication = nullptr;
@@ -45,16 +47,20 @@ int Application::Run()
 
     _controlManager = &CControlManager::GetInstance();
     _gameManager = &CGameManager::GetInstance();
+    _fileManager = &CFileManager::GetInstance();
 
     _controlManager->Init(_hInstance);
 
     luaConsole.SetHInstance(_hInstance);
     luaConsole.Create();
 
+    luaTinker.RegisterClassToLua<CME5File>();
     luaTinker.RegisterClassToLua<CGameManager>();
+    luaTinker.RegisterClassToLua<CFileManager>();
 
     luaTinker.RegisterVariable("controlManager", _controlManager);
     luaTinker.RegisterVariable("gameManager", _gameManager);
+    luaTinker.RegisterVariable("fileManager", _fileManager);
 
     luaTinker.RegisterFunction("OUTPUT", &CConsoleOutput::OutputConsoles);
     luaTinker.RegisterFunction("DEBUG", &CLuaConsole::SetDebugFlag);

@@ -18,6 +18,7 @@
     <ClCompile Include="GroupBoxControl.cpp" />
     <ClCompile Include="CheckBoxControl.cpp" />
     <ClCompile Include="RadioButtonControl.cpp" />
+    <ClCompile Include="ComboBoxControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseControl.h" />
@@ -37,5 +38,6 @@
     <ClInclude Include="GroupBoxControl.h" />
     <ClInclude Include="CheckBoxControl.h" />
     <ClInclude Include="RadioButtonControl.h" />
+    <ClInclude Include="ComboBoxControl.h" />
   </ItemGroup>
 </Project>

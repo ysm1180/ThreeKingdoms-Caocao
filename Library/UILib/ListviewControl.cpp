@@ -949,11 +949,6 @@ bool CListViewControl::Create()
     return _hWnd != nullptr;
 }
 
-void CListViewControl::Destroy()
-{
-    DestroyWindow(_hWnd);
-}
-
 WNDPROC CListViewControl::GetOriginalProc()
 {
     return s_originalProc;

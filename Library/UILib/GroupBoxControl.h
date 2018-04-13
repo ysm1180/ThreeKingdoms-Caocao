@@ -17,7 +17,6 @@ public:
     void SetText(std::wstring text);
 
     bool Create() override;
-    void Destroy() override;
 
     static WNDPROC GetOriginalProc();
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

@@ -422,15 +422,6 @@ bool CButtonControl::Create()
     return _hWnd != nullptr;
 }
 
-void CButtonControl::Destroy()
-{
-    if (_hWnd != nullptr)
-    {
-        DestroyWindow(_hWnd);
-        _hWnd = nullptr;
-    }
-}
-
 void CButtonControl::Show()
 {
     _isVisible = true;

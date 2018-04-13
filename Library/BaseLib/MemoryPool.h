@@ -33,10 +33,17 @@ private:
     static std::unique_ptr<CMemoryPoolManager> s_sharedMemoryPoolManager;
 };
 
+
 template<typename T>
 class CMemoryPool : public CMemoryPoolBase
 {
 public:
+    struct ArrayMemory
+    {
+        T *pointer;
+        int size;
+    };
+
     CMemoryPool()
     {
     }
@@ -45,7 +52,43 @@ public:
     {
     }
 
-    T *GetUnsingPointer()
+    T *GetUnusingArrayPointer(int size)
+    {
+        T *instance = nullptr;
+
+        if (_unusingArrayPool.empty())
+        {
+            instance = (T *)malloc(sizeof(T) * size);
+        }
+        else
+        {
+            int count = 0;
+            int length = _unusingArrayPool.size();
+
+            while (count < length)
+            {
+                ArrayMemory info = _unusingArrayPool.front();
+                if (info.size >= size)
+                {
+                    delete[] info.pointer;
+                    instance = info.pointer;
+                    break;
+                }
+                _unusingArrayPool.pop_front();
+                _unusingArrayPool.push_back(info);
+                count++;
+            }
+
+            if (instance != nullptr)
+            {
+                instance = (T *)malloc(sizeof(T) * size);
+            }
+        }
+
+        return instance;
+    }
+
+    T *GetUnusingPointer()
     {
         T *instance = nullptr;
         if (_unusingPool.empty())
@@ -63,6 +106,12 @@ public:
 
     void Destroy() override
     {
+        for (auto info : _usingArrayPool)
+        {
+            delete[] info.pointer;
+        }
+        _usingArrayPool.clear();
+
         for (auto v : _usingPool)
         {
             delete v;
@@ -89,9 +138,19 @@ public:
     }
 
 public:
+    T * Array(int size)
+    {
+        T *pointer = GetUnusingArrayPointer(size);
+
+        new (pointer)T[size];
+        _usingArrayPool.push_back(ArrayMemory{ pointer, size });
+
+        return pointer;
+    }
+
     T * New()
     {
-        T *pointer = GetUnsingPointer();
+        T *pointer = GetUnusingPointer();
 
         _usingPool.push_back(new(pointer) T());
 
@@ -101,7 +160,7 @@ public:
     template<typename T1>
     T *New(T1 t1)
     {
-        T *pointer = GetUnsingPointer();
+        T *pointer = GetUnusingPointer();
 
         _usingPool.push_back(new(pointer) T(t1));
 
@@ -111,7 +170,7 @@ public:
     template<typename T1, typename T2>
     T *New(T1 t1, T2 t2)
     {
-        T *pointer = GetUnsingPointer();
+        T *pointer = GetUnusingPointer();
 
         _usingPool.push_back(new(pointer) T(t1, t2));
 
@@ -121,7 +180,7 @@ public:
     template<typename T1, typename T2, typename T3>
     T *New(T1 t1, T2 t2, T3 t3)
     {
-        T *pointer = GetUnsingPointer();
+        T *pointer = GetUnusingPointer();
 
         _usingPool.push_back(new(pointer) T(t1, t2, t3));
 
@@ -131,7 +190,7 @@ public:
     template<typename T1, typename T2, typename T3, typename T4>
     T *New(T1 t1, T2 t2, T3 t3, T4 t4)
     {
-        T *pointer = GetUnsingPointer();
+        T *pointer = GetUnusingPointer();
 
         _usingPool.push_back(new(pointer) T(t1, t2, t3, t4));
 
@@ -151,11 +210,16 @@ public:
         }
         else
         {
+            _usingPool.remove(instance);
             _unusingPool.push_back(instance);
         }
     }
 
 private:
+   
+    std::list<ArrayMemory> _usingArrayPool;
+    std::list<ArrayMemory> _unusingArrayPool;
+
     std::list<T *> _usingPool;
     std::list<T *> _unusingPool;
     int _limit = 65535;

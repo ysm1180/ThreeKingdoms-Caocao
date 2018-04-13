@@ -25,6 +25,7 @@ class CStaticControl;
 class CGroupBoxControl;
 class CCheckBoxControl;
 class CRadioButtonControl;
+class CComboBoxControl;
 
 class CControlManager
 {
@@ -53,6 +54,8 @@ public:
     CGroupBoxControl* CreateGroupBox(CWindowControl* parent);
     CCheckBoxControl* CreateCheckBox(CWindowControl* parent);
     CRadioButtonControl* CreateRadioButton(CWindowControl* parent);
+    CComboBoxControl* CreateComboBox(CWindowControl* parent);
+
 
     HINSTANCE GetHInstance();
 
