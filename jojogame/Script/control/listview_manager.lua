@@ -26,7 +26,11 @@ ListViewManager = ControlManager:Instance
 
             newControl:SetRowHeight(options.RowHeight)
 
-            if options.Event then
+            if options.Background ~= nil then
+                newControl:SetTransparentBackground(options.Background.Transparent)
+            end
+            
+            if options.Event ~= nil then
                 newControl:SetCreateEvent(options.Event.Create)
                 newControl:SetDestroyEvent(options.Event.Destroy)
                 newControl:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
@@ -36,7 +40,7 @@ ListViewManager = ControlManager:Instance
                 newControl:SetMouseLeaveEvent(options.Event.MouseLeave)
             end
 
-            if options.Option then
+            if options.Option ~= nil then
                 newControl:SetShowBorder(options.Option.ShowBorder)
                 newControl:SetShowColumn(options.Option.ShowColumn)
                 newControl:SetSortClickedColumn(options.Option.SortClickedColumn)
@@ -48,13 +52,13 @@ ListViewManager = ControlManager:Instance
 
             newControl:Create()
 
-            if options.Columns then    
+            if options.Columns ~= nil then    
                 for i = 1, #options.Columns do
                     newControl:AddColumn(options.Columns[i])
                 end
             end
 
-            if options.Rows then
+            if options.Rows ~= nil then
                 for i = 1, #options.Rows do
                     newControl:AddRow(options.Rows[i])
                 end
@@ -91,7 +95,7 @@ ListViewManager = ControlManager:Instance
             newControl:SetAutoSizeFitItem(options.AutoSizeFitItem)
             newControl:SetAutoSizeFitHeader(options.AutoSizeFitHeader)
 
-            if options.Text then
+            if options.Text ~= nil then
                 newControl:SetText(options.Text.Content)
                 newControl:SetAlign(options.Text.Align)
             end

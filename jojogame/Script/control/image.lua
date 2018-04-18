@@ -33,6 +33,10 @@ Image = ControlObject:Instance
                 }
             end
 
+            if options.Brightness == nil then
+                options.Brightness = 1.0
+            end
+
             options.MaskColor.R = options.MaskColor.R or self.DEFAULT_MASK_COLOR.R
             options.MaskColor.G = options.MaskColor.G or self.DEFAULT_MASK_COLOR.G
             options.MaskColor.B = options.MaskColor.B or self.DEFAULT_MASK_COLOR.B
@@ -59,7 +63,8 @@ Image = ControlObject:Instance
                 options.FilePath,
                 options.Group.Main,
                 options.Group.Sub,
-                gameManager:Color(options.MaskColor.R, options.MaskColor.G, options.MaskColor.B)
+                gameManager:Color(options.MaskColor.R, options.MaskColor.G, options.MaskColor.B),
+                options.Brightness
             )
         end
     end,

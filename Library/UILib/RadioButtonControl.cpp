@@ -22,6 +22,9 @@ LRESULT CRadioButtonControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, L
         {
             CLuaTinker::GetLuaTinker().Call(createEvent, radioButtonControl);
         }
+
+        radioButtonControl->_theme = OpenThemeData(hWnd, L"Button");
+        SetWindowTheme(hWnd, L"", L"");
         break;
     }
 
@@ -193,6 +196,11 @@ std::wstring CRadioButtonControl::GetText()
 CTextFont* CRadioButtonControl::GetFont()
 {
     return &_font;
+}
+
+HTHEME CRadioButtonControl::GetTheme()
+{
+    return _theme;
 }
 
 void CRadioButtonControl::SetText(std::wstring text)

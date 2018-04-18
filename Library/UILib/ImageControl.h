@@ -1,7 +1,6 @@
 #pragma once
 
 #include "LuaLib\LuaTinker.h"
-#include "CommonLib/lodepng.h"
 
 #include <Windows.h>
 
@@ -18,12 +17,16 @@ public:
     int GetHeight();
     HBITMAP GetImageHandle();
     HBITMAP GetMaskImageHandle();
+    BITMAPINFO GetBitmapInfo();
 
-    void LoadImageFromMe5FileByIndex(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor);
+    void LoadImageFromMe5FileByIndex(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor,
+                                     double brightness = 1);
 
 private:
     SIZE _size;
     HBITMAP _image = nullptr;
     HBITMAP _maskImage = nullptr;
+
+    BITMAPINFO _info;
 };
 };

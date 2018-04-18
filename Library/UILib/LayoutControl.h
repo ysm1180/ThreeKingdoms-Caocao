@@ -46,6 +46,7 @@ public:
 
     void Draw(HDC destDC);
     void Draw(HDC destDC, RECT& rect);
+    void Draw(HDC destDC, RECT& rect, COLORREF mixedColor);
     void Erase();
 
 private:

@@ -2,6 +2,7 @@
 
 #include "WindowControl.h"
 #include "ImageControl.h"
+#include "BaseLib/Color.h"
 
 namespace jojogame {
 void CLayoutControl::RegisterFunctions(lua_State* L)
@@ -32,7 +33,8 @@ CLayoutControl::~CLayoutControl()
 {
     for (auto imageInfo : _images)
     {
-        SelectObject(imageInfo.imageDC, imageInfo.oldBitmap);
+        HBITMAP deletedBitmap = SelectBitmap(imageInfo.imageDC, imageInfo.oldBitmap);
+        DeleteBitmap(deletedBitmap);
         DeleteDC(imageInfo.imageDC);
     }
 }
@@ -416,11 +418,20 @@ void CLayoutControl::AddParentWindow(CWindowControl* parent)
 int CLayoutControl::AddImage(CImageControl* image, int x, int y, bool isUpdate)
 {
     HDC imageDC = CreateCompatibleDC(_dc);
+    HDC newDC = CreateCompatibleDC(nullptr);
+    HDC dc = GetWindowDC(GetDesktopWindow());
+    HBITMAP newBitmap = CreateCompatibleBitmap(dc, image->GetWidth(), image->GetHeight());
     ImageInformation imageInfo;
     int index = _GetNewIndex();
 
-    imageInfo.oldBitmap = (HBITMAP)SelectObject(imageDC, image->GetImageHandle());
-    imageInfo.imageDC = imageDC;
+    imageInfo.oldBitmap = SelectBitmap(newDC, newBitmap);
+
+    HBITMAP oldBitmap = SelectBitmap(imageDC, image->GetImageHandle());
+    BitBlt(newDC, 0, 0, image->GetWidth(), image->GetHeight(), imageDC, 0, 0, SRCCOPY);
+    SelectBitmap(imageDC, oldBitmap);
+    DeleteDC(imageDC);
+
+    imageInfo.imageDC = newDC;
     imageInfo.index = index;
     imageInfo.image = image;
     imageInfo.position.x = x;
@@ -459,7 +470,8 @@ void CLayoutControl::DeleteImage(CImageControl* image, bool isUpdate)
         {
             auto position = iter->position;
 
-            SelectObject(iter->imageDC, iter->oldBitmap);
+            HBITMAP deletedBitmap = SelectBitmap(iter->imageDC, iter->oldBitmap);
+            DeleteBitmap(deletedBitmap);
             DeleteDC(iter->imageDC);
             _reusingImageIndex.push(iter->index);
             iter = _images.erase(iter);
@@ -542,14 +554,14 @@ void CLayoutControl::Draw(HDC destDC)
     }
 }
 
-void CLayoutControl::Draw(HDC destDC, RECT& rect)
+void CLayoutControl::Draw(HDC destDC, RECT& clipingRect)
 {
     for (ImageInformation image : _images)
     {
         RECT realClipingRect;
         RECT layoutRect;
         SetRect(&layoutRect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
-        if (!IntersectRect(&realClipingRect, &layoutRect, &rect))
+        if (!IntersectRect(&realClipingRect, &layoutRect, &clipingRect))
         {
             continue;
         }
@@ -599,6 +611,133 @@ void CLayoutControl::Draw(HDC destDC, RECT& rect)
             if (imageY + imageHeight > _size.cy)
             {
                 imageHeight = _size.cy - imageY;
+            }
+
+            RECT imageRect;
+            RECT realDrawRect;
+            SetRect(&imageRect, imageX, imageY, imageX + imageWidth, imageY + imageHeight);
+            if (!IntersectRect(&realDrawRect, &imageRect, &realClipingRect))
+            {
+                continue;
+            }
+
+            BitBlt(destDC, realDrawRect.left, realDrawRect.top, realDrawRect.right - realDrawRect.left,
+                   realDrawRect.bottom - realDrawRect.top, memDc, realDrawRect.left - imageRect.left,
+                   realDrawRect.top - imageRect.top, SRCCOPY);
+
+            SelectBitmap(memDc, oldBitmap);
+            DeleteBitmap(memBitmap);
+            DeleteDC(memDc);
+        }
+    }
+}
+
+void CLayoutControl::Draw(HDC destDC, RECT &clipingRect, COLORREF mixedColor)
+{
+    for (ImageInformation image : _images)
+    {
+        RECT realClipingRect;
+        RECT layoutRect;
+        SetRect(&layoutRect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
+        if (!IntersectRect(&realClipingRect, &layoutRect, &clipingRect))
+        {
+            continue;
+        }
+
+        int imageX = (image.position.x * _ratioX) + _position.x;
+        int imageY = (image.position.y * +_ratioY) + _position.y;
+        auto width = image.image->GetWidth();
+        int height = image.image->GetHeight();
+        int imageWidth = width * _ratioX;
+        int imageHeight = height * _ratioY;
+
+        if (_ratioX == 1.0 && _ratioY == 1.0)
+        {
+            if (imageX + imageWidth > _size.cx)
+            {
+                imageWidth = _size.cx - imageX;
+            }
+            if (imageY + imageHeight > _size.cy)
+            {
+                imageHeight = _size.cy - imageY;
+            }
+
+            RECT imageRect;
+            RECT realDrawRect;
+            SetRect(&imageRect, imageX, imageY, imageX + imageWidth, imageY + imageHeight);
+            if (!IntersectRect(&realDrawRect, &imageRect, &realClipingRect))
+            {
+                continue;
+            }
+
+            auto bitmapInfo = image.image->GetBitmapInfo();
+            GetDIBits(image.imageDC, image.image->GetImageHandle(), 0, 0, nullptr, &bitmapInfo, DIB_RGB_COLORS);
+
+            int bits = bitmapInfo.bmiHeader.biBitCount / 8;
+            auto pixels = new BYTE[bitmapInfo.bmiHeader.biSizeImage];
+            GetDIBits(image.imageDC, image.image->GetImageHandle(), 0, height, pixels, &bitmapInfo, DIB_RGB_COLORS);
+
+            auto cx = realDrawRect.right - realDrawRect.left;
+            auto cy = realDrawRect.bottom - realDrawRect.top;
+            auto drawingImageX = realDrawRect.left - imageRect.left;
+            auto drawingImageY = realDrawRect.top - imageRect.top;
+
+            for (int y = height - drawingImageY - 1; y >  height - drawingImageY - cy - 1; --y)
+            {
+                for (int x = drawingImageX; x <  drawingImageX + cx; ++x)
+                {
+                    double h, s, v, h2, s2, v2;
+                    BYTE b = pixels[(x + y * width) * bits];
+                    BYTE g = pixels[(x + y * width) * bits + 1];
+                    BYTE r = pixels[(x + y * width) * bits + 2];
+                    RgbToHsv(r, g, b, h, s, v);
+                    RgbToHsv(GetRValue(mixedColor), GetGValue(mixedColor), GetBValue(mixedColor), h2, s2, v2);
+                    h = h2;
+                    s = s2;
+                    HsvToRgb(h, s, v, r, g, b);
+                    pixels[(x + y * width) * bits] = b;
+                    pixels[(x + y * width) * bits + 1] = g;
+                    pixels[(x + y * width) * bits + 2] = r;
+                }
+            }
+            BITMAPINFOHEADER *bitmapInfoHeader = (BITMAPINFOHEADER *)&bitmapInfo;
+            HBITMAP newBitmap = CreateDIBitmap(image.imageDC, bitmapInfoHeader, CBM_INIT, pixels, &bitmapInfo, DIB_RGB_COLORS);
+            auto oldBitmap = SelectBitmap(image.imageDC, newBitmap);
+
+            
+            BitBlt(destDC, realDrawRect.left, realDrawRect.top, cx,
+                   cy, image.imageDC, drawingImageX,
+                   drawingImageY, SRCCOPY);
+
+            SelectObject(image.imageDC, oldBitmap);
+            DeleteBitmap(newBitmap);
+            delete[] pixels;
+        }
+        else
+        {
+            auto memDc = CreateCompatibleDC(destDC);
+            auto memBitmap = CreateCompatibleBitmap(destDC, imageWidth, imageHeight);
+            auto oldBitmap = SelectBitmap(memDc, memBitmap);
+
+            SetStretchBltMode(memDc, COLORONCOLOR);
+            StretchBlt(memDc, 0, 0, imageWidth, imageHeight, image.imageDC, 0, 0, width,
+                       height, SRCCOPY);
+
+            if (imageX + imageWidth > _size.cx)
+            {
+                imageWidth = _size.cx - imageX;
+            }
+            if (imageY + imageHeight > _size.cy)
+            {
+                imageHeight = _size.cy - imageY;
+            }
+
+            RECT imageRect;
+            RECT realDrawRect;
+            SetRect(&imageRect, imageX, imageY, imageX + imageWidth, imageY + imageHeight);
+            if (!IntersectRect(&realDrawRect, &imageRect, &realClipingRect))
+            {
+                continue;
             }
 
             BitBlt(destDC, imageX, imageY, imageWidth, imageHeight, memDc, 0, 0, SRCCOPY);

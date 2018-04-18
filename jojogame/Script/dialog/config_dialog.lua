@@ -27,8 +27,13 @@ local backImage = ImageManager:CreateImage({
         Sub = 0,
     },
     MaskColor = 0xF700FF,
+    Brightness = 1.3,
 })
-dialogLayout:AddImage(backImage, 0, 0)
+for x = 0, configDialog:Width(), backImage:Width() do
+    for y = 0, configDialog:Height(), backImage:Height() do
+        dialogLayout:AddImage(backImage, x, y)
+    end
+end
 configDialog:AddLayout(dialogLayout)
 
 StaticManager:Create({

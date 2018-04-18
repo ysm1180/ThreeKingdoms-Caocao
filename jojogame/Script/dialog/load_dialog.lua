@@ -12,8 +12,32 @@ loadDialog = WindowManager:Create({
     Modal = true
 })
 
+local dialogLayout = LayoutManager:CreateLayout({
+    Ratio = {
+        X = 1,
+        Y = 1,
+    }
+})
+local backImage = ImageManager:CreateImage({
+    FilePath = "logo.me5",
+    Group = {
+        Main = "Background",
+        Sub = 0,
+    },
+    MaskColor = 0xF700FF,
+    Brightness = 1.3,
+})
+for x = 0, loadDialog:Width(), backImage:Width() do
+    for y = 0, loadDialog:Height(), backImage:Height() do
+        dialogLayout:AddImage(backImage, x, y)
+    end
+end
+loadDialog:AddLayout(dialogLayout)
+
 StaticManager:Create({
     Parent = loadDialog,
+    X = 6,
+    Y = 4, 
     AutoSize = true,
     Text = {
         Content = "데이터",
@@ -53,6 +77,9 @@ ListViewManager:CreateListView({
     Height = 152,
     X = 6,
     Y = 23,
+    Background = {
+        Transparent = true,
+    },
     Columns = {
         ListViewManager:CreateColumn({
             AutoSizeFitItem = true,

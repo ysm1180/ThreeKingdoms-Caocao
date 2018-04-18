@@ -22,6 +22,9 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
         {
             CLuaTinker::GetLuaTinker().Call(createEvent, checkBoxControl);
         }
+
+        checkBoxControl->_theme = OpenThemeData(hWnd, L"Button");
+        SetWindowTheme(hWnd, L"", L"");
         break;
     }
 
@@ -192,6 +195,11 @@ std::wstring CCheckBoxControl::GetText()
 CTextFont* CCheckBoxControl::GetFont()
 {
     return &_font;
+}
+
+HTHEME CCheckBoxControl::GetTheme()
+{
+    return _theme;
 }
 
 void CCheckBoxControl::SetText(std::wstring text)

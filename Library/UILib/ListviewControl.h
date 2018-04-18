@@ -157,6 +157,7 @@ public:
     bool IsSortClickedColumn() const;
     bool IsOneClickItemActivated() const;
     bool IsTrackingSelect() const;
+    bool IsTransparentBackground() const;
     CListViewColumn* GetColumn(int columnIndex);
     CListViewRow* GetRow(int rowIndex);
     int GetColumnCount();
@@ -169,6 +170,7 @@ public:
     void SetSortClickedColumn(bool isSortClickedColumn);
     void SetOneClickItemActivated(bool isHotClick);
     void SetTrackingSelect(bool isTrackingSelect);
+    void SetTransparentBackground(bool isTransparentBackground);
     void SetParentWindow(CWindowControl* parent);
     void SetBackgroundColor(COLORREF color);
     void SetRowHeight(int rowHeight);
@@ -191,6 +193,7 @@ private:
     bool _isSortClckedColumn = false;
     bool _isOneClickItemActivated = false;
     bool _isTrackingSelect = false;
+    bool _isTransparentBackground = false;
 
     COLORREF _backgroundColor = RGB(0xFF, 0xFF, 0xFF);
     HBRUSH _backgroundBrush = CreateSolidBrush(_backgroundColor);

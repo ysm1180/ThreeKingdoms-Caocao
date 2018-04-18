@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Color.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="MemoryPool.h" />
     <ClInclude Include="ConsoleOutput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Color.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="MemoryPool.cpp" />
     <ClCompile Include="ConsoleOutput.cpp" />

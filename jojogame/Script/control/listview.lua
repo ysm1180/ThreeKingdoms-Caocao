@@ -536,6 +536,12 @@ ListView = Control:Instance
         end
     end,
 
+    SetTransparentBackground = function(self, value)
+        if type(value) == "boolean" then
+            self.control:SetTransparentBackground(value)
+        end
+    end,
+
     SetRowHeight = function(self, height)
         if height ~= nil then
             self.control:SetRowHeight(height)

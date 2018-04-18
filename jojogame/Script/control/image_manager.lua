@@ -15,6 +15,7 @@ ImageManager = Object:Instance
                     Sub = options.Group.Sub,
                 },
                 MaskColor = options.MaskColor,
+                Brightness = options.Brightness,
             })
         end
 

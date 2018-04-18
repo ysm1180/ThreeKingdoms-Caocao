@@ -430,19 +430,21 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             int left = item->rcItem.left;
             for (int i = 0; i < listview->GetColumnCount(); ++i)
             {
+                bool isSelected = false;
                 auto listViewItem = row->GetItem(i + 1);
-                HBRUSH backgroundBrush;
+                COLORREF backgroundColor;
 
                 if (row->IsEnabled())
                 {
                     if (item->itemState & ODS_SELECTED)
                     {
-                        backgroundBrush = CreateSolidBrush(listViewItem->GetFocusedBackgroundColor());
+                        backgroundColor= listViewItem->GetFocusedBackgroundColor();
                         SetTextColor(item->hDC, listViewItem->GetFocusedTextColor());
+                        isSelected = true;
                     }
                     else
                     {
-                        backgroundBrush = CreateSolidBrush(listViewItem->GetNormalBackgroundColor());
+                        backgroundColor = listViewItem->GetNormalBackgroundColor();
                         SetTextColor(item->hDC, listViewItem->GetNormalTextColor());
                     }
                 }
@@ -450,23 +452,95 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 {
                     if (item->itemState & ODS_SELECTED)
                     {
-                        backgroundBrush = CreateSolidBrush(listViewItem->GetDisableFocusedBackgroundColor());
+                        backgroundColor = listViewItem->GetDisableFocusedBackgroundColor();
                         SetTextColor(item->hDC, listViewItem->GetDisableFocusedTextColor());
+                        isSelected = true;
                     }
                     else
                     {
-                        backgroundBrush = CreateSolidBrush(listViewItem->GetDisabledBackgroundColor());
+                        backgroundColor = listViewItem->GetDisabledBackgroundColor();
                         SetTextColor(item->hDC, listViewItem->GetDisabledTextColor());
                     }
                 }
 
-
                 RECT rect;
                 auto columnWidth = ListView_GetColumnWidth(item->hwndItem, i);
-
                 SetRect(&rect, left, item->rcItem.top, left + columnWidth, item->rcItem.bottom);
-                FillRect(item->hDC, &rect, backgroundBrush);
-                DeleteBrush(backgroundBrush);
+                
+
+                if (listview->IsTransparentBackground())
+                {
+                    auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
+                    if (isSelected)
+                    {
+                        HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor);
+                        FillRect(item->hDC, &rect, backgroundBrush);
+                        DeleteBrush(backgroundBrush);
+                    }
+                    else
+                    {
+                        FillRect(item->hDC, &rect, window->GetBackgroundBrush());
+                    }
+
+                    RECT rectByWindow;
+                    SetRect(&rectByWindow, rect.left, rect.top, rect.right, rect.bottom);
+                    ClientToScreen(listview->GetHWnd(), reinterpret_cast<POINT*>(&rectByWindow.left));  // convert top-left
+                    ClientToScreen(listview->GetHWnd(), reinterpret_cast<POINT*>(&rectByWindow.right)); // convert bottom-right
+                    ScreenToClient(hWnd, reinterpret_cast<POINT*>(&rectByWindow.left));
+                    ScreenToClient(hWnd, reinterpret_cast<POINT*>(&rectByWindow.right));
+                    rectByWindow.left -= rect.left;
+                    rectByWindow.top -= rect.top;
+
+                    bool isFitWidth = false;
+                    bool isFitHeight = false;
+
+                    for (auto layout : window->_layouts)
+                    {
+                        isFitWidth = isFitHeight = false;
+
+                        if (layout->GetWidth() == 0)
+                        {
+                            isFitWidth = true;
+                            layout->SetWidth(window->GetWidth());
+                        }
+                        if (layout->GetHeight() == 0)
+                        {
+                            isFitHeight = true;
+                            layout->SetHeight(window->GetHeight());
+                        }
+
+                        layout->SetX(layout->GetX() - rectByWindow.left);
+                        layout->SetY(layout->GetY() - rectByWindow.top);
+
+                        if (isSelected)
+                        {
+                            layout->Draw(item->hDC, rect, backgroundColor);
+                        }
+                        else
+                        {
+                            layout->Draw(item->hDC, rect);
+                        }
+
+                        layout->SetX(layout->GetX() + rectByWindow.left);
+                        layout->SetY(layout->GetY() + rectByWindow.top);
+
+                        if (isFitWidth)
+                        {
+                            layout->SetWidth(0);
+                        }
+                        if (isFitHeight)
+                        {
+                            layout->SetHeight(0);
+                        }
+                    }
+                }
+                else
+                {
+                    HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor);
+                    FillRect(item->hDC, &rect, backgroundBrush);
+                    DeleteBrush(backgroundBrush);
+                }
 
                 auto originalFont = SelectFont(item->hDC, listViewItem->GetFont()->GetHFont());
                 SetBkMode(item->hDC, TRANSPARENT);
@@ -538,52 +612,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             GetTextExtentPoint32((HDC)wParam, groupBox->GetText().c_str(), groupBox->GetText().length(), &size);
 
             GetClientRect(groupBox->GetHWnd(), &rect);
-            auto rgn = CreateRectRgn(rect.left, rect.top, rect.right, rect.bottom);
-            SelectClipRgn((HDC)wParam, rgn);
-
-            RECT parentRect;
-            SetRect(&rect, rect.left + 4, rect.top, rect.right, rect.top + size.cy);
-            SetRect(&parentRect, rect.left, rect.top, rect.right, rect.bottom);
-            ClientToScreen(groupBox->GetHWnd(), reinterpret_cast<POINT*>(&parentRect.left));  // convert top-left
-            ClientToScreen(groupBox->GetHWnd(), reinterpret_cast<POINT*>(&parentRect.right)); // convert bottom-right
-            ScreenToClient(hWnd, reinterpret_cast<POINT*>(&parentRect.left));
-            ScreenToClient(hWnd, reinterpret_cast<POINT*>(&parentRect.right));
-
-            auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            bool isFitWidth = false;
-            bool isFitHeight = false;
-            HDC hdc = GetDC(hWnd);
-
-            FillRect(hdc, &parentRect, window->_backBrush);
-            for (auto layout : window->_layouts)
-            {
-                isFitWidth = isFitHeight = false;
-
-                if (layout->GetWidth() == 0)
-                {
-                    isFitWidth = true;
-                    layout->SetWidth(window->GetWidth());
-                }
-                if (layout->GetHeight() == 0)
-                {
-                    isFitHeight = true;
-                    layout->SetHeight(window->GetHeight());
-                }
-
-                layout->Draw(hdc, parentRect);
-
-                if (isFitWidth)
-                {
-                    layout->SetWidth(0);
-                }
-                if (isFitHeight)
-                {
-                    layout->SetHeight(0);
-                }
-            }
-            ReleaseDC(hWnd, hdc);
-
-            SetRect(&rect, rect.left, rect.top, rect.left + size.cx, rect.bottom);
+            SetRect(&rect, rect.left + 4, rect.top, rect.left + size.cx + 4, rect.top + size.cy);
             SetBkMode((HDC)wParam, TRANSPARENT);
             DrawText((HDC)wParam, groupBox->GetText().c_str(), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
             SelectFont((HDC)wParam, originalFont);
@@ -619,7 +648,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             RECT checkBoxRect;
             SetRect(&checkBoxRect, rect.left, rect.top + height / 2 - checkBoxHeight / 2, rect.left + checkBoxWidth,
                     rect.bottom - (height / 2 - checkBoxHeight / 2));
-            auto theme = OpenThemeData((HWND)lParam, L"Button");
+            auto theme = checkBox->GetTheme();
             if (checkBox->IsChecked())
             {
                 if (checkBox->IsPressed())
@@ -699,7 +728,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             RECT radioButtonRect;
             SetRect(&radioButtonRect, rect.left, rect.top + height / 2 - radioHeight / 2, rect.left + radioWidth,
                     rect.bottom - (height / 2 - radioHeight / 2));
-            auto theme = OpenThemeData((HWND)lParam, L"Button");
+            auto theme = radioButton->GetTheme();
             if (radioButton->IsChecked())
             {
                 if (radioButton->IsPressed())
@@ -857,6 +886,7 @@ void CWindowControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(GetCloseEvent);
     LUA_METHOD(GetSizeEvent);
     LUA_METHOD(GetMenu);
+    LUA_METHOD(GetBackgroundColor);
 
     LUA_METHOD(SetMaxButton);
     LUA_METHOD(SetMinButton);
@@ -959,6 +989,16 @@ int CWindowControl::GetCloseEvent() const
 int CWindowControl::GetSizeEvent() const
 {
     return _sizeEvent;
+}
+
+COLORREF CWindowControl::GetBackgroundColor()
+{
+    return _backgroundColor;
+}
+
+HBRUSH CWindowControl::GetBackgroundBrush()
+{
+    return _backBrush;
 }
 
 CMenu* CWindowControl::GetMenu()

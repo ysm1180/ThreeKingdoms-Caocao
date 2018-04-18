@@ -143,9 +143,13 @@ LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     case WM_ERASEBKGND:
     {
         auto listView = reinterpret_cast<CListViewControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        RECT rect;
-        GetClientRect(hWnd, &rect);
-        FillRect((HDC)wParam, &rect, listView->GetBackgroundBrush());
+
+        if (!listView->IsTransparentBackground())
+        {
+            RECT rect;
+            GetClientRect(hWnd, &rect);
+            FillRect((HDC)wParam, &rect, listView->GetBackgroundBrush());
+        }
         return TRUE;
     }
     }
@@ -614,6 +618,7 @@ void CListViewControl::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN_CHILD(CListViewControl, "_ListView", CBaseControl);
 
+    LUA_METHOD(IsTransparentBackground);
     LUA_METHOD(GetColumn);
     LUA_METHOD(GetRow);
 
@@ -622,6 +627,7 @@ void CListViewControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(SetSortClickedColumn);
     LUA_METHOD(SetOneClickItemActivated);
     LUA_METHOD(SetTrackingSelect);
+    LUA_METHOD(SetTransparentBackground);
     LUA_METHOD(SetRowHeight);
 
     LUA_METHOD(AddColumn);
@@ -677,6 +683,11 @@ bool CListViewControl::IsOneClickItemActivated() const
 bool CListViewControl::IsTrackingSelect() const
 {
     return _isTrackingSelect;
+}
+
+bool CListViewControl::IsTransparentBackground() const
+{
+    return _isTransparentBackground;
 }
 
 CListViewColumn* CListViewControl::GetColumn(int columnIndex)
@@ -816,6 +827,16 @@ void CListViewControl::SetTrackingSelect(bool isTrackingSelect)
     {
         ListView_SetExtendedListViewStyle(_hWnd, _exStyle);
         ListView_SetHoverTime(_hWnd, 1);
+    }
+}
+
+void CListViewControl::SetTransparentBackground(bool isTransparentBackground)
+{
+    if (_isTransparentBackground != isTransparentBackground)
+    {
+        _isTransparentBackground = isTransparentBackground;
+
+        Refresh();
     }
 }
 

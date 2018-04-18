@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "BaseControl.h"
 #include "TextFont.h"
+#include <Uxtheme.h>
 
 namespace jojogame {
 class CCheckBoxControl : public CBaseControl
@@ -14,6 +15,7 @@ public:
     bool IsChecked();
     std::wstring GetText();
     CTextFont* GetFont();
+    HTHEME GetTheme();
 
     void SetText(std::wstring text);
     void SetChecked(bool checked);
@@ -26,6 +28,7 @@ public:
 private:
     CTextFont _font;
     std::wstring _text;
+    HTHEME _theme;
 
     static WNDPROC s_originalProc;
 };

@@ -30,6 +30,8 @@ public:
     int GetActiveEvent() const;
     int GetCloseEvent() const;
     int GetSizeEvent() const;
+    COLORREF GetBackgroundColor();
+    HBRUSH GetBackgroundBrush();
     CMenu* GetMenu();
 
     void SetY(int y) override;

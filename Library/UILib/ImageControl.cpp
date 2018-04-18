@@ -1,9 +1,12 @@
 #include "ImageControl.h"
 
+#include "BaseLib/Color.h"
 #include "CommonLib/ME5File.h"
+#include "CommonLib/FileManager.h"
+#include "CommonLib/lodepng.h"
 
 #include <iterator>
-#include "CommonLib/FileManager.h"
+#include <vector>
 
 namespace jojogame {
 void PngToBmp(std::vector<BYTE>& bmp, const BYTE* pngImage, int size)
@@ -153,7 +156,8 @@ CImageControl::~CImageControl()
     }
 }
 
-void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor)
+void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor,
+                                                double brightness)
 {
     CME5File imageFile;
 
@@ -176,9 +180,39 @@ void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int group
     _size.cx = bmpInfoHeader->biWidth;
     _size.cy = bmpInfoHeader->biHeight;
 
+    _info = *bmpInfo;
+
     HDC dc = GetDC(nullptr);
     HDC imageDC = CreateCompatibleDC(dc);
     HDC maskDC = CreateCompatibleDC(dc);
+
+    int lineWidth = _size.cx;
+    for (int y = 0; y < _size.cy; ++y)
+    {
+        for (int x = 0; x < lineWidth; ++x)
+        {
+            double h, s, v;
+            BYTE r = bits[(x + y * lineWidth) * 3];
+            BYTE g = bits[(x + y * lineWidth) * 3 + 1];
+            BYTE b = bits[(x + y * lineWidth) * 3 + 2];
+
+            if (r == GetRValue(maskColor) && g == GetGValue(maskColor) && b == GetBValue(maskColor))
+            {
+                continue;
+            }
+            RgbToHsv(r, g, b, h, s, v);
+            v *= brightness;
+            if (v > 1)
+            {
+                v = 1;
+            }
+            HsvToRgb(h, s, v, r, g, b);
+            bits[(x + y * lineWidth) * 3] = r;
+            bits[(x + y * lineWidth) * 3 + 1] = g;
+            bits[(x + y * lineWidth) * 3 + 2] = b;
+        }
+    }
+
 
     _image = CreateDIBitmap(dc, bmpInfoHeader, CBM_INIT, (void *)bits, bmpInfo, DIB_RGB_COLORS);
     _maskImage = CreateBitmap(_size.cx, _size.cy, 1, 1, nullptr);
@@ -221,5 +255,10 @@ HBITMAP CImageControl::GetImageHandle()
 HBITMAP CImageControl::GetMaskImageHandle()
 {
     return _maskImage;
+}
+
+BITMAPINFO CImageControl::GetBitmapInfo()
+{
+    return _info;
 }
 }
