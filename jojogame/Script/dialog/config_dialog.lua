@@ -1,5 +1,3 @@
-local clock = gameManager:Clock()
-
 configDialog = WindowManager:Create({
     Parent = main,
     Width = 283,
@@ -199,5 +197,3 @@ ComboBoxManager:Create({
     },
     Show = true,
 })
-
-OUTPUT("CLOCK : "  .. tostring(gameManager:Clock() - clock))

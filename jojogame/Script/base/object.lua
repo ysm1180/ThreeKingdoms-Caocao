@@ -3,7 +3,7 @@ Object = {}
 function Object:Init()
 end
 
--- DO NOT USE THIS DIRECTLY
+-- @description DO NOT USE THIS DIRECTLY
 function Object:Instance(instance)
     instance = instance or {}
     setmetatable(instance, self)

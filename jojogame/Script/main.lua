@@ -12,7 +12,10 @@ require "control/checkbox_manager.lua"
 require "control/radiobutton_manager.lua"
 require "control/combobox_manager.lua"
 
+-- 게임이 종료되고 있는 중인지 체크
 isClosing = false
+
+-- 시작 방식 설정 - true 면 오리지날 조조전 버전
 dialog = false
 
 function main()
@@ -57,15 +60,17 @@ function main()
         })
     })
     
+    -- 배경 이미지 생성
     backgroundImage = ImageManager:CreateImage({
         FilePath = "logo.me5",
-        Group = {
-            Main = 0,
+        Group = { 
+            Main = "Logo",
             Sub = 0,
         },
         MaskColor = 0xF700FF,
     })
 
+    -- 메인 Window 생성
     main = WindowManager:Create({
         Width = mainSize.Width,
         Height = mainSize.Height,
@@ -76,9 +81,12 @@ function main()
         },
         Event = {
             MouseLButtonUp = function()
+                -- 오프닝 동영상이 재생 중이면 멈춤
                 if openningMovie:IsPlaying() then
                     openningMovie:Destroy()
                 end
+
+                -- 종료 중이면 Delay 없애기
                 if isClosing then
                     gameManager:StopDelay()
                 end
@@ -86,31 +94,38 @@ function main()
             Close = function ()
                 isClosing = true
                 
+                -- 종료 배경 이미지 생성
                 exitBackgroundImage = ImageManager:CreateImage({
                     FilePath = "logo.me5",
                     Group = {
-                        Main = 0,
+                        Main = "Logo",
                         Sub = 1
                     },
                     MaskColor = 0xF700FF,
                 })
+                -- 레이아웃 생성
                 exitBackgroundLayout = LayoutManager:CreateLayout({})
                 exitBackgroundLayout:AddImage(exitBackgroundImage, 0, toolbar:Height())
                 
+                -- 버튼 삭제
                 for i = 1, #mainDialogButtons do
                     mainDialogButtons[i]:Destroy()
                 end
                 
+                -- 배경 이미지 레이아웃 삭제, 종료 배경 이미지 레이아웃 추가
                 main:DeleteLayout(backgroundLayout)
                 main:AddLayout(exitBackgroundLayout)
                 
+                -- 3초 딜레이
                 gameManager:Delay(3000)
             end,
             Destroy = function()
+                -- 게임 종료
                 gameManager:Quit()
             end,
             Size = function (self, x, y)
                 if backgroundLayout ~= nil and toolbar ~= nil then
+                    -- 크기 조절시 툴바 크기와 레이아웃 비율 변경
                     toolbar:AutoSize()
                     
                     ratioX = x / 640
@@ -124,6 +139,7 @@ function main()
         Menu = mainMenu,
     })
 
+    -- 종료 툴바 버튼 생성
     exitToolbarButton = ToolbarManager:CreateToolbarButton({
         Text = {
             Tooltip = "종료",
@@ -145,6 +161,8 @@ function main()
         ),
         Enabled = false,
     })
+
+    -- 툴바 생성
     toolbar = ToolbarManager:CreateToolbar({
         Parent = main,
         Image = {
@@ -187,6 +205,8 @@ function main()
         },
         Show = true,
     })
+
+    -- 배경 이미지 레이아웃 생성
     backgroundLayout = LayoutManager:CreateLayout({
         Y = toolbar:Height(),
         Ratio = {
@@ -194,9 +214,14 @@ function main()
             Y = 1,
         }
     })
+
+    -- 메인 창 띄우기
     main:Show()
+
+    -- 툴바 추가로 인해 사이즈 조절
     main:SetSize(nil, main:Height() + toolbar:Height())
     
+    -- 오프닝 동영상 생성
     openningMovie = MoviePlayerManager:Create({
         FileName = "LOGO.avi",
         Parent = main,
@@ -207,13 +232,23 @@ function main()
         },
         Center = true,
     })
+    -- 재생
     openningMovie:Play()
+
+    -- 재생되는 동안 이 아래는 실행되지 않음 --
     
+    -- 동영상 종료된 후 종료 툴바 버튼 활성화
     exitToolbarButton:Enable()
+    
+    -- 레이아웃에 이미지 추가
     backgroundLayout:AddImage(backgroundImage, 0, 0)
+    
+    -- 레이아웃 추가
     main:AddLayout(backgroundLayout)
     
+    -- 오리지날 조조전 버전
     if dialog then
+        -- dialog 창 생성
         mainDialog = WindowManager:Create({
             Parent = main,
             Width = 202,
@@ -228,6 +263,8 @@ function main()
             Center = true,
             Modal = true,
         })
+
+        -- 버튼 생성
         mainDialogButtons = {
             Text = {"새로운 게임을 시작한다", "저장 데이터를 불러온다", "환경 설정", "게임 종료"},
             MouseLButtonUp = {
@@ -267,9 +304,12 @@ function main()
                 },
             })
         end
+
+        -- Modal 창으로 띄움
         mainDialog:ShowModalWindow()
     
     else
+        -- 버튼 이미지 불러오기
         mainDialogButtonImages = {}
         for i = 1, 8 do
             mainDialogButtonImages[i] = ImageManager:CreateImage({
@@ -282,6 +322,7 @@ function main()
             })
         end
         
+        -- 버튼 이미지 애니메이션
         for i = 0, 550, 10 do
             if i <= 220 then
                 backgroundLayout:DeleteImage(mainDialogButtonImages[1], false)
@@ -306,6 +347,7 @@ function main()
             gameManager:Delay(5)
         end
         
+        -- 버튼 이벤트 설정
         mainDialogButtons = {
             MouseLButtonUp = {nil,
                 function()
@@ -335,6 +377,7 @@ function main()
             end,
         }
         
+        -- 버튼 생성
         for i = 1, 4 do
             mainDialogButtons[i] = ButtonManager:Create({
                 Parent = main,

@@ -1,8 +1,11 @@
 require "control.lua"
 require "text_control.lua"
 
+-- @class Button : 게임 내의 Button 컨트롤을 Wrapping 하는 클래스
+-- @inherit Control TextControl
 Button = Inherit(Control, TextControl)
 
+-- @description 기본 색 지정
 Button.DEFAULT_BACKGROUND_COLOR = {
     NORMAL = {R = 0xE1, G = 0xE1, B = 0xE1},
     FOCUSED = {R = 0x00, G = 0x78, B = 0xD7},
@@ -19,6 +22,9 @@ Button.DEFAULT_TEXT_COLOR = {
     PUSHED = {R = 0x00, G = 0x00, B = 0x00}
 }
 
+-- @description 기존 컨트롤을 받아와 Button 클래스를 생성합니다.
+-- @param control control : 기존의 button 컨트롤
+-- @return Button : 기존 control 의 wrapping 된 Button 클래스
 function Button:Instance(control)
     local newControl = {}
         
@@ -29,12 +35,18 @@ function Button:Instance(control)
     return newControl
 end
 
+-- @description 버튼을 새로 생성합니다.
+-- @param parent Window : 버튼이 생성될 부모, 보통 Window
+-- @return Button : 새로 생성된 Button class
 function Button:New(parent)
     local newControl = {}
     local parentControl = nil
     if parent ~= nil then
         parentControl = parent.control
     end
+
+    -- @description controlManager 는 Lua의 ControlManager 랑 다르다!!
+    -- @description 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
     newControl.control = controlManager:CreateButton(parentControl)
     setmetatable(newControl, Button)
     Button.__index = Button
@@ -42,24 +54,33 @@ function Button:New(parent)
     return newControl
 end
 
+-- @description 버튼의 텍스트를 설정합니다.
+-- @param text string : 텍스트
 function Button:SetText(text)
     if text ~= nil then
         self.control:SetText(text)
     end
 end
 
+-- @description 버튼의 배경을 투명화할건지 설정합니다.
+-- @param value boolean : 투명화 여부
 function Button:SetTransparentBackground(value)
     if type(value) == "boolean" then
         self.control:SetTransparentBackground(value)
     end
 end
 
+-- @description 버튼의 테두리 선 굵기를 설정합니다.
+-- @param width int : 테두리 선 굵기
 function Button:SetBorderWidth(width)
     if width ~= nil then
         self.control:SetBorderWidth(width)
     end
 end
 
+
+-- @description 버튼의 기본 배경 색을 지정합니다.
+-- @param color int | table { R int, G int, B int } : 색
 function Button:SetNormalBackgroundColor(color)
     if color ~= nil then
         if type(color) == "number" then
@@ -73,6 +94,8 @@ function Button:SetNormalBackgroundColor(color)
     end
 end
 
+-- @description 버튼에 마우스가 올라가 focus 됐을 때의 배경 색을 지정합니다.
+-- @param color int | table { R int, G int, B int } : 색
 function Button:SetFocusedBackgroundColor(color)
     if color ~= nil then
         if type(color) == "number" then
@@ -86,6 +109,8 @@ function Button:SetFocusedBackgroundColor(color)
     end
 end
 
+-- @description 버튼이 눌렸을 때의 배경 색을 지정합니다.
+-- @param color int | table { R int, G int, B int } : 색
 function Button:SetPushedBackgroundColor(color)
     if color ~= nil then
         if type(color) == "number" then
@@ -99,6 +124,8 @@ function Button:SetPushedBackgroundColor(color)
     end
 end
 
+-- @description 버튼의 기본 테두리 색을 지정합니다.
+-- @param color int | table { R int, G int, B int } : 색
 function Button:SetNormalBorderColor(color)
     if color ~= nil then
         if type(color) == "number" then
@@ -112,6 +139,8 @@ function Button:SetNormalBorderColor(color)
     end
 end
 
+-- @description 버튼에 마우스가 올라가 focus 됐을 때의 테두리 색을 지정합니다.
+-- @param color int | table { R int, G int, B int } : 색
 function Button:SetFocusedBorderColor(color)
     if color ~= nil then
         if type(color) == "number" then
@@ -125,6 +154,8 @@ function Button:SetFocusedBorderColor(color)
     end
 end
 
+-- @description 버튼이 눌렸을 때의 테두리 색을 지정합니다.
+-- @param color int | table { R int, G int, B int } : 색
 function Button:SetPushedBorderColor(color)
     if color ~= nil then
         if type(color) == "number" then
@@ -138,6 +169,8 @@ function Button:SetPushedBorderColor(color)
     end
 end
 
+-- @description 버튼의 기본 텍스트 색을 지정합니다.
+-- @param color int | table { R int, G int, B int } : 색
 function Button:SetNormalTextColor(color)
     if color ~= nil then
         if type(color) == "number" then
@@ -151,6 +184,8 @@ function Button:SetNormalTextColor(color)
     end
 end
 
+-- @description 버튼에 마우스가 올라가 focus 됐을 때의 텍스트 색을 지정합니다.
+-- @param color int | table { R int, G int, B int } : 색
 function Button:SetFocusedTextColor(color)
     if color ~= nil then
         if type(color) == "number" then
@@ -164,6 +199,8 @@ function Button:SetFocusedTextColor(color)
     end
 end
 
+-- @description 버튼이 눌렸을 때의 텍스트 색을 지정합니다.
+-- @param color int | table { R int, G int, B int } : 색
 function Button:SetPushedTextColor( color)
     if color ~= nil then
         if type(color) == "number" then

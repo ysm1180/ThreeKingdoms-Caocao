@@ -1,8 +1,68 @@
 require "control_manager.lua"
 require "button.lua"
 
+-- @class ButtonManager
+-- @description Button Class 를 관리하는 Manager class
+-- @inherit ControlManager
 ButtonManager = ControlManager:Instance 
 {
+    -- @description Button class 를 생성합니다.
+    -- @param options ButtonOptions : control 생성 옵션
+    -- @return Button : 생성된 Button class
+    -- @type ButtonOptions table
+    --[[
+        {
+            _Control control : 해당 옵션이 지정되면 모든 옵션은 무시되고 해당 컨트롤로 class 를 생성한다.
+            Parent Window : control 이 생성될 부모 class 지정
+            Width int : control 너비
+            Height int : control 높이
+            Center boolean : true 면 부모의 가운데로 이동
+            X int : X 위치
+            Y int : Y 위치
+            Event table : {
+                Create function : 생성 이벤트
+                Destroy function : 파괴 이벤트
+                MouseLButtonUp function : 마우스 왼쪽 버튼 눌렀다 땠을 때 이벤트
+                MouseLButtonDown function : 마우스 왼쪽 버튼 눌렀을 때 이벤트
+                MouseMove function : 마우스 움직일 때 이벤트
+                MouseEnter function : 마우스 진입 이벤트
+                MouseLeave function : 마우스 벗어났을 때 이벤트
+            }
+            Text table : {
+                Font table : {
+                    Name string : 폰트 이름
+                    Size int : 폰트 크기
+                    Bold boolean : 폰트 Bold 여부
+                    Underline boolean : 폰트 밑줄 여부
+                    Italic boolean : 폰트 기울임 여부
+                }
+                Color int | table : int 일 땐 해당 색으로 모든 색 통일, table 이면 {
+                    Normal int : 기본 색
+                    Focused int : 마우스 올라갔을 때 색
+                    Pushed int : 눌렸을 때 색
+                }
+                Content string : 텍스트 내용
+            }
+            Border table : {
+                Width int : 테두리 굵기
+                Color int | table : int 일 땐 모든 색 통일, table 일 땐 {
+                    Normal : 기본 색
+                    Focused : 마우스를 올렸을 때 색
+                    Pushed : 눌렸을 때 색
+                }
+            }
+            Background table : {
+                Color int | table : int 일 땐 모든 색 통일, table 일 땐 {
+                    Normal : 기본 색
+                    Focused : 마우스를 올렸을 때 색
+                    Pushed : 눌렸을 때 색
+                }
+                Transparent boolean : 배경 투명화 여부
+            }
+            UserData string : 임의 데이터
+            Show boolean : 생성 후 Show 여부
+        }
+    ]]
     Create = function(self, options)
         local newControl = nil
 
@@ -14,8 +74,10 @@ ButtonManager = ControlManager:Instance
             
             newControl = Button:New(options.Parent)
 
+            -- @description 크기 설정
             newControl:SetSize(options.Width, options.Height)
 
+            -- @description 가운데
             if options.Center then
                 local x, y = ControlManager:GetCenterPosition(options.Parent, options.Width, options.Height, true)
                 if x ~= nil and y ~= nil then
@@ -23,8 +85,10 @@ ButtonManager = ControlManager:Instance
                     options.Y = y
                 end
             end
+            -- @description 위치 설정
             newControl:Move(options.X, options.Y)
 
+            -- @description 이벤트 설정
             if options.Event ~= nil then
                 newControl:SetCreateEvent(options.Event.Create)
                 newControl:SetDestroyEvent(options.Event.Destroy)
@@ -35,6 +99,7 @@ ButtonManager = ControlManager:Instance
                 newControl:SetMouseLeaveEvent(options.Event.MouseLeave)
             end
 
+            -- @description 텍스트 설정
             if options.Text ~= nil then    
                 if options.Text.Font ~= nil then
                     newControl:SetFontName(options.Text.Font.Name)
@@ -57,6 +122,7 @@ ButtonManager = ControlManager:Instance
                 newControl:SetText(options.Text.Content)
             end
 
+            -- @description 테두리 설정
             if options.Border ~= nil then
                 newControl:SetBorderWidth(options.Border.Width)
                 if options.Border.Color ~= nil then
@@ -72,6 +138,7 @@ ButtonManager = ControlManager:Instance
                 end
             end
 
+            -- @description 배경 설정
             if options.Background ~= nil then
                 if options.Background.Color ~= nil then
                     if options.Background.Color.R ~= nil and options.Background.Color.G ~= nil and options.Background.Color.B ~= nil then
@@ -87,10 +154,13 @@ ButtonManager = ControlManager:Instance
                 newControl:SetTransparentBackground(options.Background.Transparent)        
             end
 
+            -- @description 임의 데이터 설정
             newControl:SetUserData(options.UserData)
 
+            -- @description 생성
             newControl:Create()
 
+            -- @description 나타내기
             if options.Show then
                 newControl:Show()
             end
@@ -99,6 +169,9 @@ ButtonManager = ControlManager:Instance
         return newControl
     end,
 
+    -- @description 버튼 컨트롤을 Button class 로 wrapping 하여 생성
+    -- @param control control : Button control
+    -- @return Button : Button control -> Button class
     CreateInstance = function(self, control)
         local options = {
             _Control = control,
