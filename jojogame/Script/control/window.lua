@@ -37,6 +37,20 @@ Window = Control:Instance
         return newControl
     end,
 
+    -- @description 크기 조절 가능한지의 여부를 확인합니다.
+    -- @return boolean : 크기 조절 가능 여부
+    IsSizable = function(self)
+        return self.control:IsSizable()
+    end,
+
+    -- @description 크기 조절이 가능한지를 설정합니다.
+    -- @param value boolean : 크기 조절 가능 여부
+    SetSizable = function(self, value)
+        if type(value) == "boolean" then
+            self.control:SetSizable(value)
+        end
+    end,
+
     -- @description 배경 색을 설정합니다.
     -- @param color int | table { R int, G int, B int } : 색
     SetBackgroundColor = function(self, color)

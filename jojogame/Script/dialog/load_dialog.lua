@@ -40,7 +40,7 @@ StaticManager:Create({
     Y = 4, 
     AutoSize = true,
     Text = {
-        Content = "데이터",
+        Content = "불러올 데이터를 선택해주십시오.",
     },
     Show = true,
 })
@@ -110,6 +110,26 @@ ListViewManager:CreateListView({
     },
     Show = true,
 })
+
+for i = 1, 9 do
+    ButtonManager:Create({
+        Parent = loadDialog,
+        Text = {
+            Content = string.format("%d", i),
+        },
+        Event = {
+            MouseLButtonDown = function()
+                
+            end,
+        },
+        Width = 21,
+        Height = 21,
+        X = 6 + 25 * (i - 1),
+        Y = 182,
+        Show = true
+    })
+end
+
 
 ButtonManager:Create({
     Parent = loadDialog,

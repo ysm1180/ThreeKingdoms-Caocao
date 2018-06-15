@@ -24,6 +24,7 @@ WindowManager = ControlManager:Instance
             MaxButton boolean : 최대화 버튼 활성화 여부
             MinButton boolean : 최소화 버튼 활성화 여부
             ControlBox boolean : 최소화, 최대화, X 버튼 존재 여부
+            Sizable boolean : 크기 조절 가능 여부
             Event table : {
                 Create function : 생성 이벤트
                 Destroy function : 파괴 이벤트
@@ -85,6 +86,8 @@ WindowManager = ControlManager:Instance
                 options.ControlBox = true
             end
             newControl:SetControlBox(options.ControlBox)
+
+            newControl:SetSizable(options.Sizable)
 
             -- @description 이벤트 설정
             if options.Event then

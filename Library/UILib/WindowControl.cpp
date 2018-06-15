@@ -927,7 +927,7 @@ void CWindowControl::RegisterFunctions(lua_State* L)
 
 CWindowControl::CWindowControl()
 {
-    _style = WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX;
+    _style = WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX;
     //_style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
     _type = L"window";
 }

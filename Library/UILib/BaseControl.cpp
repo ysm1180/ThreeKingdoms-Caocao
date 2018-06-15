@@ -14,7 +14,6 @@ void CBaseControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(GetHeight);
     LUA_METHOD(GetX);
     LUA_METHOD(GetY);
-    LUA_METHOD(GetStyle);
     LUA_METHOD(GetUserData);
 
     LUA_METHOD(SetEnabled);
@@ -29,7 +28,6 @@ void CBaseControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(SetMouseMoveEvent);
     LUA_METHOD(SetMouseEnterEvent);
     LUA_METHOD(SetMouseLeaveEvent);
-    LUA_METHOD(SetStyle);
     LUA_METHOD(SetUserData);
 
     LUA_METHOD(Refresh);
