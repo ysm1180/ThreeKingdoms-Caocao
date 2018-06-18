@@ -37,13 +37,11 @@ int CustomLuaRequire(lua_State *L)
     std::string originalWorkingPath = CFileManager::GetInstance().GetWorkingPathA();
     CFileManager::GetInstance().SetWorkingPath(originalWorkingPath + workingDirectory);
 
-    lua_tinker::dobuffer(L, file.GetData(), file.GetSize(), path.c_str());
+    lua_tinker::dobuffer(L, file.GetData(), file.GetSize(), path.c_str(), true);
 
     CFileManager::GetInstance().SetWorkingPath(originalWorkingPath);
 
-    lua_pop(L, 1);
-
-    return 0;
+    return 1;
 }
 
 int CustomLuaMessage(lua_State *L)

@@ -173,7 +173,7 @@ void lua_tinker::dostring(lua_State *L, const char *buff)
 }
 
 /*---------------------------------------------------------------------------*/
-void lua_tinker::dobuffer(lua_State *L, const char *buff, size_t len, const char *n)
+void lua_tinker::dobuffer(lua_State *L, const char *buff, size_t len, const char *n, bool isReturnValue)
 {
     lua_pushcclosure(L, on_error, 0);
     int errfunc = lua_gettop(L);
@@ -188,7 +188,11 @@ void lua_tinker::dobuffer(lua_State *L, const char *buff, size_t len, const char
     }
 
     lua_remove(L, errfunc);
-    lua_pop(L, 1);
+
+    if (!isReturnValue)
+    {
+        lua_pop(L, 1);
+    }
 }
 
 /*---------------------------------------------------------------------------*/

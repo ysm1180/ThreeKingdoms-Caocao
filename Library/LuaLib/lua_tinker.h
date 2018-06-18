@@ -40,7 +40,7 @@ void init_u64(lua_State* L);
 // string-buffer excution
 void dofile(lua_State* L, const char* filename);
 void dostring(lua_State* L, const char* buff);
-void dobuffer(lua_State* L, const char* buff, size_t sz, const char* n = "lua_tinker::dobuffer()");
+void dobuffer(lua_State* L, const char* buff, size_t sz, const char* n = "lua_tinker::dobuffer()", bool isReturnValue = false);
 
 // debug helpers
 void enum_stack(lua_State* L);
