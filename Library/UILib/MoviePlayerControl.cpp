@@ -29,7 +29,7 @@ void CMoviePlayerControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(Destroy);
 }
 
-CMoviePlayerControl::CMoviePlayerControl(CWindowControl* parent, std::string fileName)
+CMoviePlayerControl::CMoviePlayerControl(CWindowControl* parent, std::wstring fileName)
 {
     if (parent)
     {
@@ -657,7 +657,12 @@ bool CMoviePlayerControl::Create()
     int error = 0;
 
     _state.formatContext = nullptr;
-    error = avformat_open_input(&_state.formatContext, _state.fileName.c_str(), nullptr, nullptr);
+
+    int length = WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, NULL, 0, NULL, NULL);
+    char *buffer = new char[length + 1];
+    WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, buffer, length, NULL, NULL);
+    error = avformat_open_input(&_state.formatContext, buffer, nullptr, nullptr);
+    delete[] buffer;
     if (error < 0)
     {
         CConsoleOutput::OutputConsoles(L"File open error");

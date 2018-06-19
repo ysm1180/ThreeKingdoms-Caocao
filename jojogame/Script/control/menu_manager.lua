@@ -66,7 +66,7 @@ MenuManager = Object:Instance
                 newControl = MenuItem:New()            
             end
 
-            -- @description 구분자 설정
+            -- 구분자 설정
             if options.Seperator == true then
                 options.Text = {
                     Content = "-",
@@ -76,15 +76,15 @@ MenuManager = Object:Instance
                 }
             end
 
-            -- @description 활성화 설정
+            -- 활성화 설정
             newControl:SetEnabled(options.Enabled)
 
-            -- @description 이벤트 설정
+            -- 이벤트 설정
             if options.Event then
                 newControl:SetClickEvent(options.Event.Click)
             end
 
-            -- @description 텍스트 설정
+            -- 텍스트 설정
             if options.Text then    
                 if options.Text.Font then
                     newControl:SetFontName(options.Text.Font.Name)
@@ -102,7 +102,7 @@ MenuManager = Object:Instance
                 newControl:SetText(options.Text.Content)
             end
 
-            -- @description 배경 설정
+            -- 배경 설정
             if options.Background then
                 if options.Background.Color then
                     newControl:SetNormalBackgroundColor(options.Background.Color.Normal)
@@ -112,7 +112,7 @@ MenuManager = Object:Instance
                 end
             end
 
-            -- @description 서브 메뉴 설정
+            -- 서브 메뉴 설정
             if options.Child ~= nil then
                 newControl:SetChildMenu(options.Child.control)
             elseif options.ChildItems ~= nil then

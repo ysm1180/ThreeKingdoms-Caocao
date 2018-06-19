@@ -5,7 +5,7 @@ require "text_control.lua"
 -- @inherit Control TextControl
 Button = Inherit(Control, TextControl)
 
--- @description 기본 색 지정
+-- 기본 색 지정
 Button.DEFAULT_BACKGROUND_COLOR = {
     NORMAL = {R = 0xE1, G = 0xE1, B = 0xE1},
     FOCUSED = {R = 0x00, G = 0x78, B = 0xD7},
@@ -45,8 +45,8 @@ function Button:New(parent)
         parentControl = parent.control
     end
 
-    -- @description controlManager 는 Lua의 ControlManager 랑 다르다!!
-    -- @description 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
+    -- controlManager 는 Lua의 ControlManager 랑 다르다!!
+    -- 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
     newControl.control = controlManager:CreateButton(parentControl)
     setmetatable(newControl, Button)
     Button.__index = Button

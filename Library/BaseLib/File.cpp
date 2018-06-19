@@ -11,13 +11,13 @@ CFile::~CFile()
     Close();
 }
 
-bool CFile::Open(std::string filePath, const char* fileMode)
+bool CFile::Open(std::wstring filePath, std::wstring fileMode)
 {
-    auto result = fopen_s(&_file, filePath.c_str(), fileMode);
+    auto result = _wfopen_s(&_file, filePath.c_str(), fileMode.c_str());
 
     if (result == ENOENT)
     {
-        result = fopen_s(&_file, filePath.c_str(), "wb+");
+        result = _wfopen_s(&_file, filePath.c_str(), L"wb+");
     }
 
     if (result != 0)

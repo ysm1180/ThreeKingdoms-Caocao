@@ -1,10 +1,9 @@
-require "control_manager.lua"
 require "groupbox.lua"
 
 -- @class GroupBoxMananger
 -- @description GroupBox class 를 관리하는 Manager class
--- @inherit ControlManager
-GroupBoxManager = ControlManager:Instance 
+-- @inherit Object
+GroupBoxManager = Object:Instance 
 {
     -- @param options GroupBoxOptions : control 생성 옵션
     -- @return GroupBox : 생성된 GroupBox class
@@ -15,7 +14,6 @@ GroupBoxManager = ControlManager:Instance
             Parent Window : control 이 생성될 부모 Class 지정
             Width int : control 너비
             Height int : control 높이
-            Center boolean : true 면 부모의 가운데로 이동
             X int : X 위치
             Y int : Y 위치
             Event table : {
@@ -52,21 +50,13 @@ GroupBoxManager = ControlManager:Instance
             
             newControl = GroupBox:New(options.Parent)
 
-            -- @description 크기 설정
+            -- 크기 설정
             newControl:SetSize(options.Width, options.Height)
 
-            -- @description 가운데
-            if options.Center then
-                local x, y = ControlManager:GetCenterPosition(options.Parent, options.Width, options.Height, true)
-                if x ~= nil and y ~= nil then
-                    options.X = x
-                    options.Y = y
-                end
-            end
-            -- @description 위치 설정
+            -- 위치 설정
             newControl:Move(options.X, options.Y)
 
-            -- @description 이벤트 설정
+            -- 이벤트 설정
             if options.Event ~= nil then
                 newControl:SetCreateEvent(options.Event.Create)
                 newControl:SetDestroyEvent(options.Event.Destroy)
@@ -77,7 +67,7 @@ GroupBoxManager = ControlManager:Instance
                 newControl:SetMouseLeaveEvent(options.Event.MouseLeave)
             end
 
-            -- @description 텍스트 설정
+            -- 텍스트 설정
             if options.Text ~= nil then    
                 if options.Text.Font ~= nil then
                     newControl:SetFontName(options.Text.Font.Name)
@@ -87,28 +77,16 @@ GroupBoxManager = ControlManager:Instance
                     newControl:SetItalic(options.Text.Font.Italic)
                 end
 
-                -- @description if options.Text.Color ~= nil then
-                -- @description     if options.Text.Color.R ~= nil and options.Text.Color.G ~= nil and options.Text.Color.B ~= nil then
-                -- @description         newButton:SetNormalTextColor(options.Text.Color)                        
-                -- @description         newButton:SetFocusedTextColor(options.Text.Color)
-                -- @description         newButton:SetPushedTextColor(options.Text.Color)                    
-                -- @description     else
-                -- @description         newButton:SetNormalTextColor(options.Text.Color.Normal)
-                -- @description         newButton:SetFocusedTextColor(options.Text.Color.Focused)
-                -- @description         newButton:SetPushedTextColor(options.Text.Color.Pushed)
-                -- @description     end
-                -- @description end
-
                 newControl:SetText(options.Text.Content)
             end
 
-            -- @description 임의 데이터 설정
+            -- 임의 데이터 설정
             newControl:SetUserData(options.UserData)
 
-            -- @description 생성
+            -- 생성
             newControl:Create()
 
-            -- @description Show
+            -- Show
             if options.Show then
                 newControl:Show()
             end

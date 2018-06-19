@@ -24,15 +24,15 @@ ToolbarManager = Object:Instance
         if options ~= nil then
             newControl = Toolbar:New()
 
-            -- @description 생성
+            -- 생성
             newControl:Create(options.Parent, options.Image.Width, options.Image.Height)
 
-            -- @description 툴바 버튼 설정
+            -- 툴바 버튼 설정
             for i = 1, #options.Buttons do
                 newControl:AddButton(options.Buttons[i])
             end
 
-            -- @description Show
+            -- Show
             if options.Show then
                 newControl:Show()
             end
@@ -66,24 +66,24 @@ ToolbarManager = Object:Instance
             newControlButton:Disable()
         end
 
-        -- @description 텍스트 설정
+        -- 텍스트 설정
         if options.Text ~= nil then
             newControlButton:SetText(options.Text.Content)
             newControlButton:SetTooltipText(options.Text.Tooltip)
         end
 
-        -- @description 이벤트 설정
+        -- 이벤트 설정
         if options.Event then
             newControlButton:SetClickEvent(options.Event.Click)
         end
         
-        -- @description 이미지 설정
+        -- 이미지 설정
         newControlButton:SetImage(options.Image)
 
-        -- @description 생성
+        -- 생성
         newControlButton:Create()
 
-        -- @description Show
+        -- Show
         if options.Show then
             newControlButton:Show()
         end

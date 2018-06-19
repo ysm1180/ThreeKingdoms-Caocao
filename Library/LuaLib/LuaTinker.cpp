@@ -12,32 +12,40 @@ std::unique_ptr<CLuaTinker> CLuaTinker::s_luaTinker;
 
 int CustomLuaRequire(lua_State *L)
 {
-    const char *filePath = lua_tostring(L, -1);
+    const char *str = lua_tostring(L, -1);
 
-    if (!filePath)
+    if (!str)
     {
         return 0;
     }
     
-    std::string workingDirectory(filePath);
+    const auto len = MultiByteToWideChar(CP_UTF8, 0, str, -1, nullptr, 0);
+    std::wstring filePath(len, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, str, -1, &filePath[0], len);
+
+    std::wstring workingDirectory(filePath);
     const size_t last_slash_idx = workingDirectory.rfind('/');
     if (std::string::npos != last_slash_idx)
     {
-        workingDirectory = workingDirectory.substr(0, last_slash_idx) + "/";
+        workingDirectory = workingDirectory.substr(0, last_slash_idx) + L"/";
     }
     else
     {
-        workingDirectory = "";
+        workingDirectory = L"";
     }
 
     CFile file;
-    auto path = CFileManager::GetInstance().GetFilePath(std::string(filePath));
+    auto path = CFileManager::GetInstance().GetFilePath(filePath);
     file.Open(path);
 
-    std::string originalWorkingPath = CFileManager::GetInstance().GetWorkingPathA();
+    std::wstring originalWorkingPath = CFileManager::GetInstance().GetWorkingPath();
     CFileManager::GetInstance().SetWorkingPath(originalWorkingPath + workingDirectory);
 
-    lua_tinker::dobuffer(L, file.GetData(), file.GetSize(), path.c_str(), true);
+    int length = WideCharToMultiByte(CP_UTF8, 0, path.c_str(), -1, NULL, 0, NULL, NULL);
+    char *buffer = new char[length + 1];
+    WideCharToMultiByte(CP_UTF8, 0, path.c_str(), -1, buffer, length, NULL, NULL);
+    lua_tinker::dobuffer(L, file.GetData(), file.GetSize(), buffer, true);
+    delete[] buffer;
 
     CFileManager::GetInstance().SetWorkingPath(originalWorkingPath);
 

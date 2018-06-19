@@ -11,7 +11,7 @@ public:
     CFile();
     ~CFile();
 
-    bool Open(std::string filePath, const char *fileMode = "rb+");
+    bool Open(std::wstring filePath, std::wstring fileMode = L"rb+");
     void Close();
 
     const char * GetData();

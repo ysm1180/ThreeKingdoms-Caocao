@@ -26,14 +26,14 @@ LayoutManager = Object:Instance
         if options ~= nil then
             newControl = Layout:New()
 
-            -- @description 위치 설정
+            -- 위치 설정
             newControl:Move(options.X, options.Y)
             
-            -- @description 크기 설정
+            -- 크기 설정
             newControl:SetWidth(options.Width)
             newControl:SetHeight(options.Height)
 
-            -- @description 비율 설정
+            -- 비율 설정
             if options.Ratio ~= nil then
                 newControl:SetRatioX(options.Ratio.X)
                 newControl:SetRatioY(options.Ratio.Y)

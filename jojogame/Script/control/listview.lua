@@ -5,7 +5,7 @@ require "text_control.lua"
 -- @inherit ControlObject
 ListViewColumn = ControlObject:Instance
 {
-    -- @description Align
+    -- Align
     COLUMN_TEXT_ALIGN = {
         LEFT = 0,
         RIGHT = 1,
@@ -30,8 +30,8 @@ ListViewColumn = ControlObject:Instance
     New = function(self)
         local newControl = {}
         
-        -- @description controlManager 는 Lua의 ControlManager 랑 다르다!!
-        -- @description 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
+        -- controlManager 는 Lua의 ControlManager 랑 다르다!!
+        -- 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
         newControl.control = controlManager:CreateListViewColumn()
         setmetatable(newControl, self)
         self.__index = self
@@ -97,7 +97,7 @@ ListViewColumn = ControlObject:Instance
 -- @inherit TextControl
 ListViewItem = TextControl:Instance
 {
-    -- @description 기본 색
+    -- 기본 색
     DEFAULT_BACKGROUND_COLOR = {
         NORMAL = {
             R = 0xFF,
@@ -143,7 +143,7 @@ ListViewItem = TextControl:Instance
         },
     },
 
-    -- @description Align
+    -- Align
     ITEM_TEXT_ALIGN = {
         LEFT = 0,
         RIGHT = 1,
@@ -168,8 +168,8 @@ ListViewItem = TextControl:Instance
     New = function(self)
         local newControl = {}
         
-        -- @description controlManager 는 Lua의 ControlManager 랑 다르다!!
-        -- @description 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
+        -- controlManager 는 Lua의 ControlManager 랑 다르다!!
+        -- 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
         newControl.control = controlManager:CreateListViewItem()
         setmetatable(newControl, self)
         self.__index = self
@@ -324,7 +324,7 @@ ListViewItem = TextControl:Instance
 -- @inherit ControlObject
 ListViewRow = ControlObject:Instance
 {
-    -- @description 기본 색
+    -- 기본 색
     DEFAULT_BACKGROUND_COLOR = {
         NORMAL = {
             R = 0xFF,
@@ -388,8 +388,8 @@ ListViewRow = ControlObject:Instance
     New = function(self)
         local newControl = {}
         
-        -- @description controlManager 는 Lua의 ControlManager 랑 다르다!!
-        -- @description 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
+        -- controlManager 는 Lua의 ControlManager 랑 다르다!!
+        -- 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
         newControl.control = controlManager:CreateListViewRow()
         setmetatable(newControl, self)
         self.__index = self
@@ -585,8 +585,8 @@ ListView = Control:Instance
             parentControl = parent.control
         end
 
-        -- @description controlManager 는 Lua의 ControlManager 랑 다르다!!
-        -- @description 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
+        -- controlManager 는 Lua의 ControlManager 랑 다르다!!
+        -- 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
         newControl.control = controlManager:CreateListView(parentControl)
         setmetatable(newControl, self)
         self.__index = self

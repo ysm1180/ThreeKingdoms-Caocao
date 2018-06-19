@@ -888,6 +888,7 @@ void CWindowControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(GetMenu);
     LUA_METHOD(GetBackgroundColor);
 
+    LUA_METHOD(SetParentWindow);
     LUA_METHOD(SetMaxButton);
     LUA_METHOD(SetMinButton);
     LUA_METHOD(SetControlBox);

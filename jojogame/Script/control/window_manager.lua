@@ -1,11 +1,45 @@
-require "control_manager.lua"
 require "window.lua"
 
 -- @class WindowMananger
 -- @description Window class 를 관리하는 Manager class
--- @inherit ControlManager
-WindowManager = ControlManager:Instance
-{
+-- @inherit Object
+WindowManager = Object:Instance {
+    -- @description 정 가운데로 이동할 위치를 반환한다.
+    -- @param parantControl class : 기준 위치를 지정할 class
+    -- @param w int : 현재 컨트롤의 너비
+    -- @param h int : 현재 컨트롤의 높이
+    -- @param isChildControl boolean : 자식 class 인지 여부
+    -- @return int, int : X, Y 위치
+    GetCenterPosition = function(self, parentControl, w, h, isChiildControl)
+        if w == nil or h == nil then
+            return nil, nil
+        end
+
+        -- isChildControl Dafault : true
+        if isChiildControl == nil then
+            isChiildControl = true
+        end
+
+        -- parentControl 지정 안했을 시 데스크탑 크기가 기준이 됨
+        if parentControl ~= nil then
+            parentWidth, parentHeight = parentControl:Size() 
+            if isChiildControl then
+                parentX, parentY = 0, 0
+            else
+                parentX, parentY = parentControl:Position()
+            end
+        else
+            parentWidth = gameManager:GetDesktopWidth()
+            parentHeight = gameManager:GetDesktopHeight()
+            parentX, parentY = 0, 0
+        end
+
+        local x = parentWidth / 2 - w / 2 + parentX
+        local y = parentHeight / 2 - h / 2  + parentY
+        
+        return x, y
+    end,
+
     -- @description Window class 를 생성합니다.
     -- @param options WindowOptions : control 생성 옵션
     -- @return Window : 생성된 Window class
@@ -55,31 +89,31 @@ WindowManager = ControlManager:Instance
 
             newControl = Window:New(options.Parent)
 
-            -- @description 크기 설정
+            -- 크기 설정
             newControl:SetSize(options.Width, options.Height)
 
-            -- @description 가운데
+            -- 가운데
             if options.Center then
-                local x, y = ControlManager:GetCenterPosition(options.Parent, options.Width, options.Height, false)
+                local x, y = self:GetCenterPosition(options.Parent, options.Width, options.Height, false)
                 if x ~= nil and y ~= nil then
                     options.X = x
                     options.Y = y
                 end
             end
 
-            -- @description 위치 설정
+            -- 위치 설정
             newControl:Move(options.X, options.Y)
 
-            -- @description 타이틀 설정
+            -- 타이틀 설정
             newControl:SetTitleName(options.TitleName)
             newControl:SetTitlebar(options.Titlebar)
 
-            -- @description 배경 설정
+            -- 배경 설정
             if options.Background ~= nil then
                 newControl:SetBackgroundColor(options.Background.Color)
             end
 
-            -- @description 컨트롤바 설정
+            -- 컨트롤바 설정
             newControl:SetMaxButton(options.MaxButton)
             newControl:SetMinButton(options.MinButton)
             if options.ControlBox == nil then
@@ -89,10 +123,10 @@ WindowManager = ControlManager:Instance
 
             newControl:SetSizable(options.Sizable)
 
-            -- @description 이벤트 설정
+            -- 이벤트 설정
             if options.Event then
                 newControl:SetCreateEvent(options.Event.Create)
-                newControl:SetDestroyEvent(options.Event.Destroy)     
+                newControl:SetDestroyEvent(options.Event.Destroy)
                 newControl:SetMouseLButtonUpEvent(options.Event.MouseLButtonUp)
                 newControl:SetMouseLButtonDownEvent(options.Event.MouseLButtonDown)
                 newControl:SetMouseMoveEvent(options.Event.MouseMove)
@@ -104,20 +138,20 @@ WindowManager = ControlManager:Instance
                 newControl:SetSizeEvent(options.Event.Size)
             end
 
-            -- @description 레이아웃 설정
+            -- 레이아웃 설정
             if options.Layouts ~= nil then
                 for i = 1, #options.Layouts do
                     newControl:AddLayout(options.Layouts[i])
                 end
             end
 
-            -- @description 메뉴 설정
+            -- 메뉴 설정
             newControl:SetMenu(options.Menu)
 
-            -- @description 생성
+            -- 생성
             newControl:Create()
 
-            -- @description Show
+            -- Show
             if options.Show then
                 if options.Modal then
                     newControl:ShowModalWindow()
@@ -129,15 +163,16 @@ WindowManager = ControlManager:Instance
 
         return newControl
     end,
-
     -- @description Window 컨트롤을 Window class 로 wrapping 하여 생성
     -- @param control control : Window control
     -- @return Window : Window control -> Window class
     CreateInstance = function(self, control)
         local options = {
-            Control = control,
+            Control = control
         }
 
         return self:Create(options)
     end,
+
+    
 }

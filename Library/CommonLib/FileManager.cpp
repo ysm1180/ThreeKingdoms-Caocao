@@ -13,9 +13,11 @@ void CFileManager::RegisterFunctions(lua_State* L)
     LUA_METHOD(ReadByte);
     LUA_METHOD(WriteByte);
     LUA_METHOD(CloseFile);
+
+    LUA_METHOD(GetWorkingPath);
 }
 
-CFile* CFileManager::LoadFile(const char *path)
+CFile* CFileManager::LoadFile(std::wstring path)
 {
     auto file = CMemoryPool<CFile>::GetInstance().New();
     file->Open(GetFilePath(path));
@@ -42,32 +44,17 @@ void CFileManager::CloseFile(CFile* file)
     CMemoryPool<CFile>::GetInstance().Delete(file);
 }
 
-void CFileManager::SetWorkingPath(std::string dir)
+void CFileManager::SetWorkingPath(std::wstring dir)
 {
     _currentWorkingPath = dir;
 }
 
-void CFileManager::SetWorkingPath(std::wstring dir)
-{
-    _currentWorkingPathW = dir;
-}
-
-std::string CFileManager::GetWorkingPathA()
+std::wstring CFileManager::GetWorkingPath()
 {
     return _currentWorkingPath;
 }
 
-std::wstring CFileManager::GetWorkingPathW()
-{
-    return _currentWorkingPathW;
-}
-
 std::wstring CFileManager::GetFilePath(std::wstring filePath)
-{
-    return _currentWorkingPathW + filePath;
-}
-
-std::string CFileManager::GetFilePath(std::string filePath)
 {
     return _currentWorkingPath + filePath;
 }

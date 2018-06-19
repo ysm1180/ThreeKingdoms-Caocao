@@ -1,10 +1,9 @@
-require "control_manager.lua"
 require "movie_player.lua"
 
 -- @class MoviePlayerMananger
 -- @description MoviePlayer class 를 관리하는 Manager class
--- @inherit ControlManager
-MoviePlayerManager = ControlManager:Instance
+-- @inherit Object
+MoviePlayerManager = Object:Instance
 {
     -- @param options MoviePlayerOptions : control 생성 옵션
     -- @return MoviePlayer : 생성된 MoviePlayer class
@@ -27,18 +26,18 @@ MoviePlayerManager = ControlManager:Instance
         if options ~= nil then
             newControl = MoviePlayer:New(options.Parent, options.FileName)
 
-            -- @description 이벤트 설정
+            -- 이벤트 설정
             if options.Event then
                 newControl:SetEndEvent(options.Event.End)
             end
 
-            -- @description 위치 설정
+            -- 위치 설정
             newControl:Move(options.X, options.Y)
 
-            -- @description 생성
+            -- 생성
             newControl:Create()
 
-            -- @description 가운데
+            -- 가운데
             if options.Center then
                 local movieWidth, movieHeight = newControl:Size()
                 if options.Parent then

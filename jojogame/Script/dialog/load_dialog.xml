@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<dialog width="386" height="209" title="데이터 불러오기" maxbutton="false" minbutton="false">
+    <label x="6" y="4"></label>
+</dialog>

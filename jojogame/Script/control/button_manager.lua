@@ -1,10 +1,9 @@
-require "control_manager.lua"
 require "button.lua"
 
 -- @class ButtonManager
 -- @description Button Class 를 관리하는 Manager class
--- @inherit ControlManager
-ButtonManager = ControlManager:Instance 
+-- @inherit Object
+ButtonManager = Object:Instance 
 {
     -- @description Button class 를 생성합니다.
     -- @param options ButtonOptions : control 생성 옵션
@@ -16,7 +15,6 @@ ButtonManager = ControlManager:Instance
             Parent Window : control 이 생성될 부모 class 지정
             Width int : control 너비
             Height int : control 높이
-            Center boolean : true 면 부모의 가운데로 이동
             X int : X 위치
             Y int : Y 위치
             Event table : {
@@ -74,21 +72,13 @@ ButtonManager = ControlManager:Instance
             
             newControl = Button:New(options.Parent)
 
-            -- @description 크기 설정
+            -- 크기 설정
             newControl:SetSize(options.Width, options.Height)
 
-            -- @description 가운데
-            if options.Center then
-                local x, y = ControlManager:GetCenterPosition(options.Parent, options.Width, options.Height, true)
-                if x ~= nil and y ~= nil then
-                    options.X = x
-                    options.Y = y
-                end
-            end
-            -- @description 위치 설정
+            -- 위치 설정
             newControl:Move(options.X, options.Y)
 
-            -- @description 이벤트 설정
+            -- 이벤트 설정
             if options.Event ~= nil then
                 newControl:SetCreateEvent(options.Event.Create)
                 newControl:SetDestroyEvent(options.Event.Destroy)
@@ -99,7 +89,7 @@ ButtonManager = ControlManager:Instance
                 newControl:SetMouseLeaveEvent(options.Event.MouseLeave)
             end
 
-            -- @description 텍스트 설정
+            -- 텍스트 설정
             if options.Text ~= nil then    
                 if options.Text.Font ~= nil then
                     newControl:SetFontName(options.Text.Font.Name)
@@ -122,7 +112,7 @@ ButtonManager = ControlManager:Instance
                 newControl:SetText(options.Text.Content)
             end
 
-            -- @description 테두리 설정
+            -- 테두리 설정
             if options.Border ~= nil then
                 newControl:SetBorderWidth(options.Border.Width)
                 if options.Border.Color ~= nil then
@@ -138,7 +128,7 @@ ButtonManager = ControlManager:Instance
                 end
             end
 
-            -- @description 배경 설정
+            -- 배경 설정
             if options.Background ~= nil then
                 if options.Background.Color ~= nil then
                     if options.Background.Color.R ~= nil and options.Background.Color.G ~= nil and options.Background.Color.B ~= nil then
@@ -154,13 +144,13 @@ ButtonManager = ControlManager:Instance
                 newControl:SetTransparentBackground(options.Background.Transparent)        
             end
 
-            -- @description 임의 데이터 설정
+            -- 임의 데이터 설정
             newControl:SetUserData(options.UserData)
 
-            -- @description 생성
+            -- 생성
             newControl:Create()
 
-            -- @description 나타내기
+            -- 나타내기
             if options.Show then
                 newControl:Show()
             end

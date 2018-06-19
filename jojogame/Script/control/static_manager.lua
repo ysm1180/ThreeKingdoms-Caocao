@@ -1,10 +1,9 @@
-require "control_manager.lua"
 require "static.lua"
 
 -- @class StaticMananger
 -- @description Static class 를 관리하는 Manager class
--- @inherit ControlManager
-StaticManager = ControlManager:Instance
+-- @inherit Object
+StaticManager = Object:Instance
 {
     -- @description Static class 를 생성합니다.
     -- @param options StaticOptions : 버튼 생성 옵션
@@ -17,7 +16,6 @@ StaticManager = ControlManager:Instance
             Width int : control 너비
             Height int : control 높이
             AutoSize boolean : 자동 크기 조절 여부
-            Center boolean : true 면 부모의 가운데로 이동
             X int : X 위치
             Y int : Y 위치
             Event table : {
@@ -52,23 +50,14 @@ StaticManager = ControlManager:Instance
 
             newControl = Static:New(options.Parent)
 
-            -- @description 크기 설정
+            -- 크기 설정
             newControl:SetSize(options.Width, options.Height)
             newControl:SetAutoSize(options.AutoSize)
 
-            -- @description 가운데
-            if options.Center then
-                local x, y = ControlManager:GetCenterPosition(options.Parent, options.Width, options.Height, false)
-                if x ~= nil and y ~= nil then
-                    options.X = x
-                    options.Y = y
-                end
-            end
-
-            -- @description 위치 설정
+            -- 위치 설정
             newControl:Move(options.X, options.Y)
 
-            -- @description 텍스트 설정
+            -- 텍스트 설정
             if options.Text ~= nil then
                 if options.Text.Font ~= nil then
                     newControl:SetFontName(options.Text.Font.Name)
@@ -82,22 +71,22 @@ StaticManager = ControlManager:Instance
                 newControl:SetTextColor(options.Text.Color)
             end
 
-            -- @description 배경 설정
+            -- 배경 설정
             if options.Background ~= nil then
                 newControl:SetBackgroundColor(options.Background.Color)
                 newControl:SetTransparentBackground(options.Background.Transparent)
             end
 
-            -- @description 이벤트 설정
+            -- 이벤트 설정
             if options.Event ~= nil then
                 newControl:SetCreateEvent(options.Event.Create)
                 newControl:SetDestroyEvent(options.Event.Destroy)     
             end
 
-            -- @description 생성
+            -- 생성
             newControl:Create()
 
-            -- @description Show
+            -- Show
             if options.Show then
                 newControl:Show()
             end

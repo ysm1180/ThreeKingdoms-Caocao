@@ -9,8 +9,8 @@ Menu = ControlObject:Instance
     New = function(self)
         local newControl = {}
 
-        -- @description controlManager 는 Lua의 ControlManager 랑 다르다!!
-        -- @description 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
+        -- controlManager 는 Lua의 ControlManager 랑 다르다!!
+        -- 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
         newControl.control = controlManager:CreateMenu()
         setmetatable(newControl, self)
         self.__index = self
@@ -31,7 +31,7 @@ Menu = ControlObject:Instance
 -- @inherit TextControl
 MenuItem = TextControl:Instance
 {
-    -- @description 기본 색
+    -- 기본 색
     DEFAULT_BACKGROUND_COLOR = {
         NORMAL = {R = 0xF2, G = 0xF2, B = 0xF2},
         FOCUSED = {R = 0x91 , G = 0xC9, B = 0xF7},

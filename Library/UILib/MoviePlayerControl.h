@@ -113,7 +113,7 @@ struct VideoState
 
     std::mutex screenMutex;
 
-    std::string fileName;
+    std::wstring fileName;
 
     bool playing;
     bool finishQueue;
@@ -127,7 +127,7 @@ class CMoviePlayerControl
 public:
     static void RegisterFunctions(lua_State* L);
 
-    CMoviePlayerControl(CWindowControl* parent, std::string fileName);
+    CMoviePlayerControl(CWindowControl* parent, std::wstring fileName);
     virtual ~CMoviePlayerControl();
 
     int GetX();

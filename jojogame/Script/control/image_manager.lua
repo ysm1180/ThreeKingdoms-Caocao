@@ -25,7 +25,7 @@ ImageManager = Object:Instance
         if options ~= nil then
             newControl = Image:New()
 
-            -- @description Me5 파일에서 이미지 불러오기
+            -- Me5 파일에서 이미지 불러오기
             newControl:LoadFromMe5({
                 FilePath = options.FilePath,
                 Group = {

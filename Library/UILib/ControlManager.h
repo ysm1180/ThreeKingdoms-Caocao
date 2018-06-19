@@ -38,7 +38,7 @@ public:
     void Init(HINSTANCE hInstance);
 
     CWindowControl* CreateWindowForm(CWindowControl* parent);
-    CMoviePlayerControl* CreateMoviePlayer(CWindowControl* parent, std::string fileName);
+    CMoviePlayerControl* CreateMoviePlayer(CWindowControl* parent, std::wstring fileName);
     CButtonControl* CreateButton(CWindowControl* parent);
     CMenu* CreateMenu();
     CMenuItem* CreateMenuItem();

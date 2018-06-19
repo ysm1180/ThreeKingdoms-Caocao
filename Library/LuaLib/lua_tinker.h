@@ -595,6 +595,8 @@ template <>
 void push(lua_State* L, char ret);
 template <>
 void push(lua_State* L, unsigned char ret);
+template<>
+void push(lua_State *L, std::string ret);
 template <>
 void push(lua_State* L, std::wstring ret);
 template <>

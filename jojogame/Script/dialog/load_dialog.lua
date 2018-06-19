@@ -1,3 +1,7 @@
+require "../control/control_manager.lua"
+
+ControlManager:ParseFromXML("../dialog/load_dialog.xml")
+
 loadDialog = WindowManager:Create({
     Parent = main,
     Width = 386,
@@ -19,7 +23,7 @@ local dialogLayout = LayoutManager:CreateLayout({
     }
 })
 local backImage = ImageManager:CreateImage({
-    FilePath = "logo.me5",
+    FilePath = "../logo.me5",
     Group = {
         Main = "Background",
         Sub = 0,

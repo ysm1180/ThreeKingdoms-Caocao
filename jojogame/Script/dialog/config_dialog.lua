@@ -19,7 +19,7 @@ local dialogLayout = LayoutManager:CreateLayout({
     }
 })
 local backImage = ImageManager:CreateImage({
-    FilePath = "logo.me5",
+    FilePath = "../logo.me5",
     Group = {
         Main = "Background",
         Sub = 0,

@@ -9,8 +9,8 @@ Toolbar = ControlObject:Instance
     New = function(self)
         local newControl = {}
 
-        -- @description controlManager 는 Lua의 ControlManager 랑 다르다!!
-        -- @description 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
+        -- controlManager 는 Lua의 ControlManager 랑 다르다!!
+        -- 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
         newControl.control = controlManager:CreateToolbar()
         setmetatable(newControl, self)
         self.__index = self
@@ -65,8 +65,8 @@ ToolbarButton = ControlObject:Instance
     New = function(self)
         local newControlButton = {}
 
-        -- @description controlManager 는 Lua의 ControlManager 랑 다르다!!
-        -- @description 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
+        -- controlManager 는 Lua의 ControlManager 랑 다르다!!
+        -- 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
         newControlButton.control = controlManager:CreateToolbarButton()
         setmetatable(newControlButton, self)
         self.__index = self

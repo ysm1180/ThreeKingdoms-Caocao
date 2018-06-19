@@ -28,8 +28,8 @@ function GroupBox:New(parent)
         parentControl = parent.control
     end
 
-    -- @description controlManager 는 Lua의 ControlManager 랑 다르다!!
-    -- @description 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
+    -- controlManager 는 Lua의 ControlManager 랑 다르다!!
+    -- 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
     newControl.control = controlManager:CreateGroupBox(parentControl)
     setmetatable(newControl, GroupBox)
     GroupBox.__index = GroupBox

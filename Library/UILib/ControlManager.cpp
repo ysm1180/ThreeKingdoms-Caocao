@@ -89,7 +89,7 @@ CWindowControl* CControlManager::CreateWindowForm(CWindowControl* parent)
     return control;
 }
 
-CMoviePlayerControl* CControlManager::CreateMoviePlayer(CWindowControl* parent, std::string fileName)
+CMoviePlayerControl* CControlManager::CreateMoviePlayer(CWindowControl* parent, std::wstring fileName)
 {
     auto control = CMemoryPool<CMoviePlayerControl>::GetInstance().New(parent, fileName);
     return control;

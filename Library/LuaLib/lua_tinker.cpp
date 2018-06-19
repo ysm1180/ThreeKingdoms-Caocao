@@ -12,7 +12,7 @@
 #include "lua_tinker.h"
 
 #include "BaseLib\ConsoleOutput.h"
-
+#include <iterator>
 
 /*---------------------------------------------------------------------------*/
 /* init                                                                      */
@@ -543,6 +543,16 @@ template<>
 void lua_tinker::push(lua_State *L, unsigned char ret)
 {
     lua_pushnumber(L, ret);
+}
+
+template<>
+void lua_tinker::push(lua_State *L, std::string ret)
+{
+    char *buffer = new char[ret.size() + 1];
+    std::copy(ret.begin(), ret.end(), stdext::checked_array_iterator<char *>(buffer, ret.size() + 1));
+    buffer[ret.size()] = '\0';
+    lua_pushstring(L, buffer);
+    delete[] buffer;
 }
 
 template<>
