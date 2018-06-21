@@ -285,10 +285,20 @@ bool CToolbarButton::Create()
 
 void CToolbarButton::Show()
 {
+    _state = _state & ~TBSTATE_HIDDEN;
+    if (_parent)
+    {
+        SendMessage(_parent->GetHWnd(), TB_SETSTATE, _button.idCommand, _state);
+    }
 }
 
 void CToolbarButton::Hide()
 {
+    _state = _state | TBSTATE_HIDDEN;
+    if (_parent)
+    {
+        SendMessage(_parent->GetHWnd(), TB_SETSTATE, _button.idCommand, _state);
+    }
 }
 
 void CToolbarButton::SetClickEvent()

@@ -425,6 +425,7 @@ bool CButtonControl::Create()
 void CButtonControl::Show()
 {
     _isVisible = true;
+    _style |= WS_VISIBLE;
     if (_hWnd != nullptr)
     {
         ShowWindow(_hWnd, TRUE);

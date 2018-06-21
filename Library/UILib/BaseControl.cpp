@@ -415,6 +415,8 @@ void CBaseControl::RefreshRegion(int left, int top, int right, int bottom)
 void CBaseControl::Show()
 {
     _isVisible = true;
+    _style |= WS_VISIBLE;
+
     if (_hWnd != nullptr)
     {
         ShowWindow(_hWnd, TRUE);
@@ -428,6 +430,8 @@ void CBaseControl::Show()
 void CBaseControl::Hide()
 {
     _isVisible = false;
+    _style &= ~WS_VISIBLE;
+
     if (_hWnd != nullptr)
     {
         ShowWindow(_hWnd, FALSE);

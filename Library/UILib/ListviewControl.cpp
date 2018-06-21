@@ -158,6 +158,8 @@ LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     return CallWindowProc(CListViewControl::GetOriginalProc(), hWnd, msg, wParam, lParam);
 }
 
+
+
 void CListViewColumn::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN(CListViewColumn, "_ListViewColumn");
@@ -868,13 +870,21 @@ void CListViewControl::SetRowHeight(int rowHeight)
     }
 }
 
-void CListViewControl::AddColumn(CListViewColumn* column)
+void CListViewControl::AppendColumn(CListViewColumn* column)
 {
+    int index;
+
     if (_hWnd != nullptr)
     {
         LVCOLUMN lvColumn;
-        const int index = _columns.size();
         auto text = column->GetText();
+        if (column->GetIndex() == -1)
+        {
+            index = _columns.size();
+        } else
+        {
+            index = column->GetIndex();
+        }
 
         lvColumn.mask = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH;
         lvColumn.fmt = column->GetAlign();
@@ -890,20 +900,25 @@ void CListViewControl::AddColumn(CListViewColumn* column)
         {
             ListView_SetColumnWidth(_hWnd, index, LVSCW_AUTOSIZE);
         }
-
-        _columns.push_back(column);
-
-        column->SetIndex(index);
-        column->SetParentListView(this);
     }
 }
 
-void CListViewControl::AddRow(CListViewRow* row)
+void CListViewControl::AddColumn(CListViewColumn* column)
+{
+    const int index = _columns.size();
+
+    this->AppendColumn(column);
+
+    column->SetIndex(index);
+    column->SetParentListView(this);
+    _columns.push_back(column);
+}
+
+void CListViewControl::AppendRow(CListViewRow* row)
 {
     if (_hWnd != nullptr)
     {
-        const int itemIndex = _rows.size();
-        row->SetRowIndex(itemIndex);
+        int itemIndex;
 
         for (auto i = 0; i < _columns.size(); ++i)
         {
@@ -916,6 +931,14 @@ void CListViewControl::AddRow(CListViewRow* row)
             else
             {
                 text = L"";
+            }
+
+            if (row->GetRowIndex() == -1)
+            {
+                itemIndex = _rows.size();
+            } else
+            {
+                itemIndex = row->GetRowIndex();
             }
 
             if (i == 0)
@@ -943,10 +966,18 @@ void CListViewControl::AddRow(CListViewRow* row)
                 ListView_SetColumnWidth(_hWnd, i, LVSCW_AUTOSIZE_USEHEADER);
             }
         }
-
-        _rows.push_back(row);
-        row->SetParentListView(this);
     }
+}
+
+void CListViewControl::AddRow(CListViewRow* row)
+{
+    const int itemIndex = _rows.size();
+
+    this->AppendRow(row);
+
+    row->SetRowIndex(itemIndex);
+    row->SetParentListView(this);
+    _rows.push_back(row);
 }
 
 bool CListViewControl::Create()
@@ -965,6 +996,16 @@ bool CListViewControl::Create()
     {
         ListView_SetExtendedListViewStyle(_hWnd, _exStyle | LVS_EX_FULLROWSELECT);
         ListView_SetHoverTime(_hWnd, 1);
+
+        for (auto column : _columns)
+        {
+            this->AppendColumn(column);
+        }
+
+        for (auto row : _rows)
+        {
+            this->AppendRow(row);
+        }
     }
 
     return _hWnd != nullptr;

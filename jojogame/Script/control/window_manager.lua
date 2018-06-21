@@ -8,9 +8,8 @@ WindowManager = Object:Instance {
     -- @param parantControl class : 기준 위치를 지정할 class
     -- @param w int : 현재 컨트롤의 너비
     -- @param h int : 현재 컨트롤의 높이
-    -- @param isChildControl boolean : 자식 class 인지 여부
     -- @return int, int : X, Y 위치
-    GetCenterPosition = function(self, parentControl, w, h, isChiildControl)
+    GetCenterPosition = function(self, parentControl, w, h)
         if w == nil or h == nil then
             return nil, nil
         end
@@ -23,11 +22,7 @@ WindowManager = Object:Instance {
         -- parentControl 지정 안했을 시 데스크탑 크기가 기준이 됨
         if parentControl ~= nil then
             parentWidth, parentHeight = parentControl:Size() 
-            if isChiildControl then
-                parentX, parentY = 0, 0
-            else
-                parentX, parentY = parentControl:Position()
-            end
+            parentX, parentY = parentControl:Position()
         else
             parentWidth = gameManager:GetDesktopWidth()
             parentHeight = gameManager:GetDesktopHeight()

@@ -184,6 +184,9 @@ public:
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
+    void AppendColumn(CListViewColumn* column);
+    void AppendRow(CListViewRow* row);
+
     int _rowHeight = 19;
 
     long _exStyle;
