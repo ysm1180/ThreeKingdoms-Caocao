@@ -1,6 +1,6 @@
 require "../control/control_manager.lua"
 
-loadDialog, childs = ControlManager:ParseFromXML("../dialog/load_dialog.xml")
+loadDialog, childs = ControlManager:ParseFromXML("../dialog/load_dialog.dlg")
 loadDialog:SetParentWindow(main)
 
 childs["btnCancel"]:SetMouseLButtonUpEvent(
@@ -10,6 +10,7 @@ childs["btnCancel"]:SetMouseLButtonUpEvent(
 )
 
 loadDialog:Move(WindowManager:GetCenterPosition(main, loadDialog:Width(), loadDialog:Height()))
+loadDialog:ShowModalWindow()
 
 -- loadDialog = WindowManager:Create({
 --     Parent = main,

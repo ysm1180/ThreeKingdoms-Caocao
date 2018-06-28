@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="EUC-KR" ?>
 <dialog width="386" height="209" title="데이터 불러오기" maxbutton="" minbutton="">
+    <layout>
+        
+    </layout>
     <label x="6" y="4" autosize="true" background-color="transparent">불러올 데이터를 선택해주십시오.</label>
     <listview x="6" y="23" width="374" height="152" border-show="true" transparent="true">
         <columns visible="false">

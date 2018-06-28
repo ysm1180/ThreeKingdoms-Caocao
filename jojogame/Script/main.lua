@@ -271,11 +271,9 @@ function main()
                 nil,
                 function()
                     require "dialog/load_dialog.lua"
-                    loadDialog:ShowModalWindow()
                 end,
                 function()
                     require "dialog/config_dialog.lua"
-                    configDialog:ShowModalWindow()
                 end,
                 function()
                     mainDialog:Close()

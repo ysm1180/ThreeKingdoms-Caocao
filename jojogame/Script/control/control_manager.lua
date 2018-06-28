@@ -12,7 +12,10 @@ XML_CONTROL_NAME = {
     LISTVIEW_ROWS = "rows",
     LISTVIEW_ROW = "row",
     LISTVIEW_COLUMNS = "columns",
-    LISTVIEW_COLUMN = "column"
+    LISTVIEW_COLUMN = "column",
+    CHECKBOX = "checkbox",
+    RADIOBUTTON = "radio",
+    GROUPBOX = "group",
 }
 
 local function StrToBoolean(value)
@@ -29,22 +32,27 @@ local function RgbToHex(rgb)
 end
 
 -- @class ControlManager
--- @description 공통 Control 을 관리하는 Manager class, 직접적으로 사용할 일은 없는 클래스
+-- @description Control 생성 관리 클래스
 -- @inherit Object
-ControlManager = Object:Instance {
+ControlManager =
+    Object:Instance {
     BASE_CONTROL = {
         [XML_CONTROL_NAME.WINDOW] = true,
         [XML_CONTROL_NAME.STATIC] = true,
         [XML_CONTROL_NAME.BUTTON] = true,
-        [XML_CONTROL_NAME.LISTVIEW] = true
+        [XML_CONTROL_NAME.LISTVIEW] = true,
+        [XML_CONTROL_NAME.CHECKBOX] = true,
+        [XML_CONTROL_NAME.RADIOBUTTON] = true,
+        [XML_CONTROL_NAME.GROUPBOX] = true,
     },
-
     TEXT_CONTROL = {
         [XML_CONTROL_NAME.STATIC] = true,
         [XML_CONTROL_NAME.BUTTON] = true,
         [XML_CONTROL_NAME.LISTVIEW_ITEM] = true,
+        [XML_CONTROL_NAME.CHECKBOX] = true,
+        [XML_CONTROL_NAME.RADIOBUTTON] = true,
+        [XML_CONTROL_NAME.GROUPBOX] = true,
     },
-    
     ParseFromXML = function(self, file)
         local SLAXML = require "../base/slaxml.lua"
         local xml = io.open(currentPath .. file):read("*all")
@@ -81,6 +89,12 @@ ControlManager = Object:Instance {
         local function SetAttributeWindow(control, name, value)
             if name == "title" then
                 control:SetTitleName(value)
+            elseif name == "maxbutton" then
+                control:SetMaxButton(StrToBoolean(value))
+            elseif name == "minbutton" then
+                control:SetMinButton(StrToBoolean(value))
+            elseif name == "background-color" then
+                control:SetBackgroundColor(RgbToHex(value))
             end
         end
 
@@ -136,7 +150,6 @@ ControlManager = Object:Instance {
             end
         end
 
-        
         local function SetAttributeListView(control, name, value)
             if name == "show-border" then
                 control:SetShowBorder(StrToBoolean(value))
@@ -264,6 +277,12 @@ ControlManager = Object:Instance {
                     rowItems = {}
                 elseif name == XML_CONTROL_NAME.LISTVIEW_ITEM then
                     rowItem = ListViewItem:New()
+                elseif name == XML_CONTROL_NAME.CHECKBOX then
+                    childControl = CheckBox:New(window)
+                elseif name == XML_CONTROL_NAME.RADIOBUTTON then
+                    childControl = RadioButton:New(window)
+                elseif name == XML_CONTROL_NAME.GROUPBOX then
+                    childControl = GroupBox:New(window)
                 end
                 table.insert(childControlTypes, 1, name)
             end, -- When "<foo" or <x:foo is seen
@@ -331,7 +350,6 @@ ControlManager = Object:Instance {
                     for i = 1, #rows do
                         childControl:AddRow(rows[i])
                     end
-
                 elseif name == XML_CONTROL_NAME.LISTVIEW_COLUMN then
                     table.insert(columns, column)
                 elseif name == XML_CONTROL_NAME.LISTVIEW_ROW then
