@@ -10,7 +10,7 @@ class CRadioButtonControl : public CBaseControl
 public:
     static void RegisterFunctions(lua_State* L);
 
-    CRadioButtonControl();
+    explicit CRadioButtonControl(bool isGroupStart);
     virtual ~CRadioButtonControl();
 
     bool IsChecked();
@@ -30,6 +30,7 @@ private:
     CTextFont _font;
     std::wstring _text;
     HTHEME _theme;
+    bool _isChecked = false;
 
     static WNDPROC s_originalProc;
 };

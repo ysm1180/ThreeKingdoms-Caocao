@@ -3,6 +3,36 @@ require "../control/control_manager.lua"
 configDialog, childs = ControlManager:ParseFromXML("../dialog/config_dialog.dlg")
 configDialog:SetParentWindow(main)
 
+childs["btnCancel"]:SetMouseLButtonUpEvent(
+    function()
+        configDialog:Close()
+    end
+)
+
+childs["btnOK"]:SetMouseLButtonUpEvent(
+    function()
+        local file = fileManager:LoadFile("config.sav")
+        for i = 1, 5 do
+            if childs["chkOption" .. i]:Checked() then
+                fileManager:WriteByte(file, i - 1, 0x01)
+            else
+                fileManager:WriteByte(file, i - 1, 0x00)
+            end
+        end
+        fileManager:CloseFile(file)
+
+        configDialog:Close()
+    end
+)
+
+local file = fileManager:LoadFile("config.sav")
+for i = 1, 4 do
+    local checked = fileManager:ReadByte(file, i - 1)
+
+    childs["chkOption" .. i]:SetChecked(checked == 1)
+end
+fileManager:CloseFile(file)
+
 configDialog:Move(WindowManager:GetCenterPosition(main, configDialog:Width(), configDialog:Height()))
 configDialog:ShowModalWindow()
 
@@ -100,7 +130,6 @@ configDialog:ShowModalWindow()
 --     })
 -- end
 
-
 -- configRadios = {
 --     Text = {
 --         "길다",
@@ -156,7 +185,7 @@ configDialog:ShowModalWindow()
 --         Content = "OK"
 --     },
 --     Event = {
---         MouseLButtonUp = function() 
+--         MouseLButtonUp = function()
 --             local file = fileManager:LoadFile("config.sav")
 --             for i = 1, 5 do
 --                 if configChecks[i]:Checked() then

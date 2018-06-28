@@ -13,6 +13,7 @@ RadioButtonManager = Object:Instance
         {
             _Control control : 해당 옵션이 지정되면 모든 옵션은 무시되고 해당 컨트롤로 class 를 생성한다.
             Parent Window : control 이 생성될 부모 Class 지정
+            Start boolean : radio 그룹의 시작인지 구분
             Width int : control 너비
             Height int : control 높이
             X int : X 위치
@@ -49,7 +50,7 @@ RadioButtonManager = Object:Instance
                 return RadioButton:Instance(options._Control)
             end
             
-            newControl = RadioButton:New(options.Parent)
+            newControl = RadioButton:New(options.Parent, options.Start)
 
             -- 크기 설정
             newControl:SetSize(options.Width, options.Height)

@@ -178,9 +178,9 @@ CCheckBoxControl* CControlManager::CreateCheckBox(CWindowControl* parent)
     return control;
 }
 
-CRadioButtonControl* CControlManager::CreateRadioButton(CWindowControl* parent)
+CRadioButtonControl* CControlManager::CreateRadioButton(CWindowControl* parent, bool isGroupStart)
 {
-    auto control = CMemoryPool<CRadioButtonControl>::GetInstance().New();
+    auto control = CMemoryPool<CRadioButtonControl>::GetInstance().New(isGroupStart);
     control->SetParentControl(parent);
     return control;
 }

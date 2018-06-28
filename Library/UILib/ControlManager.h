@@ -53,7 +53,7 @@ public:
     CStaticControl* CreateStatic(CWindowControl* parent);
     CGroupBoxControl* CreateGroupBox(CWindowControl* parent);
     CCheckBoxControl* CreateCheckBox(CWindowControl* parent);
-    CRadioButtonControl* CreateRadioButton(CWindowControl* parent);
+    CRadioButtonControl* CreateRadioButton(CWindowControl* parent, bool isGroupStart);
     CComboBoxControl* CreateComboBox(CWindowControl* parent);
 
 

@@ -171,10 +171,10 @@ void CRadioButtonControl::RegisterFunctions(lua_State* L)
     RegisterClass(&wndClass);
 }
 
-CRadioButtonControl::CRadioButtonControl()
+CRadioButtonControl::CRadioButtonControl(bool isGroupStart)
     : _font(this)
 {
-    _style = WS_TABSTOP | WS_CHILD | BS_AUTORADIOBUTTON;
+    _style = WS_TABSTOP | WS_CHILD | BS_AUTORADIOBUTTON | (isGroupStart ? WS_GROUP : 0);
     _type = L"radiobutton";
     
 }
@@ -185,7 +185,14 @@ CRadioButtonControl::~CRadioButtonControl()
 
 bool CRadioButtonControl::IsChecked()
 {
-    return SendMessage(_hWnd, BM_GETCHECK, 0, 0) == BST_CHECKED;
+    if (_hWnd != nullptr)
+    {
+        return SendMessage(_hWnd, BM_GETCHECK, 0, 0) == BST_CHECKED;
+    }
+    else
+    {
+        return _isChecked;
+    }
 }
 
 std::wstring CRadioButtonControl::GetText()
@@ -218,13 +225,17 @@ void CRadioButtonControl::SetText(std::wstring text)
 
 void CRadioButtonControl::SetChecked(bool checked)
 {
-    if (checked)
+    _isChecked = checked;
+    if (_hWnd != nullptr)
     {
-        SendMessage(_hWnd, BM_SETCHECK, BST_CHECKED, 0);
-    }
-    else
-    {
-        SendMessage(_hWnd, BM_SETCHECK, BST_UNCHECKED, 0);
+        if (checked)
+        {
+            SendMessage(_hWnd, BM_SETCHECK, BST_CHECKED, 0);
+        }
+        else
+        {
+            SendMessage(_hWnd, BM_SETCHECK, BST_UNCHECKED, 0);
+        }
     }
 }
 
@@ -243,6 +254,15 @@ bool CRadioButtonControl::Create()
             (HMENU)this,
             CControlManager::GetInstance().GetHInstance(),
             this);
+
+        if (_isChecked)
+        {
+            SendMessage(_hWnd, BM_SETCHECK, BST_CHECKED, 0);
+        }
+        else
+        {
+            SendMessage(_hWnd, BM_SETCHECK, BST_UNCHECKED, 0);
+        }
 
         _font.ResetFont();
     }

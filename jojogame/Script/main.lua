@@ -350,11 +350,9 @@ function main()
             MouseLButtonUp = {nil,
                 function()
                     require "dialog/load_dialog.lua"
-                    loadDialog:ShowModalWindow()
                 end,
                 function()
                     require "dialog/config_dialog.lua"
-                    configDialog:ShowModalWindow()
                 end,
                 function()
                     main:Close()

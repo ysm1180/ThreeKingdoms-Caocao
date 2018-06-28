@@ -184,7 +184,14 @@ CCheckBoxControl::~CCheckBoxControl()
 
 bool CCheckBoxControl::IsChecked()
 {
-    return SendMessage(_hWnd, BM_GETCHECK, 0, 0) == BST_CHECKED;
+    if (_hWnd != nullptr)
+    {
+        return SendMessage(_hWnd, BM_GETCHECK, 0, 0) == BST_CHECKED;
+    }
+    else
+    {
+        return _isChecked;
+    }
 }
 
 std::wstring CCheckBoxControl::GetText()
@@ -217,13 +224,17 @@ void CCheckBoxControl::SetText(std::wstring text)
 
 void CCheckBoxControl::SetChecked(bool checked)
 {
-    if (checked)
+    _isChecked = checked;
+    if (_hWnd != nullptr)
     {
-        SendMessage(_hWnd, BM_SETCHECK, BST_CHECKED, 0);
-    }
-    else
-    {
-        SendMessage(_hWnd, BM_SETCHECK, BST_UNCHECKED, 0);
+        if (checked)
+        {
+            SendMessage(_hWnd, BM_SETCHECK, BST_CHECKED, 0);
+        }
+        else
+        {
+            SendMessage(_hWnd, BM_SETCHECK, BST_UNCHECKED, 0);
+        }
     }
 }
 
@@ -242,6 +253,15 @@ bool CCheckBoxControl::Create()
             (HMENU)this,
             CControlManager::GetInstance().GetHInstance(),
             this);
+
+        if (_isChecked)
+        {
+            SendMessage(_hWnd, BM_SETCHECK, BST_CHECKED, 0);
+        }
+        else
+        {
+            SendMessage(_hWnd, BM_SETCHECK, BST_UNCHECKED, 0);
+        }
 
         _font.ResetFont();
     }

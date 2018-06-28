@@ -21,7 +21,7 @@ end
 -- @description 라디오 버튼을 새로 생성합니다.
 -- @param parent Window : 라디오 버튼이 생성될 부모, 보통 Window
 -- @return RadioButton : 새로 생성된 RadioButton class
-function RadioButton:New(parent)
+function RadioButton:New(parent, isGroupStart)
     local newControl = {}
     local parentControl = nil
     if parent ~= nil then
@@ -30,7 +30,7 @@ function RadioButton:New(parent)
 
     -- controlManager 는 Lua의 ControlManager 랑 다르다!!
     -- 기본 게임 엔진에 내장되어있는 Control 생성 담당 인스턴스!
-    newControl.control = controlManager:CreateRadioButton(parentControl)
+    newControl.control = controlManager:CreateRadioButton(parentControl, isGroupStart)
     setmetatable(newControl, RadioButton)
     RadioButton.__index = RadioButton
 

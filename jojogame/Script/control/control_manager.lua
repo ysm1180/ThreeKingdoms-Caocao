@@ -244,6 +244,12 @@ ControlManager =
             end
         end
 
+        local function SetAttributeGroupBox(control, name, value)
+            if name == "text" then
+                control:SetText(value)
+            end
+        end
+
         local childControls = {}
         local childControlTypes = {}
         local id = ""
@@ -253,10 +259,13 @@ ControlManager =
         local row = nil
         local rowItems = {}
         local rowItem = nil
+        local radioGroupStart = true
+        local groupBox = nil
 
         parser =
             SLAXML:parser {
             startElement = function(name, nsURI, nsPrefix)
+                id = ""
                 if name == XML_CONTROL_NAME.WINDOW then
                     window = Window:New()
                 elseif name == XML_CONTROL_NAME.STATIC then
@@ -280,9 +289,11 @@ ControlManager =
                 elseif name == XML_CONTROL_NAME.CHECKBOX then
                     childControl = CheckBox:New(window)
                 elseif name == XML_CONTROL_NAME.RADIOBUTTON then
-                    childControl = RadioButton:New(window)
+                    childControl = RadioButton:New(window, radioGroupStart)
+                    radioGroupStart = false
                 elseif name == XML_CONTROL_NAME.GROUPBOX then
-                    childControl = GroupBox:New(window)
+                    groupBox = GroupBox:New(window)
+                    radioGroupStart = true
                 end
                 table.insert(childControlTypes, 1, name)
             end, -- When "<foo" or <x:foo is seen
@@ -295,6 +306,8 @@ ControlManager =
                 if self.BASE_CONTROL[childControlTypes[1]] == true then
                     if childControlTypes[1] == XML_CONTROL_NAME.WINDOW then
                         SetAttributeControl(window, name, value)
+                    elseif childControlTypes[1] == XML_CONTROL_NAME.GROUPBOX then
+                        SetAttributeControl(groupBox, name, value)
                     else
                         SetAttributeControl(childControl, name, value)
                     end
@@ -303,6 +316,8 @@ ControlManager =
                 if self.TEXT_CONTROL[childControlTypes[1]] == true then
                     if childControlTypes[1] == XML_CONTROL_NAME.LISTVIEW_ITEM then
                         SetAttributeText(rowItem, name, value)
+                    elseif childControlTypes[1] == XML_CONTROL_NAME.GROUPBOX then
+                        SetAttributeText(groupBox, name, value)
                     else
                         SetAttributeText(childControl, name, value)
                     end
@@ -326,6 +341,8 @@ ControlManager =
                     SetAttributeListViewRows(childControl, name, value)
                 elseif childControlTypes[1] == XML_CONTROL_NAME.LISTVIEW_ITEM then
                     SetAttributeListViewItem(rowItem, name, value)
+                elseif childControlTypes[1] == XML_CONTROL_NAME.GROUPBOX then
+                    SetAttributeGroupBox(groupBox, name, value)
                 end
             end, -- attribute found on current element
             closeElement = function(name, nsURI)
@@ -333,6 +350,13 @@ ControlManager =
                     window:Create()
                     for key, value in pairs(childControls) do
                         value:Create()
+                    end
+                elseif name == XML_CONTROL_NAME.GROUPBOX then
+                    groupBox:Show()
+                    if id ~= "" then
+                        childControls[id] = groupBox
+                    else
+                        table.insert(childControls, groupBox)
                     end
                 elseif self.BASE_CONTROL[name] == true then
                     childControl:Show()
@@ -360,6 +384,8 @@ ControlManager =
                     for i = 1, #rowItems do
                         row:AddItem(rowItems[i])
                     end
+                elseif name == XML_CONTROL_NAME.GROUPBOX then
+                    radioGroupStart = true
                 end
 
                 table.remove(childControlTypes, 1)
@@ -367,8 +393,9 @@ ControlManager =
             text = function(text)
                 if self.TEXT_CONTROL[childControlTypes[1]] == true then
                     if childControlTypes[1] == XML_CONTROL_NAME.LISTVIEW_ITEM then
-                        OUTPUT(text)
                         rowItem:SetText(text)
+                    elseif childControlTypes[1] == XML_CONTROL_NAME.GROUPBOX then
+                        -- do nothing
                     else
                         childControl:SetText(text)
                     end

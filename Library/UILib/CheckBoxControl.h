@@ -29,6 +29,7 @@ private:
     CTextFont _font;
     std::wstring _text;
     HTHEME _theme;
+    bool _isChecked = false;
 
     static WNDPROC s_originalProc;
 };
