@@ -631,7 +631,7 @@ int ThreadVideo(void* arg)
         {
             if (avcodec_receive_frame(videoState->videoCodecContext, frame) == 0)
             {
-                if ((pts = av_frame_get_best_effort_timestamp(frame)) == AV_NOPTS_VALUE)
+                if ((pts = frame->best_effort_timestamp) == AV_NOPTS_VALUE)
                 {
                     pts = 0;
                 }
