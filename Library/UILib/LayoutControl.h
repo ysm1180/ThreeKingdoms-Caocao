@@ -40,6 +40,7 @@ public:
     void SetRatioY(double ratio, bool isRedraw = false);
 
     void AddParentWindow(CWindowControl* parent);
+    void RemoveParentWIndow(CWindowControl* parent);
 
     int AddImage(CImageControl* image, int x, int y, bool isUpdate);
     void DeleteImage(CImageControl* image, bool isUpdate);

@@ -60,6 +60,8 @@ public:
     int ShowModalWindow();
     void Close() const;
 
+    void Clear();
+
     void SetDialogResult(int value) const;
 
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

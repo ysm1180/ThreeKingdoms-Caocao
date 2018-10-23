@@ -159,8 +159,13 @@ Window = Control:Instance
         end
     end,
 
+    -- @description 화면을 Clear 한다.
+    Clear = function(self)
+        self.control:Clear()
+    end,
+
     -- @description 창을 닫습니다.
     Close = function(self)
         self.control:Close()
-    end
+    end,
 }

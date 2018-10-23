@@ -905,6 +905,7 @@ void CWindowControl::RegisterFunctions(lua_State* L)
 
     LUA_METHOD(AddLayout);
     LUA_METHOD(DeleteLayout);
+    LUA_METHOD(Clear);
 
     LUA_METHOD(Create);
     LUA_METHOD(ShowModalWindow);
@@ -1427,6 +1428,21 @@ bool CWindowControl::Create()
 void CWindowControl::Close() const
 {
     PostMessage(_hWnd, WM_CLOSE, 0, 0);
+}
+
+void CWindowControl::Clear()
+{
+    RECT rect;
+    GetClientRect(_hWnd, &rect);
+
+    for (auto layout : this->_layouts)
+    {
+        layout->RemoveParentWIndow(this);
+    }
+    this->_layouts.clear();
+
+    InvalidateRect(_hWnd, &rect, TRUE);
+    UpdateWindow(_hWnd);
 }
 
 int CWindowControl::ShowModalWindow()

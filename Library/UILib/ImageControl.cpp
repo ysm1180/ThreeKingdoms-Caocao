@@ -4,11 +4,55 @@
 #include "CommonLib/ME5File.h"
 #include "CommonLib/FileManager.h"
 #include "CommonLib/lodepng.h"
+extern "C" {
+    #include <jpeglib.h>
+}
 
 #include <iterator>
 #include <vector>
 
 namespace jojogame {
+static void init_source(j_decompress_ptr cinfo)
+{
+}
+boolean fill_input_buffer(j_decompress_ptr cinfo)
+{
+    return TRUE;
+}
+void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
+{
+    struct jpeg_source_mgr* src = (struct jpeg_source_mgr*) cinfo->src;
+
+    if (num_bytes > 0)
+    {
+        src->next_input_byte += (size_t)num_bytes;
+        src->bytes_in_buffer -= (size_t)num_bytes;
+    }
+}
+void term_source(j_decompress_ptr cinfo)
+{
+}
+void jpeg_mem_src(j_decompress_ptr cinfo, void* buffer, long nbytes)
+{
+    struct jpeg_source_mgr* src;
+
+    if (cinfo->src == NULL)
+    {   /* first time for this JPEG object? */
+        cinfo->src = (struct jpeg_source_mgr *)
+            (*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_PERMANENT,
+                                        sizeof(struct jpeg_source_mgr));
+    }
+
+    src = (struct jpeg_source_mgr*) cinfo->src;
+    src->init_source = init_source;
+    src->fill_input_buffer = fill_input_buffer;
+    src->skip_input_data = skip_input_data;
+    src->resync_to_restart = jpeg_resync_to_restart; /* use default method */
+    src->term_source = term_source;
+    src->bytes_in_buffer = nbytes;
+    src->next_input_byte = (JOCTET*)buffer;
+}
+
 void PngToBmp(std::vector<BYTE>& bmp, const BYTE* pngImage, int size)
 {
     std::vector<BYTE> png, image; // the raw pixels
@@ -140,6 +184,7 @@ void CImageControl::RegisterFunctions(lua_State* L)
 
 CImageControl::CImageControl()
 {
+    _size.cx = _size.cy = 0;
 }
 
 CImageControl::~CImageControl()
@@ -168,10 +213,60 @@ void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int group
     std::vector<BYTE> bmp;
 
     imageFile.GetItemByteArr(by, groupIndex, subIndex);
+
+    //struct jpeg_decompress_struct cinfo;
+    //struct jpeg_error_mgr jerr;
+
+    ////initialize error handling
+    //cinfo.err = jpeg_std_error(&jerr);
+
+    ////initialize the decompression
+    //jpeg_create_decompress(&cinfo);
+
+    //jpeg_mem_src(&cinfo, (void *)by, size);
+    //jpeg_read_header(&cinfo, TRUE);
+
+    //jpeg_start_decompress(&cinfo);
+
+    //int height = cinfo.output_height;
+    //int width = cinfo.output_width;
+    //int calc_width = (cinfo.output_width * cinfo.jpeg_color_space + 3) / 4 * 4;
+    //BYTE *data, *data_ori;
+    //data = data_ori = (BYTE *)malloc(calc_width * cinfo.output_height);
+
+    //if (data == nullptr)
+    //{
+    //    jpeg_finish_decompress(&cinfo);
+    //    jpeg_destroy_decompress(&cinfo);
+    //}
+
+    //while (cinfo.output_scanline < cinfo.output_height)
+    //{
+    //    jpeg_read_scanlines(&cinfo, &data, 1);
+    //    data += calc_width;
+    //}
+
+    //jpeg_finish_decompress(&cinfo);
+    //jpeg_destroy_decompress(&cinfo);
+
+    //auto bmpBytes = JpegToBmp(by, size);
     PngToBmp(bmp, by, size);
 
     BYTE* bmpBytes = new BYTE[bmp.size()];
     std::copy(bmp.begin(), bmp.end(), stdext::checked_array_iterator<BYTE *>(bmpBytes, bmp.size()));
+    
+    /*BITMAPINFO bmpInfo = { 0 };
+    bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmpInfo.bmiHeader.biWidth = width;
+    bmpInfo.bmiHeader.biHeight = 0xFFFFFFFF - height + 1;
+    bmpInfo.bmiHeader.biPlanes = 1;
+    bmpInfo.bmiHeader.biBitCount = 24;
+    bmpInfo.bmiHeader.biCompression = BI_RGB;
+    bmpInfo.bmiHeader.biSizeImage = 0;
+    bmpInfo.bmiHeader.biXPelsPerMeter = 0;
+    bmpInfo.bmiHeader.biYPelsPerMeter = 0;
+    bmpInfo.bmiHeader.biClrUsed = 0;
+    bmpInfo.bmiHeader.biClrImportant = 0;*/
 
     BITMAPFILEHEADER* bmpFileHeader = (BITMAPFILEHEADER *)bmpBytes;
     BITMAPINFOHEADER* bmpInfoHeader = (BITMAPINFOHEADER *)(bmpBytes + sizeof(BITMAPFILEHEADER));
@@ -235,6 +330,7 @@ void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int group
 
     delete[]by;
     delete[]bmpBytes;
+    //free(data_ori);
 }
 
 int CImageControl::GetWidth()

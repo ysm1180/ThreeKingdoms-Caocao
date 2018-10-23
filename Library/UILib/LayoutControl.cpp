@@ -415,6 +415,12 @@ void CLayoutControl::AddParentWindow(CWindowControl* parent)
     _parents.push_back(parent);
 }
 
+void CLayoutControl::RemoveParentWIndow(CWindowControl * parent)
+{
+    _parents.erase(std::remove(_parents.begin(), _parents.end(), parent), _parents.end());
+}
+
+
 int CLayoutControl::AddImage(CImageControl* image, int x, int y, bool isUpdate)
 {
     HDC imageDC = CreateCompatibleDC(_dc);
