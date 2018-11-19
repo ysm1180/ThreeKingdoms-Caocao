@@ -7,6 +7,9 @@
 #include <windows.h>
 #include <mutex>
 #include <memory>
+#include <atomic>
+#include <map>
+#include <unordered_map>
 
 namespace jojogame {
 class CME5File;
@@ -19,6 +22,8 @@ public:
     CGameManager();
     ~CGameManager();
 
+    int GetTokenRef(int tokenId);
+
     int GetDesktopWidth();
     int GetDesktopHeight();
     int Clock();
@@ -30,6 +35,10 @@ public:
     void Delay(int time);
     void StopDelay();
 
+    int SetInterval();
+    void ClearInterval(int tokenId);
+    void AllClearInterval();
+
     CME5File *OpenFile(std::wstring path);
     void CloseFile(CME5File *file);
 
@@ -37,5 +46,10 @@ public:
 private:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CGameManager> s_sharedGameManager;
+
+    std::unordered_map<int, std::pair<std::atomic_bool *, int>> _tokens{};
+    std::unordered_map<int, std::thread*> _threads{};
+
+    int _tokenId = 0;
 };
 }

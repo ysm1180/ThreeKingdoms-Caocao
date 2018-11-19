@@ -47,6 +47,32 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         break;
     }
 
+    case WM_KEYDOWN:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto keyDownEvent = window->GetKeyDownEvent();
+        if (keyDownEvent != LUA_NOREF)
+        {
+            CLuaTinker::GetLuaTinker().Call(keyDownEvent,
+                                            window,
+                                            (int)wParam);
+        }
+        break;
+    }
+
+    case WM_KEYUP:
+    {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto keyUpEvent = window->GetKeyUpEvent();
+        if (keyUpEvent != LUA_NOREF)
+        {
+            CLuaTinker::GetLuaTinker().Call(keyUpEvent,
+                                            window,
+                                            (int)wParam);
+        }
+        break;
+    }
+
     case WM_LBUTTONUP:
     {
         auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
@@ -359,7 +385,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
                 auto pen = CreatePen(PS_SOLID, 1, menu->GetTextColor().normal);
                 auto oldPen = (HPEN)SelectObject(item->hDC, pen);
-                MoveToEx(item->hDC, rect.left, rect.top + 1, NULL);
+                MoveToEx(item->hDC, rect.left, rect.top + 1, nullptr);
                 LineTo(item->hDC, rect.right, rect.top + 1);
                 SelectObject(item->hDC, oldPen);
             }
@@ -438,7 +464,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 {
                     if (item->itemState & ODS_SELECTED)
                     {
-                        backgroundColor= listViewItem->GetFocusedBackgroundColor();
+                        backgroundColor = listViewItem->GetFocusedBackgroundColor();
                         SetTextColor(item->hDC, listViewItem->GetFocusedTextColor());
                         isSelected = true;
                     }
@@ -828,6 +854,13 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         bool isFitWidth = false;
         bool isFitHeight = false;
 
+        HDC memDC = CreateCompatibleDC(hdc);
+        HBITMAP bitmap = CreateCompatibleBitmap(hdc, window->GetWidth(), window->GetHeight());
+        HBITMAP oldBitmap = SelectBitmap(memDC, bitmap);
+        RECT rect;
+        SetRect(&rect, 0, 0, window->GetWidth(), window->GetHeight());
+        FillRect(memDC, &rect, window->GetBackgroundBrush());
+
         for (auto layout : window->_layouts)
         {
             isFitWidth = isFitHeight = false;
@@ -843,7 +876,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 layout->SetHeight(window->GetHeight());
             }
 
-            layout->Draw(hdc, ps.rcPaint);
+            layout->Draw(memDC, ps.rcPaint);
 
             if (isFitWidth)
             {
@@ -854,6 +887,11 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 layout->SetHeight(0);
             }
         }
+        BitBlt(hdc, 0, 0, window->GetWidth(), window->GetHeight(), memDC, 0, 0, SRCCOPY);
+
+        SelectBitmap(memDC, oldBitmap);
+        DeleteBitmap(bitmap);
+        DeleteDC(memDC);
 
         EndPaint(hWnd, &ps);
         break;
@@ -861,11 +899,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
     case WM_ERASEBKGND:
     {
-        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        RECT rect;
-        GetClientRect(hWnd, &rect);
-        FillRect((HDC)wParam, &rect, window->_backBrush);
-        return TRUE;
+        return 0;
     }
     }
 
@@ -885,6 +919,8 @@ void CWindowControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(GetActiveEvent);
     LUA_METHOD(GetCloseEvent);
     LUA_METHOD(GetSizeEvent);
+    LUA_METHOD(GetKeyDownEvent);
+    LUA_METHOD(GetKeyUpEvent);
     LUA_METHOD(GetMenu);
     LUA_METHOD(GetBackgroundColor);
 
@@ -898,6 +934,8 @@ void CWindowControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(SetActiveEvent);
     LUA_METHOD(SetCloseEvent);
     LUA_METHOD(SetSizeEvent);
+    LUA_METHOD(SetKeyDownEvent);
+    LUA_METHOD(SetKeyUpEvent);
     LUA_METHOD(SetIcon);
     LUA_METHOD(SetBackgroundColor);
     LUA_METHOD(SetDialogResult);
@@ -978,6 +1016,28 @@ bool CWindowControl::IsSizable() const
     return _isSizable;
 }
 
+int CWindowControl::GetX() const
+{
+    if (_hWnd != nullptr)
+    {
+        RECT rect;
+        GetWindowRect(_hWnd, &rect);
+        return rect.left;
+    }
+    return _position.x;
+}
+
+int CWindowControl::GetY() const
+{
+    if (_hWnd != nullptr)
+    {
+        RECT rect;
+        GetWindowRect(_hWnd, &rect);
+        return rect.top;
+    }
+    return _position.y;
+}
+
 int CWindowControl::GetActiveEvent() const
 {
     return _activeEvent;
@@ -991,6 +1051,16 @@ int CWindowControl::GetCloseEvent() const
 int CWindowControl::GetSizeEvent() const
 {
     return _sizeEvent;
+}
+
+int CWindowControl::GetKeyDownEvent() const
+{
+    return _keyDownEvent;
+}
+
+int CWindowControl::GetKeyUpEvent() const
+{
+    return _keyUpEvent;
 }
 
 COLORREF CWindowControl::GetBackgroundColor()
@@ -1026,8 +1096,8 @@ void CWindowControl::SetY(const int y)
             AdjustWindowRect(&rect, _style, FALSE);
         }
 
-        int diffX = GetX() - rect.left;
-        int diffY = _position.y - rect.top;
+        int diffX = 0;
+        int diffY = 0;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
         SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
@@ -1053,8 +1123,8 @@ void CWindowControl::SetX(const int x)
             AdjustWindowRect(&rect, _style, FALSE);
         }
 
-        int diffX = _position.x - rect.left;
-        int diffY = GetY() - rect.top;
+        int diffX = 0;
+        int diffY = 0;
         SetRect(&rect, rect.left + diffX, rect.top + diffY, rect.right + diffX, rect.bottom + diffY);
 
         SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
@@ -1246,6 +1316,30 @@ void CWindowControl::SetSizeEvent()
     {
         lua_pushvalue(l, -1);
         _sizeEvent = luaL_ref(l, LUA_REGISTRYINDEX);
+    }
+
+    lua_pop(l, 1);
+}
+
+void CWindowControl::SetKeyDownEvent()
+{
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
+    {
+        lua_pushvalue(l, -1);
+        _keyDownEvent = luaL_ref(l, LUA_REGISTRYINDEX);
+    }
+
+    lua_pop(l, 1);
+}
+
+void CWindowControl::SetKeyUpEvent()
+{
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
+    {
+        lua_pushvalue(l, -1);
+        _keyUpEvent = luaL_ref(l, LUA_REGISTRYINDEX);
     }
 
     lua_pop(l, 1);

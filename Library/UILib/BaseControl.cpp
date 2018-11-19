@@ -111,6 +111,7 @@ int CBaseControl::GetX() const
     {
         RECT rect;
         GetWindowRect(_hWnd, &rect);
+        MapWindowPoints(HWND_DESKTOP, GetParent(_hWnd), (LPPOINT)&rect, 2);
         return rect.left;
     }
     return _position.x;
@@ -122,6 +123,7 @@ int CBaseControl::GetY() const
     {
         RECT rect;
         GetWindowRect(_hWnd, &rect);
+        MapWindowPoints(HWND_DESKTOP, GetParent(_hWnd), (LPPOINT)&rect, 2);
         return rect.top;
     }
     return _position.y;

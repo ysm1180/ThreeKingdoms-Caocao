@@ -26,10 +26,14 @@ public:
     bool IsMinButton() const;
     bool IsTitleBar() const;
     bool IsSizable() const;
+    int GetX() const;
+    int GetY() const;
     std::wstring GetTitleName() const;
     int GetActiveEvent() const;
     int GetCloseEvent() const;
     int GetSizeEvent() const;
+    int GetKeyDownEvent() const;
+    int GetKeyUpEvent() const;
     COLORREF GetBackgroundColor();
     HBRUSH GetBackgroundBrush();
     CMenu* GetMenu();
@@ -47,6 +51,8 @@ public:
     void SetActiveEvent();
     void SetCloseEvent();
     void SetSizeEvent();
+    void SetKeyDownEvent();
+    void SetKeyUpEvent();
     void SetIcon(std::wstring iconFilePath);
     void SetBackgroundColor(COLORREF backColor);
     void SetMenu(CMenu* menu);
@@ -79,6 +85,8 @@ private:
     int _activeEvent = LUA_NOREF;
     int _closeEvent = LUA_NOREF;
     int _sizeEvent = LUA_NOREF;
+    int _keyDownEvent = LUA_NOREF;
+    int _keyUpEvent = LUA_NOREF;
 
     HICON _icon = nullptr;
     COLORREF _backgroundColor = GetSysColor(COLOR_3DFACE);

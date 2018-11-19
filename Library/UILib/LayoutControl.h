@@ -17,6 +17,7 @@ struct ImageInformation
     HBITMAP oldBitmap;
     CImageControl* image;
     POINT position;
+    bool isHide;
 };
 
 class CLayoutControl
@@ -43,12 +44,17 @@ public:
     void RemoveParentWIndow(CWindowControl* parent);
 
     int AddImage(CImageControl* image, int x, int y, bool isUpdate);
-    void DeleteImage(CImageControl* image, bool isUpdate);
+    void DeleteImage(int index, bool isUpdate);
+    void MoveImage(int index, int x, int y, bool isUpdate);
+    void HideImage(int index, bool isUpdate);
+    void ShowImage(int index, bool isUpdate);
 
     void Draw(HDC destDC);
     void Draw(HDC destDC, RECT& rect);
     void Draw(HDC destDC, RECT& rect, COLORREF mixedColor);
     void Erase();
+
+    void Refresh();
 
 private:
     int _GetNewIndex();

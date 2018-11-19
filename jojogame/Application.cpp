@@ -51,8 +51,7 @@ int Application::Run()
 
     _controlManager->Init(_hInstance);
 
-    luaConsole.SetHInstance(_hInstance);
-    luaConsole.Create();
+    luaConsole.Create(_hInstance);
 
     luaTinker.RegisterClassToLua<CME5File>();
     luaTinker.RegisterClassToLua<CGameManager>();
@@ -76,6 +75,8 @@ int Application::Run()
             DispatchMessage(&message);
         }
     }
+
+    CGameManager::GetInstance().AllClearInterval();
 
     CMemoryPoolManager::GetInstance().DestroyAllMemoryPool();
     SDL_Quit();

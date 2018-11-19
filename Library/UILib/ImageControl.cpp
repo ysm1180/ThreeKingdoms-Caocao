@@ -179,12 +179,16 @@ void CImageControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(GetWidth);
     LUA_METHOD(GetHeight);
 
+    LUA_METHOD(SetClipingRect);
+    LUA_METHOD(ResetClipingRect);
+
     LUA_METHOD(LoadImageFromMe5FileByIndex);
 }
 
 CImageControl::CImageControl()
 {
     _size.cx = _size.cy = 0;
+    _clipingRect.top = _clipingRect.left = _clipingRect.right = _clipingRect.bottom = 0;
 }
 
 CImageControl::~CImageControl()
@@ -201,61 +205,44 @@ CImageControl::~CImageControl()
     }
 }
 
-void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor,
-                                                double brightness)
+void CImageControl::ReadJpeg(BYTE *src, int size, COLORREF maskColor, double brightness)
 {
-    CME5File imageFile;
+    struct jpeg_decompress_struct cinfo;
+    struct jpeg_error_mgr jerr;
 
-    imageFile.Open(filePath);
+    //initialize error handling
+    cinfo.err = jpeg_std_error(&jerr);
 
-    int size = imageFile.GetItemByteSize(groupIndex, subIndex);
-    auto* by = new BYTE[size];
-    std::vector<BYTE> bmp;
+    //initialize the decompression
+    jpeg_create_decompress(&cinfo);
 
-    imageFile.GetItemByteArr(by, groupIndex, subIndex);
+    jpeg_mem_src(&cinfo, (void *)src, size);
+    jpeg_read_header(&cinfo, TRUE);
 
-    //struct jpeg_decompress_struct cinfo;
-    //struct jpeg_error_mgr jerr;
+    jpeg_start_decompress(&cinfo);
 
-    ////initialize error handling
-    //cinfo.err = jpeg_std_error(&jerr);
+    int height = cinfo.output_height;
+    int width = cinfo.output_width;
+    int calc_width = (cinfo.output_width * cinfo.jpeg_color_space + 3) / 4 * 4;
+    BYTE *data, *data_ori;
+    data = data_ori = (BYTE *)malloc(calc_width * cinfo.output_height);
 
-    ////initialize the decompression
-    //jpeg_create_decompress(&cinfo);
+    if (data == nullptr)
+    {
+        jpeg_finish_decompress(&cinfo);
+        jpeg_destroy_decompress(&cinfo);
+    }
 
-    //jpeg_mem_src(&cinfo, (void *)by, size);
-    //jpeg_read_header(&cinfo, TRUE);
+    while (cinfo.output_scanline < cinfo.output_height)
+    {
+        jpeg_read_scanlines(&cinfo, &data, 1);
+        data += calc_width;
+    }
 
-    //jpeg_start_decompress(&cinfo);
+    jpeg_finish_decompress(&cinfo);
+    jpeg_destroy_decompress(&cinfo);
 
-    //int height = cinfo.output_height;
-    //int width = cinfo.output_width;
-    //int calc_width = (cinfo.output_width * cinfo.jpeg_color_space + 3) / 4 * 4;
-    //BYTE *data, *data_ori;
-    //data = data_ori = (BYTE *)malloc(calc_width * cinfo.output_height);
-
-    //if (data == nullptr)
-    //{
-    //    jpeg_finish_decompress(&cinfo);
-    //    jpeg_destroy_decompress(&cinfo);
-    //}
-
-    //while (cinfo.output_scanline < cinfo.output_height)
-    //{
-    //    jpeg_read_scanlines(&cinfo, &data, 1);
-    //    data += calc_width;
-    //}
-
-    //jpeg_finish_decompress(&cinfo);
-    //jpeg_destroy_decompress(&cinfo);
-
-    //auto bmpBytes = JpegToBmp(by, size);
-    PngToBmp(bmp, by, size);
-
-    BYTE* bmpBytes = new BYTE[bmp.size()];
-    std::copy(bmp.begin(), bmp.end(), stdext::checked_array_iterator<BYTE *>(bmpBytes, bmp.size()));
-    
-    /*BITMAPINFO bmpInfo = { 0 };
+    BITMAPINFO bmpInfo = { 0 };
     bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     bmpInfo.bmiHeader.biWidth = width;
     bmpInfo.bmiHeader.biHeight = 0xFFFFFFFF - height + 1;
@@ -266,7 +253,76 @@ void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int group
     bmpInfo.bmiHeader.biXPelsPerMeter = 0;
     bmpInfo.bmiHeader.biYPelsPerMeter = 0;
     bmpInfo.bmiHeader.biClrUsed = 0;
-    bmpInfo.bmiHeader.biClrImportant = 0;*/
+    bmpInfo.bmiHeader.biClrImportant = 0;
+
+    BYTE* bits = data_ori;
+    _size.cx = width;
+    _size.cy = height;
+
+    this->ResetClipingRect();
+
+    _info = bmpInfo;
+
+    HDC dc = GetDC(nullptr);
+    HDC imageDC = CreateCompatibleDC(dc);
+    HDC maskDC = CreateCompatibleDC(dc);
+
+    int lineWidth = _size.cx;
+    for (int y = 0; y < _size.cy; ++y)
+    {
+        for (int x = 0; x < lineWidth; ++x)
+        {
+            double h, s, v;
+            BYTE b = bits[(x + y * lineWidth) * 3];
+            BYTE g = bits[(x + y * lineWidth) * 3 + 1];
+            BYTE r = bits[(x + y * lineWidth) * 3 + 2];
+
+            if (r == GetRValue(maskColor) && g == GetGValue(maskColor) && b == GetBValue(maskColor))
+            {
+                continue;
+            }
+            RgbToHsv(r, g, b, h, s, v);
+            v *= brightness;
+            if (v > 1)
+            {
+                v = 1;
+            }
+            HsvToRgb(h, s, v, r, g, b);
+            bits[(x + y * lineWidth) * 3] = r;
+            bits[(x + y * lineWidth) * 3 + 1] = g;
+            bits[(x + y * lineWidth) * 3 + 2] = b;
+        }
+    }
+
+
+    _image = CreateDIBitmap(dc, &bmpInfo.bmiHeader, CBM_INIT, (void *)bits, &bmpInfo, DIB_RGB_COLORS);
+    _maskImage = CreateBitmap(_size.cx, _size.cy, 1, 1, nullptr);
+
+    HBITMAP oldImage = (HBITMAP)SelectObject(imageDC, _image);
+    HBITMAP oldMask = (HBITMAP)SelectObject(maskDC, _maskImage);
+    COLORREF oldColor = SetBkColor(imageDC, maskColor);
+
+    BitBlt(maskDC, 0, 0, _size.cx, _size.cy, imageDC, 0, 0, SRCCOPY);
+    BitBlt(imageDC, 0, 0, _size.cx, _size.cy, maskDC, 0, 0, SRCINVERT);
+
+    SetBkColor(imageDC, oldColor);
+    SelectObject(imageDC, oldImage);
+    SelectObject(maskDC, oldMask);
+
+    DeleteDC(imageDC);
+    DeleteDC(maskDC);
+
+    ReleaseDC(nullptr, dc);
+    free(data_ori);
+}
+
+void CImageControl::ReadPng(BYTE *src, int size, COLORREF maskColor, double brightness)
+{
+    std::vector<BYTE> bmp;
+    PngToBmp(bmp, src, size);
+
+    BYTE* bmpBytes = new BYTE[bmp.size()];
+    std::copy(bmp.begin(), bmp.end(), stdext::checked_array_iterator<BYTE *>(bmpBytes, bmp.size()));
 
     BITMAPFILEHEADER* bmpFileHeader = (BITMAPFILEHEADER *)bmpBytes;
     BITMAPINFOHEADER* bmpInfoHeader = (BITMAPINFOHEADER *)(bmpBytes + sizeof(BITMAPFILEHEADER));
@@ -274,6 +330,8 @@ void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int group
     BYTE* bits = (bmpBytes + bmpFileHeader->bfOffBits);
     _size.cx = bmpInfoHeader->biWidth;
     _size.cy = bmpInfoHeader->biHeight;
+    
+    this->ResetClipingRect();
 
     _info = *bmpInfo;
 
@@ -328,9 +386,53 @@ void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int group
 
     ReleaseDC(nullptr, dc);
 
-    delete[]by;
     delete[]bmpBytes;
-    //free(data_ori);
+}
+
+int CImageControl::GetClipingTop()
+{
+    return _clipingRect.top;
+}
+
+int CImageControl::GetClipingLeft()
+{
+    return _clipingRect.left;
+}
+
+int CImageControl::GetClipingWidth()
+{
+    return _clipingRect.right - _clipingRect.left;
+}
+
+int CImageControl::GetClipingHeight()
+{
+    return _clipingRect.bottom - _clipingRect.top;
+}
+
+
+void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor,
+                                                double brightness)
+{
+    CME5File imageFile;
+
+    imageFile.Open(filePath);
+
+    int size = imageFile.GetItemByteSize(groupIndex, subIndex);
+    auto* by = new BYTE[size];
+
+    imageFile.GetItemByteArr(by, groupIndex, subIndex);
+
+    _maskColor = maskColor;
+    if (by[0] == 0xFF && by[1] == 0xD8)
+    {
+        this->ReadJpeg(by, size, maskColor, brightness);
+    }
+    else if (by[0] == 0x89 && by[1] == 0x50)
+    {
+        this->ReadPng(by, size, maskColor, brightness);
+    }
+
+    delete[] by;
 }
 
 int CImageControl::GetWidth()
@@ -357,4 +459,26 @@ BITMAPINFO CImageControl::GetBitmapInfo()
 {
     return _info;
 }
+
+COLORREF CImageControl::GetMaskColor()
+{
+    return _maskColor;
+}
+
+void CImageControl::SetClipingRect(int left, int top, int right, int bottom)
+{
+    _clipingRect.left = left;
+    _clipingRect.top = top;
+    _clipingRect.right = right;
+    _clipingRect.bottom = bottom;
+}
+
+void CImageControl::ResetClipingRect()
+{
+    _clipingRect.top = _clipingRect.left = 0;
+    _clipingRect.right = _size.cx;
+    _clipingRect.bottom = _size.cy;
+}
+
+
 }

@@ -19,12 +19,10 @@ public:
 
     HWND GetHWnd();
 
-    void SetHInstance(HINSTANCE hInstance);
-
     void Output(std::wstring msg);
     void AppendOutput(std::wstring msg);
 
-    void Create();
+    void Create(HINSTANCE hInstance);
 
     static CLuaConsole& GetInstance();
     static void SetDebugFlag(bool flag);
