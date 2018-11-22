@@ -14,7 +14,9 @@ struct ImageInformation
 {
     int index;
     HDC imageDC;
+    HDC mirrorDC;
     HBITMAP oldBitmap;
+    HBITMAP oldMirrorBitmap;
     CImageControl* image;
     POINT position;
     bool isHide;
@@ -63,8 +65,8 @@ private:
     std::vector<CWindowControl *> _parents;
     std::vector<ImageInformation> _images;
     std::queue<int> _reusingImageIndex;
-    SIZE _size;
-    POINT _position;
+    SIZE _size{};
+    POINT _position{};
     double _ratioX = 1.0;
     double _ratioY = 1.0;
 };

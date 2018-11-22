@@ -4,8 +4,9 @@
 #include "CommonLib/ME5File.h"
 #include "CommonLib/FileManager.h"
 #include "CommonLib/lodepng.h"
+
 extern "C" {
-    #include <jpeglib.h>
+#include <jpeglib.h>
 }
 
 #include <iterator>
@@ -15,13 +16,15 @@ namespace jojogame {
 static void init_source(j_decompress_ptr cinfo)
 {
 }
+
 boolean fill_input_buffer(j_decompress_ptr cinfo)
 {
     return TRUE;
 }
+
 void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 {
-    struct jpeg_source_mgr* src = (struct jpeg_source_mgr*) cinfo->src;
+    struct jpeg_source_mgr* src = (struct jpeg_source_mgr*)cinfo->src;
 
     if (num_bytes > 0)
     {
@@ -29,21 +32,24 @@ void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
         src->bytes_in_buffer -= (size_t)num_bytes;
     }
 }
+
 void term_source(j_decompress_ptr cinfo)
 {
 }
+
 void jpeg_mem_src(j_decompress_ptr cinfo, void* buffer, long nbytes)
 {
     struct jpeg_source_mgr* src;
 
-    if (cinfo->src == NULL)
-    {   /* first time for this JPEG object? */
+    if (cinfo->src == nullptr)
+    {
+        /* first time for this JPEG object? */
         cinfo->src = (struct jpeg_source_mgr *)
-            (*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_PERMANENT,
-                                        sizeof(struct jpeg_source_mgr));
+                (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT,
+                                           sizeof(struct jpeg_source_mgr));
     }
 
-    src = (struct jpeg_source_mgr*) cinfo->src;
+    src = (struct jpeg_source_mgr*)cinfo->src;
     src->init_source = init_source;
     src->fill_input_buffer = fill_input_buffer;
     src->skip_input_data = skip_input_data;
@@ -179,6 +185,8 @@ void CImageControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(GetWidth);
     LUA_METHOD(GetHeight);
 
+    LUA_METHOD(SetDisplayMirror);
+
     LUA_METHOD(SetClipingRect);
     LUA_METHOD(ResetClipingRect);
 
@@ -203,9 +211,19 @@ CImageControl::~CImageControl()
         DeleteObject(_maskImage);
         _maskImage = nullptr;
     }
+    if (_mirrorImage)
+    {
+        DeleteObject(_mirrorImage);
+        _mirrorImage = nullptr;
+    }
+    if (_maskMirrorImage)
+    {
+        DeleteObject(_maskMirrorImage);
+        _maskMirrorImage = nullptr;
+    }
 }
 
-void CImageControl::ReadJpeg(BYTE *src, int size, COLORREF maskColor, double brightness)
+void CImageControl::ReadJpeg(BYTE* src, int size, COLORREF maskColor, double brightness, bool mirror)
 {
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -242,7 +260,7 @@ void CImageControl::ReadJpeg(BYTE *src, int size, COLORREF maskColor, double bri
     jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
 
-    BITMAPINFO bmpInfo = { 0 };
+    BITMAPINFO bmpInfo = {0};
     bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     bmpInfo.bmiHeader.biWidth = width;
     bmpInfo.bmiHeader.biHeight = 0xFFFFFFFF - height + 1;
@@ -294,6 +312,48 @@ void CImageControl::ReadJpeg(BYTE *src, int size, COLORREF maskColor, double bri
         }
     }
 
+    if (mirror)
+    {
+        BYTE* copyBytes = nullptr;
+        auto bit = bmpInfo.bmiHeader.biBitCount / 8;
+        copyBytes = new BYTE[bmpInfo.bmiHeader.biWidth * bmpInfo.bmiHeader.biHeight * bit];
+
+        for (int y = 0; y < _size.cy; ++y)
+        {
+            for (int x = 0; x < lineWidth; ++x)
+            {
+                double h, s, v;
+                BYTE r = bits[((lineWidth - x - 1) + y * lineWidth) * 3];
+                BYTE g = bits[((lineWidth - x - 1) + y * lineWidth) * 3 + 1];
+                BYTE b = bits[((lineWidth - x - 1) + y * lineWidth) * 3 + 2];
+                copyBytes[(x + y * lineWidth) * 3] = r;
+                copyBytes[(x + y * lineWidth) * 3 + 1] = g;
+                copyBytes[(x + y * lineWidth) * 3 + 2] = b;
+            }
+        }
+
+        _mirrorImage = CreateDIBitmap(dc, &bmpInfo.bmiHeader, CBM_INIT, (void *)copyBytes, &bmpInfo, DIB_RGB_COLORS);
+        _maskMirrorImage = CreateBitmap(_size.cx, _size.cy, 1, 1, nullptr);
+
+        HDC mirrorImageDC = CreateCompatibleDC(dc);
+        HDC mirrorMaskDC = CreateCompatibleDC(dc);
+
+        HBITMAP oldImage = (HBITMAP)SelectObject(mirrorImageDC, _mirrorImage);
+        HBITMAP oldMask = (HBITMAP)SelectObject(mirrorMaskDC, _maskMirrorImage);
+        COLORREF oldColor = SetBkColor(mirrorImageDC, maskColor);
+
+        BitBlt(mirrorMaskDC, 0, 0, _size.cx, _size.cy, mirrorImageDC, 0, 0, SRCCOPY);
+
+        SetBkColor(mirrorImageDC, oldColor);
+        SelectObject(mirrorImageDC, oldImage);
+        SelectObject(mirrorMaskDC, oldMask);
+
+        DeleteDC(mirrorImageDC);
+        DeleteDC(mirrorMaskDC);
+
+        delete[] copyBytes;
+    }
+
 
     _image = CreateDIBitmap(dc, &bmpInfo.bmiHeader, CBM_INIT, (void *)bits, &bmpInfo, DIB_RGB_COLORS);
     _maskImage = CreateBitmap(_size.cx, _size.cy, 1, 1, nullptr);
@@ -316,12 +376,13 @@ void CImageControl::ReadJpeg(BYTE *src, int size, COLORREF maskColor, double bri
     free(data_ori);
 }
 
-void CImageControl::ReadPng(BYTE *src, int size, COLORREF maskColor, double brightness)
+void CImageControl::ReadPng(BYTE* src, int size, COLORREF maskColor, double brightness, bool mirror)
 {
     std::vector<BYTE> bmp;
     PngToBmp(bmp, src, size);
 
     BYTE* bmpBytes = new BYTE[bmp.size()];
+
     std::copy(bmp.begin(), bmp.end(), stdext::checked_array_iterator<BYTE *>(bmpBytes, bmp.size()));
 
     BITMAPFILEHEADER* bmpFileHeader = (BITMAPFILEHEADER *)bmpBytes;
@@ -330,7 +391,7 @@ void CImageControl::ReadPng(BYTE *src, int size, COLORREF maskColor, double brig
     BYTE* bits = (bmpBytes + bmpFileHeader->bfOffBits);
     _size.cx = bmpInfoHeader->biWidth;
     _size.cy = bmpInfoHeader->biHeight;
-    
+
     this->ResetClipingRect();
 
     _info = *bmpInfo;
@@ -366,6 +427,47 @@ void CImageControl::ReadPng(BYTE *src, int size, COLORREF maskColor, double brig
         }
     }
 
+    if (mirror)
+    {
+        BYTE* copyBytes = nullptr;
+        auto bit = bmpInfo->bmiHeader.biBitCount / 8;
+        copyBytes = new BYTE[bmpInfo->bmiHeader.biWidth * bmpInfo->bmiHeader.biHeight * bit];
+
+        for (int y = 0; y < _size.cy; ++y)
+        {
+            for (int x = 0; x < lineWidth; ++x)
+            {
+                double h, s, v;
+                BYTE r = bits[((lineWidth - x - 1) + y * lineWidth) * 3];
+                BYTE g = bits[((lineWidth - x - 1) + y * lineWidth) * 3 + 1];
+                BYTE b = bits[((lineWidth - x - 1) + y * lineWidth) * 3 + 2];
+                copyBytes[(x + y * lineWidth) * 3] = r;
+                copyBytes[(x + y * lineWidth) * 3 + 1] = g;
+                copyBytes[(x + y * lineWidth) * 3 + 2] = b;
+            }
+        }
+
+        _mirrorImage = CreateDIBitmap(dc, bmpInfoHeader, CBM_INIT, (void *)copyBytes, bmpInfo, DIB_RGB_COLORS);
+        _maskMirrorImage = CreateBitmap(_size.cx, _size.cy, 1, 1, nullptr);
+
+        HDC mirrorImageDC = CreateCompatibleDC(dc);
+        HDC mirrorMaskDC = CreateCompatibleDC(dc);
+
+        HBITMAP oldImage = (HBITMAP)SelectObject(mirrorImageDC, _mirrorImage);
+        HBITMAP oldMask = (HBITMAP)SelectObject(mirrorMaskDC, _maskMirrorImage);
+        COLORREF oldColor = SetBkColor(mirrorImageDC, maskColor);
+
+        BitBlt(mirrorMaskDC, 0, 0, _size.cx, _size.cy, mirrorImageDC, 0, 0, SRCCOPY);
+
+        SetBkColor(mirrorImageDC, oldColor);
+        SelectObject(mirrorImageDC, oldImage);
+        SelectObject(mirrorMaskDC, oldMask);
+
+        DeleteDC(mirrorImageDC);
+        DeleteDC(mirrorMaskDC);
+
+        delete[] copyBytes;
+    }
 
     _image = CreateDIBitmap(dc, bmpInfoHeader, CBM_INIT, (void *)bits, bmpInfo, DIB_RGB_COLORS);
     _maskImage = CreateBitmap(_size.cx, _size.cy, 1, 1, nullptr);
@@ -375,7 +477,6 @@ void CImageControl::ReadPng(BYTE *src, int size, COLORREF maskColor, double brig
     COLORREF oldColor = SetBkColor(imageDC, maskColor);
 
     BitBlt(maskDC, 0, 0, _size.cx, _size.cy, imageDC, 0, 0, SRCCOPY);
-    BitBlt(imageDC, 0, 0, _size.cx, _size.cy, maskDC, 0, 0, SRCINVERT);
 
     SetBkColor(imageDC, oldColor);
     SelectObject(imageDC, oldImage);
@@ -409,9 +510,8 @@ int CImageControl::GetClipingHeight()
     return _clipingRect.bottom - _clipingRect.top;
 }
 
-
 void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor,
-                                                double brightness)
+                                                double brightness, bool mirror)
 {
     CME5File imageFile;
 
@@ -425,11 +525,11 @@ void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int group
     _maskColor = maskColor;
     if (by[0] == 0xFF && by[1] == 0xD8)
     {
-        this->ReadJpeg(by, size, maskColor, brightness);
+        this->ReadJpeg(by, size, maskColor, brightness, mirror);
     }
     else if (by[0] == 0x89 && by[1] == 0x50)
     {
-        this->ReadPng(by, size, maskColor, brightness);
+        this->ReadPng(by, size, maskColor, brightness, mirror);
     }
 
     delete[] by;
@@ -450,9 +550,19 @@ HBITMAP CImageControl::GetImageHandle()
     return _image;
 }
 
+HBITMAP CImageControl::GetMirrorImageHandle()
+{
+    return _mirrorImage;
+}
+
 HBITMAP CImageControl::GetMaskImageHandle()
 {
     return _maskImage;
+}
+
+HBITMAP CImageControl::GetMaskMirrorImageHandle()
+{
+    return _maskMirrorImage;
 }
 
 BITMAPINFO CImageControl::GetBitmapInfo()
@@ -463,6 +573,16 @@ BITMAPINFO CImageControl::GetBitmapInfo()
 COLORREF CImageControl::GetMaskColor()
 {
     return _maskColor;
+}
+
+bool CImageControl::IsDisplayMirror()
+{
+    return _isDisplayMirror;
+}
+
+void CImageControl::SetDisplayMirror(bool value)
+{
+    _isDisplayMirror = value;
 }
 
 void CImageControl::SetClipingRect(int left, int top, int right, int bottom)
@@ -479,6 +599,5 @@ void CImageControl::ResetClipingRect()
     _clipingRect.right = _size.cx;
     _clipingRect.bottom = _size.cy;
 }
-
 
 }

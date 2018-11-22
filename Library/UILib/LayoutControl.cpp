@@ -40,9 +40,18 @@ CLayoutControl::~CLayoutControl()
 {
     for (auto imageInfo : _images)
     {
-        SelectBitmap(imageInfo.imageDC, imageInfo.oldBitmap);
+        HBITMAP deletedBitmap = SelectBitmap(imageInfo.imageDC, imageInfo.oldBitmap);
+        DeleteBitmap(deletedBitmap);
+        if (imageInfo.oldMirrorBitmap != nullptr)
+        {
+            HBITMAP deletedMirrorBitmap = SelectBitmap(imageInfo.mirrorDC, imageInfo.oldMirrorBitmap);
+            DeleteBitmap(deletedMirrorBitmap);
+        }
+
         DeleteDC(imageInfo.imageDC);
+        DeleteDC(imageInfo.mirrorDC);
     }
+    DeleteDC(_dc);
 }
 
 int CLayoutControl::GetX() const
@@ -429,11 +438,48 @@ void CLayoutControl::RemoveParentWIndow(CWindowControl* parent)
 int CLayoutControl::AddImage(CImageControl* image, int x, int y, bool isUpdate)
 {
     HDC imageDC = CreateCompatibleDC(_dc);
-    ImageInformation imageInfo;
-    int index = _GetNewIndex();
+    HBITMAP oldBitmap = SelectBitmap(imageDC, image->GetImageHandle());
 
-    imageInfo.oldBitmap = SelectBitmap(imageDC, image->GetImageHandle());
-    imageInfo.imageDC = imageDC;
+    auto bitmapInfo = image->GetBitmapInfo();
+    GetDIBits(imageDC, image->GetImageHandle(), 0, 0, nullptr, &bitmapInfo, DIB_RGB_COLORS);
+    auto pixels = new BYTE[bitmapInfo.bmiHeader.biSizeImage];
+    GetDIBits(imageDC, image->GetImageHandle(), 0, image->GetHeight(), pixels, &bitmapInfo, DIB_RGB_COLORS);
+
+    BITMAPINFOHEADER* bitmapInfoHeader = (BITMAPINFOHEADER *)&bitmapInfo;
+    HBITMAP newBitmap = CreateDIBitmap(imageDC, bitmapInfoHeader, CBM_INIT, pixels, &bitmapInfo,
+                                       DIB_RGB_COLORS);
+
+    SelectBitmap(imageDC, oldBitmap);
+    DeleteDC(imageDC);
+    delete[] pixels;
+
+    HBITMAP newMirrorBitmap = nullptr;
+    if (image->GetMirrorImageHandle() != nullptr)
+    {
+        HDC mirrorDC = CreateCompatibleDC(_dc);
+        HBITMAP oldMirrorBitmap = SelectBitmap(mirrorDC, image->GetMirrorImageHandle());
+        auto bitmapInfo = image->GetBitmapInfo();
+        GetDIBits(mirrorDC, image->GetMirrorImageHandle(), 0, 0, nullptr, &bitmapInfo, DIB_RGB_COLORS);
+        auto mirrorPixels = new BYTE[bitmapInfo.bmiHeader.biSizeImage];
+        GetDIBits(mirrorDC, image->GetMirrorImageHandle(), 0, image->GetHeight(), mirrorPixels, &bitmapInfo, DIB_RGB_COLORS);
+
+        BITMAPINFOHEADER* bitmapInfoHeader = (BITMAPINFOHEADER *)&bitmapInfo;
+        newMirrorBitmap = CreateDIBitmap(mirrorDC, bitmapInfoHeader, CBM_INIT, mirrorPixels, &bitmapInfo,
+                                           DIB_RGB_COLORS);
+
+        SelectBitmap(mirrorDC, oldBitmap);
+        DeleteDC(mirrorDC);
+        delete[] mirrorPixels;
+    }
+
+    int index = _GetNewIndex();
+    ImageInformation imageInfo;
+    HDC newDC = CreateCompatibleDC(_dc);
+    HDC newMirrorDC = CreateCompatibleDC(_dc);
+    imageInfo.oldBitmap = SelectBitmap(newDC, newBitmap);
+    imageInfo.oldMirrorBitmap = newMirrorBitmap != nullptr ? SelectBitmap(newMirrorDC, newMirrorBitmap) : nullptr;
+    imageInfo.imageDC = newDC;
+    imageInfo.mirrorDC = newMirrorDC;
     imageInfo.index = index;
     imageInfo.image = image;
     imageInfo.position.x = x;
@@ -531,7 +577,8 @@ void CLayoutControl::MoveImage(int index, int x, int y, bool isUpdate)
                         int imageY = (iter->position.y * _ratioY) + _position.y;
                         RECT rect;
 
-                        SetRect(&rect, originalImageX, originalImageY, originalImageX + image->GetClipingWidth() * _ratioX,
+                        SetRect(&rect, originalImageX, originalImageY,
+                                originalImageX + image->GetClipingWidth() * _ratioX,
                                 originalImageY + image->GetClipingHeight() * _ratioY);
                         InvalidateRect(parent->GetHWnd(), &rect, FALSE);
                         SetRect(&rect, imageX, imageY, imageX + image->GetClipingWidth() * _ratioX,
@@ -644,6 +691,8 @@ void CLayoutControl::Draw(HDC destDC)
     {
         if (!image.isHide)
         {
+            HDC imageDC = image.image->IsDisplayMirror() ? image.mirrorDC : image.imageDC;
+
             int imageX = (image.position.x * _ratioX) + _position.x;
             int imageY = (image.position.y * +_ratioY) + _position.y;
             int imageWidth = image.image->GetClipingWidth() * _ratioX;
@@ -661,17 +710,18 @@ void CLayoutControl::Draw(HDC destDC)
                 }
 
                 auto maskDC = CreateCompatibleDC(destDC);
-                auto oldMask = SelectBitmap(maskDC, image.image->GetMaskImageHandle());
-                auto oldColor = SetBkColor(image.imageDC, image.image->GetMaskColor());
+                HBITMAP maskBitmap = image.image->IsDisplayMirror() ? image.image->GetMaskMirrorImageHandle() : image.image->GetMaskImageHandle();
+                auto oldMask = SelectBitmap(maskDC, maskBitmap);
+                auto oldColor = SetBkColor(imageDC, image.image->GetMaskColor());
 
-                BitBlt(destDC, imageX, imageY, imageWidth, imageHeight, image.imageDC, image.image->GetClipingLeft(),
+                BitBlt(destDC, imageX, imageY, imageWidth, imageHeight, imageDC, image.image->GetClipingLeft(),
                        image.image->GetClipingTop(), SRCINVERT);
                 BitBlt(destDC, imageX, imageY, imageWidth, imageHeight, maskDC, image.image->GetClipingLeft(),
                        image.image->GetClipingTop(), SRCAND);
-                BitBlt(destDC, imageX, imageY, imageWidth, imageHeight, image.imageDC, image.image->GetClipingLeft(),
+                BitBlt(destDC, imageX, imageY, imageWidth, imageHeight, imageDC, image.image->GetClipingLeft(),
                        image.image->GetClipingTop(), SRCINVERT);
 
-                SetBkColor(image.imageDC, oldColor);
+                SetBkColor(imageDC, oldColor);
                 SelectBitmap(maskDC, oldMask);
                 DeleteDC(maskDC);
             }
@@ -689,7 +739,7 @@ void CLayoutControl::Draw(HDC destDC)
                 auto oldMask = SelectBitmap(maskDC, maskBitmap);
 
                 SetStretchBltMode(memDC, COLORONCOLOR);
-                StretchBlt(memDC, 0, 0, imageWidth, imageHeight, image.imageDC, image.image->GetClipingLeft(),
+                StretchBlt(memDC, 0, 0, imageWidth, imageHeight, imageDC, image.image->GetClipingLeft(),
                            image.image->GetClipingTop(), image.image->GetClipingWidth(),
                            image.image->GetClipingHeight(), SRCCOPY);
 
@@ -726,6 +776,8 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect)
     {
         if (!image.isHide)
         {
+            HDC imageDC = image.image->IsDisplayMirror() ? image.mirrorDC : image.imageDC;
+
             RECT realClipingRect;
             RECT layoutRect;
             SetRect(&layoutRect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
@@ -735,7 +787,7 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect)
             }
 
             int imageX = (image.position.x * _ratioX) + _position.x;
-            int imageY = (image.position.y * +_ratioY) + _position.y;
+            int imageY = (image.position.y * _ratioY) + _position.y;
             int imageWidth = image.image->GetClipingWidth() * _ratioX;
             int imageHeight = image.image->GetClipingHeight() * _ratioY;
 
@@ -759,11 +811,12 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect)
                 }
 
                 auto maskDC = CreateCompatibleDC(destDC);
-                auto oldMask = SelectBitmap(maskDC, image.image->GetMaskImageHandle());
-                auto oldColor = SetBkColor(image.imageDC, image.image->GetMaskColor());
+                HBITMAP maskBitmap = image.image->IsDisplayMirror() ? image.image->GetMaskMirrorImageHandle() : image.image->GetMaskImageHandle();
+                auto oldMask = SelectBitmap(maskDC, maskBitmap);
+                auto oldColor = SetBkColor(imageDC, image.image->GetMaskColor());
 
                 BitBlt(destDC, realDrawRect.left, realDrawRect.top, realDrawRect.right - realDrawRect.left,
-                       realDrawRect.bottom - realDrawRect.top, image.imageDC,
+                       realDrawRect.bottom - realDrawRect.top, imageDC,
                        realDrawRect.left - imageRect.left + image.image->GetClipingLeft(),
                        realDrawRect.top - imageRect.top + image.image->GetClipingTop(), SRCINVERT);
                 BitBlt(destDC, realDrawRect.left, realDrawRect.top, realDrawRect.right - realDrawRect.left,
@@ -771,11 +824,11 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect)
                        realDrawRect.left - imageRect.left + image.image->GetClipingLeft(),
                        realDrawRect.top - imageRect.top + image.image->GetClipingTop(), SRCAND);
                 BitBlt(destDC, realDrawRect.left, realDrawRect.top, realDrawRect.right - realDrawRect.left,
-                       realDrawRect.bottom - realDrawRect.top, image.imageDC,
+                       realDrawRect.bottom - realDrawRect.top, imageDC,
                        realDrawRect.left - imageRect.left + image.image->GetClipingLeft(),
                        realDrawRect.top - imageRect.top + image.image->GetClipingTop(), SRCINVERT);
 
-                SetBkColor(image.imageDC, oldColor);
+                SetBkColor(imageDC, oldColor);
                 SelectBitmap(maskDC, oldMask);
                 DeleteDC(maskDC);
             }
@@ -810,7 +863,7 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect)
                 auto oldMask = SelectBitmap(maskDC, maskBitmap);
 
                 SetStretchBltMode(memDC, COLORONCOLOR);
-                StretchBlt(memDC, 0, 0, originalImageWidth, originalImageHeight, image.imageDC,
+                StretchBlt(memDC, 0, 0, originalImageWidth, originalImageHeight, imageDC,
                            image.image->GetClipingLeft(), image.image->GetClipingTop(), image.image->GetClipingWidth(),
                            image.image->GetClipingHeight(), SRCCOPY);
 
@@ -843,8 +896,10 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect, COLORREF mixedColor)
 {
     for (ImageInformation image : _images)
     {
-        if (image.isHide)
+        if (!image.isHide)
         {
+            HDC imageDC = image.image->IsDisplayMirror() ? image.mirrorDC : image.imageDC;
+
             RECT realClipingRect;
             RECT layoutRect;
             SetRect(&layoutRect, _position.x, _position.y, _position.x + _size.cx, _position.y + _size.cy);
@@ -855,8 +910,8 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect, COLORREF mixedColor)
 
             int imageX = (image.position.x * _ratioX) + _position.x;
             int imageY = (image.position.y * +_ratioY) + _position.y;
-            auto width = image.image->GetWidth();
-            int height = image.image->GetHeight();
+            auto width = image.image->GetClipingWidth();
+            int height = image.image->GetClipingHeight();
             int imageWidth = width * _ratioX;
             int imageHeight = height * _ratioY;
 
@@ -880,11 +935,11 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect, COLORREF mixedColor)
                 }
 
                 auto bitmapInfo = image.image->GetBitmapInfo();
-                GetDIBits(image.imageDC, image.image->GetImageHandle(), 0, 0, nullptr, &bitmapInfo, DIB_RGB_COLORS);
+                GetDIBits(imageDC, image.image->GetImageHandle(), 0, 0, nullptr, &bitmapInfo, DIB_RGB_COLORS);
 
                 int bits = bitmapInfo.bmiHeader.biBitCount / 8;
                 auto pixels = new BYTE[bitmapInfo.bmiHeader.biSizeImage];
-                GetDIBits(image.imageDC, image.image->GetImageHandle(), 0, height, pixels, &bitmapInfo, DIB_RGB_COLORS);
+                GetDIBits(imageDC, image.image->GetImageHandle(), 0, height, pixels, &bitmapInfo, DIB_RGB_COLORS);
 
                 auto cx = realDrawRect.right - realDrawRect.left;
                 auto cy = realDrawRect.bottom - realDrawRect.top;
@@ -899,6 +954,10 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect, COLORREF mixedColor)
                         BYTE b = pixels[(x + y * width) * bits];
                         BYTE g = pixels[(x + y * width) * bits + 1];
                         BYTE r = pixels[(x + y * width) * bits + 2];
+                        if (RGB(r, g, b) == image.image->GetMaskColor())
+                        {
+                            continue;
+                        }
                         RgbToHsv(r, g, b, h, s, v);
                         RgbToHsv(GetRValue(mixedColor), GetGValue(mixedColor), GetBValue(mixedColor), h2, s2, v2);
                         h = h2;
@@ -910,28 +969,46 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect, COLORREF mixedColor)
                     }
                 }
                 BITMAPINFOHEADER* bitmapInfoHeader = (BITMAPINFOHEADER *)&bitmapInfo;
-                HBITMAP newBitmap = CreateDIBitmap(image.imageDC, bitmapInfoHeader, CBM_INIT, pixels, &bitmapInfo,
+                HDC newDC = CreateCompatibleDC(nullptr);
+                HBITMAP newBitmap = CreateDIBitmap(imageDC, bitmapInfoHeader, CBM_INIT, pixels, &bitmapInfo,
                                                    DIB_RGB_COLORS);
-                auto oldBitmap = SelectBitmap(image.imageDC, newBitmap);
+                auto oldBitmap = SelectBitmap(newDC, newBitmap);
 
+                auto maskBitmap = CreateBitmap(imageWidth, imageHeight, 1, 1, nullptr);
+                auto maskDC = CreateCompatibleDC(nullptr);
+                auto oldMask = SelectBitmap(maskDC, maskBitmap);
 
-                BitBlt(destDC, realDrawRect.left, realDrawRect.top, cx,
-                       cy, image.imageDC, drawingImageX,
-                       drawingImageY, SRCCOPY);
+                auto oldColor = SetBkColor(newDC, image.image->GetMaskColor());
+                BitBlt(maskDC, 0, 0, imageWidth, imageHeight, newDC, 0, 0, SRCCOPY);
 
-                SelectObject(image.imageDC, oldBitmap);
+                auto oldBackColor = SetBkColor(destDC, RGB(255, 255, 255));
+                auto oldTextColor = SetTextColor(destDC, RGB(0, 0, 0));
+                BitBlt(destDC, realDrawRect.left, realDrawRect.top, cx, cy, newDC,
+                       drawingImageX + image.image->GetClipingLeft(),
+                       drawingImageY + image.image->GetClipingTop(), SRCINVERT);
+                BitBlt(destDC, realDrawRect.left, realDrawRect.top, cx, cy, maskDC,
+                       drawingImageX + image.image->GetClipingLeft(),
+                       drawingImageY + image.image->GetClipingTop(), SRCAND);
+                BitBlt(destDC, realDrawRect.left, realDrawRect.top, cx, cy, newDC,
+                       drawingImageX + image.image->GetClipingLeft(),
+                       drawingImageY + image.image->GetClipingTop(), SRCINVERT);
+
+                SetBkColor(destDC, oldBackColor);
+                SetTextColor(destDC, oldTextColor);
+
+                SelectBitmap(maskDC, oldMask);
+                DeleteDC(maskDC);
+                SetBkColor(newDC, oldColor);
+                SelectObject(newDC, oldBitmap);
+                DeleteDC(newDC);
                 DeleteBitmap(newBitmap);
+                DeleteBitmap(maskBitmap);
                 delete[] pixels;
             }
             else
             {
-                auto memDc = CreateCompatibleDC(destDC);
-                auto memBitmap = CreateCompatibleBitmap(destDC, imageWidth, imageHeight);
-                auto oldBitmap = SelectBitmap(memDc, memBitmap);
-
-                SetStretchBltMode(memDc, COLORONCOLOR);
-                StretchBlt(memDc, 0, 0, imageWidth, imageHeight, image.imageDC, 0, 0, width,
-                           height, SRCCOPY);
+                int originalImageWidth = imageWidth;
+                int originalImageHeight = imageHeight;
 
                 if (imageX + imageWidth > _size.cx)
                 {
@@ -950,11 +1027,75 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect, COLORREF mixedColor)
                     continue;
                 }
 
-                BitBlt(destDC, imageX, imageY, imageWidth, imageHeight, memDc, 0, 0, SRCCOPY);
+                auto bitmapInfo = image.image->GetBitmapInfo();
+                GetDIBits(imageDC, image.image->GetImageHandle(), 0, 0, nullptr, &bitmapInfo, DIB_RGB_COLORS);
 
-                SelectBitmap(memDc, oldBitmap);
+                int bits = bitmapInfo.bmiHeader.biBitCount / 8;
+                auto pixels = new BYTE[bitmapInfo.bmiHeader.biSizeImage];
+                GetDIBits(imageDC, image.image->GetImageHandle(), 0, height, pixels, &bitmapInfo, DIB_RGB_COLORS);
+
+                auto cx = realDrawRect.right - realDrawRect.left;
+                auto cy = realDrawRect.bottom - realDrawRect.top;
+                auto drawingImageX = realDrawRect.left - imageRect.left;
+                auto drawingImageY = realDrawRect.top - imageRect.top;
+
+                for (int y = height - drawingImageY - 1; y > height - drawingImageY - cy - 1; --y)
+                {
+                    for (int x = drawingImageX; x < drawingImageX + cx; ++x)
+                    {
+                        double h, s, v, h2, s2, v2;
+                        BYTE b = pixels[(x + y * width) * bits];
+                        BYTE g = pixels[(x + y * width) * bits + 1];
+                        BYTE r = pixels[(x + y * width) * bits + 2];
+                        if (RGB(r, g, b) == image.image->GetMaskColor())
+                        {
+                            continue;
+                        }
+                        RgbToHsv(r, g, b, h, s, v);
+                        RgbToHsv(GetRValue(mixedColor), GetGValue(mixedColor), GetBValue(mixedColor), h2, s2, v2);
+                        h = h2;
+                        s = s2;
+                        HsvToRgb(h, s, v, r, g, b);
+                        pixels[(x + y * width) * bits] = b;
+                        pixels[(x + y * width) * bits + 1] = g;
+                        pixels[(x + y * width) * bits + 2] = r;
+                    }
+                }
+
+                auto memDC = CreateCompatibleDC(destDC);
+                auto memBitmap = CreateCompatibleBitmap(destDC, originalImageWidth, originalImageHeight);
+                auto oldBitmap = SelectBitmap(memDC, memBitmap);
+
+                auto maskBitmap = CreateBitmap(imageWidth, imageHeight, 1, 1, nullptr);
+                auto maskDC = CreateCompatibleDC(destDC);
+                auto oldMask = SelectBitmap(maskDC, maskBitmap);
+
+                SetStretchBltMode(memDC, COLORONCOLOR);
+                StretchBlt(memDC, 0, 0, originalImageWidth, originalImageHeight, imageDC,
+                           image.image->GetClipingLeft(), image.image->GetClipingTop(), image.image->GetClipingWidth(),
+                           image.image->GetClipingHeight(), SRCCOPY);
+
+                auto oldColor = SetBkColor(memDC, image.image->GetMaskColor());
+                BitBlt(maskDC, 0, 0, originalImageWidth, originalImageHeight, memDC, 0, 0, SRCCOPY);
+
+                BitBlt(destDC, realDrawRect.left, realDrawRect.top, cx,
+                       cy, imageDC,
+                       drawingImageX + image.image->GetClipingLeft(),
+                       drawingImageY + image.image->GetClipingTop(), SRCINVERT);
+                BitBlt(destDC, realDrawRect.left, realDrawRect.top, cx, cy, maskDC,
+                       drawingImageX + image.image->GetClipingLeft(),
+                       drawingImageY + image.image->GetClipingTop(), SRCAND);
+                BitBlt(destDC, realDrawRect.left, realDrawRect.top, cx, cy, imageDC,
+                       drawingImageX + image.image->GetClipingLeft(),
+                       drawingImageY + image.image->GetClipingTop(), SRCINVERT);
+
+                SetBkColor(memDC, oldColor);
+                SelectBitmap(maskDC, oldMask);
+                SelectBitmap(memDC, oldBitmap);
                 DeleteBitmap(memBitmap);
-                DeleteDC(memDc);
+                DeleteBitmap(maskBitmap);
+                DeleteDC(memDC);
+                DeleteDC(maskDC);
             }
         }
     }
