@@ -65,7 +65,7 @@ int Application::Run()
     luaTinker.RegisterFunction("DEBUG", &CLuaConsole::SetDebugFlag);
 
     luaTinker.Run("./Script/main.lua");
-
+    
     while (WM_QUIT != message.message)
     {
         if (PeekMessage(&message, NULL, 0, 0, PM_NOREMOVE))
@@ -74,9 +74,15 @@ int Application::Run()
             TranslateMessage(&message);
             DispatchMessage(&message);
         }
+        else
+        {
+            int idleEvent = CGameManager::GetInstance().GetIdleEvent();
+            if (idleEvent != LUA_NOREF)
+            {
+                luaTinker.Call(idleEvent);
+            }
+        }
     }
-
-    CGameManager::GetInstance().AllClearInterval();
 
     CMemoryPoolManager::GetInstance().DestroyAllMemoryPool();
     SDL_Quit();
