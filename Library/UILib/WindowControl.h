@@ -58,7 +58,7 @@ public:
     void SetMenu(CMenu* menu);
     void SetParentWindow(CWindowControl* parent);
 
-    void AddLayout(CLayoutControl* layout);
+    void AddLayout(CLayoutControl* layout, bool isShow);
     void DeleteLayout(CLayoutControl* layout);
 
     bool Create() override;

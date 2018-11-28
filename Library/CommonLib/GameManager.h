@@ -22,7 +22,7 @@ public:
     int GetDesktopWidth();
     int GetDesktopHeight();
     int GetIdleEvent();
-    int Clock();
+    int GetNow();
 
     COLORREF Color(int r, int g, int b);
 

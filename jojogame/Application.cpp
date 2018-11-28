@@ -1,15 +1,15 @@
 #include "Application.h"
 #include "LuaConsole.h"
 
-#include "BaseLib\MemoryPool.h"
-#include "CommonLib\GameManager.h"
+#include "BaseLib/MemoryPool.h"
+#include "CommonLib/GameManager.h"
 #include "CommonLib/FileManager.h"
-#include "LuaLib\LuaTinker.h"
-#include "UILib\ControlManager.h"
+#include "LuaLib/LuaTinker.h"
+#include "UILib/ControlManager.h"
 #include "CommonLib/ME5File.h"
 
 namespace jojogame {
-Application *Application::s_sharedApplication = nullptr;
+Application* Application::s_sharedApplication = nullptr;
 
 Application& Application::GetInstance()
 {
@@ -65,12 +65,12 @@ int Application::Run()
     luaTinker.RegisterFunction("DEBUG", &CLuaConsole::SetDebugFlag);
 
     luaTinker.Run("./Script/main.lua");
-    
+
     while (WM_QUIT != message.message)
     {
-        if (PeekMessage(&message, NULL, 0, 0, PM_NOREMOVE))
+        if (PeekMessage(&message, nullptr, 0, 0, PM_NOREMOVE))
         {
-            GetMessage(&message, NULL, 0, 0);
+            GetMessage(&message, nullptr, 0, 0);
             TranslateMessage(&message);
             DispatchMessage(&message);
         }

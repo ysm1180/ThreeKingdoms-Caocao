@@ -1414,7 +1414,7 @@ void CWindowControl::SetParentWindow(CWindowControl* parent)
     }
 }
 
-void CWindowControl::AddLayout(CLayoutControl* layout)
+void CWindowControl::AddLayout(CLayoutControl* layout, bool isShow)
 {
     _layouts.push_back(layout);
 

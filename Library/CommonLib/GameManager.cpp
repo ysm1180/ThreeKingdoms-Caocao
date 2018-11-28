@@ -19,7 +19,7 @@ void CGameManager::RegisterFunctions(lua_State *L)
     LUA_METHOD(Delay);
     LUA_METHOD(StopDelay);
     LUA_METHOD(Color);
-    LUA_METHOD(Clock);
+    LUA_METHOD(GetNow);
     LUA_METHOD(OpenFile);
     LUA_METHOD(CloseFile);
     LUA_METHOD(SetIdleEvent);
@@ -64,7 +64,7 @@ int CGameManager::GetIdleEvent()
     return _idleEvent;
 }
 
-int CGameManager::Clock()
+int CGameManager::GetNow()
 {
     return GetTickCount();
 }

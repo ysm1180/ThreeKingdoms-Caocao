@@ -78,7 +78,7 @@
     <LibraryPath>..\Library\ffmpeg\x64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>..\Library\ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\Library\libjpeg\lib;..\Library\ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -117,13 +117,13 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Library\;..\Library\ffmpeg\x86\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Library\libjpeg\include;..\Library\;..\Library\ffmpeg\x86\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>UxTheme.lib;avcodec.lib;avformat.lib;swscale.lib;avutil.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Library\ffmpeg\x86\lib;..\Library\SDL\lib\x86;..\Library\Vid\;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>jpeg.lib;UxTheme.lib;avcodec.lib;avformat.lib;swscale.lib;avutil.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Library\ffmpeg\x86\lib;..\Library\SDL\lib\x86;..\Library\libjpeg\lib</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>

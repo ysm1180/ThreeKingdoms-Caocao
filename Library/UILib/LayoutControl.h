@@ -34,6 +34,7 @@ public:
     int GetY() const;
     int GetWidth() const;
     int GetHeight() const;
+    bool IsHide() const;
 
     void SetX(int x, bool isRedraw = false);
     void SetY(int y, bool isRedraw = false);
@@ -41,11 +42,12 @@ public:
     void SetHeight(int cy, bool isRedraw = false);
     void SetRatioX(double ratio, bool isRedraw = false);
     void SetRatioY(double ratio, bool isRedraw = false);
+    void SetHide(bool value);
 
     void AddParentWindow(CWindowControl* parent);
     void RemoveParentWIndow(CWindowControl* parent);
 
-    int AddImage(CImageControl* image, int x, int y, bool isUpdate);
+    int AddImage(CImageControl* image, int x, int y, bool isShow);
     void DeleteImage(int index, bool isUpdate);
     void MoveImage(int index, int x, int y, bool isUpdate);
     void HideImage(int index, bool isUpdate);
@@ -69,5 +71,6 @@ private:
     POINT _position{};
     double _ratioX = 1.0;
     double _ratioY = 1.0;
+    bool _isHide = false;
 };
 }
