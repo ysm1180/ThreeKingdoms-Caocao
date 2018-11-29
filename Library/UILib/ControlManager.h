@@ -26,6 +26,7 @@ class CGroupBoxControl;
 class CCheckBoxControl;
 class CRadioButtonControl;
 class CComboBoxControl;
+class CMusicPlayerControl;
 
 class CControlManager
 {
@@ -55,7 +56,7 @@ public:
     CCheckBoxControl* CreateCheckBox(CWindowControl* parent);
     CRadioButtonControl* CreateRadioButton(CWindowControl* parent, bool isGroupStart);
     CComboBoxControl* CreateComboBox(CWindowControl* parent);
-
+    CMusicPlayerControl* CreateMusicPlayer(std::wstring fileName);
 
     HINSTANCE GetHInstance();
 

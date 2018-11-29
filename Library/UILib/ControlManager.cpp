@@ -17,6 +17,7 @@
 #include "CheckBoxControl.h"
 #include "RadioButtonControl.h"
 #include "ComboBoxControl.h"
+#include "MusicPlayer.h"
 
 namespace jojogame {
 std::once_flag CControlManager::s_onceFlag;
@@ -44,6 +45,7 @@ void CControlManager::RegisterFunctions(lua_State* L)
     LUA_METHOD(CreateCheckBox);
     LUA_METHOD(CreateRadioButton);
     LUA_METHOD(CreateComboBox);
+    LUA_METHOD(CreateMusicPlayer);
 }
 
 CControlManager::CControlManager()
@@ -79,6 +81,7 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CCheckBoxControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CRadioButtonControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CComboBoxControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CMusicPlayerControl>();
 
 }
 
@@ -86,6 +89,12 @@ CWindowControl* CControlManager::CreateWindowForm(CWindowControl* parent)
 {
     auto control = CMemoryPool<CWindowControl>::GetInstance().New();
     control->SetParentWindow(parent);
+    return control;
+}
+
+CMusicPlayerControl* CControlManager::CreateMusicPlayer(std::wstring fileName)
+{
+    auto control = CMemoryPool<CMusicPlayerControl>::GetInstance().New(fileName);
     return control;
 }
 
