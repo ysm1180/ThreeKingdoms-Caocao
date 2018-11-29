@@ -22,6 +22,7 @@ void CLayoutControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(SetHeight);
     LUA_METHOD(SetRatioX);
     LUA_METHOD(SetRatioY);
+    LUA_METHOD(SetHide);
 
     LUA_METHOD(AddImage);
     LUA_METHOD(DeleteImage);
@@ -438,6 +439,7 @@ void CLayoutControl::SetRatioY(double ratio, bool isRedraw)
 void CLayoutControl::SetHide(bool value)
 {
     _isHide = value;
+    this->Refresh();
 }
 
 void CLayoutControl::AddParentWindow(CWindowControl* parent)
@@ -1139,7 +1141,7 @@ void CLayoutControl::Refresh()
                 RECT rect;
                 SetRect(&rect, imageX, imageY, imageX + image.image->GetClipingWidth() * _ratioX,
                         imageY + image.image->GetClipingHeight() * _ratioY);
-                InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+                InvalidateRect(parent->GetHWnd(), &rect, FALSE);
             }
         }
     }
