@@ -92,6 +92,7 @@ void CStaticControl::RegisterFunctions(lua_State* L)
     LUA_BEGIN_CHILD(CStaticControl, "_StaticControl", CBaseControl);
 
     LUA_METHOD(GetText);
+    LUA_METHOD(GetFont);
 
     LUA_METHOD(SetAutoSize);
     LUA_METHOD(SetText);
@@ -101,6 +102,7 @@ void CStaticControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(SetAlign);
 
     LUA_METHOD(Create);
+    LUA_METHOD(Destroy);
 
     WNDCLASS wndClass;
     GetClassInfo(NULL, TEXT("static"), &wndClass);
@@ -114,6 +116,7 @@ void CStaticControl::RegisterFunctions(lua_State* L)
 CStaticControl::CStaticControl()
     : _font(this)
 {
+    _type = L"static";
     _style = WS_CHILD | SS_OWNERDRAW;
 }
 

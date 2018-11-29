@@ -627,7 +627,14 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     case WM_CTLCOLORSTATIC:
     {
         auto control = reinterpret_cast<CBaseControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
-        if (control->GetType() == L"groupbox")
+        if (control->GetType() == L"static")
+        {
+            auto staticControl = reinterpret_cast<CStaticControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
+
+            ::SetTextColor((HDC)wParam, staticControl->GetTextColor());
+            return (LRESULT)::GetSysColorBrush(COLOR_WINDOW);
+        }
+        else if (control->GetType() == L"groupbox")
         {
             auto groupBox = reinterpret_cast<CGroupBoxControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
 
@@ -1416,6 +1423,7 @@ void CWindowControl::SetParentWindow(CWindowControl* parent)
 
 void CWindowControl::AddLayout(CLayoutControl* layout, bool isShow)
 {
+    layout->SetHide(!isShow);
     _layouts.push_back(layout);
 
     RECT rect;
