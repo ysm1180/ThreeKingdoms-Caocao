@@ -10,7 +10,7 @@ namespace jojogame {
 void CLayoutControl::RegisterFunctions(lua_State* L)
 {
     LUA_BEGIN(CLayoutControl, "_Layout");
-    
+
     LUA_METHOD(GetX);
     LUA_METHOD(GetY);
     LUA_METHOD(GetWidth);
@@ -107,8 +107,8 @@ void CLayoutControl::SetX(int x, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
-                            _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
+                            _position.y + int(height * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
                 }
             }
@@ -131,8 +131,8 @@ void CLayoutControl::SetX(int x, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
-                            _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
+                            _position.y + int(height * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
 
                     UpdateWindow(parent->GetHWnd());
@@ -168,8 +168,8 @@ void CLayoutControl::SetY(int y, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
-                            _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
+                            _position.y + int(height * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
                 }
             }
@@ -192,8 +192,8 @@ void CLayoutControl::SetY(int y, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
-                            _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
+                            _position.y + int(height * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
 
                     UpdateWindow(parent->GetHWnd());
@@ -229,8 +229,8 @@ void CLayoutControl::SetWidth(int cx, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
-                            _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
+                            _position.y + int(height * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
                 }
             }
@@ -253,8 +253,8 @@ void CLayoutControl::SetWidth(int cx, bool isRedraw)
                     }
 
                     RECT rect;
-                    SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX,
-                            _position.y + height * _ratioY);
+                    SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
+                            _position.y + int(height * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, TRUE);
 
                     UpdateWindow(parent->GetHWnd());
@@ -288,7 +288,7 @@ void CLayoutControl::SetHeight(int cy, bool isRedraw)
                 }
 
                 RECT rect;
-                SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX), _position.y + int(height * _ratioY));
                 InvalidateRect(parent->GetHWnd(), &rect, TRUE);
             }
         }
@@ -311,7 +311,7 @@ void CLayoutControl::SetHeight(int cy, bool isRedraw)
                 }
 
                 RECT rect;
-                SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX), _position.y + int(height * _ratioY));
                 InvalidateRect(parent->GetHWnd(), &rect, TRUE);
 
                 UpdateWindow(parent->GetHWnd());
@@ -344,7 +344,7 @@ void CLayoutControl::SetRatioX(double ratio, bool isRedraw)
                 }
 
                 RECT rect;
-                SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX), _position.y + int(height * _ratioY));
                 InvalidateRect(parent->GetHWnd(), &rect, FALSE);
             }
         }
@@ -367,7 +367,7 @@ void CLayoutControl::SetRatioX(double ratio, bool isRedraw)
                 }
 
                 RECT rect;
-                SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX), _position.y + int(height * _ratioY));
                 InvalidateRect(parent->GetHWnd(), &rect, FALSE);
 
                 UpdateWindow(parent->GetHWnd());
@@ -400,7 +400,7 @@ void CLayoutControl::SetRatioY(double ratio, bool isRedraw)
                 }
 
                 RECT rect;
-                SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX), _position.y + int(height * _ratioY));
                 InvalidateRect(parent->GetHWnd(), &rect, FALSE);
             }
         }
@@ -423,7 +423,7 @@ void CLayoutControl::SetRatioY(double ratio, bool isRedraw)
                 }
 
                 RECT rect;
-                SetRect(&rect, _position.x, _position.y, _position.x + width * _ratioX, _position.y + height * _ratioY);
+                SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX), _position.y + int(height * _ratioY));
                 InvalidateRect(parent->GetHWnd(), &rect, FALSE);
 
                 UpdateWindow(parent->GetHWnd());
@@ -478,11 +478,12 @@ int CLayoutControl::AddImage(CImageControl* image, int x, int y, bool isShow)
         auto bitmapInfo = image->GetBitmapInfo();
         GetDIBits(mirrorDC, image->GetMirrorImageHandle(), 0, 0, nullptr, &bitmapInfo, DIB_RGB_COLORS);
         auto mirrorPixels = new BYTE[bitmapInfo.bmiHeader.biSizeImage];
-        GetDIBits(mirrorDC, image->GetMirrorImageHandle(), 0, image->GetHeight(), mirrorPixels, &bitmapInfo, DIB_RGB_COLORS);
+        GetDIBits(mirrorDC, image->GetMirrorImageHandle(), 0, image->GetHeight(), mirrorPixels, &bitmapInfo,
+                  DIB_RGB_COLORS);
 
         BITMAPINFOHEADER* bitmapInfoHeader = (BITMAPINFOHEADER *)&bitmapInfo;
         newMirrorBitmap = CreateDIBitmap(mirrorDC, bitmapInfoHeader, CBM_INIT, mirrorPixels, &bitmapInfo,
-                                           DIB_RGB_COLORS);
+                                         DIB_RGB_COLORS);
 
         SelectBitmap(mirrorDC, oldBitmap);
         DeleteDC(mirrorDC);
@@ -509,12 +510,12 @@ int CLayoutControl::AddImage(CImageControl* image, int x, int y, bool isShow)
     {
         for (auto& parent : _parents)
         {
-            int imageX = (x * _ratioX) + _position.x;
-            int imageY = (y * _ratioY) + _position.y;
+            int imageX = int(x * _ratioX) + _position.x;
+            int imageY = int(y * _ratioY) + _position.y;
 
             RECT rect;
-            SetRect(&rect, imageX, imageY, imageX + image->GetClipingWidth() * _ratioX,
-                    imageY + image->GetClipingHeight() * _ratioY);
+            SetRect(&rect, imageX, imageY, imageX + int(image->GetClipingWidth() * _ratioX),
+                    imageY + int(image->GetClipingHeight() * _ratioY));
             InvalidateRect(parent->GetHWnd(), &rect, FALSE);
             UpdateWindow(parent->GetHWnd());
         }
@@ -543,12 +544,12 @@ void CLayoutControl::DeleteImage(int index, bool isUpdate)
             {
                 for (auto& parent : _parents)
                 {
-                    int imageX = (position.x * _ratioX) + _position.x;
-                    int imageY = (position.y * _ratioY) + _position.y;
+                    int imageX = int(position.x * _ratioX) + _position.x;
+                    int imageY = int(position.y * _ratioY) + _position.y;
                     RECT rect;
 
-                    SetRect(&rect, imageX, imageY, imageX + image->GetWidth() * _ratioX,
-                            imageY + image->GetHeight() * _ratioY);
+                    SetRect(&rect, imageX, imageY, imageX + int(image->GetWidth() * _ratioX),
+                            imageY + int(image->GetHeight() * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, FALSE);
 
                     if (isUpdate)
@@ -584,18 +585,18 @@ void CLayoutControl::MoveImage(int index, int x, int y, bool isUpdate)
                 {
                     for (auto& parent : _parents)
                     {
-                        int originalImageX = (position.x * _ratioX) + _position.x;
-                        int originalImageY = (position.y * _ratioY) + _position.y;
-                        int imageX = (iter->position.x * _ratioX) + _position.x;
-                        int imageY = (iter->position.y * _ratioY) + _position.y;
+                        int originalImageX = int(position.x * _ratioX) + _position.x;
+                        int originalImageY = int(position.y * _ratioY) + _position.y;
+                        int imageX = int(iter->position.x * _ratioX) + _position.x;
+                        int imageY = int(iter->position.y * _ratioY) + _position.y;
                         RECT rect;
 
                         SetRect(&rect, originalImageX, originalImageY,
-                                originalImageX + image->GetClipingWidth() * _ratioX,
-                                originalImageY + image->GetClipingHeight() * _ratioY);
+                                originalImageX + int(image->GetClipingWidth() * _ratioX),
+                                originalImageY + int(image->GetClipingHeight() * _ratioY));
                         InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-                        SetRect(&rect, imageX, imageY, imageX + image->GetClipingWidth() * _ratioX,
-                                imageY + image->GetClipingHeight() * _ratioY);
+                        SetRect(&rect, imageX, imageY, imageX + int(image->GetClipingWidth() * _ratioX),
+                                imageY + int(image->GetClipingHeight() * _ratioY));
                         InvalidateRect(parent->GetHWnd(), &rect, FALSE);
 
                         if (isUpdate)
@@ -629,17 +630,17 @@ void CLayoutControl::HideImage(int index, bool isUpdate)
             {
                 for (auto& parent : _parents)
                 {
-                    int originalImageX = (position.x * _ratioX) + _position.x;
-                    int originalImageY = (position.y * _ratioY) + _position.y;
-                    int imageX = (iter->position.x * _ratioX) + _position.x;
-                    int imageY = (iter->position.y * _ratioY) + _position.y;
+                    int originalImageX = int(position.x * _ratioX) + _position.x;
+                    int originalImageY = int(position.y * _ratioY) + _position.y;
+                    int imageX = int(iter->position.x * _ratioX) + _position.x;
+                    int imageY = int(iter->position.y * _ratioY) + _position.y;
                     RECT rect;
 
-                    SetRect(&rect, originalImageX, originalImageY, originalImageX + image->GetClipingWidth() * _ratioX,
-                            originalImageY + image->GetClipingHeight() * _ratioY);
+                    SetRect(&rect, originalImageX, originalImageY, originalImageX + int(image->GetClipingWidth() * _ratioX),
+                            originalImageY + int(image->GetClipingHeight() * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-                    SetRect(&rect, imageX, imageY, imageX + image->GetClipingWidth() * _ratioX,
-                            imageY + image->GetClipingHeight() * _ratioY);
+                    SetRect(&rect, imageX, imageY, imageX + int(image->GetClipingWidth() * _ratioX),
+                            imageY + int(image->GetClipingHeight() * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, FALSE);
 
                     if (isUpdate)
@@ -672,17 +673,17 @@ void CLayoutControl::ShowImage(int index, bool isUpdate)
             {
                 for (auto& parent : _parents)
                 {
-                    int originalImageX = (position.x * _ratioX) + _position.x;
-                    int originalImageY = (position.y * _ratioY) + _position.y;
-                    int imageX = (iter->position.x * _ratioX) + _position.x;
-                    int imageY = (iter->position.y * _ratioY) + _position.y;
+                    int originalImageX = int(position.x * _ratioX) + _position.x;
+                    int originalImageY = int(position.y * _ratioY) + _position.y;
+                    int imageX = int(iter->position.x * _ratioX) + _position.x;
+                    int imageY = int(iter->position.y * _ratioY) + _position.y;
                     RECT rect;
 
-                    SetRect(&rect, originalImageX, originalImageY, originalImageX + image->GetClipingWidth() * _ratioX,
-                            originalImageY + image->GetClipingHeight() * _ratioY);
+                    SetRect(&rect, originalImageX, originalImageY, originalImageX + int(image->GetClipingWidth() * _ratioX),
+                            originalImageY + int(image->GetClipingHeight() * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-                    SetRect(&rect, imageX, imageY, imageX + image->GetClipingWidth() * _ratioX,
-                            imageY + image->GetClipingHeight() * _ratioY);
+                    SetRect(&rect, imageX, imageY, imageX + int(image->GetClipingWidth() * _ratioX),
+                            imageY + int(image->GetClipingHeight() * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, FALSE);
 
                     if (isUpdate)
@@ -708,10 +709,10 @@ void CLayoutControl::Draw(HDC destDC)
             {
                 HDC imageDC = image.image->IsDisplayMirror() ? image.mirrorDC : image.imageDC;
 
-                int imageX = (image.position.x * _ratioX) + _position.x;
-                int imageY = (image.position.y * +_ratioY) + _position.y;
-                int imageWidth = image.image->GetClipingWidth() * _ratioX;
-                int imageHeight = image.image->GetClipingHeight() * _ratioY;
+                int imageX = int(image.position.x * _ratioX) + _position.x;
+                int imageY = int(image.position.y * +_ratioY) + _position.y;
+                int imageWidth = int(image.image->GetClipingWidth() * _ratioX);
+                int imageHeight = int(image.image->GetClipingHeight() * _ratioY);
 
                 if (_ratioX == 1.0 && _ratioY == 1.0)
                 {
@@ -725,7 +726,9 @@ void CLayoutControl::Draw(HDC destDC)
                     }
 
                     auto maskDC = CreateCompatibleDC(destDC);
-                    HBITMAP maskBitmap = image.image->IsDisplayMirror() ? image.image->GetMaskMirrorImageHandle() : image.image->GetMaskImageHandle();
+                    HBITMAP maskBitmap = image.image->IsDisplayMirror()
+                                             ? image.image->GetMaskMirrorImageHandle()
+                                             : image.image->GetMaskImageHandle();
                     auto oldMask = SelectBitmap(maskDC, maskBitmap);
                     auto oldColor = SetBkColor(imageDC, image.image->GetMaskColor());
 
@@ -804,10 +807,10 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect)
                     continue;
                 }
 
-                int imageX = (image.position.x * _ratioX) + _position.x;
-                int imageY = (image.position.y * _ratioY) + _position.y;
-                int imageWidth = image.image->GetClipingWidth() * _ratioX;
-                int imageHeight = image.image->GetClipingHeight() * _ratioY;
+                int imageX = int(image.position.x * _ratioX) + _position.x;
+                int imageY = int(image.position.y * _ratioY) + _position.y;
+                int imageWidth = int(image.image->GetClipingWidth() * _ratioX);
+                int imageHeight = int(image.image->GetClipingHeight() * _ratioY);
 
                 if (_ratioX == 1.0 && _ratioY == 1.0)
                 {
@@ -829,7 +832,9 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect)
                     }
 
                     auto maskDC = CreateCompatibleDC(destDC);
-                    HBITMAP maskBitmap = image.image->IsDisplayMirror() ? image.image->GetMaskMirrorImageHandle() : image.image->GetMaskImageHandle();
+                    HBITMAP maskBitmap = image.image->IsDisplayMirror()
+                                             ? image.image->GetMaskMirrorImageHandle()
+                                             : image.image->GetMaskImageHandle();
                     auto oldMask = SelectBitmap(maskDC, maskBitmap);
                     auto oldColor = SetBkColor(imageDC, image.image->GetMaskColor());
 
@@ -882,7 +887,8 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect)
 
                     SetStretchBltMode(memDC, COLORONCOLOR);
                     StretchBlt(memDC, 0, 0, originalImageWidth, originalImageHeight, imageDC,
-                               image.image->GetClipingLeft(), image.image->GetClipingTop(), image.image->GetClipingWidth(),
+                               image.image->GetClipingLeft(), image.image->GetClipingTop(),
+                               image.image->GetClipingWidth(),
                                image.image->GetClipingHeight(), SRCCOPY);
 
                     auto oldColor = SetBkColor(memDC, image.image->GetMaskColor());
@@ -929,12 +935,12 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect, COLORREF mixedColor)
                     continue;
                 }
 
-                int imageX = (image.position.x * _ratioX) + _position.x;
-                int imageY = (image.position.y * +_ratioY) + _position.y;
+                int imageX = int(image.position.x * _ratioX) + _position.x;
+                int imageY = int(image.position.y * +_ratioY) + _position.y;
                 auto width = image.image->GetClipingWidth();
                 int height = image.image->GetClipingHeight();
-                int imageWidth = width * _ratioX;
-                int imageHeight = height * _ratioY;
+                int imageWidth = int(width * _ratioX);
+                int imageHeight = int(height * _ratioY);
 
                 if (_ratioX == 1.0 && _ratioY == 1.0)
                 {
@@ -1093,7 +1099,8 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect, COLORREF mixedColor)
 
                     SetStretchBltMode(memDC, COLORONCOLOR);
                     StretchBlt(memDC, 0, 0, originalImageWidth, originalImageHeight, imageDC,
-                               image.image->GetClipingLeft(), image.image->GetClipingTop(), image.image->GetClipingWidth(),
+                               image.image->GetClipingLeft(), image.image->GetClipingTop(),
+                               image.image->GetClipingWidth(),
                                image.image->GetClipingHeight(), SRCCOPY);
 
                     auto oldColor = SetBkColor(memDC, image.image->GetMaskColor());
@@ -1135,12 +1142,12 @@ void CLayoutControl::Refresh()
         {
             for (ImageInformation image : _images)
             {
-                int imageX = (image.position.x * _ratioX) + _position.x;
-                int imageY = (image.position.y * _ratioY) + _position.y;
+                int imageX = int(image.position.x * _ratioX) + _position.x;
+                int imageY = int(image.position.y * _ratioY) + _position.y;
 
                 RECT rect;
-                SetRect(&rect, imageX, imageY, imageX + image.image->GetClipingWidth() * _ratioX,
-                        imageY + image.image->GetClipingHeight() * _ratioY);
+                SetRect(&rect, imageX, imageY, imageX + int(image.image->GetClipingWidth() * _ratioX),
+                        imageY + int(image.image->GetClipingHeight() * _ratioY));
                 InvalidateRect(parent->GetHWnd(), &rect, FALSE);
             }
         }
