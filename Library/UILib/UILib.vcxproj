@@ -25,7 +25,7 @@
     <ClCompile Include="ComboBoxControl.cpp" />
     <ClCompile Include="ControlManager.cpp" />
     <ClCompile Include="GroupBoxControl.cpp" />
-    <ClCompile Include="MusicPlayer.cpp" />
+    <ClCompile Include="AudioPlayer.cpp" />
     <ClCompile Include="RadioButtonControl.cpp" />
     <ClCompile Include="StaticControl.cpp" />
     <ClCompile Include="ImageControl.cpp" />
@@ -46,7 +46,7 @@
     <ClInclude Include="ComboBoxControl.h" />
     <ClInclude Include="ControlManager.h" />
     <ClInclude Include="GroupBoxControl.h" />
-    <ClInclude Include="MusicPlayer.h" />
+    <ClInclude Include="AudioPlayer.h" />
     <ClInclude Include="RadioButtonControl.h" />
     <ClInclude Include="StaticControl.h" />
     <ClInclude Include="ImageControl.h" />

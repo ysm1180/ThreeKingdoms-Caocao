@@ -1,5 +1,6 @@
-﻿#include "MusicPlayer.h"
+﻿#include "AudioPlayer.h"
 #include "BaseLib/ConsoleOutput.h"
+#include "BaseLib/MemoryStream.h"
 #include "CommonLib/FileManager.h"
 #include "CommonLib/ME5File.h"
 
@@ -318,134 +319,148 @@ void MusicAudioCallback(void* userdata, Uint8* stream, int len)
     }
 }
 
-void CMusicPlayerControl::RegisterFunctions(lua_State* L)
+void CAudioPlayerControl::RegisterFunctions(lua_State* L)
 {
-    LUA_BEGIN(CMusicPlayerControl, "_MusicPlayer");
+    LUA_BEGIN(CAudioPlayerControl, "_AudioPlayer");
 
     LUA_METHOD(IsPlaying);
 
     LUA_METHOD(Play);
     LUA_METHOD(Stop);
-    LUA_METHOD(Create);
+    LUA_METHOD(LoadFromFile);
+    LUA_METHOD(LoadFromMe5File);
     LUA_METHOD(Destroy);
 }
 
-CMusicPlayerControl::CMusicPlayerControl(std::wstring fileName)
+CAudioPlayerControl::CAudioPlayerControl()
 {
-    _state.fileName = CFileManager::GetInstance().GetFilePath(fileName);
 }
 
-CMusicPlayerControl::~CMusicPlayerControl()
+CAudioPlayerControl::~CAudioPlayerControl()
 {
     Destroy();
 }
 
-bool CMusicPlayerControl::IsPlaying()
+bool CAudioPlayerControl::IsPlaying()
 {
     return _state.playing;
 }
 
-//bool CMusicPlayerControl::LoadMusicFromMe5File(std::wstring filePath, int groupIndex, int subIndex)
-//{
-//    AVCodecParameters* audioCodecParameters = nullptr;
-//    int error = 0;
-//
-//    _state.formatContext = nullptr;
-//
-//    CME5File me5File;
-//    me5File.Open(filePath);
-//
-//    int size = me5File.GetItemByteSize(groupIndex, subIndex);
-//    auto* by = new BYTE[size];
-//
-//    me5File.GetItemByteArr(by, groupIndex, subIndex);
-//
-//    auto buffer = ::av_malloc(size);
-//    avio_alloc_context(buffer, size, 0, )
-//
-//    int length = WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, nullptr, 0, nullptr, nullptr);
-//    char* buffer = new char[length + 1];
-//    WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, buffer, length, nullptr, nullptr);
-//    error = avformat_open_input(&_state.formatContext, buffer, nullptr, nullptr);
-//    delete[] buffer;
-//    if (error < 0)
-//    {
-//        CConsoleOutput::OutputConsoles(L"File open error");
-//        return false;
-//    }
-//
-//    if (avformat_find_stream_info(_state.formatContext, nullptr) < 0)
-//    {
-//        CConsoleOutput::OutputConsoles(L"Cannot find stream information");
-//        return false;
-//    }
-//
-//    // Find video stream
-//    for (unsigned int i = 0; i < _state.formatContext->nb_streams; i++)
-//    {
-//        if (_state.formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
-//            audioCodecParameters == nullptr)
-//        {
-//            audioCodecParameters = _state.formatContext->streams[i]->codecpar;
-//            _state.audioStream = _state.formatContext->streams[i];
-//            _state.audioStreamIndex = i;
-//        }
-//    }
-//    if (audioCodecParameters == nullptr)
-//    {
-//        CConsoleOutput::OutputConsoles(L"Cannot find audio stream");
-//        return false;
-//    }
-//
-//    AVCodec* audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
-//    if (audioCodec == nullptr)
-//    {
-//        CConsoleOutput::OutputConsoles(L"Cannot find audio decoder");
-//        return false;
-//    }
-//
-//    _state.audioCodecContext = avcodec_alloc_context3(audioCodec);
-//    if (avcodec_parameters_to_context(_state.audioCodecContext, audioCodecParameters) < 0)
-//    {
-//        CConsoleOutput::OutputConsoles(L"Failed to convert to context");
-//        return false;
-//    }
-//
-//    if (avcodec_open2(_state.audioCodecContext, audioCodec, nullptr) < 0)
-//    {
-//        CConsoleOutput::OutputConsoles(L"Cannot open codec");
-//        return false;
-//    }
-//
-//    _state.syncType = SyncType::AudioMaster;
-//
-//    _state.audioBufferSize = 0;
-//    _state.audioBufferIndex = 0;
-//    memset(&_state.audioPacket, 0, sizeof(_state.audioPacket));
-//    InitPacketQueue(&_state.audioQueue);
-//
-//    _state.frameQueueRearIndex = 0;
-//    _state.frameQueueWIndex = 0;
-//    _state.frameQueueSize = 0;
-//    _state.audioBufferSize = 0;
-//    _state.audioBufferIndex = 0;
-//    _state.audioPacketData = nullptr;
-//    _state.audioPacketSize = 0;
-//    memset(&_state.audioFrame, 0, sizeof(_state.audioFrame));
-//
-//    return true;
-//}
+int CAudioPlayerControl::Read(void *opaque, unsigned char *buf, int buf_size)
+{
+    CMemoryStream* stream = static_cast<CMemoryStream*>(opaque);
 
-bool CMusicPlayerControl::Create()
+    return stream->readsome(reinterpret_cast<char*>(buf), buf_size);
+}
+
+int64_t CAudioPlayerControl::Seek(void *opaque, int64_t offset, int whence)
+{
+    CMemoryStream* stream = static_cast<CMemoryStream*>(opaque);
+
+    if (0x10000 == whence)
+        return stream->Size();
+
+    stream->seekg(offset, whence);
+    return stream->tellg();
+}
+
+bool CAudioPlayerControl::LoadFromMe5File(std::wstring filePath, int groupIndex, int subIndex)
 {
     AVCodecParameters* audioCodecParameters = nullptr;
     int error = 0;
 
     _state.formatContext = nullptr;
 
-    int length = WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    CME5File me5File;
+    me5File.Open(filePath);
+
+    int size = me5File.GetItemByteSize(groupIndex, subIndex);
+    auto* by = new BYTE[size];
+
+    me5File.GetItemByteArr(by, groupIndex, subIndex);
+
+    unsigned char* buffer = static_cast<unsigned char *>(av_malloc(size));
+    CMemoryStream inputStream(by, size);
+    _state.formatContext = ::avformat_alloc_context();
+    _state.formatContext->pb = avio_alloc_context(buffer, size, 0, &inputStream, &CAudioPlayerControl::Read, nullptr, &CAudioPlayerControl::Seek);
+    _state.formatContext->flags = AVFMT_FLAG_CUSTOM_IO;
+
+    error = avformat_open_input(&_state.formatContext, "DUMMY", nullptr, nullptr);
+    if (error < 0)
+    {
+        CConsoleOutput::OutputConsoles(L"File open error");
+        return false;
+    }
+
+    if (avformat_find_stream_info(_state.formatContext, nullptr) < 0)
+    {
+        CConsoleOutput::OutputConsoles(L"Cannot find stream information");
+        return false;
+    }
+
+    // Find video stream
+    for (unsigned int i = 0; i < _state.formatContext->nb_streams; i++)
+    {
+        if (_state.formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
+            audioCodecParameters == nullptr)
+        {
+            audioCodecParameters = _state.formatContext->streams[i]->codecpar;
+            _state.audioStream = _state.formatContext->streams[i];
+            _state.audioStreamIndex = i;
+        }
+    }
+    if (audioCodecParameters == nullptr)
+    {
+        CConsoleOutput::OutputConsoles(L"Cannot find audio stream");
+        return false;
+    }
+
+    AVCodec* audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
+    if (audioCodec == nullptr)
+    {
+        CConsoleOutput::OutputConsoles(L"Cannot find audio decoder");
+        return false;
+    }
+
+    _state.audioCodecContext = avcodec_alloc_context3(audioCodec);
+    if (avcodec_parameters_to_context(_state.audioCodecContext, audioCodecParameters) < 0)
+    {
+        CConsoleOutput::OutputConsoles(L"Failed to convert to context");
+        return false;
+    }
+
+    if (avcodec_open2(_state.audioCodecContext, audioCodec, nullptr) < 0)
+    {
+        CConsoleOutput::OutputConsoles(L"Cannot open codec");
+        return false;
+    }
+
+    _state.audioBufferSize = 0;
+    _state.audioBufferIndex = 0;
+    memset(&_state.audioPacket, 0, sizeof(_state.audioPacket));
+    InitPacketQueue(&_state.audioQueue);
+
+    _state.audioBufferSize = 0;
+    _state.audioBufferIndex = 0;
+    _state.audioPacketData = nullptr;
+    _state.audioPacketSize = 0;
+    memset(&_state.audioFrame, 0, sizeof(_state.audioFrame));
+
+    return true;
+}
+
+bool CAudioPlayerControl::LoadFromFile(std::wstring filePath)
+{
+    filePath = CFileManager::GetInstance().GetFilePath(filePath);
+
+    AVCodecParameters* audioCodecParameters = nullptr;
+    int error = 0;
+
+    _state.formatContext = nullptr;
+
+    int length = WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), -1, nullptr, 0, nullptr, nullptr);
     char* buffer = new char[length + 1];
-    WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, buffer, length, nullptr, nullptr);
+    WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), -1, buffer, length, nullptr, nullptr);
     error = avformat_open_input(&_state.formatContext, buffer, nullptr, nullptr);
     delete[] buffer;
     if (error < 0)
@@ -502,9 +517,6 @@ bool CMusicPlayerControl::Create()
     memset(&_state.audioPacket, 0, sizeof(_state.audioPacket));
     InitPacketQueue(&_state.audioQueue);
 
-    _state.frameQueueRearIndex = 0;
-    _state.frameQueueWIndex = 0;
-    _state.frameQueueSize = 0;
     _state.audioBufferSize = 0;
     _state.audioBufferIndex = 0;
     _state.audioPacketData = nullptr;
@@ -514,7 +526,7 @@ bool CMusicPlayerControl::Create()
     return true;
 }
 
-void CMusicPlayerControl::Destroy()
+void CAudioPlayerControl::Destroy()
 {
     Stop();
 
@@ -542,27 +554,11 @@ bool PlaySound(AudioState* audioState)
     audioSpec.callback = MusicAudioCallback;
     audioSpec.userdata = audioState;
 
-    /*int length = WideCharToMultiByte(CP_UTF8, 0, audioState->fileName.c_str(), -1, nullptr, 0, nullptr, nullptr);
-    char* buffer = new char[length + 1];
-    WideCharToMultiByte(CP_UTF8, 0, audioState->fileName.c_str(), -1, buffer, length, nullptr, nullptr);
-
-    Uint32 wav_length;
-    Uint8 *wav_buffer;
-    if (SDL_LoadWAV(buffer, &audioSpec, &wav_buffer, &wav_length) == NULL)
-    {
-        return false;
-    }
-    delete[] buffer;
-
-    audioSpec.callback = MusicAudioCallback;
-    audioSpec.userdata = audioState;*/
-
     if (SDL_OpenAudio(&audioSpec, nullptr))
     {
         return false;
     }
 
-    audioState->audioHwBufferSize = audioSpec.size;
     SDL_PauseAudio(0);
 
     AVPacket packet;
@@ -574,7 +570,6 @@ bool PlaySound(AudioState* audioState)
             break;
         }
 
-        // seek stuff goes here
         if (audioState->audioQueue.size > MAX_AUDIOQ_SIZE)
         {
             SDL_Delay(10);
@@ -606,7 +601,7 @@ bool PlaySound(AudioState* audioState)
     return true;
 }
 
-void CMusicPlayerControl::Play()
+void CAudioPlayerControl::Play()
 {
     std::queue<int> queue;
     _state.eventQueue.swap(queue);
@@ -619,7 +614,7 @@ void CMusicPlayerControl::Play()
     }).detach();
 }
 
-void CMusicPlayerControl::Stop()
+void CAudioPlayerControl::Stop()
 {
     if (_state.playing)
     {

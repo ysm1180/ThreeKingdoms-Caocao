@@ -61,21 +61,6 @@ struct AudioState
     AVPacket audioPacket;
     uint8_t* audioPacketData;
     int audioPacketSize;
-    double audioDiffCum; /* used for AV difference average computation */
-    double audioDiffAvgCoef;
-    double audioDiffThreshold;
-    int audioDiffAvgCount;
-
-    double audioClock;
-    int audioHwBufferSize;
-
-    SwsContext* swsContext;
-
-    int frameQueueSize, frameQueueRearIndex, frameQueueWIndex;
-    std::mutex frameQueueMutex;
-    std::condition_variable frameQueueCond;
-
-    std::wstring fileName;
 
     bool playing;
     bool finishQueue;
@@ -83,22 +68,25 @@ struct AudioState
     std::queue<int> eventQueue;
 };
 
-class CMusicPlayerControl
+class CAudioPlayerControl
 {
 public:
     static void RegisterFunctions(lua_State* L);
 
-    CMusicPlayerControl(std::wstring fileName);
-    virtual ~CMusicPlayerControl();
+    CAudioPlayerControl();
+    virtual ~CAudioPlayerControl();
 
     bool IsPlaying();
 
-    //bool LoadMusicFromMe5File(std::wstring filePath, int groupIndex, int subIndex);
-    bool Create();
+    bool LoadFromMe5File(std::wstring filePath, int groupIndex, int subIndex);
+    bool LoadFromFile(std::wstring fileName);
     void Destroy();
 
     void Play();
     void Stop();
+
+    static int Read(void* opaque, unsigned char* buf, int buf_size);
+    static int64_t Seek(void* opaque, int64_t offset, int whence);
 
 private:
     AudioState _state{};
