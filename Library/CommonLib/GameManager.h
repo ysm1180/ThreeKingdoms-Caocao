@@ -24,9 +24,12 @@ public:
     int GetIdleEvent();
     int GetNow();
 
+    bool IsQuit();
+
     COLORREF Color(int r, int g, int b);
 
     void Quit();
+    void SetQuit(bool value);
 
     void Delay(int time);
     void StopDelay();
@@ -42,5 +45,7 @@ private:
     static std::unique_ptr<CGameManager> s_sharedGameManager;
 
     int _idleEvent = LUA_NOREF;
+
+    bool _quit = false;
 };
 }

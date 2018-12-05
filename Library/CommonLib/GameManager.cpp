@@ -69,6 +69,11 @@ int CGameManager::GetNow()
     return GetTickCount();
 }
 
+bool CGameManager::IsQuit()
+{
+    return _quit;
+}
+
 COLORREF CGameManager::Color(int r, int g, int b)
 {
     return RGB(r, g, b);
@@ -77,6 +82,11 @@ COLORREF CGameManager::Color(int r, int g, int b)
 void CGameManager::Quit()
 {
     PostQuitMessage(0);
+}
+
+void CGameManager::SetQuit(bool value)
+{
+    _quit = value;
 }
 
 void CGameManager::Delay(int time)

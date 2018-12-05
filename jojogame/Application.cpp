@@ -84,6 +84,7 @@ int Application::Run()
         }
     }
 
+    _gameManager->SetQuit(true);
     CMemoryPoolManager::GetInstance().DestroyAllMemoryPool();
     SDL_Quit();
 

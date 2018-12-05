@@ -3,16 +3,17 @@
 #include "BaseLib/MemoryStream.h"
 #include "CommonLib/FileManager.h"
 #include "CommonLib/ME5File.h"
+#include "CommonLib/GameManager.h"
 
 namespace jojogame {
-void InitPacketQueue(AudioPacketQueue* queue)
+void InitPacketAudioQueue(AudioPacketQueue* queue)
 {
     queue->size = 0;
     queue->firstPacket = nullptr;
     queue->lastPacket = nullptr;
 }
 
-static int GetPacketQueue(AudioState* audioState, AudioPacketQueue* queue, AVPacket* packet, int block)
+static int GetPacketAudioQueue(AudioState* audioState, AudioPacketQueue* queue, AVPacket* packet, int block)
 {
     AVPacketList* packetList;
     int result;
@@ -45,7 +46,7 @@ static int GetPacketQueue(AudioState* audioState, AudioPacketQueue* queue, AVPac
             result = 0;
             break;
         }
-        if (audioState->finishQueue || !audioState->playing)
+        if (audioState->finishQueue)
         {
             audioState->playing = false;
             result = -1;
@@ -58,7 +59,7 @@ static int GetPacketQueue(AudioState* audioState, AudioPacketQueue* queue, AVPac
     return result;
 }
 
-int PutPacketQueue(AudioPacketQueue* queue, AVPacket* packet)
+int PutPacketAudioQueue(AudioPacketQueue* queue, AVPacket* packet)
 {
     AVPacketList* packetList = (AVPacketList *)av_malloc(sizeof(AVPacketList));
     if (!packetList)
@@ -91,11 +92,11 @@ int PutPacketQueue(AudioPacketQueue* queue, AVPacket* packet)
 }
 
 static int ResamplingAudio(AVCodecContext* audio_decode_ctx,
-                            AVFrame* audio_decode_frame,
-                            enum AVSampleFormat out_sample_fmt,
-                            int out_channels,
-                            int out_sample_rate,
-                            uint8_t* out_buf)
+                           AVFrame* audio_decode_frame,
+                           enum AVSampleFormat out_sample_fmt,
+                           int out_channels,
+                           int out_sample_rate,
+                           uint8_t* out_buf)
 {
     SwrContext* swr_ctx = nullptr;
     int ret = 0;
@@ -235,7 +236,7 @@ static int ResamplingAudio(AVCodecContext* audio_decode_ctx,
     return resampled_data_size;
 }
 
-int DecodeAudioFrame(AudioState* audioState, uint8_t* audioBuffer, int bufferSize)
+int DecodeMusicFrame(AudioState* audioState, uint8_t* audioBuffer, int bufferSize)
 {
     int dataSize = 0;
     AVPacket* packet = &audioState->audioPacket;
@@ -254,7 +255,9 @@ int DecodeAudioFrame(AudioState* audioState, uint8_t* audioBuffer, int bufferSiz
             dataSize = 0;
             if (avcodec_receive_frame(audioState->audioCodecContext, &audioState->audioFrame) == 0)
             {
-                dataSize = ResamplingAudio(audioState->audioCodecContext, &audioState->audioFrame, AV_SAMPLE_FMT_S16, audioState->audioFrame.channels, audioState->audioFrame.sample_rate, audioBuffer);
+                dataSize = ResamplingAudio(audioState->audioCodecContext, &audioState->audioFrame, AV_SAMPLE_FMT_S16,
+                                           audioState->audioFrame.channels, audioState->audioFrame.sample_rate,
+                                           audioBuffer);
             }
 
             audioState->audioPacketData += packet->size;
@@ -274,13 +277,18 @@ int DecodeAudioFrame(AudioState* audioState, uint8_t* audioBuffer, int bufferSiz
             av_packet_unref(packet);
         }
 
-        if (!audioState->playing || GetPacketQueue(audioState, &audioState->audioQueue, packet, 1) < 0)
+        if (GetPacketAudioQueue(audioState, &audioState->audioQueue, packet, 1) < 0)
         {
             return -1;
         }
 
         audioState->audioPacketData = packet->data;
         audioState->audioPacketSize = packet->size;
+
+        if (packet->pts != AV_NOPTS_VALUE)
+        {
+            audioState->audioClock = packet->pts;
+        }
     }
 }
 
@@ -288,12 +296,12 @@ void MusicAudioCallback(void* userdata, Uint8* stream, int len)
 {
     auto audioState = (AudioState *)userdata;
 
-    while (audioState->playing && len > 0)
+    while (len > 0)
     {
         if (audioState->audioBufferIndex >= audioState->audioBufferSize)
         {
             // We have already sent all our data; get more
-            int audioSize = DecodeAudioFrame(audioState, audioState->audioBuffer, sizeof(audioState->audioBuffer));
+            int audioSize = DecodeMusicFrame(audioState, audioState->audioBuffer, sizeof(audioState->audioBuffer));
             if (audioSize < 0)
             {
                 // If error, output silence
@@ -346,14 +354,14 @@ bool CAudioPlayerControl::IsPlaying()
     return _state.playing;
 }
 
-int CAudioPlayerControl::Read(void *opaque, unsigned char *buf, int buf_size)
+int CAudioPlayerControl::Read(void* opaque, unsigned char* buf, int buf_size)
 {
     CMemoryStream* stream = static_cast<CMemoryStream*>(opaque);
 
     return stream->readsome(reinterpret_cast<char*>(buf), buf_size);
 }
 
-int64_t CAudioPlayerControl::Seek(void *opaque, int64_t offset, int whence)
+int64_t CAudioPlayerControl::Seek(void* opaque, int64_t offset, int whence)
 {
     CMemoryStream* stream = static_cast<CMemoryStream*>(opaque);
 
@@ -380,9 +388,10 @@ bool CAudioPlayerControl::LoadFromMe5File(std::wstring filePath, int groupIndex,
     me5File.GetItemByteArr(by, groupIndex, subIndex);
 
     unsigned char* buffer = static_cast<unsigned char *>(av_malloc(size));
-    CMemoryStream inputStream(by, size);
-    _state.formatContext = ::avformat_alloc_context();
-    _state.formatContext->pb = avio_alloc_context(buffer, size, 0, &inputStream, &CAudioPlayerControl::Read, nullptr, &CAudioPlayerControl::Seek);
+    _inputStream = new CMemoryStream(by, size);
+    _state.formatContext = avformat_alloc_context();
+    _state.formatContext->pb = avio_alloc_context(buffer, size, 0, _inputStream, &CAudioPlayerControl::Read, nullptr,
+                                                  &CAudioPlayerControl::Seek);
     _state.formatContext->flags = AVFMT_FLAG_CUSTOM_IO;
 
     error = avformat_open_input(&_state.formatContext, "DUMMY", nullptr, nullptr);
@@ -435,16 +444,8 @@ bool CAudioPlayerControl::LoadFromMe5File(std::wstring filePath, int groupIndex,
         return false;
     }
 
-    _state.audioBufferSize = 0;
-    _state.audioBufferIndex = 0;
-    memset(&_state.audioPacket, 0, sizeof(_state.audioPacket));
-    InitPacketQueue(&_state.audioQueue);
 
-    _state.audioBufferSize = 0;
-    _state.audioBufferIndex = 0;
-    _state.audioPacketData = nullptr;
-    _state.audioPacketSize = 0;
-    memset(&_state.audioFrame, 0, sizeof(_state.audioFrame));
+    delete[] by;
 
     return true;
 }
@@ -512,23 +513,28 @@ bool CAudioPlayerControl::LoadFromFile(std::wstring filePath)
         return false;
     }
 
-    _state.audioBufferSize = 0;
-    _state.audioBufferIndex = 0;
-    memset(&_state.audioPacket, 0, sizeof(_state.audioPacket));
-    InitPacketQueue(&_state.audioQueue);
-
-    _state.audioBufferSize = 0;
-    _state.audioBufferIndex = 0;
-    _state.audioPacketData = nullptr;
-    _state.audioPacketSize = 0;
-    memset(&_state.audioFrame, 0, sizeof(_state.audioFrame));
-
     return true;
 }
 
 void CAudioPlayerControl::Destroy()
 {
     Stop();
+
+    if (_audioThread != nullptr)
+    {
+        if (_audioThread->joinable())
+        {
+            _audioThread->join();
+        }
+        delete _audioThread;
+        _audioThread = nullptr;
+    }
+
+    if (_inputStream != nullptr)
+    {
+        delete _inputStream;
+        _inputStream = nullptr;
+    }
 
     if (_state.audioCodecContext)
     {
@@ -544,13 +550,25 @@ void CAudioPlayerControl::Destroy()
 
 bool PlaySound(AudioState* audioState)
 {
+    audioState->playing = true;
+    audioState->finishQueue = false;
+    audioState->maxPts = 0;
+    audioState->audioBufferSize = 0;
+    audioState->audioBufferIndex = 0;
+    memset(&audioState->audioPacket, 0, sizeof(audioState->audioPacket));
+    InitPacketAudioQueue(&audioState->audioQueue);
+
+    audioState->audioPacketData = nullptr;
+    audioState->audioPacketSize = 0;
+    memset(&audioState->audioFrame, 0, sizeof(audioState->audioFrame));
+
     SDL_AudioSpec audioSpec{};
     auto audioContext = audioState->audioCodecContext;
     audioSpec.freq = audioContext->sample_rate;
     audioSpec.format = AUDIO_S16SYS;
     audioSpec.channels = static_cast<Uint8>(audioContext->channels);
     audioSpec.silence = 0;
-    audioSpec.samples = 4096;
+    audioSpec.samples = 8192;
     audioSpec.callback = MusicAudioCallback;
     audioSpec.userdata = audioState;
 
@@ -561,7 +579,10 @@ bool PlaySound(AudioState* audioState)
 
     SDL_PauseAudio(0);
 
-    AVPacket packet;
+    AVPacket packet{};
+    av_init_packet(&packet);
+    avcodec_flush_buffers(audioState->audioCodecContext);
+    av_seek_frame(audioState->formatContext, audioState->audioStreamIndex, 0, 0);
     for (;;)
     {
         if (!audioState->playing)
@@ -590,7 +611,11 @@ bool PlaySound(AudioState* audioState)
 
         if (packet.stream_index == audioState->audioStreamIndex)
         {
-            PutPacketQueue(&audioState->audioQueue, &packet);
+            PutPacketAudioQueue(&audioState->audioQueue, &packet);
+            if (packet.pts != int64_t(AV_NOPTS_VALUE) && packet.pts > audioState->maxPts)
+            {
+                audioState->maxPts = packet.pts;
+            }
         }
         else
         {
@@ -601,25 +626,52 @@ bool PlaySound(AudioState* audioState)
     return true;
 }
 
-void CAudioPlayerControl::Play()
+void CAudioPlayerControl::Play(int playCount)
 {
-    std::queue<int> queue;
-    _state.eventQueue.swap(queue);
-    _state.playing = true;
-    _state.finishQueue = false;
+    _playCount = playCount;
 
-    std::thread([&]()
+    if (!_state.playing)
     {
-        PlaySound(&_state);
-    }).detach();
+        _audioThread = new std::thread([&]()
+        {
+            if (_playCount == 0)
+            {
+                while (!CGameManager::GetInstance().IsQuit() && !_stop)
+                {
+                    PlaySound(&_state);
+                    SDL_Delay(250);
+                    SDL_CloseAudio();
+                }
+            }
+            else
+            {
+                for (int count = 0; count < _playCount; ++count)
+                {
+                    if (!_stop)
+                    {
+                        PlaySound(&_state);
+                        SDL_Delay(250);
+                        SDL_CloseAudio();
+                    }
+                }
+            }
+            _state.playing = false;
+
+        });
+    }
 }
 
 void CAudioPlayerControl::Stop()
 {
     if (_state.playing)
     {
+        _stop = true;
+
         _state.playing = false;
-        SDL_CloseAudio();
+        if (_audioThread)
+        {
+            _audioThread->join();
+        }
     }
 }
 }

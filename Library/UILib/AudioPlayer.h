@@ -12,6 +12,7 @@
 #define AUDIO_DIFF_AVG_NB 20
 
 #include "BaseControl.h"
+#include "BaseLib/MemoryStream.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -65,7 +66,9 @@ struct AudioState
     bool playing;
     bool finishQueue;
 
-    std::queue<int> eventQueue;
+    int audioClock;
+
+    int maxPts;
 };
 
 class CAudioPlayerControl
@@ -82,7 +85,7 @@ public:
     bool LoadFromFile(std::wstring fileName);
     void Destroy();
 
-    void Play();
+    void Play(int playCount);
     void Stop();
 
     static int Read(void* opaque, unsigned char* buf, int buf_size);
@@ -90,5 +93,9 @@ public:
 
 private:
     AudioState _state{};
+    CMemoryStream *_inputStream = nullptr;
+    std::thread* _audioThread = nullptr;
+    int _playCount = 1;
+    bool _stop = false;
 };
 }
