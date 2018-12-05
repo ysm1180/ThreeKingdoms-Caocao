@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="BaseControl.cpp" />
     <ClCompile Include="ButtonControl.cpp" />
+    <ClCompile Include="GraphicText.cpp" />
     <ClCompile Include="CheckBoxControl.cpp" />
     <ClCompile Include="ComboBoxControl.cpp" />
     <ClCompile Include="ControlManager.cpp" />
@@ -42,6 +43,7 @@
   <ItemGroup>
     <ClInclude Include="BaseControl.h" />
     <ClInclude Include="ButtonControl.h" />
+    <ClInclude Include="GraphicText.h" />
     <ClInclude Include="CheckBoxControl.h" />
     <ClInclude Include="ComboBoxControl.h" />
     <ClInclude Include="ControlManager.h" />

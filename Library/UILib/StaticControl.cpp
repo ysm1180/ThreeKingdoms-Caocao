@@ -61,27 +61,13 @@ void CStaticControl::_AutoSizing()
     if (_isAutoSize && _hWnd != nullptr)
     {
         auto hdc = GetDC(_hWnd);
-
-        SIZE size;
-        SIZE realSize{0, 0};
         auto originalFont = SelectFont(hdc, _font.GetHFont());
 
-        std::vector<std::wstring> tokens;
-        SplitString(_text, L"\n", &tokens);
-
-        for (auto token : tokens)
-        {
-            GetTextExtentPoint32(hdc, token.c_str(), token.length(), &size);
-            if (realSize.cx < size.cx)
-            {
-                realSize.cx = size.cx;
-            }
-            realSize.cy += size.cy;
-        }
+        RECT rect{ 0, 0, 0, 0 };
+        DrawText(hdc, _text.c_str(), _text.length(), &rect, DT_CALCRECT);
+        SetWidth(rect.right);
+        SetHeight(rect.bottom);
         SelectFont(hdc, originalFont);
-
-        SetWidth(realSize.cx);
-        SetHeight(realSize.cy);
 
         ReleaseDC(_hWnd, hdc);
     }

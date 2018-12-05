@@ -92,10 +92,10 @@ public:
     static int64_t Seek(void* opaque, int64_t offset, int whence);
 
 private:
-    AudioState _state{};
+    mutable AudioState _state{};
     CMemoryStream *_inputStream = nullptr;
     std::thread* _audioThread = nullptr;
     int _playCount = 1;
-    bool _stop = false;
+    mutable bool _stop = true;
 };
 }

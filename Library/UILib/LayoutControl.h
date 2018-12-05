@@ -9,6 +9,7 @@
 namespace jojogame {
 class CWindowControl;
 class CImageControl;
+class CGraphicText;
 
 struct ImageInformation
 {
@@ -18,6 +19,14 @@ struct ImageInformation
     HBITMAP oldBitmap;
     HBITMAP oldMirrorBitmap;
     CImageControl* image;
+    POINT position;
+    bool isHide;
+};
+
+struct TextInformation
+{
+    int index;
+    CGraphicText* text;
     POINT position;
     bool isHide;
 };
@@ -53,6 +62,12 @@ public:
     void HideImage(int index, bool isUpdate);
     void ShowImage(int index, bool isUpdate);
 
+    int AddText(CGraphicText* text, int x, int y, bool isShow);
+    void DeleteText(int index, bool isUpdate);
+    void MoveText(int index, int x, int y, bool isUpdate);
+    void HideText(int index, bool isUpdate);
+    void ShowText(int index, bool isUpdate);
+
     void Draw(HDC destDC);
     void Draw(HDC destDC, RECT& rect);
     void Draw(HDC destDC, RECT& rect, COLORREF mixedColor);
@@ -61,12 +76,17 @@ public:
     void Refresh();
 
 private:
-    int _GetNewIndex();
+    int _GetNewImageIndex();
+    int _GetNewTextIndex();
 
     HDC _dc;
     std::vector<CWindowControl *> _parents;
     std::vector<ImageInformation> _images;
+    std::vector<TextInformation> _texts;
+
     std::queue<int> _reusingImageIndex;
+    std::queue<int> _reusingTextIndex;
+
     SIZE _size{};
     POINT _position{};
     double _ratioX = 1.0;

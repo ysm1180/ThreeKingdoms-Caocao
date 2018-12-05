@@ -4,6 +4,7 @@
 #include "CommonLib/FileManager.h"
 #include "CommonLib/ME5File.h"
 #include "CommonLib/GameManager.h"
+#include "BaseLib/MemoryPool.h"
 
 namespace jojogame {
 void InitPacketAudioQueue(AudioPacketQueue* queue)
@@ -630,8 +631,29 @@ void CAudioPlayerControl::Play(int playCount)
 {
     _playCount = playCount;
 
-    if (!_state.playing)
+    if (_state.playing && _audioThread)
     {
+        if (_audioThread->joinable())
+        {
+            _audioThread->join();
+        }
+        return;
+    }
+
+    if (_stop)
+    {
+        if (_audioThread)
+        {
+            if (_audioThread->joinable())
+            {
+                _audioThread->join();
+            }
+
+            delete _audioThread;
+            _audioThread = nullptr;
+        }
+
+        _stop = false;
         _audioThread = new std::thread([&]()
         {
             if (_playCount == 0)
@@ -655,8 +677,9 @@ void CAudioPlayerControl::Play(int playCount)
                     }
                 }
             }
-            _state.playing = false;
 
+            _state.playing = false;
+            _stop = true;
         });
     }
 }
@@ -670,7 +693,12 @@ void CAudioPlayerControl::Stop()
         _state.playing = false;
         if (_audioThread)
         {
-            _audioThread->join();
+            if (_audioThread->joinable())
+            {
+                _audioThread->join();
+            }
+            delete _audioThread;
+            _audioThread = nullptr;
         }
     }
 }
