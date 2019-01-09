@@ -1,0 +1,27 @@
+image:
+- Visual Studio 2015
+- Visual Studio 2017
+
+platform:
+- x86
+- x64
+
+environment:
+    VCVAR2015: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
+    VCVAR2017: 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat'
+
+before_build:
+- ps: |
+    # ...example script to set the proper flags for vcvarsall ...
+    # syntax: vcvarsall.bat [architecture] [platform_type] [winsdk_version] [-vcvars_ver=vcversion]
+    $Architecture = $env:PLATFORM # simplified, works for x86 and x64
+    if ("$env:APPVEYOR_BUILD_WORKER_IMAGE" -eq "Visual Studio 2015") {
+      $env:VCVARSALL = "`"$env:VCVAR2015`" $Architecture"
+    } else {
+      $env:VCVARSALL = "`"$env:VCVAR2017`" $Architecture"
+    }
+- call %VCVARSALL%
+
+build_script:
+- cl
+- link
