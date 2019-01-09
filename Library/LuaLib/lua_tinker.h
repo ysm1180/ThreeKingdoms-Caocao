@@ -53,6 +53,11 @@ struct lua_value
     virtual void to_lua(lua_State* L) = 0;
 };
 
+// class helper
+int meta_get(lua_State* L);
+int meta_set(lua_State* L);
+void push_meta(lua_State* L, const char* name);
+
 // type trait
 template <typename T>
 struct class_name;
@@ -1937,10 +1942,7 @@ RVal call(lua_State* lua, const wchar_t* name, T1 arg1, T2 arg2, T3 arg3, T4 arg
     return lua_tinker::call<RVal>(lua, callName, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 } // }
 
-// class helper
-int meta_get(lua_State* L);
-int meta_set(lua_State* L);
-void push_meta(lua_State* L, const char* name);
+
 
 // class init
 template <typename T>
