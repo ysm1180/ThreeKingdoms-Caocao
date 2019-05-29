@@ -21,14 +21,20 @@ public:
 
     int GetDesktopWidth();
     int GetDesktopHeight();
-    int Clock();
+    int GetIdleEvent();
+    int GetNow();
+
+    bool IsQuit();
 
     COLORREF Color(int r, int g, int b);
 
     void Quit();
+    void SetQuit(bool value);
 
     void Delay(int time);
     void StopDelay();
+    
+    void SetIdleEvent();
 
     CME5File *OpenFile(std::wstring path);
     void CloseFile(CME5File *file);
@@ -37,5 +43,9 @@ public:
 private:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CGameManager> s_sharedGameManager;
+
+    int _idleEvent = LUA_NOREF;
+
+    bool _quit = false;
 };
 }

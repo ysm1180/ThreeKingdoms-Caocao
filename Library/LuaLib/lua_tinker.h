@@ -53,6 +53,11 @@ struct lua_value
     virtual void to_lua(lua_State* L) = 0;
 };
 
+// class helper
+int meta_get(lua_State* L);
+int meta_set(lua_State* L);
+void push_meta(lua_State* L, const char* name);
+
 // type trait
 template <typename T>
 struct class_name;
@@ -916,14 +921,28 @@ struct mem_var : var_base
 
 // class member functor (with return value)
 template <typename RVal, typename T, typename T1 = void, typename T2 = void, typename T3 = void, typename T4 = void,
-          typename T5 = void, typename T6 = void, typename T7 = void>
+          typename T5 = void, typename T6 = void, typename T7 = void, typename T8 = void>
 struct mem_functor
 {
     static int invoke(lua_State* L)
     {
-        push(L, (read<T *>(L, 1)->*upvalue_<RVal(T::*)(T1, T2, T3, T4, T5, T6, T7)>(L))(read<T1>(L, 2), read<T2>(L, 3),
+        push(L, (read<T *>(L, 1)->*upvalue_<RVal(T::*)(T1, T2, T3, T4, T5, T6, T7, T8)>(L))(read<T1>(L, 2), read<T2>(L, 3),
                                                                                 read<T3>(L, 4), read<T4>(L, 5),
-                                                                                read<T5>(L, 6), read<T6>(L, 7), read<T7>(L, 8)));;
+                                                                                read<T5>(L, 6), read<T6>(L, 7), read<T7>(L, 8),
+                                                                                            read<T8>(L, 9)));;
+        return 1;
+    }
+};
+
+
+template <typename RVal, typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+struct mem_functor<RVal, T, T1, T2, T3, T4, T5, T6, T7>
+{
+    static int invoke(lua_State* L)
+    {
+        push(L,
+            (read<T *>(L, 1)->*upvalue_<RVal(T::*)(T1, T2, T3, T4, T5, T6, T7)>(L))(read<T1>(L, 2), read<T2>(L, 3), read<T3>(L, 4),
+                                                                                read<T4>(L, 5), read<T5>(L, 6), read<T6>(L, 7), read<T7>(L, 8)));
         return 1;
     }
 };
@@ -1006,6 +1025,41 @@ struct mem_functor<RVal, T>
 };
 
 // class member functor (without return value)
+template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
+struct mem_functor<void, T, T1, T2, T3, T4, T5, T6, T7, T8>
+{
+    static int invoke(lua_State* L)
+    {
+        (read<T *>(L, 1)->*upvalue_<void (T::*)(T1, T2, T3, T4, T5, T6, T7, T8)>(L))(read<T1>(L, 2), read<T2>(L, 3), read<T3>(L, 4),
+                                                                         read<T4>(L, 5), read<T5>(L, 6), read<T6>(L, 7),
+                                                                         read<T7>(L, 8), read<T8>(L, 9));
+        return 0;
+    }
+};
+
+template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+struct mem_functor<void, T, T1, T2, T3, T4, T5, T6, T7>
+{
+    static int invoke(lua_State* L)
+    {
+        (read<T *>(L, 1)->*upvalue_<void (T::*)(T1, T2, T3, T4, T5, T6, T7)>(L))(read<T1>(L, 2), read<T2>(L, 3), read<T3>(L, 4),
+                                                                         read<T4>(L, 5), read<T5>(L, 6), read<T6>(L, 7),
+                                                                         read<T7>(L, 8));
+        return 0;
+    }
+};
+
+template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+struct mem_functor<void, T, T1, T2, T3, T4, T5, T6>
+{
+    static int invoke(lua_State* L)
+    {
+        (read<T *>(L, 1)->*upvalue_<void (T::*)(T1, T2, T3, T4, T5, T6)>(L))(read<T1>(L, 2), read<T2>(L, 3), read<T3>(L, 4),
+                                                                         read<T4>(L, 5), read<T5>(L, 6), read<T6>(L, 7));
+        return 0;
+    }
+};
+
 template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5>
 struct mem_functor<void, T, T1, T2, T3, T4, T5>
 {
@@ -1888,10 +1942,7 @@ RVal call(lua_State* lua, const wchar_t* name, T1 arg1, T2 arg2, T3 arg3, T4 arg
     return lua_tinker::call<RVal>(lua, callName, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 } // }
 
-// class helper
-int meta_get(lua_State* L);
-int meta_set(lua_State* L);
-void push_meta(lua_State* L, const char* name);
+
 
 // class init
 template <typename T>

@@ -222,6 +222,6 @@ private:
 
     std::list<T *> _usingPool;
     std::list<T *> _unusingPool;
-    int _limit = 65535;
+    size_t _limit = 65535;
 };
 }

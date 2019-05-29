@@ -3,7 +3,6 @@
   <ItemGroup>
     <ClInclude Include="LuaTinker.h" />
     <ClInclude Include="lua_tinker.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="lapi.h">
       <Filter>Lua</Filter>
     </ClInclude>

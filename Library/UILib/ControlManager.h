@@ -26,6 +26,8 @@ class CGroupBoxControl;
 class CCheckBoxControl;
 class CRadioButtonControl;
 class CComboBoxControl;
+class CAudioPlayerControl;
+class CGraphicText;
 
 class CControlManager
 {
@@ -55,7 +57,8 @@ public:
     CCheckBoxControl* CreateCheckBox(CWindowControl* parent);
     CRadioButtonControl* CreateRadioButton(CWindowControl* parent, bool isGroupStart);
     CComboBoxControl* CreateComboBox(CWindowControl* parent);
-
+    CAudioPlayerControl* CreateAudioPlayer();
+    CGraphicText* CreateGraphicText();
 
     HINSTANCE GetHInstance();
 

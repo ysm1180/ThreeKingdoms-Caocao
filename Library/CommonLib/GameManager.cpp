@@ -1,6 +1,9 @@
 #include "GameManager.h"
 #include "BaseLib/MemoryPool.h"
+#include "LuaLib/LuaTinker.h"
 #include "ME5File.h"
+#include <atomic>
+#include <future>
 
 namespace jojogame {
 std::once_flag CGameManager::s_onceFlag;
@@ -16,9 +19,10 @@ void CGameManager::RegisterFunctions(lua_State *L)
     LUA_METHOD(Delay);
     LUA_METHOD(StopDelay);
     LUA_METHOD(Color);
-    LUA_METHOD(Clock);
+    LUA_METHOD(GetNow);
     LUA_METHOD(OpenFile);
     LUA_METHOD(CloseFile);
+    LUA_METHOD(SetIdleEvent);
 }
 
 CGameManager::CGameManager()
@@ -27,6 +31,7 @@ CGameManager::CGameManager()
 
 CGameManager::~CGameManager()
 {
+
 }
 
 CGameManager& CGameManager::GetInstance()
@@ -54,9 +59,19 @@ int CGameManager::GetDesktopHeight()
     return rect.bottom - rect.top;
 }
 
-int CGameManager::Clock()
+int CGameManager::GetIdleEvent()
+{
+    return _idleEvent;
+}
+
+int CGameManager::GetNow()
 {
     return GetTickCount();
+}
+
+bool CGameManager::IsQuit()
+{
+    return _quit;
 }
 
 COLORREF CGameManager::Color(int r, int g, int b)
@@ -69,6 +84,11 @@ void CGameManager::Quit()
     PostQuitMessage(0);
 }
 
+void CGameManager::SetQuit(bool value)
+{
+    _quit = value;
+}
+
 void CGameManager::Delay(int time)
 {
     const auto starttime = GetTickCount();
@@ -77,6 +97,12 @@ void CGameManager::Delay(int time)
 
     for (;;)
     {
+        int gap = (GetTickCount() - starttime);
+        if (gap >= static_cast<DWORD>(time))
+        {
+            break;
+        }
+
         if (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE))
         {
             if (message.message == WM_QUIT)
@@ -91,13 +117,6 @@ void CGameManager::Delay(int time)
             TranslateMessage(&message);
             DispatchMessage(&message);
         }
-        else
-        {
-            if ((GetTickCount() - starttime) >= static_cast<DWORD>(time))
-            {
-                break;
-            }
-        }
     }
 
     if (quit)
@@ -109,6 +128,18 @@ void CGameManager::Delay(int time)
 void CGameManager::StopDelay()
 {
     PostMessage(nullptr, WM_STOP_DELAY, 0, 0);
+}
+
+void CGameManager::SetIdleEvent()
+{
+    auto l = CLuaTinker::GetLuaTinker().GetLuaState();
+    if (lua_isfunction(l, -1))
+    {
+        lua_pushvalue(l, -1);
+        _idleEvent = luaL_ref(l, LUA_REGISTRYINDEX);
+    }
+
+    lua_pop(l, 1);
 }
 
 CME5File* CGameManager::OpenFile(std::wstring path)

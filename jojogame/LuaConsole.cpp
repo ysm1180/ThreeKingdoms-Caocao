@@ -47,11 +47,6 @@ HWND CLuaConsole::GetHWnd()
     return _hWnd;
 }
 
-void CLuaConsole::SetHInstance(HINSTANCE hInstance)
-{
-    _hInstance = hInstance;
-}
-
 void CLuaConsole::Output(std::wstring msg)
 {
     this->AppendOutput(msg);
@@ -83,10 +78,10 @@ void CLuaConsole::AppendOutput(std::wstring msg)
     OutputDebugString(L"\n");
 }
 
-void CLuaConsole::Create()
+void CLuaConsole::Create(HINSTANCE hInstance)
 {
     CConsoleOutput::RegisterConsole(this);
-    _hWnd = CreateDialogParam(_hInstance, MAKEINTRESOURCE(IDD_LUACONSOLE), 0, DialogProc, 0);
+    _hWnd = CreateDialogParam(hInstance, MAKEINTRESOURCE(IDD_LUACONSOLE), 0, DialogProc, 0);
 }
 
 CLuaConsole& CLuaConsole::GetInstance()

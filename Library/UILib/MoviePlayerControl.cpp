@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "BaseLib\ConsoleOutput.h"
+#include "BaseLib/ConsoleOutput.h"
 #include "CommonLib/FileManager.h"
 
 namespace jojogame {
@@ -132,21 +132,18 @@ static int GetPacketQueue(VideoState* videoState, PacketQueue* queue, AVPacket* 
             result = 1;
             break;
         }
-        else if (!block)
+        if (!block)
         {
             result = 0;
             break;
         }
-        else
+        if (videoState->finishQueue)
         {
-            if (videoState->finishQueue || !videoState->playing)
-            {
-                videoState->playing = false;
-                result = -1;
-                break;
-            }
-            queue->cond.wait(lock);
+            videoState->playing = false;
+            result = -1;
+            break;
         }
+        queue->cond.wait(lock);
     }
     lock.unlock();
 
@@ -183,10 +180,7 @@ double GetMasterClock(VideoState* videoState)
     {
         return GetAudioClock(videoState);
     }
-    else
-    {
-        return GetVideoClock(videoState);
-    }
+    return GetVideoClock(videoState);
 }
 
 int SynchronizeAudio(VideoState* videoState, short* samples, int samplesSize)
@@ -658,9 +652,9 @@ bool CMoviePlayerControl::Create()
 
     _state.formatContext = nullptr;
 
-    int length = WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, NULL, 0, NULL, NULL);
-    char *buffer = new char[length + 1];
-    WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, buffer, length, NULL, NULL);
+    int length = WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    char* buffer = new char[length + 1];
+    WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, buffer, length, nullptr, nullptr);
     error = avformat_open_input(&_state.formatContext, buffer, nullptr, nullptr);
     delete[] buffer;
     if (error < 0)
@@ -850,11 +844,8 @@ bool PlayMovie(VideoState* videoState)
                 videoState->audioQueue.cond.notify_all();
                 continue;
             }
-            else
-            {
-                videoState->playing = false;
-                break;
-            }
+            videoState->playing = false;
+            break;
         }
 
         if (packet.stream_index == videoState->videoStreamIndex)

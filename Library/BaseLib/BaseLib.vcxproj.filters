@@ -5,11 +5,13 @@
     <ClInclude Include="ConsoleOutput.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Color.h" />
+    <ClInclude Include="MemoryStream.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryPool.cpp" />
     <ClCompile Include="ConsoleOutput.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Color.cpp" />
+    <ClCompile Include="MemoryStream.cpp" />
   </ItemGroup>
 </Project>
