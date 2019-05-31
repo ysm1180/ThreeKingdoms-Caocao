@@ -12,6 +12,7 @@ namespace jojogame {
 class CMoviePlayer;
 class CMenu;
 class CLayoutControl;
+class CToolbarControl;
 
 class CWindowControl : public CBaseControl
 {
@@ -28,6 +29,7 @@ public:
     bool IsSizable() const;
     int GetX() const;
     int GetY() const;
+    int GetLuaHeight() const;
     std::wstring GetTitleName() const;
     int GetActiveEvent() const;
     int GetCloseEvent() const;
@@ -37,11 +39,13 @@ public:
     COLORREF GetBackgroundColor();
     HBRUSH GetBackgroundBrush();
     CMenu* GetMenu();
+    CToolbarControl* GetToolbar();
 
     void SetY(int y) override;
     void SetX(int x) override;
     void SetWidth(int width) override;
     void SetHeight(int height) override;
+    void SetLuaHeight(int height);
     void SetControlBox(bool isControlBox);
     void SetMaxButton(bool isMaxButton);
     void SetMinButton(bool isMinButton);
@@ -57,6 +61,7 @@ public:
     void SetBackgroundColor(COLORREF backColor);
     void SetMenu(CMenu* menu);
     void SetParentWindow(CWindowControl* parent);
+	void SetToolbar(CToolbarControl* toolbar);
 
     void AddLayout(CLayoutControl* layout, bool isShow);
     void DeleteLayout(CLayoutControl* layout);
@@ -94,5 +99,6 @@ private:
 
     std::vector<CLayoutControl *> _layouts;
     CMenu* _menu = nullptr;
+	CToolbarControl* _toolbar = nullptr;
 };
 }

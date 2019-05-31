@@ -1,7 +1,7 @@
 #pragma once
 
 #include "TextFont.h"
-#include "BaseControl.h"
+#include "WindowChildControl.h"
 
 #include <vector>
 #include <CommCtrl.h>
@@ -144,7 +144,7 @@ private:
     std::vector<CListViewItem *> _items;
 };
 
-class CListViewControl : public CBaseControl
+class CListViewControl : public CWindowChildControl
 {
 public:
     static void RegisterFunctions(lua_State* L);

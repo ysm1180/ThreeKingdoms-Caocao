@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "BaseControl.h"
+#include "WindowChildControl.h"
 #include "TextFont.h"
 
 namespace jojogame {
-class CGroupBoxControl : public CBaseControl
+class CGroupBoxControl : public CWindowChildControl
 {
 public:
     static void RegisterFunctions(lua_State* L);

@@ -149,7 +149,7 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
 void CButtonControl::RegisterFunctions(lua_State* L)
 {
-    LUA_BEGIN_CHILD(CButtonControl, "_ButtonControl", CBaseControl);
+    LUA_BEGIN_CHILD(CButtonControl, "_ButtonControl", CWindowChildControl);
 
     LUA_METHOD(IsTransparentBackground);
     LUA_METHOD(GetText);
@@ -284,11 +284,6 @@ COLORREF CButtonControl::GetPushedTextColor() const
 int CButtonControl::GetBorderWidth() const
 {
     return _borderWidth;
-}
-
-CWindowControl* CButtonControl::GetParentWindow() const
-{
-    return dynamic_cast<CWindowControl *>(_parentControl);
 }
 
 void CButtonControl::SetTransparentBackground(bool isTransparentBackground)

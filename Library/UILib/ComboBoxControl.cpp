@@ -149,7 +149,7 @@ LRESULT CComboBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
 void CComboBoxControl::RegisterFunctions(lua_State* L)
 {
-    LUA_BEGIN_CHILD(CComboBoxControl, "_ComboBoxControl", CBaseControl);
+    LUA_BEGIN_CHILD(CComboBoxControl, "_ComboBoxControl", CWindowChildControl);
 
     LUA_METHOD(AddItem);
 

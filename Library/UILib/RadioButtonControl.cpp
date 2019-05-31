@@ -151,7 +151,7 @@ LRESULT CRadioButtonControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, L
 
 void CRadioButtonControl::RegisterFunctions(lua_State* L)
 {
-    LUA_BEGIN_CHILD(CRadioButtonControl, "_RadioButtonControl", CBaseControl);
+    LUA_BEGIN_CHILD(CRadioButtonControl, "_RadioButtonControl", CWindowChildControl);
 
     LUA_METHOD(IsChecked);
     LUA_METHOD(GetText);

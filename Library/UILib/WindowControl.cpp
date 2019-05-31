@@ -79,11 +79,18 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         auto mouseLButtonUpEvent = window->GetMouseLButtonUpEvent();
         if (mouseLButtonUpEvent != LUA_NOREF)
         {
+            int y = GET_Y_LPARAM(lParam);
+            auto toolbar = window->GetToolbar();
+            if (toolbar)
+            {
+                y -= toolbar->GetHeight();
+            }
+
             CLuaTinker::GetLuaTinker().Call(mouseLButtonUpEvent,
                                             window,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
-                                            GET_Y_LPARAM(lParam));
+                                            y);
         }
         break;
     }
@@ -94,11 +101,18 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         auto mouseLButtonDownEvent = window->GetMouseLButtonDownEvent();
         if (mouseLButtonDownEvent != LUA_NOREF)
         {
+            int y = GET_Y_LPARAM(lParam);
+            auto toolbar = window->GetToolbar();
+            if (toolbar)
+            {
+                y -= toolbar->GetHeight();
+            }
+
             CLuaTinker::GetLuaTinker().Call(mouseLButtonDownEvent,
                                             window,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
-                                            GET_Y_LPARAM(lParam));
+                                            y);
         }
         break;
     }
@@ -109,11 +123,17 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         auto mouseMoveEvent = window->GetMouseMoveEvent();
         if (mouseMoveEvent != LUA_NOREF)
         {
+            int y = GET_Y_LPARAM(lParam);
+            auto toolbar = window->GetToolbar();
+            if (toolbar)
+            {
+                y -= toolbar->GetHeight();
+            }
             CLuaTinker::GetLuaTinker().Call(mouseMoveEvent,
                                             window,
                                             (int)wParam,
                                             GET_X_LPARAM(lParam),
-                                            GET_Y_LPARAM(lParam));
+                                            y);
         }
 
         if (!window->_isHover)
@@ -198,14 +218,21 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
     case WM_SIZE:
     {
-        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        window->SetWidth(LOWORD(lParam));
+        int width = LOWORD(lParam);
+        int height = HIWORD(lParam);
+        auto toolbar = window->GetToolbar();
+        if (toolbar)
+        {
+            height -= toolbar->GetHeight();
+        }
+
+        window->SetWidth(width);
         window->SetHeight(HIWORD(lParam));
 
         auto sizeEvent = window->GetSizeEvent();
         if (sizeEvent != LUA_NOREF)
         {
-            CLuaTinker::GetLuaTinker().Call(sizeEvent, window, LOWORD(lParam), HIWORD(lParam));
+            CLuaTinker::GetLuaTinker().Call(sizeEvent, window, width, height);
         }
         break;
     }
@@ -922,6 +949,7 @@ void CWindowControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(IsControlBox);
     LUA_METHOD(IsTitleBar);
     LUA_METHOD(IsSizable);
+    LUA_METHOD(GetLuaHeight);
     LUA_METHOD(GetTitleName);
     LUA_METHOD(GetActiveEvent);
     LUA_METHOD(GetCloseEvent);
@@ -931,6 +959,7 @@ void CWindowControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(GetMenu);
     LUA_METHOD(GetBackgroundColor);
 
+    LUA_METHOD(SetLuaHeight);
     LUA_METHOD(SetParentWindow);
     LUA_METHOD(SetMaxButton);
     LUA_METHOD(SetMinButton);
@@ -1045,6 +1074,17 @@ int CWindowControl::GetY() const
     return _position.y;
 }
 
+int CWindowControl::GetLuaHeight() const
+{
+    int toolbarHeight = 0;
+    if (_toolbar)
+    {
+        toolbarHeight = _toolbar->GetHeight();
+    }
+
+    return _size.cy - toolbarHeight;
+}
+
 int CWindowControl::GetActiveEvent() const
 {
     return _activeEvent;
@@ -1083,6 +1123,11 @@ HBRUSH CWindowControl::GetBackgroundBrush()
 CMenu* CWindowControl::GetMenu()
 {
     return _menu;
+}
+
+CToolbarControl* CWindowControl::GetToolbar()
+{
+    return _toolbar;
 }
 
 void CWindowControl::SetY(const int y)
@@ -1191,6 +1236,16 @@ void CWindowControl::SetHeight(const int height)
         SetWindowPos(_hWnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
                      SWP_NOMOVE | SWP_NOZORDER);
     }
+}
+
+void CWindowControl::SetLuaHeight(int height)
+{
+    int toolbarHeight = 0;
+    if (_toolbar)
+    {
+        toolbarHeight = _toolbar->GetHeight();
+    }
+    this->SetHeight(height + toolbarHeight);
 }
 
 void CWindowControl::SetControlBox(const bool isControlBox)
@@ -1419,6 +1474,11 @@ void CWindowControl::SetParentWindow(CWindowControl* parent)
     {
         _parentControl = nullptr;
     }
+}
+
+void CWindowControl::SetToolbar(CToolbarControl* toolbar)
+{
+    _toolbar = toolbar;
 }
 
 void CWindowControl::AddLayout(CLayoutControl* layout, bool isShow)

@@ -618,7 +618,7 @@ void CListViewRow::AddItem(CListViewItem* item)
 
 void CListViewControl::RegisterFunctions(lua_State* L)
 {
-    LUA_BEGIN_CHILD(CListViewControl, "_ListView", CBaseControl);
+    LUA_BEGIN_CHILD(CListViewControl, "_ListView", CWindowChildControl);
 
     LUA_METHOD(IsTransparentBackground);
     LUA_METHOD(GetColumn);

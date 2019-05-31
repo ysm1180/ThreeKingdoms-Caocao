@@ -1,6 +1,7 @@
 ﻿#include "MoviePlayerControl.h"
 #include "ControlManager.h"
 #include "WindowControl.h"
+#include "ToolbarControl.h"
 
 #include <iostream>
 
@@ -14,11 +15,13 @@ void CMoviePlayerControl::RegisterFunctions(lua_State* L)
 
     LUA_METHOD(GetX);
     LUA_METHOD(GetY);
+    LUA_METHOD(GetLuaY);
     LUA_METHOD(GetWidth);
     LUA_METHOD(GetHeight);
     LUA_METHOD(IsPlaying);
     LUA_METHOD(SetX);
     LUA_METHOD(SetY);
+    LUA_METHOD(SetLuaY);
     LUA_METHOD(SetWidth);
     LUA_METHOD(SetHeight);
     LUA_METHOD(SetEndEvent);
@@ -958,6 +961,17 @@ int CMoviePlayerControl::GetX()
     return _state.position.x;
 }
 
+int CMoviePlayerControl::GetLuaY()
+{
+    int toolbarHeight = 0;
+    auto toolbar = _parent->GetToolbar();
+    if (toolbar)
+    {
+        toolbarHeight = toolbar->GetHeight();
+    }
+    return this->GetY() - toolbarHeight;
+}
+
 int CMoviePlayerControl::GetY()
 {
     return _state.position.y;
@@ -976,6 +990,16 @@ int CMoviePlayerControl::GetHeight()
 void CMoviePlayerControl::SetX(int x)
 {
     _state.position.x = x;
+}
+
+void CMoviePlayerControl::SetLuaY(int y)
+{
+    auto toolbar = _parent->GetToolbar();
+    if (toolbar)
+    {
+        y += toolbar->GetHeight();
+    }
+    this->SetY(y);
 }
 
 void CMoviePlayerControl::SetY(int y)

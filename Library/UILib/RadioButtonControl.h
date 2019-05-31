@@ -1,11 +1,11 @@
 ﻿#pragma once
 
-#include "BaseControl.h"
+#include "WindowChildControl.h"
 #include "TextFont.h"
 #include <Uxtheme.h>
 
 namespace jojogame {
-class CRadioButtonControl : public CBaseControl
+class CRadioButtonControl : public CWindowChildControl
 {
 public:
     static void RegisterFunctions(lua_State* L);

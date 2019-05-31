@@ -151,7 +151,7 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
 void CCheckBoxControl::RegisterFunctions(lua_State* L)
 {
-    LUA_BEGIN_CHILD(CCheckBoxControl, "_CheckBoxControl", CBaseControl);
+    LUA_BEGIN_CHILD(CCheckBoxControl, "_CheckBoxControl", CWindowChildControl);
 
     LUA_METHOD(IsChecked);
     LUA_METHOD(GetText);

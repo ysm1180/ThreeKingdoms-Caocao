@@ -1,11 +1,12 @@
 ﻿#pragma once
 
-#include "UILib/BaseControl.h"
-#include "UILib/TextFont.h"
+#include "WindowChildControl.h"
+#include "TextFont.h"
+
 #include "LuaLib/LuaTinker.h"
 
 namespace jojogame {
-class CStaticControl : public CBaseControl
+class CStaticControl : public CWindowChildControl
 {
 public:
     static void RegisterFunctions(lua_State* L);

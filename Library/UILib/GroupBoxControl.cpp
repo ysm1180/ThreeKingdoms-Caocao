@@ -134,7 +134,7 @@ LRESULT CGroupBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
 void CGroupBoxControl::RegisterFunctions(lua_State* L)
 {
-    LUA_BEGIN_CHILD(CGroupBoxControl, "_GroupBoxControl", CBaseControl);
+    LUA_BEGIN_CHILD(CGroupBoxControl, "_GroupBoxControl", CWindowChildControl);
 
     LUA_METHOD(GetText);
     LUA_METHOD(GetFont);

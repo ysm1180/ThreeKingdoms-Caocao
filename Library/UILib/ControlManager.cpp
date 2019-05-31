@@ -3,6 +3,7 @@
 #include "BaseLib\MemoryPool.h"
 
 #include "BaseControl.h"
+#include "WindowChildControl.h"
 #include "TextFont.h"
 #include "WindowControl.h"
 #include "MoviePlayerControl.h"
@@ -64,6 +65,7 @@ void CControlManager::Init(HINSTANCE hInstance)
 
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CControlManager>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CBaseControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CWindowChildControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CTextFont>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CWindowControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CMoviePlayerControl>();

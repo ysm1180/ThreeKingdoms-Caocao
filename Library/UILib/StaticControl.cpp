@@ -75,7 +75,7 @@ void CStaticControl::_AutoSizing()
 
 void CStaticControl::RegisterFunctions(lua_State* L)
 {
-    LUA_BEGIN_CHILD(CStaticControl, "_StaticControl", CBaseControl);
+    LUA_BEGIN_CHILD(CStaticControl, "_StaticControl", CWindowChildControl);
 
     LUA_METHOD(GetText);
     LUA_METHOD(GetFont);

@@ -47,23 +47,31 @@ HWND CToolbarControl::GetHWnd() const
 
 int CToolbarControl::GetHeight() const
 {
-    RECT rect;
+    if (_isVisible)
+    {
+        RECT rect;
+        GetWindowRect(_hWnd, &rect);
+        
+        return rect.bottom - rect.top;
+    }
 
-    GetWindowRect(_hWnd, &rect);
-
-    return rect.bottom - rect.top;
+    return 0;
 }
 
 bool CToolbarControl::Create(CWindowControl* parentWindow, int imageWidth, int imageHeight)
 {
     if (parentWindow)
     {
+        _parentWindow = parentWindow;
         _hWnd = CreateWindowEx(0, TOOLBARCLASSNAME, nullptr,
                                WS_CHILD | TBSTYLE_WRAPABLE | WS_CLIPSIBLINGS | TBSTYLE_TOOLTIPS, 0, 0, 0, 0,
-                               parentWindow->GetHWnd(), (HMENU)this, CControlManager::GetInstance().GetHInstance(),
+                               _parentWindow->GetHWnd(), (HMENU)this, CControlManager::GetInstance().GetHInstance(),
                                nullptr);
         _hImageList = ImageList_Create(imageWidth, imageHeight, ILC_MASK | ILC_COLOR24, 16, 4);
         SendMessage(_hWnd, TB_SETIMAGELIST, (WPARAM)0, (LPARAM)_hImageList);
+
+		_parentWindow->SetToolbar(this);
+        AutoSize();
 
         _buttons.clear();
         _imageList.clear();
@@ -104,7 +112,8 @@ void CToolbarControl::AddButton(CToolbarButton* button)
         SendMessage(_hWnd, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
         SendMessage(_hWnd, TB_ADDBUTTONS, (WPARAM)1, (LPARAM)&button->GetButtonStruct());
 
-        SendMessage(_hWnd, TB_AUTOSIZE, 0, 0);
+        AutoSize();
+
         button->SetParentToolbar(this);
     }
 }
@@ -132,16 +141,21 @@ void CToolbarControl::DeleteButton(CToolbarButton* button)
 
 void CToolbarControl::AutoSize()
 {
+    int height = GetHeight();
     SendMessage(_hWnd, TB_AUTOSIZE, 0, 0);
+    _parentWindow->SetHeight(_parentWindow->GetHeight() + height - _prevHeight);
+    _prevHeight = height;
 }
 
 void CToolbarControl::Show()
 {
+    _isVisible = true;
     ::ShowWindow(_hWnd, TRUE);
 }
 
 void CToolbarControl::Hide()
 {
+    _isVisible = false;
     ::ShowWindow(_hWnd, FALSE);
 }
 

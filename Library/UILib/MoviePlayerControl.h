@@ -131,12 +131,14 @@ public:
     virtual ~CMoviePlayerControl();
 
     int GetX();
+    int GetLuaY();
     int GetY();
     int GetWidth();
     int GetHeight();
     bool IsPlaying();
 
     void SetX(int x);
+    void SetLuaY(int y);
     void SetY(int y);
     void SetWidth(int width);
     void SetHeight(int height);

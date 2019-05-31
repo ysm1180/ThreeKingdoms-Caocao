@@ -83,5 +83,9 @@ private:
     HIMAGELIST _hImageList = nullptr;
     std::vector<CToolbarButton *> _buttons;
     std::vector<CImageControl *> _imageList;
+    CWindowControl* _parentWindow = nullptr;
+
+    int _prevHeight = 0;
+    bool _isVisible = false;
 };
 }

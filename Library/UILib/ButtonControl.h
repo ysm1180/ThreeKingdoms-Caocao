@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BaseControl.h"
+#include "WindowChildControl.h"
 #include "TextFont.h"
 
 #include <Windows.h>
@@ -16,7 +16,7 @@ struct ButtonStateColor
     COLORREF pushed;
 };
 
-class CButtonControl : public CBaseControl
+class CButtonControl : public CWindowChildControl
 {
 public:
     static void RegisterFunctions(lua_State* L);
@@ -40,7 +40,6 @@ public:
     COLORREF GetFocusedTextColor() const;
     COLORREF GetPushedTextColor() const;
     int GetBorderWidth() const;
-    CWindowControl* GetParentWindow() const;
 
     void SetTransparentBackground(bool isTransparentBackground);
     void SetText(std::wstring text);
