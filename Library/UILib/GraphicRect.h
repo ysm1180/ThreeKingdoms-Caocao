@@ -4,12 +4,13 @@
 
 #include <windows.h>
 
-namespace jojogame {
+namespace jojogame
+{
 class CGraphicRect
 {
 public:
-    static void RegisterFunctions(lua_State* L);
-  
+    static void RegisterFunctions(lua_State *L);
+
     CGraphicRect();
     virtual ~CGraphicRect();
 
@@ -29,4 +30,4 @@ private:
     double _opacity = 1.0;
 };
 
-}
+} // namespace jojogame

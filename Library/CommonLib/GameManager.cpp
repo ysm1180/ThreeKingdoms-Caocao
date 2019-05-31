@@ -5,7 +5,8 @@
 #include <atomic>
 #include <future>
 
-namespace jojogame {
+namespace jojogame
+{
 std::once_flag CGameManager::s_onceFlag;
 std::unique_ptr<CGameManager> CGameManager::s_sharedGameManager;
 
@@ -31,16 +32,14 @@ CGameManager::CGameManager()
 
 CGameManager::~CGameManager()
 {
-
 }
 
-CGameManager& CGameManager::GetInstance()
+CGameManager &CGameManager::GetInstance()
 {
     std::call_once(s_onceFlag,
-                   []
-    {
-        s_sharedGameManager = std::make_unique<jojogame::CGameManager>();
-    });
+                   [] {
+                       s_sharedGameManager = std::make_unique<jojogame::CGameManager>();
+                   });
 
     return *s_sharedGameManager;
 }
@@ -142,15 +141,15 @@ void CGameManager::SetUpdateEvent()
     lua_pop(l, 1);
 }
 
-CME5File* CGameManager::OpenFile(std::wstring path)
+CME5File *CGameManager::OpenFile(std::wstring path)
 {
     auto file = CMemoryPool<CME5File>::GetInstance().New();
     file->Open(path);
     return file;
 }
 
-void CGameManager::CloseFile(CME5File* file)
+void CGameManager::CloseFile(CME5File *file)
 {
     CMemoryPool<CME5File>::GetInstance().Delete(file);
 }
-}
+} // namespace jojogame

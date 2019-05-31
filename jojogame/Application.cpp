@@ -18,10 +18,11 @@
 
 using namespace std::chrono_literals;
 
-namespace jojogame {
-Application* Application::s_sharedApplication = nullptr;
+namespace jojogame
+{
+Application *Application::s_sharedApplication = nullptr;
 
-Application& Application::GetInstance()
+Application &Application::GetInstance()
 {
     return *s_sharedApplication;
 }
@@ -54,8 +55,8 @@ void Application::Render()
 int Application::Run()
 {
     MSG message{};
-    CLuaTinker& luaTinker = CLuaTinker::GetLuaTinker();
-    CLuaConsole& luaConsole = CLuaConsole::GetInstance();
+    CLuaTinker &luaTinker = CLuaTinker::GetLuaTinker();
+    CLuaConsole &luaConsole = CLuaConsole::GetInstance();
     bool debug = false;
 
     av_register_all();
@@ -110,7 +111,7 @@ int Application::Run()
             TranslateMessage(&message);
             DispatchMessage(&message);
         }
-        
+
         while (lag >= timestep)
         {
             lag -= timestep;
@@ -133,4 +134,4 @@ int Application::Run()
 
     return (int)message.wParam;
 }
-}
+} // namespace jojogame

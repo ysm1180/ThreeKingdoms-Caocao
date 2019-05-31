@@ -1,8 +1,9 @@
 ﻿#include "GraphicRect.h"
 
-namespace jojogame {
+namespace jojogame
+{
 
-void CGraphicRect::RegisterFunctions(lua_State* L)
+void CGraphicRect::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CGraphicRect, "_GraphicRect");
 
@@ -64,4 +65,4 @@ void CGraphicRect::SetOpacity(double opacity)
 {
     _opacity = opacity;
 }
-}
+} // namespace jojogame
