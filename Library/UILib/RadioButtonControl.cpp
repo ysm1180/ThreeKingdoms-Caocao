@@ -1,7 +1,8 @@
 ﻿#include "RadioButtonControl.h"
 #include "ControlManager.h"
 
-namespace jojogame {
+namespace jojogame
+{
 WNDPROC CRadioButtonControl::s_originalProc = nullptr;
 
 LRESULT CRadioButtonControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -13,7 +14,7 @@ LRESULT CRadioButtonControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, L
     case WM_CREATE:
     {
         auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        void* lpParamCreate = createStruct->lpCreateParams;
+        void *lpParamCreate = createStruct->lpCreateParams;
         auto radioButtonControl = reinterpret_cast<CRadioButtonControl *>(lpParamCreate);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(radioButtonControl));
 
@@ -149,9 +150,9 @@ LRESULT CRadioButtonControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, L
     return CallWindowProc(CRadioButtonControl::GetOriginalProc(), hWnd, msg, wParam, lParam);
 }
 
-void CRadioButtonControl::RegisterFunctions(lua_State* L)
+void CRadioButtonControl::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN_CHILD(CRadioButtonControl, "_RadioButtonControl", CBaseControl);
+    LUA_BEGIN_CHILD(CRadioButtonControl, "_RadioButtonControl", CWindowChildControl);
 
     LUA_METHOD(IsChecked);
     LUA_METHOD(GetText);
@@ -176,7 +177,6 @@ CRadioButtonControl::CRadioButtonControl(bool isGroupStart)
 {
     _style = WS_TABSTOP | WS_CHILD | BS_AUTORADIOBUTTON | (isGroupStart ? WS_GROUP : 0);
     _type = L"radiobutton";
-    
 }
 
 CRadioButtonControl::~CRadioButtonControl()
@@ -200,7 +200,7 @@ std::wstring CRadioButtonControl::GetText()
     return _text;
 }
 
-CTextFont* CRadioButtonControl::GetFont()
+CTextFont *CRadioButtonControl::GetFont()
 {
     return &_font;
 }
@@ -244,16 +244,16 @@ bool CRadioButtonControl::Create()
     if (_parentControl != nullptr)
     {
         _hWnd = CreateWindow(L"jojo_radio",
-            _text.c_str(),
-            _style,
-            _position.x,
-            _position.y,
-            _size.cx,
-            _size.cy,
-            _parentControl->GetHWnd(),
-            (HMENU)this,
-            CControlManager::GetInstance().GetHInstance(),
-            this);
+                             _text.c_str(),
+                             _style,
+                             _position.x,
+                             _position.y,
+                             _size.cx,
+                             _size.cy,
+                             _parentControl->GetHWnd(),
+                             (HMENU)this,
+                             CControlManager::GetInstance().GetHInstance(),
+                             this);
 
         if (_isChecked)
         {
@@ -275,4 +275,4 @@ WNDPROC CRadioButtonControl::GetOriginalProc()
     return s_originalProc;
 }
 
-}
+} // namespace jojogame

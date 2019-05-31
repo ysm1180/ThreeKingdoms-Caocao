@@ -1,8 +1,8 @@
 ﻿#include "ComboBoxControl.h"
 #include "ControlManager.h"
 
-namespace jojogame {
-
+namespace jojogame
+{
 WNDPROC CComboBoxControl::s_originalProc = nullptr;
 
 LRESULT CComboBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -14,7 +14,7 @@ LRESULT CComboBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     case WM_CREATE:
     {
         auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        void* lpParamCreate = createStruct->lpCreateParams;
+        void *lpParamCreate = createStruct->lpCreateParams;
         auto comboBoxControl = reinterpret_cast<CComboBoxControl *>(lpParamCreate);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(comboBoxControl));
 
@@ -147,9 +147,9 @@ LRESULT CComboBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     return CallWindowProc(CComboBoxControl::GetOriginalProc(), hWnd, msg, wParam, lParam);
 }
 
-void CComboBoxControl::RegisterFunctions(lua_State* L)
+void CComboBoxControl::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN_CHILD(CComboBoxControl, "_ComboBoxControl", CBaseControl);
+    LUA_BEGIN_CHILD(CComboBoxControl, "_ComboBoxControl", CWindowChildControl);
 
     LUA_METHOD(AddItem);
 
@@ -219,4 +219,4 @@ WNDPROC CComboBoxControl::GetOriginalProc()
     return s_originalProc;
 }
 
-}
+} // namespace jojogame

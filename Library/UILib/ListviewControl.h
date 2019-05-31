@@ -1,12 +1,13 @@
 #pragma once
 
 #include "TextFont.h"
-#include "BaseControl.h"
+#include "WindowChildControl.h"
 
 #include <vector>
 #include <CommCtrl.h>
 
-namespace jojogame {
+namespace jojogame
+{
 class CWindowControl;
 class CListViewControl;
 
@@ -21,7 +22,7 @@ struct ListViewItemColorState
 class CListViewColumn
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CListViewColumn();
     ~CListViewColumn();
@@ -33,7 +34,7 @@ public:
     int GetWidth() const;
     std::wstring GetText() const;
 
-    void SetParentListView(CListViewControl* parent);
+    void SetParentListView(CListViewControl *parent);
     void SetAutoSizeFitItem(bool value);
     void SetAutoSizeFitHeader(bool value);
     void SetIndex(int index);
@@ -42,7 +43,7 @@ public:
     void SetText(std::wstring text);
 
 private:
-    CListViewControl* _parentListView = nullptr;
+    CListViewControl *_parentListView = nullptr;
 
     int _index = -1;
     int _align = LVCFMT_LEFT;
@@ -57,13 +58,13 @@ private:
 class CListViewItem
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CListViewItem();
     ~CListViewItem();
 
     std::wstring GetText();
-    CTextFont* GetFont();
+    CTextFont *GetFont();
     COLORREF GetNormalBackgroundColor();
     COLORREF GetFocusedBackgroundColor();
     COLORREF GetDisabledBackgroundColor();
@@ -74,7 +75,7 @@ public:
     COLORREF GetDisableFocusedTextColor();
     int GetAlign();
 
-    void SetParentListRow(CListViewRow* parent);
+    void SetParentListRow(CListViewRow *parent);
     void SetText(std::wstring text);
     void SetNormalBackgroundColor(COLORREF color);
     void SetFocusedBackgroundColor(COLORREF color);
@@ -90,7 +91,7 @@ public:
 private:
     void _Update();
 
-    CListViewRow* _parentListRow = nullptr;
+    CListViewRow *_parentListRow = nullptr;
 
     int _itemIndex = -1;
     std::wstring _text = L"";
@@ -98,11 +99,9 @@ private:
     CTextFont _font;
 
     ListViewItemColorState _backgroundColor{
-        RGB(0xFF, 0xFF, 0xFF), RGB(0x00, 0x78, 0xD7), RGB(0xFF, 0xFF, 0xFF), RGB(0xE6, 0xE6, 0xE6)
-    };
+        RGB(0xFF, 0xFF, 0xFF), RGB(0x00, 0x78, 0xD7), RGB(0xFF, 0xFF, 0xFF), RGB(0xE6, 0xE6, 0xE6)};
     ListViewItemColorState _textColor{
-        RGB(0x00, 0x00, 0x00), RGB(0xFF, 0xFF, 0xFF), RGB(0x6D, 0x6D, 0x6D), RGB(0x6D, 0x6D, 0x6D)
-    };
+        RGB(0x00, 0x00, 0x00), RGB(0xFF, 0xFF, 0xFF), RGB(0x6D, 0x6D, 0x6D), RGB(0x6D, 0x6D, 0x6D)};
 
     int _align = 0; // 0 : LEFT, 1 : RIGHT, 2 : CENTER
 };
@@ -110,44 +109,43 @@ private:
 class CListViewRow
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CListViewRow();
     virtual ~CListViewRow();
 
     bool IsEnabled();
-    CListViewControl* GetParentListView();
+    CListViewControl *GetParentListView();
     int GetActiveEvent();
-    CListViewItem* GetItem(int subIndex);
+    CListViewItem *GetItem(int subIndex);
     int GetRowIndex();
 
     void SetEnabled(bool isEnabled);
-    void SetParentListView(CListViewControl* parent);
+    void SetParentListView(CListViewControl *parent);
     void SetNormalBackgroundColor(COLORREF color);
     void SetFocusedBackgroundColor(COLORREF color);
     void SetNormalTextColor(COLORREF color);
     void SetFocusedTextColor(COLORREF color);
     void SetActiveEvent();
-    void SetItem(int subIndex, CListViewItem* item);
+    void SetItem(int subIndex, CListViewItem *item);
     void SetRowIndex(int index);
 
-    void AddItem(CListViewItem* item);
+    void AddItem(CListViewItem *item);
 
 private:
-
     bool _isEnabled = true;
 
-    CListViewControl* _parentListView = nullptr;
+    CListViewControl *_parentListView = nullptr;
 
     int _rowIndex = -1;
     int _activeEvent = LUA_NOREF;
     std::vector<CListViewItem *> _items;
 };
 
-class CListViewControl : public CBaseControl
+class CListViewControl : public CWindowChildControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CListViewControl();
     virtual ~CListViewControl();
@@ -158,8 +156,8 @@ public:
     bool IsOneClickItemActivated() const;
     bool IsTrackingSelect() const;
     bool IsTransparentBackground() const;
-    CListViewColumn* GetColumn(int columnIndex);
-    CListViewRow* GetRow(int rowIndex);
+    CListViewColumn *GetColumn(int columnIndex);
+    CListViewRow *GetRow(int rowIndex);
     int GetColumnCount();
     COLORREF GetBackgroundColor();
     HBRUSH GetBackgroundBrush();
@@ -171,12 +169,12 @@ public:
     void SetOneClickItemActivated(bool isHotClick);
     void SetTrackingSelect(bool isTrackingSelect);
     void SetTransparentBackground(bool isTransparentBackground);
-    void SetParentWindow(CWindowControl* parent);
+    void SetParentWindow(CWindowControl *parent);
     void SetBackgroundColor(COLORREF color);
     void SetRowHeight(int rowHeight);
 
-    void AddColumn(CListViewColumn* column);
-    void AddRow(CListViewRow* row);
+    void AddColumn(CListViewColumn *column);
+    void AddRow(CListViewRow *row);
 
     bool Create() override;
 
@@ -184,8 +182,8 @@ public:
     static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
-    void AppendColumn(CListViewColumn* column);
-    void AppendRow(CListViewRow* row);
+    void AppendColumn(CListViewColumn *column);
+    void AppendRow(CListViewRow *row);
 
     int _rowHeight = 19;
 
@@ -206,4 +204,4 @@ private:
 
     static WNDPROC s_originalProc;
 };
-}
+} // namespace jojogame

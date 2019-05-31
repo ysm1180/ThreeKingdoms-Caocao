@@ -8,15 +8,17 @@
 #include <string>
 #include <vector>
 
-namespace jojogame {
+namespace jojogame
+{
 class CMoviePlayer;
 class CMenu;
 class CLayoutControl;
+class CToolbarControl;
 
 class CWindowControl : public CBaseControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CWindowControl();
     virtual ~CWindowControl();
@@ -28,6 +30,7 @@ public:
     bool IsSizable() const;
     int GetX() const;
     int GetY() const;
+    int GetLuaHeight() const;
     std::wstring GetTitleName() const;
     int GetActiveEvent() const;
     int GetCloseEvent() const;
@@ -36,12 +39,14 @@ public:
     int GetKeyUpEvent() const;
     COLORREF GetBackgroundColor();
     HBRUSH GetBackgroundBrush();
-    CMenu* GetMenu();
+    CMenu *GetMenu();
+    CToolbarControl *GetToolbar();
 
     void SetY(int y) override;
     void SetX(int x) override;
     void SetWidth(int width) override;
     void SetHeight(int height) override;
+    void SetLuaHeight(int height);
     void SetControlBox(bool isControlBox);
     void SetMaxButton(bool isMaxButton);
     void SetMinButton(bool isMinButton);
@@ -55,11 +60,12 @@ public:
     void SetKeyUpEvent();
     void SetIcon(std::wstring iconFilePath);
     void SetBackgroundColor(COLORREF backColor);
-    void SetMenu(CMenu* menu);
-    void SetParentWindow(CWindowControl* parent);
+    void SetMenu(CMenu *menu);
+    void SetParentWindow(CWindowControl *parent);
+    void SetToolbar(CToolbarControl *toolbar);
 
-    void AddLayout(CLayoutControl* layout, bool isShow);
-    void DeleteLayout(CLayoutControl* layout);
+    void AddLayout(CLayoutControl *layout, bool isShow);
+    void DeleteLayout(CLayoutControl *layout);
 
     bool Create() override;
 
@@ -78,7 +84,7 @@ private:
     bool _isControlBox = true;
     bool _isTitlebar = true;
     bool _isSizable = false;
-    int* _dialogResult = nullptr;
+    int *_dialogResult = nullptr;
 
     std::wstring _titleName = L"";
 
@@ -93,6 +99,7 @@ private:
     HBRUSH _backBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
 
     std::vector<CLayoutControl *> _layouts;
-    CMenu* _menu = nullptr;
+    CMenu *_menu = nullptr;
+    CToolbarControl *_toolbar = nullptr;
 };
-}
+} // namespace jojogame

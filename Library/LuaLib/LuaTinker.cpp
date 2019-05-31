@@ -6,7 +6,8 @@
 
 #include <Shlwapi.h>
 
-namespace jojogame {
+namespace jojogame
+{
 std::once_flag CLuaTinker::s_onceFlag;
 std::unique_ptr<CLuaTinker> CLuaTinker::s_luaTinker;
 
@@ -18,7 +19,7 @@ int CustomLuaRequire(lua_State *L)
     {
         return 0;
     }
-    
+
     const auto len = MultiByteToWideChar(CP_UTF8, 0, str, -1, nullptr, 0);
     std::wstring filePath(len, L'\0');
     MultiByteToWideChar(CP_UTF8, 0, str, -1, &filePath[0], len);
@@ -54,7 +55,9 @@ int CustomLuaRequire(lua_State *L)
 
 int CustomLuaMessage(lua_State *L)
 {
-    char c[128] = { 0, };
+    char c[128] = {
+        0,
+    };
 
     if (lua_isstring(L, -1))
     {
@@ -105,14 +108,13 @@ void CLuaTinker::Run(const char *fileName)
     lua_tinker::dofile(_luaState, fileName);
 }
 
-CLuaTinker& CLuaTinker::GetLuaTinker()
+CLuaTinker &CLuaTinker::GetLuaTinker()
 {
     std::call_once(s_onceFlag,
-                   []
-    {
-        s_luaTinker = std::make_unique<jojogame::CLuaTinker>();
-    });
+                   [] {
+                       s_luaTinker = std::make_unique<jojogame::CLuaTinker>();
+                   });
 
     return *s_luaTinker;
 }
-}
+} // namespace jojogame

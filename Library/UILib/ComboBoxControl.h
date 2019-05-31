@@ -1,15 +1,16 @@
 ﻿#pragma once
-#include "BaseControl.h"
+#include "WindowChildControl.h"
 #include "TextFont.h"
 
 #include <vector>
 
-namespace jojogame {
-class CComboBoxControl : public CBaseControl
+namespace jojogame
+{
+class CComboBoxControl : public CWindowChildControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
-    
+    static void RegisterFunctions(lua_State *L);
+
     CComboBoxControl();
     virtual ~CComboBoxControl();
 
@@ -26,4 +27,4 @@ private:
 
     static WNDPROC s_originalProc;
 };
-}
+} // namespace jojogame

@@ -1,24 +1,28 @@
 ﻿#include "MoviePlayerControl.h"
 #include "ControlManager.h"
 #include "WindowControl.h"
+#include "ToolbarControl.h"
 
 #include <iostream>
 
 #include "BaseLib/ConsoleOutput.h"
 #include "CommonLib/FileManager.h"
 
-namespace jojogame {
-void CMoviePlayerControl::RegisterFunctions(lua_State* L)
+namespace jojogame
+{
+void CMoviePlayerControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CMoviePlayerControl, "_MoviePlayer");
 
     LUA_METHOD(GetX);
     LUA_METHOD(GetY);
+    LUA_METHOD(GetLuaY);
     LUA_METHOD(GetWidth);
     LUA_METHOD(GetHeight);
     LUA_METHOD(IsPlaying);
     LUA_METHOD(SetX);
     LUA_METHOD(SetY);
+    LUA_METHOD(SetLuaY);
     LUA_METHOD(SetWidth);
     LUA_METHOD(SetHeight);
     LUA_METHOD(SetEndEvent);
@@ -29,7 +33,7 @@ void CMoviePlayerControl::RegisterFunctions(lua_State* L)
     LUA_METHOD(Destroy);
 }
 
-CMoviePlayerControl::CMoviePlayerControl(CWindowControl* parent, std::wstring fileName)
+CMoviePlayerControl::CMoviePlayerControl(CWindowControl *parent, std::wstring fileName)
 {
     if (parent)
     {
@@ -65,16 +69,16 @@ void CMoviePlayerControl::SetEndEvent()
     lua_pop(l, 1);
 }
 
-void InitPacketQueue(PacketQueue* queue)
+void InitPacketQueue(PacketQueue *queue)
 {
     queue->size = 0;
     queue->firstPacket = nullptr;
     queue->lastPacket = nullptr;
 }
 
-int PutPacketQueue(PacketQueue* queue, AVPacket* packet)
+int PutPacketQueue(PacketQueue *queue, AVPacket *packet)
 {
-    AVPacketList* packetList = (AVPacketList *)av_malloc(sizeof(AVPacketList));
+    AVPacketList *packetList = (AVPacketList *)av_malloc(sizeof(AVPacketList));
     if (!packetList)
     {
         return AVERROR(ENOMEM);
@@ -104,9 +108,9 @@ int PutPacketQueue(PacketQueue* queue, AVPacket* packet)
     return 0;
 }
 
-static int GetPacketQueue(VideoState* videoState, PacketQueue* queue, AVPacket* packet, int block)
+static int GetPacketQueue(VideoState *videoState, PacketQueue *queue, AVPacket *packet, int block)
 {
-    AVPacketList* packetList;
+    AVPacketList *packetList;
     int result;
 
     std::unique_lock<std::mutex> lock(queue->mutex);
@@ -150,7 +154,7 @@ static int GetPacketQueue(VideoState* videoState, PacketQueue* queue, AVPacket* 
     return result;
 }
 
-double GetAudioClock(VideoState* videoState)
+double GetAudioClock(VideoState *videoState)
 {
     double pts = videoState->audioClock; /* maintained in the audio thread */
     int hwBufSize = videoState->audioBufferSize - videoState->audioBufferIndex;
@@ -168,13 +172,13 @@ double GetAudioClock(VideoState* videoState)
     return pts;
 }
 
-double GetVideoClock(VideoState* is)
+double GetVideoClock(VideoState *is)
 {
     double delta = (av_gettime() - is->videoCurrentPtsTime) / 1000000.0;
     return is->videoCurrentPts + delta;
 }
 
-double GetMasterClock(VideoState* videoState)
+double GetMasterClock(VideoState *videoState)
 {
     if (videoState->syncType == SyncType::AudioMaster)
     {
@@ -183,7 +187,7 @@ double GetMasterClock(VideoState* videoState)
     return GetVideoClock(videoState);
 }
 
-int SynchronizeAudio(VideoState* videoState, short* samples, int samplesSize)
+int SynchronizeAudio(VideoState *videoState, short *samples, int samplesSize)
 {
     int n = 2 * videoState->audioCodecContext->channels;
 
@@ -195,8 +199,7 @@ int SynchronizeAudio(VideoState* videoState, short* samples, int samplesSize)
         if (diff < AV_NOSYNC_THRESHOLD)
         {
             // accumulate the diffs
-            videoState->audioDiffCum = diff + videoState->audioDiffAvgCoef
-                    * videoState->audioDiffCum;
+            videoState->audioDiffCum = diff + videoState->audioDiffAvgCoef * videoState->audioDiffCum;
             if (videoState->audioDiffAvgCount < AUDIO_DIFF_AVG_NB)
             {
                 videoState->audioDiffAvgCount++;
@@ -227,8 +230,8 @@ int SynchronizeAudio(VideoState* videoState, short* samples, int samplesSize)
                     {
                         /* add samples by copying final sample*/
                         int nb = (samplesSize - wantedSize);
-                        uint8_t* samples_end = (uint8_t *)samples + samplesSize - n;
-                        uint8_t* q = samples_end + n;
+                        uint8_t *samples_end = (uint8_t *)samples + samplesSize - n;
+                        uint8_t *q = samples_end + n;
 
                         while (nb > 0)
                         {
@@ -251,10 +254,10 @@ int SynchronizeAudio(VideoState* videoState, short* samples, int samplesSize)
     return samplesSize;
 }
 
-int DecodeAudioFrame(VideoState* videoState, uint8_t* audioBuffer, int bufferSize, double* ptsPtr)
+int DecodeAudioFrame(VideoState *videoState, uint8_t *audioBuffer, int bufferSize, double *ptsPtr)
 {
     int dataSize = 0;
-    AVPacket* packet = &videoState->audioPacket;
+    AVPacket *packet = &videoState->audioPacket;
 
     for (;;)
     {
@@ -291,7 +294,7 @@ int DecodeAudioFrame(VideoState* videoState, uint8_t* audioBuffer, int bufferSiz
             *ptsPtr = pts;
             int n = 2 * videoState->audioCodecContext->channels;
             videoState->audioClock += (double)dataSize /
-                    (double)(n * videoState->audioCodecContext->sample_rate);
+                                      (double)(n * videoState->audioCodecContext->sample_rate);
             // We have data, return it and come back for more later
             return dataSize;
         }
@@ -316,7 +319,7 @@ int DecodeAudioFrame(VideoState* videoState, uint8_t* audioBuffer, int bufferSiz
     }
 }
 
-void AudioCallback(void* userdata, Uint8* stream, int len)
+void AudioCallback(void *userdata, Uint8 *stream, int len)
 {
     auto videoState = (VideoState *)userdata;
     double pts;
@@ -354,7 +357,7 @@ void AudioCallback(void* userdata, Uint8* stream, int len)
     }
 }
 
-static void RefreshTimerCallback(void* data)
+static void RefreshTimerCallback(void *data)
 {
     auto videoState = (VideoState *)data;
     videoState->eventQueue.push(WM_REFRESH_EVENT);
@@ -369,25 +372,25 @@ static void RefreshTimerCallback(void* data)
 }
 
 /* schedule a video refresh in 'delay' ms */
-static void ScheduleRefresh(VideoState* is, int delay)
+static void ScheduleRefresh(VideoState *is, int delay)
 {
     //    auto mainThreadId = std::this_thread::get_id();
     //    std::stringstream stringStream;
     //    stringStream << mainThreadId;
     //    auto id = (DWORD) std::stoull(stringStream.str());
 
-    std::thread([is, delay]()
-    {
+    std::thread([is, delay]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(delay));
         RefreshTimerCallback(is);
-    }).detach();
+    })
+        .detach();
 
     //    SDL_AddTimer(delay, RefreshTimerCallback, is);
 }
 
-void DisplayVideo(VideoState* videoState)
+void DisplayVideo(VideoState *videoState)
 {
-    VideoFrame* videoFrame = &videoState->frameQueue[videoState->frameQueueRearIndex];
+    VideoFrame *videoFrame = &videoState->frameQueue[videoState->frameQueueRearIndex];
     if (videoFrame->dc)
     {
         std::unique_lock<std::mutex> lock(videoState->screenMutex);
@@ -404,9 +407,9 @@ void DisplayVideo(VideoState* videoState)
     }
 }
 
-void RefreshVideoTimer(void* userdata)
+void RefreshVideoTimer(void *userdata)
 {
-    auto* videoState = (VideoState *)userdata;
+    auto *videoState = (VideoState *)userdata;
 
     if (videoState->videoStream)
     {
@@ -416,7 +419,7 @@ void RefreshVideoTimer(void* userdata)
         }
         else
         {
-            VideoFrame* videoFrame = &videoState->frameQueue[videoState->frameQueueRearIndex];
+            VideoFrame *videoFrame = &videoState->frameQueue[videoState->frameQueueRearIndex];
 
             videoState->videoCurrentPts = videoFrame->pts;
             videoState->videoCurrentPtsTime = av_gettime();
@@ -480,10 +483,10 @@ void RefreshVideoTimer(void* userdata)
     }
 }
 
-void AllocPicture(void* userdata)
+void AllocPicture(void *userdata)
 {
-    auto* videoState = (VideoState *)userdata;
-    VideoFrame* videoFrame = &videoState->frameQueue[videoState->frameQueueWIndex];
+    auto *videoState = (VideoState *)userdata;
+    VideoFrame *videoFrame = &videoState->frameQueue[videoState->frameQueueWIndex];
 
     if (videoFrame->dc)
     {
@@ -511,7 +514,7 @@ void AllocPicture(void* userdata)
     bmi.bmiHeader.biPlanes = 1;
     bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     bmi.bmiHeader.biSizeImage = static_cast<DWORD>(videoState->videoCodecContext->height *
-        videoState->videoCodecContext->width * 3);
+                                                   videoState->videoCodecContext->width * 3);
 
     HDC dc = GetDC(videoState->parentControlHWnd);
     videoFrame->dc = CreateCompatibleDC(dc);
@@ -527,12 +530,12 @@ void AllocPicture(void* userdata)
     videoFrame->height = videoState->videoCodecContext->height;
 }
 
-int QueuePicture(VideoState* videoState, AVFrame* frame, double pts)
+int QueuePicture(VideoState *videoState, AVFrame *frame, double pts)
 {
     // wait until we have space for a new pic
     std::unique_lock<std::mutex> lock(videoState->frameQueueMutex);
     while (videoState->frameQueueSize >= VIDEO_FRAME_QUEUE_SIZE &&
-        videoState->playing)
+           videoState->playing)
     {
         videoState->frameQueueCond.wait(lock);
     }
@@ -543,7 +546,7 @@ int QueuePicture(VideoState* videoState, AVFrame* frame, double pts)
         return -1;
     }
 
-    VideoFrame* videoFrame = &videoState->frameQueue[videoState->frameQueueWIndex];
+    VideoFrame *videoFrame = &videoState->frameQueue[videoState->frameQueueWIndex];
 
     if (!videoFrame->buffer ||
         videoFrame->width != videoState->videoCodecContext->width ||
@@ -559,7 +562,7 @@ int QueuePicture(VideoState* videoState, AVFrame* frame, double pts)
     if (videoFrame->buffer)
     {
         videoFrame->pts = pts;
-        AVFrame* frameBGR = av_frame_alloc();
+        AVFrame *frameBGR = av_frame_alloc();
 
         av_image_fill_arrays(frameBGR->data, frameBGR->linesize, videoFrame->buffer, AV_PIX_FMT_RGB24,
                              videoState->videoCodecContext->width, videoState->videoCodecContext->height, 32);
@@ -585,7 +588,7 @@ int QueuePicture(VideoState* videoState, AVFrame* frame, double pts)
     return 0;
 }
 
-double SynchronizeVideo(VideoState* videoState, AVFrame* srcFrame, double pts)
+double SynchronizeVideo(VideoState *videoState, AVFrame *srcFrame, double pts)
 {
     if (pts != 0)
     {
@@ -606,12 +609,12 @@ double SynchronizeVideo(VideoState* videoState, AVFrame* srcFrame, double pts)
     return pts;
 }
 
-int ThreadVideo(void* arg)
+int ThreadVideo(void *arg)
 {
-    VideoState* videoState = (VideoState *)arg;
+    VideoState *videoState = (VideoState *)arg;
     AVPacket packet;
 
-    AVFrame* frame = av_frame_alloc();
+    AVFrame *frame = av_frame_alloc();
 
     for (; videoState->playing;)
     {
@@ -646,14 +649,14 @@ int ThreadVideo(void* arg)
 
 bool CMoviePlayerControl::Create()
 {
-    AVCodecParameters* videoCodecParameters = nullptr;
-    AVCodecParameters* audioCodecParameters = nullptr;
+    AVCodecParameters *videoCodecParameters = nullptr;
+    AVCodecParameters *audioCodecParameters = nullptr;
     int error = 0;
 
     _state.formatContext = nullptr;
 
     int length = WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, nullptr, 0, nullptr, nullptr);
-    char* buffer = new char[length + 1];
+    char *buffer = new char[length + 1];
     WideCharToMultiByte(CP_UTF8, 0, _state.fileName.c_str(), -1, buffer, length, nullptr, nullptr);
     error = avformat_open_input(&_state.formatContext, buffer, nullptr, nullptr);
     delete[] buffer;
@@ -693,13 +696,13 @@ bool CMoviePlayerControl::Create()
         return false;
     }
 
-    AVCodec* videoCodec = avcodec_find_decoder(videoCodecParameters->codec_id);
+    AVCodec *videoCodec = avcodec_find_decoder(videoCodecParameters->codec_id);
     if (videoCodec == nullptr)
     {
         CConsoleOutput::OutputConsoles(L"Cannot find video decoder");
         return false;
     }
-    AVCodec* audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
+    AVCodec *audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
     if (audioCodec == nullptr)
     {
         CConsoleOutput::OutputConsoles(L"Cannot find audio decoder");
@@ -784,7 +787,7 @@ void CMoviePlayerControl::Destroy()
     }
 }
 
-bool PlaySound(VideoState* videoState)
+bool PlaySound(VideoState *videoState)
 {
     SDL_AudioSpec audioSpec{};
     auto audioContext = videoState->audioCodecContext;
@@ -806,7 +809,7 @@ bool PlaySound(VideoState* videoState)
     return true;
 }
 
-bool PlayMovie(VideoState* videoState)
+bool PlayMovie(VideoState *videoState)
 {
     AVPacket packet;
 
@@ -814,8 +817,7 @@ bool PlayMovie(VideoState* videoState)
     videoState->frameLastDelay = 40e-3;
     videoState->videoCurrentPtsTime = av_gettime();
 
-    auto t = std::thread([&]()
-    {
+    auto t = std::thread([&]() {
         ThreadVideo(videoState);
     });
 
@@ -876,8 +878,7 @@ void CMoviePlayerControl::Play()
 
     ScheduleRefresh(&_state, 40);
 
-    auto t = std::thread([&]()
-    {
+    auto t = std::thread([&]() {
         PlaySound(&_state);
         PlayMovie(&_state);
     });
@@ -958,6 +959,17 @@ int CMoviePlayerControl::GetX()
     return _state.position.x;
 }
 
+int CMoviePlayerControl::GetLuaY()
+{
+    int toolbarHeight = 0;
+    auto toolbar = _parent->GetToolbar();
+    if (toolbar)
+    {
+        toolbarHeight = toolbar->GetHeight();
+    }
+    return this->GetY() - toolbarHeight;
+}
+
 int CMoviePlayerControl::GetY()
 {
     return _state.position.y;
@@ -978,6 +990,16 @@ void CMoviePlayerControl::SetX(int x)
     _state.position.x = x;
 }
 
+void CMoviePlayerControl::SetLuaY(int y)
+{
+    auto toolbar = _parent->GetToolbar();
+    if (toolbar)
+    {
+        y += toolbar->GetHeight();
+    }
+    this->SetY(y);
+}
+
 void CMoviePlayerControl::SetY(int y)
 {
     _state.position.y = y;
@@ -992,4 +1014,4 @@ void CMoviePlayerControl::SetHeight(int height)
 {
     _size.cy = height;
 }
-}
+} // namespace jojogame

@@ -4,8 +4,9 @@
 #include "BaseLib/ConsoleOutput.h"
 #include "WindowControl.h"
 
-namespace jojogame {
-void CMenuItem::RegisterFunctions(lua_State* L)
+namespace jojogame
+{
+void CMenuItem::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CMenuItem, "_MenuItem");
 
@@ -62,7 +63,7 @@ int CMenuItem::GetIndex() const
     return _index;
 }
 
-CMenu* CMenuItem::GetChildMenu() const
+CMenu *CMenuItem::GetChildMenu() const
 {
     return _childMenu;
 }
@@ -77,7 +78,7 @@ int CMenuItem::GetClickEvent() const
     return _clickEvent;
 }
 
-CTextFont* CMenuItem::GetFont()
+CTextFont *CMenuItem::GetFont()
 {
     return &_font;
 }
@@ -149,12 +150,12 @@ void CMenuItem::SetClickEvent()
     lua_pop(l, 1);
 }
 
-void CMenuItem::SetChildMenu(CMenu* childMenu)
+void CMenuItem::SetChildMenu(CMenu *childMenu)
 {
     _childMenu = childMenu;
 }
 
-void CMenuItem::SetParentMenu(CMenu* parentMenu)
+void CMenuItem::SetParentMenu(CMenu *parentMenu)
 {
     _parentMenu = parentMenu;
 }
@@ -248,7 +249,7 @@ COLORREF CMenuItem::GetDisableFocusedTextColor()
                 CMenu
 *****************************************/
 
-void CMenu::RegisterFunctions(lua_State* L)
+void CMenu::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CMenu, "_Menu");
 
@@ -275,12 +276,12 @@ HMENU CMenu::GetHMenu()
     return _menu;
 }
 
-CWindowControl* CMenu::GetParentWindow()
+CWindowControl *CMenu::GetParentWindow()
 {
     return _parentWindow;
 }
 
-CMenuItem* CMenu::GetMenuItemByPosition(int position)
+CMenuItem *CMenu::GetMenuItemByPosition(int position)
 {
     if (position > _menuItems.size() || position < 1)
     {
@@ -292,12 +293,12 @@ CMenuItem* CMenu::GetMenuItemByPosition(int position)
     }
 }
 
-void CMenu::SetParentWindow(CWindowControl* parent)
+void CMenu::SetParentWindow(CWindowControl *parent)
 {
     _parentWindow = parent;
 }
 
-void CMenu::AddMenuItem(CMenuItem* menuItem)
+void CMenu::AddMenuItem(CMenuItem *menuItem)
 {
     auto iter = std::find(_menuItems.begin(), _menuItems.end(), menuItem);
     if (iter != _menuItems.end())
@@ -330,7 +331,7 @@ void CMenu::AddMenuItem(CMenuItem* menuItem)
     }
 }
 
-bool CMenu::DeleteMenuitem(CMenuItem* menuItem)
+bool CMenu::DeleteMenuitem(CMenuItem *menuItem)
 {
     auto result = ::DeleteMenu(_menu, menuItem->GetIndex(), MF_BYCOMMAND);
     return result != 0;
@@ -342,4 +343,4 @@ bool CMenu::DeleteMeuItemByPosition(int position)
     return result != 0;
 }
 
-}
+} // namespace jojogame

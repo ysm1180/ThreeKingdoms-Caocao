@@ -1,7 +1,8 @@
 #include "LuaConsole.h"
 #include "resource.h"
 
-namespace jojogame {
+namespace jojogame
+{
 std::once_flag CLuaConsole::s_onceFlag;
 std::unique_ptr<CLuaConsole> CLuaConsole::s_sharedLuaConsole;
 
@@ -84,10 +85,9 @@ void CLuaConsole::Create(HINSTANCE hInstance)
     _hWnd = CreateDialogParam(hInstance, MAKEINTRESOURCE(IDD_LUACONSOLE), 0, DialogProc, 0);
 }
 
-CLuaConsole& CLuaConsole::GetInstance()
+CLuaConsole &CLuaConsole::GetInstance()
 {
-    std::call_once(s_onceFlag, []
-    {
+    std::call_once(s_onceFlag, [] {
         s_sharedLuaConsole = std::make_unique<jojogame::CLuaConsole>();
     });
 
@@ -110,4 +110,4 @@ void CLuaConsole::SetDebugFlag(bool flag)
         }
     }
 }
-}
+} // namespace jojogame

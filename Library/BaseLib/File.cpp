@@ -1,9 +1,9 @@
 ﻿#include "File.h"
 
-namespace jojogame {
+namespace jojogame
+{
 CFile::CFile()
 {
-
 }
 
 CFile::~CFile()
@@ -25,9 +25,10 @@ bool CFile::Open(std::wstring filePath, std::wstring fileMode)
         return false;
     }
 
-    fseek(_file, 0, SEEK_END); 
-    _size = ftell(_file); 
-    fseek(_file, 0, SEEK_SET);;
+    fseek(_file, 0, SEEK_END);
+    _size = ftell(_file);
+    fseek(_file, 0, SEEK_SET);
+    ;
 
     _data = static_cast<char *>(malloc(_size));
     fread(_data, 1, _size, _file);
@@ -50,7 +51,7 @@ void CFile::Close()
     }
 }
 
-const char * CFile::GetData()
+const char *CFile::GetData()
 {
     return _data;
 }
@@ -60,7 +61,7 @@ int CFile::GetSize()
     return _size;
 }
 
-void CFile::Write(char* in, int position, int length)
+void CFile::Write(char *in, int position, int length)
 {
     fseek(_file, position, SEEK_SET);
     fwrite(in, 1, length, _file);
@@ -70,4 +71,4 @@ void CFile::Write(char* in, int position, int length)
     }
     memcpy(_data + position, in, length);
 }
-}
+} // namespace jojogame

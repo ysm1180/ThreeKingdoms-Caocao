@@ -1,16 +1,17 @@
 ﻿#pragma once
 #include "TextFont.h"
 
-namespace jojogame {
+namespace jojogame
+{
 class CGraphicText
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CGraphicText();
     virtual ~CGraphicText();
 
-    CTextFont* GetFont();
+    CTextFont *GetFont();
     std::wstring GetText();
     COLORREF GetTextColor();
     int GetWidth(HDC hdc);
@@ -26,5 +27,4 @@ private:
     COLORREF _textColor = RGB(0, 0, 0);
     CTextFont _font;
 };
-}
-
+} // namespace jojogame

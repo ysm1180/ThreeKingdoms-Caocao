@@ -5,7 +5,8 @@
 #include <memory>
 #include <mutex>
 
-namespace jojogame {
+namespace jojogame
+{
 class CMemoryPoolBase
 {
 public:
@@ -25,7 +26,8 @@ public:
 
     void DestroyAllMemoryPool();
 
-    static CMemoryPoolManager& GetInstance();
+    static CMemoryPoolManager &GetInstance();
+
 private:
     std::set<CMemoryPoolBase *> _poolManager;
 
@@ -33,8 +35,7 @@ private:
     static std::unique_ptr<CMemoryPoolManager> s_sharedMemoryPoolManager;
 };
 
-
-template<typename T>
+template <typename T>
 class CMemoryPool : public CMemoryPoolBase
 {
 public:
@@ -125,7 +126,7 @@ public:
         _unusingPool.clear();
     }
 
-    static CMemoryPool<T>& GetInstance()
+    static CMemoryPool<T> &GetInstance()
     {
         static CMemoryPool<T> *s_sharedMemoryPool = nullptr;
 
@@ -138,61 +139,61 @@ public:
     }
 
 public:
-    T * Array(int size)
+    T *Array(int size)
     {
         T *pointer = GetUnusingArrayPointer(size);
 
-        new (pointer)T[size];
-        _usingArrayPool.push_back(ArrayMemory{ pointer, size });
+        new (pointer) T[size];
+        _usingArrayPool.push_back(ArrayMemory{pointer, size});
 
         return pointer;
     }
 
-    T * New()
+    T *New()
     {
         T *pointer = GetUnusingPointer();
 
-        _usingPool.push_back(new(pointer) T());
+        _usingPool.push_back(new (pointer) T());
 
         return pointer;
     }
 
-    template<typename T1>
+    template <typename T1>
     T *New(T1 t1)
     {
         T *pointer = GetUnusingPointer();
 
-        _usingPool.push_back(new(pointer) T(t1));
+        _usingPool.push_back(new (pointer) T(t1));
 
         return pointer;
     }
 
-    template<typename T1, typename T2>
+    template <typename T1, typename T2>
     T *New(T1 t1, T2 t2)
     {
         T *pointer = GetUnusingPointer();
 
-        _usingPool.push_back(new(pointer) T(t1, t2));
+        _usingPool.push_back(new (pointer) T(t1, t2));
 
         return pointer;
     }
 
-    template<typename T1, typename T2, typename T3>
+    template <typename T1, typename T2, typename T3>
     T *New(T1 t1, T2 t2, T3 t3)
     {
         T *pointer = GetUnusingPointer();
 
-        _usingPool.push_back(new(pointer) T(t1, t2, t3));
+        _usingPool.push_back(new (pointer) T(t1, t2, t3));
 
         return pointer;
     }
 
-    template<typename T1, typename T2, typename T3, typename T4>
+    template <typename T1, typename T2, typename T3, typename T4>
     T *New(T1 t1, T2 t2, T3 t3, T4 t4)
     {
         T *pointer = GetUnusingPointer();
 
-        _usingPool.push_back(new(pointer) T(t1, t2, t3, t4));
+        _usingPool.push_back(new (pointer) T(t1, t2, t3, t4));
 
         return pointer;
     }
@@ -216,7 +217,6 @@ public:
     }
 
 private:
-   
     std::list<ArrayMemory> _usingArrayPool;
     std::list<ArrayMemory> _unusingArrayPool;
 
@@ -224,4 +224,4 @@ private:
     std::list<T *> _unusingPool;
     size_t _limit = 65535;
 };
-}
+} // namespace jojogame

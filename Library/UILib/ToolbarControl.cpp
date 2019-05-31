@@ -5,8 +5,9 @@
 #include "ImageControl.h"
 #include "ToolbarManager.h"
 
-namespace jojogame {
-void CToolbarControl::RegisterFunctions(lua_State* L)
+namespace jojogame
+{
+void CToolbarControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CToolbarControl, "_ToolbarControl");
 
@@ -47,23 +48,31 @@ HWND CToolbarControl::GetHWnd() const
 
 int CToolbarControl::GetHeight() const
 {
-    RECT rect;
+    if (_isVisible)
+    {
+        RECT rect;
+        GetWindowRect(_hWnd, &rect);
 
-    GetWindowRect(_hWnd, &rect);
+        return rect.bottom - rect.top;
+    }
 
-    return rect.bottom - rect.top;
+    return 0;
 }
 
-bool CToolbarControl::Create(CWindowControl* parentWindow, int imageWidth, int imageHeight)
+bool CToolbarControl::Create(CWindowControl *parentWindow, int imageWidth, int imageHeight)
 {
     if (parentWindow)
     {
+        _parentWindow = parentWindow;
         _hWnd = CreateWindowEx(0, TOOLBARCLASSNAME, nullptr,
                                WS_CHILD | TBSTYLE_WRAPABLE | WS_CLIPSIBLINGS | TBSTYLE_TOOLTIPS, 0, 0, 0, 0,
-                               parentWindow->GetHWnd(), (HMENU)this, CControlManager::GetInstance().GetHInstance(),
+                               _parentWindow->GetHWnd(), (HMENU)this, CControlManager::GetInstance().GetHInstance(),
                                nullptr);
         _hImageList = ImageList_Create(imageWidth, imageHeight, ILC_MASK | ILC_COLOR24, 16, 4);
         SendMessage(_hWnd, TB_SETIMAGELIST, (WPARAM)0, (LPARAM)_hImageList);
+
+        _parentWindow->SetToolbar(this);
+        AutoSize();
 
         _buttons.clear();
         _imageList.clear();
@@ -74,7 +83,7 @@ bool CToolbarControl::Create(CWindowControl* parentWindow, int imageWidth, int i
     return false;
 }
 
-void CToolbarControl::AddButton(CToolbarButton* button)
+void CToolbarControl::AddButton(CToolbarButton *button)
 {
     auto index = CToolbarManager::GetInstance().AddToolbarButton(button);
 
@@ -104,12 +113,13 @@ void CToolbarControl::AddButton(CToolbarButton* button)
         SendMessage(_hWnd, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
         SendMessage(_hWnd, TB_ADDBUTTONS, (WPARAM)1, (LPARAM)&button->GetButtonStruct());
 
-        SendMessage(_hWnd, TB_AUTOSIZE, 0, 0);
+        AutoSize();
+
         button->SetParentToolbar(this);
     }
 }
 
-void CToolbarControl::DeleteButton(CToolbarButton* button)
+void CToolbarControl::DeleteButton(CToolbarButton *button)
 {
     auto iter = std::begin(_buttons);
 
@@ -132,20 +142,25 @@ void CToolbarControl::DeleteButton(CToolbarButton* button)
 
 void CToolbarControl::AutoSize()
 {
+    int height = GetHeight();
     SendMessage(_hWnd, TB_AUTOSIZE, 0, 0);
+    _parentWindow->SetHeight(_parentWindow->GetHeight() + height - _prevHeight);
+    _prevHeight = height;
 }
 
 void CToolbarControl::Show()
 {
+    _isVisible = true;
     ::ShowWindow(_hWnd, TRUE);
 }
 
 void CToolbarControl::Hide()
 {
+    _isVisible = false;
     ::ShowWindow(_hWnd, FALSE);
 }
 
-void CToolbarButton::RegisterFunctions(lua_State* L)
+void CToolbarButton::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CToolbarButton, "_ToolbarButton");
 
@@ -184,12 +199,12 @@ int CToolbarButton::GetIndex()
     return _button.idCommand;
 }
 
-TBBUTTON& CToolbarButton::GetButtonStruct()
+TBBUTTON &CToolbarButton::GetButtonStruct()
 {
     return _button;
 }
 
-CImageControl* CToolbarButton::GetImage()
+CImageControl *CToolbarButton::GetImage()
 {
     return _image;
 }
@@ -209,7 +224,7 @@ std::wstring CToolbarButton::GetTooltipText()
     return _tooltipText;
 }
 
-CToolbarControl* CToolbarButton::GetParentToolbar()
+CToolbarControl *CToolbarButton::GetParentToolbar()
 {
     return _parent;
 }
@@ -249,7 +264,7 @@ void CToolbarButton::SetText(std::wstring text)
 
     if (_text.length() == 0)
     {
-        _button.iString = (INT_PTR)nullptr;
+        _button.iString = (INT_PTR) nullptr;
     }
     else
     {
@@ -257,7 +272,7 @@ void CToolbarButton::SetText(std::wstring text)
     }
 }
 
-void CToolbarButton::SetImage(CImageControl* image)
+void CToolbarButton::SetImage(CImageControl *image)
 {
     _image = image;
 }
@@ -271,14 +286,12 @@ bool CToolbarButton::Create()
         BTNS_AUTOSIZE,
         {0},
         0,
-        0
-    };
+        0};
 
     if (_text.length() != 0)
     {
         _button.iString = (INT_PTR)_text.c_str();
     }
-
 
     return true;
 }
@@ -318,8 +331,8 @@ void CToolbarButton::SetTooltipText(std::wstring tooltipText)
     _tooltipText = tooltipText;
 }
 
-void CToolbarButton::SetParentToolbar(CToolbarControl* parent)
+void CToolbarButton::SetParentToolbar(CToolbarControl *parent)
 {
     _parent = parent;
 }
-}
+} // namespace jojogame

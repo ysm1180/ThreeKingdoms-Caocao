@@ -6,17 +6,18 @@
 #include "CommonLib/GameManager.h"
 #include "BaseLib/MemoryPool.h"
 
-namespace jojogame {
-void InitPacketAudioQueue(AudioPacketQueue* queue)
+namespace jojogame
+{
+void InitPacketAudioQueue(AudioPacketQueue *queue)
 {
     queue->size = 0;
     queue->firstPacket = nullptr;
     queue->lastPacket = nullptr;
 }
 
-static int GetPacketAudioQueue(AudioState* audioState, AudioPacketQueue* queue, AVPacket* packet, int block)
+static int GetPacketAudioQueue(AudioState *audioState, AudioPacketQueue *queue, AVPacket *packet, int block)
 {
-    AVPacketList* packetList;
+    AVPacketList *packetList;
     int result;
 
     std::unique_lock<std::mutex> lock(queue->mutex);
@@ -60,9 +61,9 @@ static int GetPacketAudioQueue(AudioState* audioState, AudioPacketQueue* queue, 
     return result;
 }
 
-int PutPacketAudioQueue(AudioPacketQueue* queue, AVPacket* packet)
+int PutPacketAudioQueue(AudioPacketQueue *queue, AVPacket *packet)
 {
-    AVPacketList* packetList = (AVPacketList *)av_malloc(sizeof(AVPacketList));
+    AVPacketList *packetList = (AVPacketList *)av_malloc(sizeof(AVPacketList));
     if (!packetList)
     {
         return AVERROR(ENOMEM);
@@ -92,14 +93,14 @@ int PutPacketAudioQueue(AudioPacketQueue* queue, AVPacket* packet)
     return 0;
 }
 
-static int ResamplingAudio(AVCodecContext* audio_decode_ctx,
-                           AVFrame* audio_decode_frame,
+static int ResamplingAudio(AVCodecContext *audio_decode_ctx,
+                           AVFrame *audio_decode_frame,
                            enum AVSampleFormat out_sample_fmt,
                            int out_channels,
                            int out_sample_rate,
-                           uint8_t* out_buf)
+                           uint8_t *out_buf)
 {
-    SwrContext* swr_ctx = nullptr;
+    SwrContext *swr_ctx = nullptr;
     int ret = 0;
     int64_t in_channel_layout = audio_decode_ctx->channel_layout;
     int64_t out_channel_layout = AV_CH_LAYOUT_STEREO;
@@ -108,7 +109,7 @@ static int ResamplingAudio(AVCodecContext* audio_decode_ctx,
     int in_nb_samples = 0;
     int out_nb_samples = 0;
     int max_out_nb_samples = 0;
-    uint8_t** resampled_data = nullptr;
+    uint8_t **resampled_data = nullptr;
     int resampled_data_size = 0;
 
     swr_ctx = swr_alloc();
@@ -119,7 +120,7 @@ static int ResamplingAudio(AVCodecContext* audio_decode_ctx,
     }
 
     in_channel_layout = (audio_decode_ctx->channels ==
-                            av_get_channel_layout_nb_channels(audio_decode_ctx->channel_layout))
+                         av_get_channel_layout_nb_channels(audio_decode_ctx->channel_layout))
                             ? audio_decode_ctx->channel_layout
                             : av_get_default_channel_layout(audio_decode_ctx->channels);
     if (in_channel_layout <= 0)
@@ -237,10 +238,10 @@ static int ResamplingAudio(AVCodecContext* audio_decode_ctx,
     return resampled_data_size;
 }
 
-int DecodeMusicFrame(AudioState* audioState, uint8_t* audioBuffer, int bufferSize)
+int DecodeMusicFrame(AudioState *audioState, uint8_t *audioBuffer, int bufferSize)
 {
     int dataSize = 0;
-    AVPacket* packet = &audioState->audioPacket;
+    AVPacket *packet = &audioState->audioPacket;
 
     for (;;)
     {
@@ -293,7 +294,7 @@ int DecodeMusicFrame(AudioState* audioState, uint8_t* audioBuffer, int bufferSiz
     }
 }
 
-void MusicAudioCallback(void* userdata, Uint8* stream, int len)
+void MusicAudioCallback(void *userdata, Uint8 *stream, int len)
 {
     auto audioState = (AudioState *)userdata;
 
@@ -328,7 +329,7 @@ void MusicAudioCallback(void* userdata, Uint8* stream, int len)
     }
 }
 
-void CAudioPlayerControl::RegisterFunctions(lua_State* L)
+void CAudioPlayerControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CAudioPlayerControl, "_AudioPlayer");
 
@@ -355,16 +356,16 @@ bool CAudioPlayerControl::IsPlaying()
     return _state.playing;
 }
 
-int CAudioPlayerControl::Read(void* opaque, unsigned char* buf, int buf_size)
+int CAudioPlayerControl::Read(void *opaque, unsigned char *buf, int buf_size)
 {
-    CMemoryStream* stream = static_cast<CMemoryStream*>(opaque);
+    CMemoryStream *stream = static_cast<CMemoryStream *>(opaque);
 
-    return stream->readsome(reinterpret_cast<char*>(buf), buf_size);
+    return stream->readsome(reinterpret_cast<char *>(buf), buf_size);
 }
 
-int64_t CAudioPlayerControl::Seek(void* opaque, int64_t offset, int whence)
+int64_t CAudioPlayerControl::Seek(void *opaque, int64_t offset, int whence)
 {
-    CMemoryStream* stream = static_cast<CMemoryStream*>(opaque);
+    CMemoryStream *stream = static_cast<CMemoryStream *>(opaque);
 
     if (0x10000 == whence)
         return stream->Size();
@@ -375,7 +376,7 @@ int64_t CAudioPlayerControl::Seek(void* opaque, int64_t offset, int whence)
 
 bool CAudioPlayerControl::LoadFromMe5File(std::wstring filePath, int groupIndex, int subIndex)
 {
-    AVCodecParameters* audioCodecParameters = nullptr;
+    AVCodecParameters *audioCodecParameters = nullptr;
     int error = 0;
 
     _state.formatContext = nullptr;
@@ -384,11 +385,11 @@ bool CAudioPlayerControl::LoadFromMe5File(std::wstring filePath, int groupIndex,
     me5File.Open(filePath);
 
     int size = me5File.GetItemByteSize(groupIndex, subIndex);
-    auto* by = new BYTE[size];
+    auto *by = new BYTE[size];
 
     me5File.GetItemByteArr(by, groupIndex, subIndex);
 
-    unsigned char* buffer = static_cast<unsigned char *>(av_malloc(size));
+    unsigned char *buffer = static_cast<unsigned char *>(av_malloc(size));
     _inputStream = new CMemoryStream(by, size);
     _state.formatContext = avformat_alloc_context();
     _state.formatContext->pb = avio_alloc_context(buffer, size, 0, _inputStream, &CAudioPlayerControl::Read, nullptr,
@@ -425,7 +426,7 @@ bool CAudioPlayerControl::LoadFromMe5File(std::wstring filePath, int groupIndex,
         return false;
     }
 
-    AVCodec* audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
+    AVCodec *audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
     if (audioCodec == nullptr)
     {
         CConsoleOutput::OutputConsoles(L"Cannot find audio decoder");
@@ -445,7 +446,6 @@ bool CAudioPlayerControl::LoadFromMe5File(std::wstring filePath, int groupIndex,
         return false;
     }
 
-
     delete[] by;
 
     return true;
@@ -455,13 +455,13 @@ bool CAudioPlayerControl::LoadFromFile(std::wstring filePath)
 {
     filePath = CFileManager::GetInstance().GetFilePath(filePath);
 
-    AVCodecParameters* audioCodecParameters = nullptr;
+    AVCodecParameters *audioCodecParameters = nullptr;
     int error = 0;
 
     _state.formatContext = nullptr;
 
     int length = WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), -1, nullptr, 0, nullptr, nullptr);
-    char* buffer = new char[length + 1];
+    char *buffer = new char[length + 1];
     WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), -1, buffer, length, nullptr, nullptr);
     error = avformat_open_input(&_state.formatContext, buffer, nullptr, nullptr);
     delete[] buffer;
@@ -494,7 +494,7 @@ bool CAudioPlayerControl::LoadFromFile(std::wstring filePath)
         return false;
     }
 
-    AVCodec* audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
+    AVCodec *audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
     if (audioCodec == nullptr)
     {
         CConsoleOutput::OutputConsoles(L"Cannot find audio decoder");
@@ -549,7 +549,7 @@ void CAudioPlayerControl::Destroy()
     }
 }
 
-bool PlaySound(AudioState* audioState)
+bool PlaySound(AudioState *audioState)
 {
     audioState->playing = true;
     audioState->finishQueue = false;
@@ -654,8 +654,7 @@ void CAudioPlayerControl::Play(int playCount)
         }
 
         _stop = false;
-        _audioThread = new std::thread([&]()
-        {
+        _audioThread = new std::thread([&]() {
             if (_playCount == 0)
             {
                 while (!CGameManager::GetInstance().IsQuit() && !_stop)
@@ -702,4 +701,4 @@ void CAudioPlayerControl::Stop()
         }
     }
 }
-}
+} // namespace jojogame

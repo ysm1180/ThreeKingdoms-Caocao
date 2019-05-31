@@ -5,16 +5,17 @@
 #include <Windows.h>
 #include <string>
 
-namespace jojogame {
+namespace jojogame
+{
 class CBaseControl;
 
 class CTextFont
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CTextFont();
-    CTextFont(CBaseControl* control);
+    CTextFont(CBaseControl *control);
     virtual ~CTextFont();
 
     HFONT GetHFont() const;
@@ -34,7 +35,7 @@ public:
     void ResetFont();
 
 protected:
-    CBaseControl* _control = nullptr;
+    CBaseControl *_control = nullptr;
 
     HFONT _font = nullptr;
     bool _isBold = false;
@@ -43,4 +44,4 @@ protected:
     int _fontSize = 10;
     std::wstring _fontName;
 };
-}
+} // namespace jojogame

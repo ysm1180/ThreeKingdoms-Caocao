@@ -18,7 +18,8 @@
 
 #include "BaseControl.h"
 
-extern "C" {
+extern "C"
+{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
@@ -39,7 +40,8 @@ extern "C" {
 #include <thread>
 #include <queue>
 
-namespace jojogame {
+namespace jojogame
+{
 class CWindowControl;
 
 enum class SyncType
@@ -60,7 +62,7 @@ struct VideoFrame
 {
     HDC dc;
     HBITMAP newBitmap, oldBitmap;
-    uint8_t* buffer;
+    uint8_t *buffer;
     int width, height;
     double pts;
 };
@@ -71,23 +73,23 @@ struct VideoState
 
     SyncType syncType;
 
-    AVFormatContext* formatContext;
+    AVFormatContext *formatContext;
 
-    AVCodecContext* videoCodecContext;
+    AVCodecContext *videoCodecContext;
     int videoStreamIndex;
-    AVStream* videoStream;
+    AVStream *videoStream;
     PacketQueue videoQueue;
 
-    AVCodecContext* audioCodecContext;
+    AVCodecContext *audioCodecContext;
     int audioStreamIndex;
-    AVStream* audioStream;
+    AVStream *audioStream;
     PacketQueue audioQueue;
     uint8_t audioBuffer[(MAX_AUDIO_FRAME_SIZE * 3) / 2];
     unsigned int audioBufferSize;
     unsigned int audioBufferIndex;
     AVFrame audioFrame;
     AVPacket audioPacket;
-    uint8_t* audioPacketData;
+    uint8_t *audioPacketData;
     int audioPacketSize;
     double audioDiffCum; /* used for AV difference average computation */
     double audioDiffAvgCoef;
@@ -104,7 +106,7 @@ struct VideoState
     int64_t videoCurrentPtsTime;
     ///<time (av_gettime) at which we updated video_current_pts - used to have running video pts
 
-    SwsContext* swsContext;
+    SwsContext *swsContext;
 
     VideoFrame frameQueue[VIDEO_FRAME_QUEUE_SIZE];
     int frameQueueSize, frameQueueRearIndex, frameQueueWIndex;
@@ -125,18 +127,20 @@ struct VideoState
 class CMoviePlayerControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
-    CMoviePlayerControl(CWindowControl* parent, std::wstring fileName);
+    CMoviePlayerControl(CWindowControl *parent, std::wstring fileName);
     virtual ~CMoviePlayerControl();
 
     int GetX();
+    int GetLuaY();
     int GetY();
     int GetWidth();
     int GetHeight();
     bool IsPlaying();
 
     void SetX(int x);
+    void SetLuaY(int y);
     void SetY(int y);
     void SetWidth(int width);
     void SetHeight(int height);
@@ -153,6 +157,6 @@ private:
     int _endEvent = LUA_NOREF;
     SIZE _size;
 
-    CWindowControl* _parent = nullptr;
+    CWindowControl *_parent = nullptr;
 };
-}
+} // namespace jojogame

@@ -1,7 +1,8 @@
 ﻿#include "CheckBoxControl.h"
 #include "ControlManager.h"
 
-namespace jojogame {
+namespace jojogame
+{
 WNDPROC CCheckBoxControl::s_originalProc = nullptr;
 
 LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -13,7 +14,7 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     case WM_CREATE:
     {
         auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        void* lpParamCreate = createStruct->lpCreateParams;
+        void *lpParamCreate = createStruct->lpCreateParams;
         auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(lpParamCreate);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(checkBoxControl));
 
@@ -149,9 +150,9 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     return CallWindowProc(CCheckBoxControl::GetOriginalProc(), hWnd, msg, wParam, lParam);
 }
 
-void CCheckBoxControl::RegisterFunctions(lua_State* L)
+void CCheckBoxControl::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN_CHILD(CCheckBoxControl, "_CheckBoxControl", CBaseControl);
+    LUA_BEGIN_CHILD(CCheckBoxControl, "_CheckBoxControl", CWindowChildControl);
 
     LUA_METHOD(IsChecked);
     LUA_METHOD(GetText);
@@ -199,7 +200,7 @@ std::wstring CCheckBoxControl::GetText()
     return _text;
 }
 
-CTextFont* CCheckBoxControl::GetFont()
+CTextFont *CCheckBoxControl::GetFont()
 {
     return &_font;
 }
@@ -243,16 +244,16 @@ bool CCheckBoxControl::Create()
     if (_parentControl != nullptr)
     {
         _hWnd = CreateWindow(L"jojo_check",
-            _text.c_str(),
-            _style,
-            _position.x,
-            _position.y,
-            _size.cx,
-            _size.cy,
-            _parentControl->GetHWnd(),
-            (HMENU)this,
-            CControlManager::GetInstance().GetHInstance(),
-            this);
+                             _text.c_str(),
+                             _style,
+                             _position.x,
+                             _position.y,
+                             _size.cx,
+                             _size.cy,
+                             _parentControl->GetHWnd(),
+                             (HMENU)this,
+                             CControlManager::GetInstance().GetHInstance(),
+                             this);
 
         if (_isChecked)
         {
@@ -273,4 +274,4 @@ WNDPROC CCheckBoxControl::GetOriginalProc()
 {
     return s_originalProc;
 }
-}
+} // namespace jojogame

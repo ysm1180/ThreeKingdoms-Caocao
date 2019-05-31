@@ -1,6 +1,7 @@
 #include "ConsoleOutput.h"
 
-namespace jojogame {
+namespace jojogame
+{
 std::vector<CConsoleOutput *> CConsoleOutput::_consoles;
 
 CConsoleOutput::CConsoleOutput()
@@ -23,4 +24,4 @@ void CConsoleOutput::OutputConsoles(std::wstring msg)
         console->Output(msg);
     }
 }
-}
+} // namespace jojogame

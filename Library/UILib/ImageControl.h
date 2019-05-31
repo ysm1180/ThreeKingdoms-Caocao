@@ -4,18 +4,19 @@
 
 #include <Windows.h>
 
-namespace jojogame {
+namespace jojogame
+{
 class CImageControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CImageControl();
     ~CImageControl();
 
-    void ReadJpeg(BYTE * src, int size, COLORREF maskColor, double brightness, bool mirror);
+    void ReadJpeg(BYTE *src, int size, COLORREF maskColor, double brightness, bool mirror);
 
-    void ReadPng(BYTE * src, int size, COLORREF maskColor, double brightness, bool mirror);
+    void ReadPng(BYTE *src, int size, COLORREF maskColor, double brightness, bool mirror);
 
     int GetClipingTop();
     int GetClipingLeft();
@@ -53,4 +54,4 @@ private:
 
     bool _isDisplayMirror = false;
 };
-};
+}; // namespace jojogame

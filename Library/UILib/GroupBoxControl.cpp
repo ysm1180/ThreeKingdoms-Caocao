@@ -1,8 +1,8 @@
 ﻿#include "GroupBoxControl.h"
 #include "ControlManager.h"
 
-namespace jojogame {
-
+namespace jojogame
+{
 WNDPROC CGroupBoxControl::s_originalProc = nullptr;
 
 LRESULT CGroupBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -14,7 +14,7 @@ LRESULT CGroupBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     case WM_CREATE:
     {
         auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        void* lpParamCreate = createStruct->lpCreateParams;
+        void *lpParamCreate = createStruct->lpCreateParams;
         auto groupBoxControl = reinterpret_cast<CGroupBoxControl *>(lpParamCreate);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(groupBoxControl));
 
@@ -132,9 +132,9 @@ LRESULT CGroupBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     return CallWindowProc(CGroupBoxControl::GetOriginalProc(), hWnd, msg, wParam, lParam);
 }
 
-void CGroupBoxControl::RegisterFunctions(lua_State* L)
+void CGroupBoxControl::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN_CHILD(CGroupBoxControl, "_GroupBoxControl", CBaseControl);
+    LUA_BEGIN_CHILD(CGroupBoxControl, "_GroupBoxControl", CWindowChildControl);
 
     LUA_METHOD(GetText);
     LUA_METHOD(GetFont);
@@ -169,7 +169,7 @@ std::wstring CGroupBoxControl::GetText()
     return _text;
 }
 
-CTextFont* CGroupBoxControl::GetFont()
+CTextFont *CGroupBoxControl::GetFont()
 {
     return &_font;
 }
@@ -193,16 +193,16 @@ bool CGroupBoxControl::Create()
     if (_parentControl != nullptr)
     {
         _hWnd = CreateWindow(L"jojo_group",
-            L"",
-            _style,
-            _position.x,
-            _position.y,
-            _size.cx,
-            _size.cy,
-            _parentControl->GetHWnd(),
-            (HMENU)this,
-            CControlManager::GetInstance().GetHInstance(),
-            this);
+                             L"",
+                             _style,
+                             _position.x,
+                             _position.y,
+                             _size.cx,
+                             _size.cy,
+                             _parentControl->GetHWnd(),
+                             (HMENU)this,
+                             CControlManager::GetInstance().GetHInstance(),
+                             this);
 
         _font.ResetFont();
     }
@@ -215,4 +215,4 @@ WNDPROC CGroupBoxControl::GetOriginalProc()
     return s_originalProc;
 }
 
-}
+} // namespace jojogame

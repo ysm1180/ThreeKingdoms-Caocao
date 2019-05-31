@@ -2,7 +2,8 @@
 
 #include "ToolbarControl.h"
 
-namespace jojogame {
+namespace jojogame
+{
 std::once_flag CToolbarManager::s_onceFlag;
 std::unique_ptr<CToolbarManager> CToolbarManager::s_sharedToolbarManager;
 
@@ -14,10 +15,9 @@ CToolbarManager::~CToolbarManager()
 {
 }
 
-CToolbarManager& CToolbarManager::GetInstance()
+CToolbarManager &CToolbarManager::GetInstance()
 {
-    std::call_once(s_onceFlag, []
-    {
+    std::call_once(s_onceFlag, [] {
         s_sharedToolbarManager = std::make_unique<jojogame::CToolbarManager>();
     });
 
@@ -45,7 +45,7 @@ int CToolbarManager::_GetNewIndex()
     return result;
 }
 
-CToolbarButton* CToolbarManager::GetToolbarButton(int id)
+CToolbarButton *CToolbarManager::GetToolbarButton(int id)
 {
     auto iter = _toolbarButtonStorage.find(id);
     if (iter != _toolbarButtonStorage.end())
@@ -58,7 +58,7 @@ CToolbarButton* CToolbarManager::GetToolbarButton(int id)
     }
 }
 
-int CToolbarManager::AddToolbarButton(CToolbarButton* item)
+int CToolbarManager::AddToolbarButton(CToolbarButton *item)
 {
     int index = _GetNewIndex();
 
@@ -71,9 +71,9 @@ int CToolbarManager::AddToolbarButton(CToolbarButton* item)
     return index;
 }
 
-void CToolbarManager::DeleteToolbarButton(CToolbarButton* button)
+void CToolbarManager::DeleteToolbarButton(CToolbarButton *button)
 {
     _reusingIndexStorage.push(button->GetIndex());
     _toolbarButtonStorage.erase(button->GetIndex());
 }
-}
+} // namespace jojogame

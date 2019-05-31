@@ -3,7 +3,8 @@
 #include <string>
 #include <vector>
 
-namespace jojogame {
+namespace jojogame
+{
 class CConsoleOutput
 {
 public:
@@ -19,4 +20,4 @@ public:
 private:
     static std::vector<CConsoleOutput *> _consoles;
 };
-}
+} // namespace jojogame

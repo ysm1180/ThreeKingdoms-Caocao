@@ -1,7 +1,8 @@
 #include "Color.h"
 
-namespace jojogame {
-void RgbToHsv(const unsigned char r, const unsigned char g, const unsigned char b, double& h, double& s, double& v)
+namespace jojogame
+{
+void RgbToHsv(const unsigned char r, const unsigned char g, const unsigned char b, double &h, double &s, double &v)
 {
     auto computedR = r / 255.0f;
     auto computedG = g / 255.0f;
@@ -42,14 +43,15 @@ void RgbToHsv(const unsigned char r, const unsigned char g, const unsigned char 
         }
     }
 
-    if (computedH < 0) computedH += 360.0f;
+    if (computedH < 0)
+        computedH += 360.0f;
 
     h = computedH; // dst_h : 0-360
     s = computedS; // dst_s : 0-1
     v = computedV; // dst_v : 0-1
 }
 
-void HsvToRgb(const double h, const double s, const double v, unsigned char& r, unsigned char& g, unsigned char& b)
+void HsvToRgb(const double h, const double s, const double v, unsigned char &r, unsigned char &g, unsigned char &b)
 {
     float computedH = h; // 0-360
     float computedS = s; // 0.0-1.0
@@ -67,17 +69,23 @@ void HsvToRgb(const double h, const double s, const double v, unsigned char& r, 
 
     switch (hi)
     {
-    case 0: resultR = computedV, resultG = t, resultB = p;
+    case 0:
+        resultR = computedV, resultG = t, resultB = p;
         break;
-    case 1: resultR = q, resultG = computedV, resultB = p;
+    case 1:
+        resultR = q, resultG = computedV, resultB = p;
         break;
-    case 2: resultR = p, resultG = computedV, resultB = t;
+    case 2:
+        resultR = p, resultG = computedV, resultB = t;
         break;
-    case 3: resultR = p, resultG = q, resultB = computedV;
+    case 3:
+        resultR = p, resultG = q, resultB = computedV;
         break;
-    case 4: resultR = t, resultG = p, resultB = computedV;
+    case 4:
+        resultR = t, resultG = p, resultB = computedV;
         break;
-    case 5: resultR = computedV, resultG = p, resultB = q;
+    case 5:
+        resultR = computedV, resultG = p, resultB = q;
         break;
     }
 
@@ -85,4 +93,4 @@ void HsvToRgb(const double h, const double s, const double v, unsigned char& r, 
     g = static_cast<unsigned char>(resultG * 255); // dst_r : 0-255
     b = static_cast<unsigned char>(resultB * 255); // dst_r : 0-255
 }
-}
+} // namespace jojogame

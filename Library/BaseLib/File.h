@@ -4,7 +4,8 @@
 
 #include <string>
 
-namespace jojogame {
+namespace jojogame
+{
 class CFile
 {
 public:
@@ -14,7 +15,7 @@ public:
     bool Open(std::wstring filePath, std::wstring fileMode = L"rb+");
     void Close();
 
-    const char * GetData();
+    const char *GetData();
     int GetSize();
     void Write(char *in, int position, int length);
 
@@ -23,6 +24,5 @@ private:
     int _size = 0;
 
     char *_data = nullptr;
-
 };
-}
+} // namespace jojogame

@@ -1,21 +1,22 @@
 ﻿#pragma once
 
-#include "BaseControl.h"
+#include "WindowChildControl.h"
 #include "TextFont.h"
 #include <Uxtheme.h>
 
-namespace jojogame {
-class CRadioButtonControl : public CBaseControl
+namespace jojogame
+{
+class CRadioButtonControl : public CWindowChildControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     explicit CRadioButtonControl(bool isGroupStart);
     virtual ~CRadioButtonControl();
 
     bool IsChecked();
     std::wstring GetText();
-    CTextFont* GetFont();
+    CTextFont *GetFont();
     HTHEME GetTheme();
 
     void SetText(std::wstring text);
@@ -34,4 +35,4 @@ private:
 
     static WNDPROC s_originalProc;
 };
-}
+} // namespace jojogame

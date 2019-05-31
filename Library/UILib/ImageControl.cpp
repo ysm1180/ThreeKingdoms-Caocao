@@ -5,14 +5,16 @@
 #include "CommonLib/FileManager.h"
 #include "CommonLib/lodepng.h"
 
-extern "C" {
+extern "C"
+{
 #include <jpeglib.h>
 }
 
 #include <iterator>
 #include <vector>
 
-namespace jojogame {
+namespace jojogame
+{
 static void init_source(j_decompress_ptr cinfo)
 {
 }
@@ -24,7 +26,7 @@ boolean fill_input_buffer(j_decompress_ptr cinfo)
 
 void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 {
-    struct jpeg_source_mgr* src = (struct jpeg_source_mgr*)cinfo->src;
+    struct jpeg_source_mgr *src = (struct jpeg_source_mgr *)cinfo->src;
 
     if (num_bytes > 0)
     {
@@ -37,29 +39,28 @@ void term_source(j_decompress_ptr cinfo)
 {
 }
 
-void jpeg_mem_src(j_decompress_ptr cinfo, void* buffer, long nbytes)
+void jpeg_mem_src(j_decompress_ptr cinfo, void *buffer, long nbytes)
 {
-    struct jpeg_source_mgr* src;
+    struct jpeg_source_mgr *src;
 
     if (cinfo->src == nullptr)
     {
         /* first time for this JPEG object? */
-        cinfo->src = (struct jpeg_source_mgr *)
-                (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT,
-                                           sizeof(struct jpeg_source_mgr));
+        cinfo->src = (struct jpeg_source_mgr *)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT,
+                                                                          sizeof(struct jpeg_source_mgr));
     }
 
-    src = (struct jpeg_source_mgr*)cinfo->src;
+    src = (struct jpeg_source_mgr *)cinfo->src;
     src->init_source = init_source;
     src->fill_input_buffer = fill_input_buffer;
     src->skip_input_data = skip_input_data;
     src->resync_to_restart = jpeg_resync_to_restart; /* use default method */
     src->term_source = term_source;
     src->bytes_in_buffer = nbytes;
-    src->next_input_byte = (JOCTET*)buffer;
+    src->next_input_byte = (JOCTET *)buffer;
 }
 
-void PngToBmp(std::vector<BYTE>& bmp, const BYTE* pngImage, int size)
+void PngToBmp(std::vector<BYTE> &bmp, const BYTE *pngImage, int size)
 {
     std::vector<BYTE> png, image; // the raw pixels
     unsigned w, h;
@@ -178,7 +179,7 @@ void PngToBmp(std::vector<BYTE>& bmp, const BYTE* pngImage, int size)
     bmp[5] = static_cast<unsigned char>(bmp.size() / 16777216);
 }
 
-void CImageControl::RegisterFunctions(lua_State* L)
+void CImageControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CImageControl, "_Image");
 
@@ -223,7 +224,7 @@ CImageControl::~CImageControl()
     }
 }
 
-void CImageControl::ReadJpeg(BYTE* src, int size, COLORREF maskColor, double brightness, bool mirror)
+void CImageControl::ReadJpeg(BYTE *src, int size, COLORREF maskColor, double brightness, bool mirror)
 {
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -273,7 +274,7 @@ void CImageControl::ReadJpeg(BYTE* src, int size, COLORREF maskColor, double bri
     bmpInfo.bmiHeader.biClrUsed = 0;
     bmpInfo.bmiHeader.biClrImportant = 0;
 
-    BYTE* bits = data_ori;
+    BYTE *bits = data_ori;
     _size.cx = width;
     _size.cy = height;
 
@@ -314,7 +315,7 @@ void CImageControl::ReadJpeg(BYTE* src, int size, COLORREF maskColor, double bri
 
     if (mirror)
     {
-        BYTE* copyBytes = nullptr;
+        BYTE *copyBytes = nullptr;
         auto bit = bmpInfo.bmiHeader.biBitCount / 8;
         copyBytes = new BYTE[bmpInfo.bmiHeader.biWidth * bmpInfo.bmiHeader.biHeight * bit];
 
@@ -354,7 +355,6 @@ void CImageControl::ReadJpeg(BYTE* src, int size, COLORREF maskColor, double bri
         delete[] copyBytes;
     }
 
-
     _image = CreateDIBitmap(dc, &bmpInfo.bmiHeader, CBM_INIT, (void *)bits, &bmpInfo, DIB_RGB_COLORS);
     _maskImage = CreateBitmap(_size.cx, _size.cy, 1, 1, nullptr);
 
@@ -376,19 +376,19 @@ void CImageControl::ReadJpeg(BYTE* src, int size, COLORREF maskColor, double bri
     free(data_ori);
 }
 
-void CImageControl::ReadPng(BYTE* src, int size, COLORREF maskColor, double brightness, bool mirror)
+void CImageControl::ReadPng(BYTE *src, int size, COLORREF maskColor, double brightness, bool mirror)
 {
     std::vector<BYTE> bmp;
     PngToBmp(bmp, src, size);
 
-    BYTE* bmpBytes = new BYTE[bmp.size()];
+    BYTE *bmpBytes = new BYTE[bmp.size()];
 
     std::copy(bmp.begin(), bmp.end(), stdext::checked_array_iterator<BYTE *>(bmpBytes, bmp.size()));
 
-    BITMAPFILEHEADER* bmpFileHeader = (BITMAPFILEHEADER *)bmpBytes;
-    BITMAPINFOHEADER* bmpInfoHeader = (BITMAPINFOHEADER *)(bmpBytes + sizeof(BITMAPFILEHEADER));
-    BITMAPINFO* bmpInfo = (BITMAPINFO *)bmpInfoHeader;
-    BYTE* bits = (bmpBytes + bmpFileHeader->bfOffBits);
+    BITMAPFILEHEADER *bmpFileHeader = (BITMAPFILEHEADER *)bmpBytes;
+    BITMAPINFOHEADER *bmpInfoHeader = (BITMAPINFOHEADER *)(bmpBytes + sizeof(BITMAPFILEHEADER));
+    BITMAPINFO *bmpInfo = (BITMAPINFO *)bmpInfoHeader;
+    BYTE *bits = (bmpBytes + bmpFileHeader->bfOffBits);
     _size.cx = bmpInfoHeader->biWidth;
     _size.cy = bmpInfoHeader->biHeight;
 
@@ -429,7 +429,7 @@ void CImageControl::ReadPng(BYTE* src, int size, COLORREF maskColor, double brig
 
     if (mirror)
     {
-        BYTE* copyBytes = nullptr;
+        BYTE *copyBytes = nullptr;
         auto bit = bmpInfo->bmiHeader.biBitCount / 8;
         copyBytes = new BYTE[bmpInfo->bmiHeader.biWidth * bmpInfo->bmiHeader.biHeight * bit];
 
@@ -487,7 +487,7 @@ void CImageControl::ReadPng(BYTE* src, int size, COLORREF maskColor, double brig
 
     ReleaseDC(nullptr, dc);
 
-    delete[]bmpBytes;
+    delete[] bmpBytes;
 }
 
 int CImageControl::GetClipingTop()
@@ -518,7 +518,7 @@ void CImageControl::LoadImageFromMe5FileByIndex(std::wstring filePath, int group
     imageFile.Open(filePath);
 
     int size = imageFile.GetItemByteSize(groupIndex, subIndex);
-    auto* by = new BYTE[size];
+    auto *by = new BYTE[size];
 
     imageFile.GetItemByteArr(by, groupIndex, subIndex);
 
@@ -600,4 +600,4 @@ void CImageControl::ResetClipingRect()
     _clipingRect.bottom = _size.cy;
 }
 
-}
+} // namespace jojogame

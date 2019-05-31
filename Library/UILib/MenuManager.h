@@ -8,7 +8,8 @@
 #include <memory>
 #include <mutex>
 
-namespace jojogame {
+namespace jojogame
+{
 enum MENU_INDEX
 {
     FULL_INDEX = -1,
@@ -21,19 +22,20 @@ class CMenuItem;
 class CMenuManager
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CMenuManager();
     ~CMenuManager();
 
-    int AddMenuItemByHandle(CMenuItem* item, HMENU handle);
-    int AddMenuItem(CMenuItem* item);
+    int AddMenuItemByHandle(CMenuItem *item, HMENU handle);
+    int AddMenuItem(CMenuItem *item);
 
-    CMenuItem* GetMenuItem(int id);
+    CMenuItem *GetMenuItem(int id);
 
-    void DeleteMenuItem(CMenuItem* item);
+    void DeleteMenuItem(CMenuItem *item);
 
-    static CMenuManager& GetInstance();
+    static CMenuManager &GetInstance();
+
 private:
     int _GetNewIndex();
 
@@ -43,4 +45,4 @@ private:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CMenuManager> s_sharedMenuManager;
 };
-}
+} // namespace jojogame
