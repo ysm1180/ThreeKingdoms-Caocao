@@ -144,20 +144,23 @@ void CToolbarControl::AutoSize()
 {
     int height = GetHeight();
     SendMessage(_hWnd, TB_AUTOSIZE, 0, 0);
-    _parentWindow->SetHeight(_parentWindow->GetHeight() + height - _prevHeight);
+    int delta = height - _prevHeight;
     _prevHeight = height;
+    _parentWindow->SetHeight(_parentWindow->GetHeight() + delta);
 }
 
 void CToolbarControl::Show()
 {
     _isVisible = true;
     ::ShowWindow(_hWnd, TRUE);
+    this->AutoSize();
 }
 
 void CToolbarControl::Hide()
 {
     _isVisible = false;
     ::ShowWindow(_hWnd, FALSE);
+    this->AutoSize();
 }
 
 void CToolbarButton::RegisterFunctions(lua_State *L)
