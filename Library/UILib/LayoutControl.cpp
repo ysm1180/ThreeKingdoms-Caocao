@@ -518,23 +518,9 @@ int CLayoutControl::AddImage(CImageControl *image, int x, int y, bool isShow)
     imageInfo.position.x = x;
     imageInfo.position.y = y;
     imageInfo.isHide = !isShow;
+    imageInfo.isRefresh = true;
 
     _images.push_back(imageInfo);
-
-    if (!_parents.empty())
-    {
-        for (auto &parent : _parents)
-        {
-            int imageX = int(x * _ratioX) + _position.x;
-            int imageY = int(y * _ratioY) + _position.y;
-
-            RECT rect;
-            SetRect(&rect, imageX, imageY, imageX + int(image->GetClipingWidth() * _ratioX),
-                    imageY + int(image->GetClipingHeight() * _ratioY));
-            InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-            UpdateWindow(parent->GetHWnd());
-        }
-    }
 
     return index;
 }
@@ -555,24 +541,12 @@ void CLayoutControl::DeleteImage(int index, bool isUpdate)
             _reusingImageIndex.push(iter->index);
             iter = _images.erase(iter);
 
-            if (!_parents.empty())
-            {
-                for (auto &parent : _parents)
-                {
-                    int imageX = int(position.x * _ratioX) + _position.x;
-                    int imageY = int(position.y * _ratioY) + _position.y;
-                    RECT rect;
-
-                    SetRect(&rect, imageX, imageY, imageX + int(image->GetWidth() * _ratioX),
-                            imageY + int(image->GetHeight() * _ratioY));
-                    InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-
-                    if (isUpdate)
-                    {
-                        UpdateWindow(parent->GetHWnd());
-                    }
-                }
-            }
+            int imageX = int(position.x * _ratioX) + _position.x;
+            int imageY = int(position.y * _ratioY) + _position.y;
+            RECT rect;
+            SetRect(&rect, imageX, imageY, imageX + int(image->GetWidth() * _ratioX),
+                    imageY + int(image->GetHeight() * _ratioY));
+            _refreshRect.push_back(rect);
 
             break;
         }
@@ -588,40 +562,17 @@ void CLayoutControl::MoveImage(int index, int x, int y, bool isUpdate)
     {
         if (iter->index == index)
         {
-            auto position = iter->position;
-            auto image = iter->image;
+            RECT rect;
+            int imageX = int(iter->position.x * _ratioX) + _position.x;
+            int imageY = int(iter->position.y * _ratioY) + _position.y;
+            SetRect(&rect, imageX, imageY, imageX + int(iter->image->GetWidth() * _ratioX),
+                    imageY + int(iter->image->GetHeight() * _ratioY));
+            _refreshRect.push_back(rect);
 
             iter->position.x = x;
             iter->position.y = y;
 
-            if (!iter->isHide)
-            {
-                if (!_parents.empty())
-                {
-                    for (auto &parent : _parents)
-                    {
-                        int originalImageX = int(position.x * _ratioX) + _position.x;
-                        int originalImageY = int(position.y * _ratioY) + _position.y;
-                        int imageX = int(iter->position.x * _ratioX) + _position.x;
-                        int imageY = int(iter->position.y * _ratioY) + _position.y;
-                        RECT rect;
-
-                        SetRect(&rect, originalImageX, originalImageY,
-                                originalImageX + int(image->GetClipingWidth() * _ratioX),
-                                originalImageY + int(image->GetClipingHeight() * _ratioY));
-                        InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-                        SetRect(&rect, imageX, imageY, imageX + int(image->GetClipingWidth() * _ratioX),
-                                imageY + int(image->GetClipingHeight() * _ratioY));
-                        InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-
-                        if (isUpdate)
-                        {
-                            UpdateWindow(parent->GetHWnd());
-                        }
-                    }
-                }
-            }
-
+            iter->isRefresh = true;
             break;
         }
         ++iter;
@@ -636,30 +587,8 @@ void CLayoutControl::HideImage(int index, bool isUpdate)
     {
         if (iter->index == index)
         {
-            auto position = iter->position;
-            auto image = iter->image;
-
             iter->isHide = true;
-
-            if (!_parents.empty())
-            {
-                for (auto &parent : _parents)
-                {
-                    int imageX = int(iter->position.x * _ratioX) + _position.x;
-                    int imageY = int(iter->position.y * _ratioY) + _position.y;
-                    RECT rect;
-
-                    SetRect(&rect, imageX, imageY, imageX + int(image->GetClipingWidth() * _ratioX),
-                            imageY + int(image->GetClipingHeight() * _ratioY));
-                    InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-
-                    if (isUpdate)
-                    {
-                        UpdateWindow(parent->GetHWnd());
-                    }
-                }
-            }
-
+            iter->isRefresh = true;
             break;
         }
         ++iter;
@@ -674,30 +603,8 @@ void CLayoutControl::ShowImage(int index, bool isUpdate)
     {
         if (iter->index == index)
         {
-            auto position = iter->position;
-            auto image = iter->image;
-
             iter->isHide = false;
-
-            if (!_parents.empty())
-            {
-                for (auto &parent : _parents)
-                {
-                    int imageX = int(iter->position.x * _ratioX) + _position.x;
-                    int imageY = int(iter->position.y * _ratioY) + _position.y;
-                    RECT rect;
-
-                    SetRect(&rect, imageX, imageY, imageX + int(image->GetClipingWidth() * _ratioX),
-                            imageY + int(image->GetClipingHeight() * _ratioY));
-                    InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-
-                    if (isUpdate)
-                    {
-                        UpdateWindow(parent->GetHWnd());
-                    }
-                }
-            }
-
+            iter->isRefresh = true;
             break;
         }
         ++iter;
@@ -713,26 +620,9 @@ int CLayoutControl::AddText(CGraphicText *text, int x, int y, bool isShow)
     textInformation.position.x = x;
     textInformation.position.y = y;
     textInformation.isHide = !isShow;
+    textInformation.isRefresh = true;
 
     _texts.push_back(textInformation);
-
-    if (!_parents.empty())
-    {
-        for (auto &parent : _parents)
-        {
-            int textX = int(x * _ratioX) + _position.x;
-            int textY = int(y * _ratioY) + _position.y;
-
-            RECT rect;
-            HDC hdc = GetDC(parent->GetHWnd());
-            SetRect(&rect, textX, textY, textX + int(text->GetWidth(hdc) * _ratioX),
-                    textY + int(text->GetHeight(hdc) * _ratioY));
-            ReleaseDC(parent->GetHWnd(), hdc);
-
-            InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-            UpdateWindow(parent->GetHWnd());
-        }
-    }
 
     return index;
 }
@@ -762,12 +652,7 @@ void CLayoutControl::DeleteText(int index, bool isUpdate)
                     HDC hdc = GetDC(parent->GetHWnd());
                     SetRect(&rect, textX, textY, textX + int(text->GetWidth(hdc) * _ratioX),
                             textY + int(text->GetHeight(hdc) * _ratioY));
-                    ReleaseDC(parent->GetHWnd(), hdc);
-
-                    if (isUpdate)
-                    {
-                        UpdateWindow(parent->GetHWnd());
-                    }
+                    _refreshRect.push_back(rect);
                 }
             }
 
@@ -785,42 +670,25 @@ void CLayoutControl::MoveText(int index, int x, int y, bool isUpdate)
     {
         if (iter->index == index)
         {
-            auto position = iter->position;
-            auto text = iter->text;
-
-            iter->position.x = x;
-            iter->position.y = y;
-
-            if (!iter->isHide)
+            if (!_parents.empty())
             {
-                if (!_parents.empty())
+                for (auto &parent : _parents)
                 {
-                    for (auto &parent : _parents)
-                    {
-                        int originalTextX = int(position.x * _ratioX) + _position.x;
-                        int originalTextY = int(position.y * _ratioY) + _position.y;
-                        int textX = int(iter->position.x * _ratioX) + _position.x;
-                        int textY = int(iter->position.y * _ratioY) + _position.y;
-                        RECT rect;
+                    int textX = int(iter->position.x * _ratioX) + _position.x;
+                    int textY = int(iter->position.y * _ratioY) + _position.y;
+                    RECT rect;
 
-                        HDC hdc = GetDC(parent->GetHWnd());
-                        SetRect(&rect, originalTextX, originalTextY,
-                                originalTextX + int(text->GetWidth(hdc) * _ratioX),
-                                originalTextY + int(text->GetHeight(hdc) * _ratioY));
-                        InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-                        SetRect(&rect, textX, textY, textX + int(text->GetWidth(hdc) * _ratioX),
-                                textY + int(text->GetHeight(hdc) * _ratioY));
-                        InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-                        ReleaseDC(parent->GetHWnd(), hdc);
-
-                        if (isUpdate)
-                        {
-                            UpdateWindow(parent->GetHWnd());
-                        }
-                    }
+                    HDC hdc = GetDC(parent->GetHWnd());
+                    SetRect(&rect, textX, textY, textX + int(iter->text->GetWidth(hdc) * _ratioX),
+                            textY + int(iter->text->GetHeight(hdc) * _ratioY));
+                    _refreshRect.push_back(rect);
+                    ReleaseDC(parent->GetHWnd(), hdc);
                 }
             }
 
+            iter->position.x = x;
+            iter->position.y = y;
+            iter->isRefresh = true;
             break;
         }
         ++iter;
@@ -835,33 +703,8 @@ void CLayoutControl::HideText(int index, bool isUpdate)
     {
         if (iter->index == index)
         {
-            auto position = iter->position;
-            auto text = iter->text;
-
             iter->isHide = true;
-
-            if (!_parents.empty())
-            {
-                for (auto &parent : _parents)
-                {
-                    int textX = int(iter->position.x * _ratioX) + _position.x;
-                    int textY = int(iter->position.y * _ratioY) + _position.y;
-                    RECT rect;
-
-                    HDC hdc = GetDC(parent->GetHWnd());
-                    SetRect(&rect, textX, textY, textX + int(text->GetWidth(hdc) * _ratioX),
-                            textY + int(text->GetHeight(hdc) * _ratioY));
-                    ReleaseDC(parent->GetHWnd(), hdc);
-
-                    InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-
-                    if (isUpdate)
-                    {
-                        UpdateWindow(parent->GetHWnd());
-                    }
-                }
-            }
-
+            iter->isRefresh = true;
             break;
         }
         ++iter;
@@ -876,32 +719,8 @@ void CLayoutControl::ShowText(int index, bool isUpdate)
     {
         if (iter->index == index)
         {
-            auto position = iter->position;
-            auto text = iter->text;
-
             iter->isHide = false;
-
-            if (!_parents.empty())
-            {
-                for (auto &parent : _parents)
-                {
-                    int textX = int(iter->position.x * _ratioX) + _position.x;
-                    int textY = int(iter->position.y * _ratioY) + _position.y;
-                    RECT rect;
-
-                    HDC hdc = GetDC(parent->GetHWnd());
-                    SetRect(&rect, textX, textY, textX + int(text->GetWidth(hdc) * _ratioX),
-                            textY + int(text->GetHeight(hdc) * _ratioY));
-                    ReleaseDC(parent->GetHWnd(), hdc);
-                    InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-
-                    if (isUpdate)
-                    {
-                        UpdateWindow(parent->GetHWnd());
-                    }
-                }
-            }
-
+            iter->isRefresh = true;
             break;
         }
         ++iter;
@@ -1453,13 +1272,27 @@ void CLayoutControl::Erase()
 
 void CLayoutControl::Refresh()
 {
+    bool update = false;
+
     if (!_parents.empty())
     {
         for (auto &parent : _parents)
         {
-            for (ImageInformation image : _images)
+            for (RECT rect : _refreshRect)
             {
-                if (!image.isHide)
+                InvalidateRect(parent->GetHWnd(), &rect, FALSE);
+
+                update = true;
+            }
+
+            if (_refreshRect.size() > 0)
+            {
+                _refreshRect.clear();
+            }
+
+            for (ImageInformation &image : _images)
+            {
+                if (image.isRefresh)
                 {
                     int imageX = int(image.position.x * _ratioX) + _position.x;
                     int imageY = int(image.position.y * _ratioY) + _position.y;
@@ -1468,13 +1301,17 @@ void CLayoutControl::Refresh()
                     SetRect(&rect, imageX, imageY, imageX + int(image.image->GetClipingWidth() * _ratioX),
                             imageY + int(image.image->GetClipingHeight() * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, FALSE);
+
+                    image.isRefresh = false;
+
+                    update = true;
                 }
             }
 
             HDC hdc = GetDC(parent->GetHWnd());
-            for (TextInformation text : _texts)
+            for (TextInformation &text : _texts)
             {
-                if (!text.isHide)
+                if (text.isRefresh)
                 {
                     int textX = int(text.position.x * _ratioX) + _position.x;
                     int textY = int(text.position.y * _ratioY) + _position.y;
@@ -1483,9 +1320,18 @@ void CLayoutControl::Refresh()
                     SetRect(&rect, textX, textY, textX + int(text.text->GetWidth(hdc) * _ratioX),
                             textY + int(text.text->GetHeight(hdc) * _ratioY));
                     InvalidateRect(parent->GetHWnd(), &rect, FALSE);
+
+                    text.isRefresh = false;
+
+                    update = true;
                 }
             }
             ReleaseDC(parent->GetHWnd(), hdc);
+
+            if (update)
+            {
+                UpdateWindow(parent->GetHWnd());
+            }
         }
     }
 }

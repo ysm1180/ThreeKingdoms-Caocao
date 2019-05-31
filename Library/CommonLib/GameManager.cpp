@@ -23,7 +23,7 @@ void CGameManager::RegisterFunctions(lua_State *L)
     LUA_METHOD(GetNow);
     LUA_METHOD(OpenFile);
     LUA_METHOD(CloseFile);
-    LUA_METHOD(SetIdleEvent);
+    LUA_METHOD(SetUpdateEvent);
 }
 
 CGameManager::CGameManager()
@@ -58,9 +58,9 @@ int CGameManager::GetDesktopHeight()
     return rect.bottom - rect.top;
 }
 
-int CGameManager::GetIdleEvent()
+int CGameManager::GetUpdateEvent()
 {
-    return _idleEvent;
+    return _updateEvent;
 }
 
 int CGameManager::GetNow()
@@ -129,13 +129,13 @@ void CGameManager::StopDelay()
     PostMessage(nullptr, WM_STOP_DELAY, 0, 0);
 }
 
-void CGameManager::SetIdleEvent()
+void CGameManager::SetUpdateEvent()
 {
     auto l = CLuaTinker::GetLuaTinker().GetLuaState();
     if (lua_isfunction(l, -1))
     {
         lua_pushvalue(l, -1);
-        _idleEvent = luaL_ref(l, LUA_REGISTRYINDEX);
+        _updateEvent = luaL_ref(l, LUA_REGISTRYINDEX);
     }
 
     lua_pop(l, 1);

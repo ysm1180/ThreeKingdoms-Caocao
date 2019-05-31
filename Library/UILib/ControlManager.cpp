@@ -150,7 +150,9 @@ CToolbarButton *CControlManager::CreateToolbarButton()
 
 CLayoutControl *CControlManager::CreateLayout()
 {
-    return CMemoryPool<CLayoutControl>::GetInstance().New();
+    auto control = CMemoryPool<CLayoutControl>::GetInstance().New();
+    _layouts.push_back(control);
+    return control;
 }
 
 CListViewControl *CControlManager::CreateListView(CWindowControl *parent)
@@ -211,6 +213,11 @@ CComboBoxControl *CControlManager::CreateComboBox(CWindowControl *parent)
     auto control = CMemoryPool<CComboBoxControl>::GetInstance().New();
     control->SetParentControl(parent);
     return control;
+}
+
+std::vector<CLayoutControl*> CControlManager::GetLayouts()
+{
+    return _layouts;
 }
 
 HINSTANCE CControlManager::GetHInstance()

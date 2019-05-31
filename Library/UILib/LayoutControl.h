@@ -22,6 +22,7 @@ struct ImageInformation
     CImageControl *image;
     POINT position;
     bool isHide;
+    bool isRefresh;
 };
 
 struct TextInformation
@@ -30,6 +31,7 @@ struct TextInformation
     CGraphicText *text;
     POINT position;
     bool isHide;
+    bool isRefresh;
 };
 
 class CLayoutControl
@@ -87,6 +89,8 @@ private:
 
     std::queue<int> _reusingImageIndex;
     std::queue<int> _reusingTextIndex;
+
+    std::vector<RECT> _refreshRect;
 
     SIZE _size{};
     POINT _position{};

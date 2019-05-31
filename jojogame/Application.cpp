@@ -1,3 +1,5 @@
+#include <chrono>
+
 #include "Application.h"
 #include "LuaConsole.h"
 
@@ -6,7 +8,11 @@
 #include "CommonLib/FileManager.h"
 #include "LuaLib/LuaTinker.h"
 #include "UILib/ControlManager.h"
+#include "UILib/WindowControl.h"
+#include "UILib/LayoutControl.h"
 #include "CommonLib/ME5File.h"
+
+using namespace std::chrono_literals;
 
 namespace jojogame
 {
@@ -31,6 +37,15 @@ Application::~Application()
 HINSTANCE Application::GetHInstance()
 {
     return _hInstance;
+}
+
+void Application::Render()
+{
+    auto layouts = _controlManager->GetLayouts();
+    for (auto layout : layouts)
+    {
+        layout->Refresh();
+    }
 }
 
 int Application::Run()
@@ -67,22 +82,37 @@ int Application::Run()
 
     luaTinker.Run("./Script/main.lua");
 
+    using clock = std::chrono::high_resolution_clock;
+
+    constexpr std::chrono::nanoseconds timestep(16ms);
+    std::chrono::nanoseconds lag(0ns);
+    auto time_start = clock::now();
+
     while (WM_QUIT != message.message)
     {
+        auto delta_time = clock::now() - time_start;
+        time_start = clock::now();
+        lag += std::chrono::duration_cast<std::chrono::nanoseconds>(delta_time);
+
         if (PeekMessage(&message, nullptr, 0, 0, PM_NOREMOVE))
         {
-            GetMessage(&message, nullptr, 0, 0);
+            GetMessage(&message, 0, 0, 0);
             TranslateMessage(&message);
             DispatchMessage(&message);
         }
-        else
+
+        while (lag >= timestep)
         {
-            int idleEvent = CGameManager::GetInstance().GetIdleEvent();
-            if (idleEvent != LUA_NOREF)
+            lag -= timestep;
+
+            auto updateEvent = _gameManager->GetUpdateEvent();
+            if (updateEvent != LUA_NOREF)
             {
-                luaTinker.Call(idleEvent);
+                CLuaTinker::GetLuaTinker().Call(updateEvent);
             }
         }
+
+        Render();
     }
 
     _gameManager->SetQuit(true);

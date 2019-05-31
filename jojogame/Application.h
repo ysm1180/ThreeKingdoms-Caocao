@@ -23,6 +23,8 @@ public:
 
     HINSTANCE GetHInstance();
 
+    void Render();
+
     virtual int Run();
 
     static Application &GetInstance();
