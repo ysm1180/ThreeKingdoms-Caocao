@@ -60,11 +60,14 @@ public:
     CAudioPlayerControl* CreateAudioPlayer();
     CGraphicText* CreateGraphicText();
 
+    std::vector<CLayoutControl *> GetLayouts();
     HINSTANCE GetHInstance();
 
     static CControlManager& GetInstance();
 protected:
     HINSTANCE _hInstance;
+
+    std::vector<CLayoutControl *> _layouts;
 
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CControlManager> s_controlManager;

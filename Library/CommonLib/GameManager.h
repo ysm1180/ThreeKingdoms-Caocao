@@ -21,7 +21,7 @@ public:
 
     int GetDesktopWidth();
     int GetDesktopHeight();
-    int GetIdleEvent();
+    int GetUpdateEvent();
     int GetNow();
 
     bool IsQuit();
@@ -34,7 +34,7 @@ public:
     void Delay(int time);
     void StopDelay();
     
-    void SetIdleEvent();
+    void SetUpdateEvent();
 
     CME5File *OpenFile(std::wstring path);
     void CloseFile(CME5File *file);
@@ -44,7 +44,7 @@ private:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CGameManager> s_sharedGameManager;
 
-    int _idleEvent = LUA_NOREF;
+    int _updateEvent = LUA_NOREF;
 
     bool _quit = false;
 };
