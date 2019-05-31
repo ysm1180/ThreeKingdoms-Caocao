@@ -1,8 +1,9 @@
 #include "TextFont.h"
 #include "BaseControl.h"
 
-namespace jojogame {
-void CTextFont::RegisterFunctions(lua_State* L)
+namespace jojogame
+{
+void CTextFont::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CTextFont, "_TextFont");
 
@@ -22,16 +23,16 @@ void CTextFont::RegisterFunctions(lua_State* L)
 CTextFont::CTextFont()
 {
     _control = nullptr;
-    _fontName = L"±¼¸²Ã¼";
+    _fontName = L"ï¿½ï¿½ï¿½ï¿½Ã¼";
     _fontSize = 12;
 
     ResetFont();
 }
 
-CTextFont::CTextFont(CBaseControl* control)
+CTextFont::CTextFont(CBaseControl *control)
 {
     _control = control;
-    _fontName = L"±¼¸²Ã¼";
+    _fontName = L"ï¿½ï¿½ï¿½ï¿½Ã¼";
     _fontSize = 12;
 
     ResetFont();
@@ -143,4 +144,4 @@ void CTextFont::ResetFont()
         }
     }
 }
-}
+} // namespace jojogame

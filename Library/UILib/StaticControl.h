@@ -5,11 +5,12 @@
 
 #include "LuaLib/LuaTinker.h"
 
-namespace jojogame {
+namespace jojogame
+{
 class CStaticControl : public CWindowChildControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CStaticControl();
     virtual ~CStaticControl();
@@ -18,7 +19,7 @@ public:
     bool IsTransparentBackground();
     int GetAlign();
     std::wstring GetText();
-    CTextFont* GetFont();
+    CTextFont *GetFont();
     COLORREF GetTextColor();
     HBRUSH GetBackgroundBrush();
 
@@ -54,4 +55,4 @@ private:
     static WNDPROC s_originalProc;
 };
 
-}
+} // namespace jojogame

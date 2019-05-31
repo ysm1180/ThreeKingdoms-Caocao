@@ -6,7 +6,8 @@
 #include <queue>
 #include <vector>
 
-namespace jojogame {
+namespace jojogame
+{
 class CWindowControl;
 class CImageControl;
 class CGraphicText;
@@ -18,7 +19,7 @@ struct ImageInformation
     HDC mirrorDC;
     HBITMAP oldBitmap;
     HBITMAP oldMirrorBitmap;
-    CImageControl* image;
+    CImageControl *image;
     POINT position;
     bool isHide;
 };
@@ -26,7 +27,7 @@ struct ImageInformation
 struct TextInformation
 {
     int index;
-    CGraphicText* text;
+    CGraphicText *text;
     POINT position;
     bool isHide;
 };
@@ -34,7 +35,7 @@ struct TextInformation
 class CLayoutControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CLayoutControl();
     virtual ~CLayoutControl();
@@ -53,24 +54,24 @@ public:
     void SetRatioY(double ratio, bool isRedraw = false);
     void SetHide(bool value);
 
-    void AddParentWindow(CWindowControl* parent);
-    void RemoveParentWIndow(CWindowControl* parent);
+    void AddParentWindow(CWindowControl *parent);
+    void RemoveParentWIndow(CWindowControl *parent);
 
-    int AddImage(CImageControl* image, int x, int y, bool isShow);
+    int AddImage(CImageControl *image, int x, int y, bool isShow);
     void DeleteImage(int index, bool isUpdate);
     void MoveImage(int index, int x, int y, bool isUpdate);
     void HideImage(int index, bool isUpdate);
     void ShowImage(int index, bool isUpdate);
 
-    int AddText(CGraphicText* text, int x, int y, bool isShow);
+    int AddText(CGraphicText *text, int x, int y, bool isShow);
     void DeleteText(int index, bool isUpdate);
     void MoveText(int index, int x, int y, bool isUpdate);
     void HideText(int index, bool isUpdate);
     void ShowText(int index, bool isUpdate);
 
     void Draw(HDC destDC);
-    void Draw(HDC destDC, RECT& rect);
-    void Draw(HDC destDC, RECT& rect, COLORREF mixedColor);
+    void Draw(HDC destDC, RECT &rect);
+    void Draw(HDC destDC, RECT &rect, COLORREF mixedColor);
     void Erase();
 
     void Refresh();
@@ -93,4 +94,4 @@ private:
     double _ratioY = 1.0;
     bool _isHide = false;
 };
-}
+} // namespace jojogame

@@ -5,7 +5,8 @@
 #include <mutex>
 #include <memory>
 
-namespace jojogame {
+namespace jojogame
+{
 class CGameScriptManager
 {
 public:
@@ -14,9 +15,10 @@ public:
     CGameScriptManager();
     virtual ~CGameScriptManager();
 
-    static CGameScriptManager& GetInstance();
+    static CGameScriptManager &GetInstance();
+
 protected:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CGameScriptManager> s_sharedGameScriptManager;
 };
-}
+} // namespace jojogame

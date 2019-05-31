@@ -2,8 +2,8 @@
 #include "ControlManager.h"
 #include <vector>
 
-namespace jojogame {
-
+namespace jojogame
+{
 WNDPROC CStaticControl::s_originalProc = nullptr;
 
 LRESULT CStaticControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -13,7 +13,7 @@ LRESULT CStaticControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
     case WM_CREATE:
     {
         auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        void* lpParamCreate = createStruct->lpCreateParams;
+        void *lpParamCreate = createStruct->lpCreateParams;
         auto staticControl = reinterpret_cast<CStaticControl *>(lpParamCreate);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(staticControl));
 
@@ -38,11 +38,10 @@ LRESULT CStaticControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
     }
     }
 
-
     return CallWindowProc(CStaticControl::GetOriginalProc(), hWnd, msg, wParam, lParam);
 }
 
-void SplitString(std::wstring src, std::wstring delimiter, std::vector<std::wstring>* out)
+void SplitString(std::wstring src, std::wstring delimiter, std::vector<std::wstring> *out)
 {
     size_t pos = 0;
 
@@ -63,7 +62,7 @@ void CStaticControl::_AutoSizing()
         auto hdc = GetDC(_hWnd);
         auto originalFont = SelectFont(hdc, _font.GetHFont());
 
-        RECT rect{ 0, 0, 0, 0 };
+        RECT rect{0, 0, 0, 0};
         DrawText(hdc, _text.c_str(), _text.length(), &rect, DT_CALCRECT);
         SetWidth(rect.right);
         SetHeight(rect.bottom);
@@ -73,7 +72,7 @@ void CStaticControl::_AutoSizing()
     }
 }
 
-void CStaticControl::RegisterFunctions(lua_State* L)
+void CStaticControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN_CHILD(CStaticControl, "_StaticControl", CWindowChildControl);
 
@@ -134,7 +133,7 @@ std::wstring CStaticControl::GetText()
     return _text;
 }
 
-CTextFont* CStaticControl::GetFont()
+CTextFont *CStaticControl::GetFont()
 {
     return &_font;
 }
@@ -227,16 +226,16 @@ bool CStaticControl::Create()
     if (_parentControl != nullptr)
     {
         _hWnd = CreateWindow(L"jojo_static",
-            _text.c_str(),
-            _style,
-            _position.x,
-            _position.y,
-            _size.cx,
-            _size.cy,
-            _parentControl->GetHWnd(),
-            (HMENU)this,
-            CControlManager::GetInstance().GetHInstance(),
-            this);
+                             _text.c_str(),
+                             _style,
+                             _position.x,
+                             _position.y,
+                             _size.cx,
+                             _size.cy,
+                             _parentControl->GetHWnd(),
+                             (HMENU)this,
+                             CControlManager::GetInstance().GetHInstance(),
+                             this);
 
         _AutoSizing();
     }
@@ -260,4 +259,4 @@ WNDPROC CStaticControl::GetOriginalProc()
 {
     return s_originalProc;
 }
-}
+} // namespace jojogame

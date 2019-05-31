@@ -8,7 +8,8 @@
 #include <vector>
 #include <string>
 
-namespace jojogame {
+namespace jojogame
+{
 class CWindowControl;
 class CImageControl;
 class CToolbarControl;
@@ -16,28 +17,28 @@ class CToolbarControl;
 class CToolbarButton
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CToolbarButton();
     virtual ~CToolbarButton();
 
     bool IsEnabled();
     int GetIndex();
-    TBBUTTON& GetButtonStruct();
-    CImageControl* GetImage();
+    TBBUTTON &GetButtonStruct();
+    CImageControl *GetImage();
     std::wstring GetText();
     int GetClickEvent();
     std::wstring GetTooltipText();
-    CToolbarControl* GetParentToolbar();
+    CToolbarControl *GetParentToolbar();
 
     void SetEnabled(bool isEnabled);
     void SetIndex(int index);
     void SetImageIndex(int imageIndex);
-    void SetImage(CImageControl* image);
+    void SetImage(CImageControl *image);
     void SetText(std::wstring text);
     void SetClickEvent();
     void SetTooltipText(std::wstring tooltipText);
-    void SetParentToolbar(CToolbarControl* parent);
+    void SetParentToolbar(CToolbarControl *parent);
 
     bool Create();
 
@@ -48,8 +49,8 @@ private:
     BYTE _state;
     bool _isEnabled = true;
 
-    CToolbarControl* _parent = nullptr;
-    CImageControl* _image = nullptr;
+    CToolbarControl *_parent = nullptr;
+    CImageControl *_image = nullptr;
 
     TBBUTTON _button{};
 
@@ -61,7 +62,7 @@ private:
 class CToolbarControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CToolbarControl();
     ~CToolbarControl();
@@ -69,9 +70,9 @@ public:
     HWND GetHWnd() const;
     int GetHeight() const;
 
-    bool Create(CWindowControl* parentWindow, int imageWidth, int imageHeight);
-    void AddButton(CToolbarButton* button);
-    void DeleteButton(CToolbarButton* button);
+    bool Create(CWindowControl *parentWindow, int imageWidth, int imageHeight);
+    void AddButton(CToolbarButton *button);
+    void DeleteButton(CToolbarButton *button);
 
     void AutoSize();
 
@@ -83,9 +84,9 @@ private:
     HIMAGELIST _hImageList = nullptr;
     std::vector<CToolbarButton *> _buttons;
     std::vector<CImageControl *> _imageList;
-    CWindowControl* _parentWindow = nullptr;
+    CWindowControl *_parentWindow = nullptr;
 
     int _prevHeight = 0;
     bool _isVisible = false;
 };
-}
+} // namespace jojogame

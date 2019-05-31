@@ -8,7 +8,8 @@
 #include <string>
 #include <vector>
 
-namespace jojogame {
+namespace jojogame
+{
 class CMoviePlayer;
 class CMenu;
 class CLayoutControl;
@@ -17,7 +18,7 @@ class CToolbarControl;
 class CWindowControl : public CBaseControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CWindowControl();
     virtual ~CWindowControl();
@@ -38,8 +39,8 @@ public:
     int GetKeyUpEvent() const;
     COLORREF GetBackgroundColor();
     HBRUSH GetBackgroundBrush();
-    CMenu* GetMenu();
-    CToolbarControl* GetToolbar();
+    CMenu *GetMenu();
+    CToolbarControl *GetToolbar();
 
     void SetY(int y) override;
     void SetX(int x) override;
@@ -59,12 +60,12 @@ public:
     void SetKeyUpEvent();
     void SetIcon(std::wstring iconFilePath);
     void SetBackgroundColor(COLORREF backColor);
-    void SetMenu(CMenu* menu);
-    void SetParentWindow(CWindowControl* parent);
-	void SetToolbar(CToolbarControl* toolbar);
+    void SetMenu(CMenu *menu);
+    void SetParentWindow(CWindowControl *parent);
+    void SetToolbar(CToolbarControl *toolbar);
 
-    void AddLayout(CLayoutControl* layout, bool isShow);
-    void DeleteLayout(CLayoutControl* layout);
+    void AddLayout(CLayoutControl *layout, bool isShow);
+    void DeleteLayout(CLayoutControl *layout);
 
     bool Create() override;
 
@@ -83,7 +84,7 @@ private:
     bool _isControlBox = true;
     bool _isTitlebar = true;
     bool _isSizable = false;
-    int* _dialogResult = nullptr;
+    int *_dialogResult = nullptr;
 
     std::wstring _titleName = L"";
 
@@ -98,7 +99,7 @@ private:
     HBRUSH _backBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
 
     std::vector<CLayoutControl *> _layouts;
-    CMenu* _menu = nullptr;
-	CToolbarControl* _toolbar = nullptr;
+    CMenu *_menu = nullptr;
+    CToolbarControl *_toolbar = nullptr;
 };
-}
+} // namespace jojogame

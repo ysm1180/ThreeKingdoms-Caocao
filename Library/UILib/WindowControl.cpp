@@ -17,7 +17,8 @@
 #include <Uxtheme.h>
 #include <Vsstyle.h>
 
-namespace jojogame {
+namespace jojogame
+{
 LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
     TRACKMOUSEEVENT trackMouseEvent;
@@ -218,6 +219,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
     case WM_SIZE:
     {
+        auto window = reinterpret_cast<CWindowControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         int width = LOWORD(lParam);
         int height = HIWORD(lParam);
         auto toolbar = window->GetToolbar();
@@ -332,7 +334,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         }
         else if (item->CtlType == ODT_LISTVIEW)
         {
-            CListViewControl* listView = (CListViewControl *)item->CtlID;
+            CListViewControl *listView = (CListViewControl *)item->CtlID;
             item->itemHeight = listView->GetRowHeight();
         }
         break;
@@ -519,7 +521,6 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
                 RECT rect;
                 auto columnWidth = ListView_GetColumnWidth(item->hwndItem, i);
                 SetRect(&rect, left, item->rcItem.top, left + columnWidth, item->rcItem.bottom);
-                
 
                 if (listview->IsTransparentBackground())
                 {
@@ -538,10 +539,10 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
 
                     RECT rectByWindow;
                     SetRect(&rectByWindow, rect.left, rect.top, rect.right, rect.bottom);
-                    ClientToScreen(listview->GetHWnd(), reinterpret_cast<POINT*>(&rectByWindow.left));  // convert top-left
-                    ClientToScreen(listview->GetHWnd(), reinterpret_cast<POINT*>(&rectByWindow.right)); // convert bottom-right
-                    ScreenToClient(hWnd, reinterpret_cast<POINT*>(&rectByWindow.left));
-                    ScreenToClient(hWnd, reinterpret_cast<POINT*>(&rectByWindow.right));
+                    ClientToScreen(listview->GetHWnd(), reinterpret_cast<POINT *>(&rectByWindow.left));  // convert top-left
+                    ClientToScreen(listview->GetHWnd(), reinterpret_cast<POINT *>(&rectByWindow.right)); // convert bottom-right
+                    ScreenToClient(hWnd, reinterpret_cast<POINT *>(&rectByWindow.left));
+                    ScreenToClient(hWnd, reinterpret_cast<POINT *>(&rectByWindow.right));
                     rectByWindow.left -= rect.left;
                     rectByWindow.top -= rect.top;
 
@@ -845,7 +846,6 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
             ExcludeClipRect((HDC)wParam, rect.left, rect.top, rect.right, rect.bottom);
         }
 
-
         break;
     }
 
@@ -940,7 +940,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     return DefWindowProc(hWnd, iMessage, wParam, lParam);
 }
 
-void CWindowControl::RegisterFunctions(lua_State* L)
+void CWindowControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN_CHILD(CWindowControl, "_Window", CBaseControl);
 
@@ -1120,12 +1120,12 @@ HBRUSH CWindowControl::GetBackgroundBrush()
     return _backBrush;
 }
 
-CMenu* CWindowControl::GetMenu()
+CMenu *CWindowControl::GetMenu()
 {
     return _menu;
 }
 
-CToolbarControl* CWindowControl::GetToolbar()
+CToolbarControl *CWindowControl::GetToolbar()
 {
     return _toolbar;
 }
@@ -1444,7 +1444,7 @@ void CWindowControl::SetBackgroundColor(const COLORREF backColor)
     }
 }
 
-void CWindowControl::SetMenu(CMenu* menu)
+void CWindowControl::SetMenu(CMenu *menu)
 {
     if (_menu)
     {
@@ -1464,7 +1464,7 @@ void CWindowControl::SetMenu(CMenu* menu)
     }
 }
 
-void CWindowControl::SetParentWindow(CWindowControl* parent)
+void CWindowControl::SetParentWindow(CWindowControl *parent)
 {
     if (parent)
     {
@@ -1476,12 +1476,12 @@ void CWindowControl::SetParentWindow(CWindowControl* parent)
     }
 }
 
-void CWindowControl::SetToolbar(CToolbarControl* toolbar)
+void CWindowControl::SetToolbar(CToolbarControl *toolbar)
 {
     _toolbar = toolbar;
 }
 
-void CWindowControl::AddLayout(CLayoutControl* layout, bool isShow)
+void CWindowControl::AddLayout(CLayoutControl *layout, bool isShow)
 {
     layout->SetHide(!isShow);
     _layouts.push_back(layout);
@@ -1502,7 +1502,7 @@ void CWindowControl::AddLayout(CLayoutControl* layout, bool isShow)
     layout->AddParentWindow(this);
 }
 
-void CWindowControl::DeleteLayout(CLayoutControl* layout)
+void CWindowControl::DeleteLayout(CLayoutControl *layout)
 {
     auto iter = std::begin(_layouts);
 
@@ -1572,7 +1572,6 @@ bool CWindowControl::Create()
                            nullptr,
                            CControlManager::GetInstance().GetHInstance(),
                            (LPVOID)this);
-
 
     if (_hWnd != nullptr)
     {
@@ -1651,5 +1650,4 @@ void CWindowControl::SetDialogResult(const int value) const
 {
     *_dialogResult = value;
 }
-
-}
+} // namespace jojogame

@@ -2,12 +2,14 @@
 
 #include <Windows.h>
 
-extern "C" {
+extern "C"
+{
 #include <libavformat/avformat.h>
 #include <SDL/include/SDL.h>
 }
 
-namespace jojogame {
+namespace jojogame
+{
 class CControlManager;
 class CGameManager;
 class CGameScriptManager;
@@ -23,7 +25,8 @@ public:
 
     virtual int Run();
 
-    static Application& GetInstance();
+    static Application &GetInstance();
+
 protected:
     HINSTANCE _hInstance;
     CControlManager *_controlManager;
@@ -32,4 +35,4 @@ protected:
 
     static Application *s_sharedApplication;
 };
-}  // namespace jojogame
+} // namespace jojogame

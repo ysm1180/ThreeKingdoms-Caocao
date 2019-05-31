@@ -10,7 +10,8 @@
 
 #include <Windows.h>
 
-namespace jojogame {
+namespace jojogame
+{
 class CLuaConsole : public CConsoleOutput
 {
 public:
@@ -24,8 +25,9 @@ public:
 
     void Create(HINSTANCE hInstance);
 
-    static CLuaConsole& GetInstance();
+    static CLuaConsole &GetInstance();
     static void SetDebugFlag(bool flag);
+
 private:
     HWND _hWnd;
     HINSTANCE _hInstance;
@@ -33,4 +35,4 @@ private:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CLuaConsole> s_sharedLuaConsole;
 };
-}
+} // namespace jojogame

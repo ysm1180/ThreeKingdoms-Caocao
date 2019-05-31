@@ -3,18 +3,19 @@
 #include "TextFont.h"
 #include <Uxtheme.h>
 
-namespace jojogame {
+namespace jojogame
+{
 class CCheckBoxControl : public CWindowChildControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CCheckBoxControl();
     virtual ~CCheckBoxControl();
 
     bool IsChecked();
     std::wstring GetText();
-    CTextFont* GetFont();
+    CTextFont *GetFont();
     HTHEME GetTheme();
 
     void SetText(std::wstring text);
@@ -33,4 +34,4 @@ private:
 
     static WNDPROC s_originalProc;
 };
-}
+} // namespace jojogame

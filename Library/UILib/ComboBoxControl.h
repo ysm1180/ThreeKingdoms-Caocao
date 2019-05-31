@@ -4,12 +4,13 @@
 
 #include <vector>
 
-namespace jojogame {
+namespace jojogame
+{
 class CComboBoxControl : public CWindowChildControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
-    
+    static void RegisterFunctions(lua_State *L);
+
     CComboBoxControl();
     virtual ~CComboBoxControl();
 
@@ -26,4 +27,4 @@ private:
 
     static WNDPROC s_originalProc;
 };
-}
+} // namespace jojogame

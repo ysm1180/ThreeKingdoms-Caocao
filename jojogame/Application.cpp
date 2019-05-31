@@ -8,10 +8,11 @@
 #include "UILib/ControlManager.h"
 #include "CommonLib/ME5File.h"
 
-namespace jojogame {
-Application* Application::s_sharedApplication = nullptr;
+namespace jojogame
+{
+Application *Application::s_sharedApplication = nullptr;
 
-Application& Application::GetInstance()
+Application &Application::GetInstance()
 {
     return *s_sharedApplication;
 }
@@ -35,8 +36,8 @@ HINSTANCE Application::GetHInstance()
 int Application::Run()
 {
     MSG message{};
-    CLuaTinker& luaTinker = CLuaTinker::GetLuaTinker();
-    CLuaConsole& luaConsole = CLuaConsole::GetInstance();
+    CLuaTinker &luaTinker = CLuaTinker::GetLuaTinker();
+    CLuaConsole &luaConsole = CLuaConsole::GetInstance();
     bool debug = false;
 
     av_register_all();
@@ -90,4 +91,4 @@ int Application::Run()
 
     return (int)message.wParam;
 }
-}
+} // namespace jojogame

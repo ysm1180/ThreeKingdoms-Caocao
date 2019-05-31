@@ -1,11 +1,12 @@
 ﻿#include "FileManager.h"
 #include "BaseLib/MemoryPool.h"
 
-namespace jojogame {
+namespace jojogame
+{
 std::once_flag CFileManager::s_onceFlag;
 std::unique_ptr<CFileManager> CFileManager::s_sharedFileManager;
 
-void CFileManager::RegisterFunctions(lua_State* L)
+void CFileManager::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CFileManager, "_FileManager");
 
@@ -17,14 +18,14 @@ void CFileManager::RegisterFunctions(lua_State* L)
     LUA_METHOD(GetWorkingPath);
 }
 
-CFile* CFileManager::LoadFile(std::wstring path)
+CFile *CFileManager::LoadFile(std::wstring path)
 {
     auto file = CMemoryPool<CFile>::GetInstance().New();
     file->Open(GetFilePath(path));
     return file;
 }
 
-char CFileManager::ReadByte(CFile* file, int position)
+char CFileManager::ReadByte(CFile *file, int position)
 {
     if (position > file->GetSize() || position < 0)
     {
@@ -33,13 +34,13 @@ char CFileManager::ReadByte(CFile* file, int position)
     return file->GetData()[position];
 }
 
-void CFileManager::WriteByte(CFile* file, int position, char byte)
+void CFileManager::WriteByte(CFile *file, int position, char byte)
 {
-    char data[1] = { byte };
+    char data[1] = {byte};
     file->Write(data, position, 1);
 }
 
-void CFileManager::CloseFile(CFile* file)
+void CFileManager::CloseFile(CFile *file)
 {
     CMemoryPool<CFile>::GetInstance().Delete(file);
 }
@@ -59,14 +60,13 @@ std::wstring CFileManager::GetFilePath(std::wstring filePath)
     return _currentWorkingPath + filePath;
 }
 
-CFileManager& CFileManager::GetInstance()
+CFileManager &CFileManager::GetInstance()
 {
     std::call_once(s_onceFlag,
-                   []
-                   {
+                   [] {
                        s_sharedFileManager = std::make_unique<jojogame::CFileManager>();
                    });
 
     return *s_sharedFileManager;
 }
-}
+} // namespace jojogame

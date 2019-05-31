@@ -3,8 +3,9 @@
 #include "LuaLib\LuaTinker.h"
 #include <CommCtrl.h>
 
-namespace jojogame {
-void CBaseControl::RegisterFunctions(lua_State* L)
+namespace jojogame
+{
+void CBaseControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CBaseControl, "_BaseControl");
 
@@ -385,7 +386,7 @@ void CBaseControl::SetUserData(std::wstring data)
     }
 }
 
-void CBaseControl::SetParentControl(CBaseControl* parent)
+void CBaseControl::SetParentControl(CBaseControl *parent)
 {
     _parentControl = parent;
 }
@@ -439,4 +440,4 @@ void CBaseControl::Hide()
         ShowWindow(_hWnd, FALSE);
     }
 }
-}
+} // namespace jojogame

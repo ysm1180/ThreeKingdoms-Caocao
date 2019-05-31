@@ -1,6 +1,7 @@
 #include "MemoryPool.h"
 
-namespace jojogame {
+namespace jojogame
+{
 CMemoryPoolBase::CMemoryPoolBase()
 {
 }
@@ -36,13 +37,12 @@ void CMemoryPoolManager::DestroyAllMemoryPool()
     _poolManager.clear();
 }
 
-CMemoryPoolManager& CMemoryPoolManager::GetInstance()
+CMemoryPoolManager &CMemoryPoolManager::GetInstance()
 {
-    std::call_once(s_onceFlag, []
-    {
+    std::call_once(s_onceFlag, [] {
         s_sharedMemoryPoolManager = std::make_unique<jojogame::CMemoryPoolManager>();
     });
 
     return *s_sharedMemoryPoolManager;
 }
-}
+} // namespace jojogame

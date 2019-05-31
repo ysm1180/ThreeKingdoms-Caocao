@@ -7,11 +7,12 @@
 
 #include <string>
 
-namespace jojogame {
+namespace jojogame
+{
 class CBaseControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CBaseControl();
     virtual ~CBaseControl();
@@ -50,7 +51,7 @@ public:
     virtual void SetMouseEnterEvent();
     virtual void SetMouseLeaveEvent();
     virtual void SetUserData(std::wstring data);
-    virtual void SetParentControl(CBaseControl* parent);
+    virtual void SetParentControl(CBaseControl *parent);
 
     virtual void Refresh();
     virtual void RefreshRegion(int left, int top, int right, int bottom);
@@ -80,7 +81,7 @@ protected:
     bool _isVisible = false;
     bool _isEnabled = true;
     HWND _hWnd = nullptr;
-    CBaseControl* _parentControl = nullptr;
+    CBaseControl *_parentControl = nullptr;
     SIZE _size = SIZE{0, 0};
     POINT _position = POINT{0, 0};
     LONG _style = 0;
@@ -97,4 +98,4 @@ protected:
 
     std::wstring _type = L"";
 };
-}
+} // namespace jojogame

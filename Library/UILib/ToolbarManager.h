@@ -5,7 +5,8 @@
 #include <map>
 #include <queue>
 
-namespace jojogame {
+namespace jojogame
+{
 enum class TOOLBAR_INDEX
 {
     FULL_INDEX = -1,
@@ -21,13 +22,14 @@ public:
     CToolbarManager();
     ~CToolbarManager();
 
-    CToolbarButton* GetToolbarButton(int id);
+    CToolbarButton *GetToolbarButton(int id);
 
-    int AddToolbarButton(CToolbarButton* button);
+    int AddToolbarButton(CToolbarButton *button);
 
-    void DeleteToolbarButton(CToolbarButton* button);
+    void DeleteToolbarButton(CToolbarButton *button);
 
-    static CToolbarManager& GetInstance();
+    static CToolbarManager &GetInstance();
+
 private:
     int _GetNewIndex();
 
@@ -37,4 +39,4 @@ private:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CToolbarManager> s_sharedToolbarManager;
 };
-}
+} // namespace jojogame

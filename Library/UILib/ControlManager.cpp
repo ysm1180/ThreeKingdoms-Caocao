@@ -21,11 +21,12 @@
 #include "AudioPlayer.h"
 #include "GraphicText.h"
 
-namespace jojogame {
+namespace jojogame
+{
 std::once_flag CControlManager::s_onceFlag;
 std::unique_ptr<CControlManager> CControlManager::s_controlManager;
 
-void CControlManager::RegisterFunctions(lua_State* L)
+void CControlManager::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CControlManager, "_ControlManager");
 
@@ -87,125 +88,125 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CComboBoxControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CAudioPlayerControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CGraphicText>();
-
 }
 
-CWindowControl* CControlManager::CreateWindowForm(CWindowControl* parent)
+CWindowControl *CControlManager::CreateWindowForm(CWindowControl *parent)
 {
     auto control = CMemoryPool<CWindowControl>::GetInstance().New();
     control->SetParentWindow(parent);
     return control;
 }
 
-CAudioPlayerControl* CControlManager::CreateAudioPlayer()
+CAudioPlayerControl *CControlManager::CreateAudioPlayer()
 {
     auto control = CMemoryPool<CAudioPlayerControl>::GetInstance().New();
     return control;
 }
 
-CGraphicText* CControlManager::CreateGraphicText()
+CGraphicText *CControlManager::CreateGraphicText()
 {
     auto control = CMemoryPool<CGraphicText>::GetInstance().New();
     return control;
 }
 
-CMoviePlayerControl* CControlManager::CreateMoviePlayer(CWindowControl* parent, std::wstring fileName)
+CMoviePlayerControl *CControlManager::CreateMoviePlayer(CWindowControl *parent, std::wstring fileName)
 {
     auto control = CMemoryPool<CMoviePlayerControl>::GetInstance().New(parent, fileName);
     return control;
 }
 
-CButtonControl* CControlManager::CreateButton(CWindowControl* parent)
+CButtonControl *CControlManager::CreateButton(CWindowControl *parent)
 {
     auto control = CMemoryPool<CButtonControl>::GetInstance().New();
     control->SetParentWindow(parent);
     return control;
 }
 
-CMenu* CControlManager::CreateMenu()
+CMenu *CControlManager::CreateMenu()
 {
     return CMemoryPool<CMenu>::GetInstance().New();
 }
 
-CMenuItem* CControlManager::CreateMenuItem()
+CMenuItem *CControlManager::CreateMenuItem()
 {
-    return CMemoryPool<CMenuItem>::GetInstance().New();;
+    return CMemoryPool<CMenuItem>::GetInstance().New();
+    ;
 }
 
-CImageControl* CControlManager::CreateImage()
+CImageControl *CControlManager::CreateImage()
 {
     return CMemoryPool<CImageControl>::GetInstance().New();
 }
 
-CToolbarControl* CControlManager::CreateToolbar()
+CToolbarControl *CControlManager::CreateToolbar()
 {
     return CMemoryPool<CToolbarControl>::GetInstance().New();
 }
 
-CToolbarButton* CControlManager::CreateToolbarButton()
+CToolbarButton *CControlManager::CreateToolbarButton()
 {
     return CMemoryPool<CToolbarButton>::GetInstance().New();
 }
 
-CLayoutControl* CControlManager::CreateLayout()
+CLayoutControl *CControlManager::CreateLayout()
 {
     return CMemoryPool<CLayoutControl>::GetInstance().New();
 }
 
-CListViewControl* CControlManager::CreateListView(CWindowControl* parent)
+CListViewControl *CControlManager::CreateListView(CWindowControl *parent)
 {
     auto control = CMemoryPool<CListViewControl>::GetInstance().New();
     control->SetParentWindow(parent);
     return control;
 }
 
-CListViewColumn* CControlManager::CreateListViewColumn()
+CListViewColumn *CControlManager::CreateListViewColumn()
 {
     auto control = CMemoryPool<CListViewColumn>::GetInstance().New();
     return control;
 }
 
-CListViewRow* CControlManager::CreateListViewRow()
+CListViewRow *CControlManager::CreateListViewRow()
 {
     auto control = CMemoryPool<CListViewRow>::GetInstance().New();
     return control;
 }
 
-CListViewItem* CControlManager::CreateListViewItem()
+CListViewItem *CControlManager::CreateListViewItem()
 {
     auto control = CMemoryPool<CListViewItem>::GetInstance().New();
     return control;
 }
 
-CStaticControl* CControlManager::CreateStatic(CWindowControl* parent)
+CStaticControl *CControlManager::CreateStatic(CWindowControl *parent)
 {
     auto control = CMemoryPool<CStaticControl>::GetInstance().New();
     control->SetParentControl(parent);
     return control;
 }
 
-CGroupBoxControl* CControlManager::CreateGroupBox(CWindowControl* parent)
+CGroupBoxControl *CControlManager::CreateGroupBox(CWindowControl *parent)
 {
     auto control = CMemoryPool<CGroupBoxControl>::GetInstance().New();
     control->SetParentControl(parent);
     return control;
 }
 
-CCheckBoxControl* CControlManager::CreateCheckBox(CWindowControl* parent)
+CCheckBoxControl *CControlManager::CreateCheckBox(CWindowControl *parent)
 {
     auto control = CMemoryPool<CCheckBoxControl>::GetInstance().New();
     control->SetParentControl(parent);
     return control;
 }
 
-CRadioButtonControl* CControlManager::CreateRadioButton(CWindowControl* parent, bool isGroupStart)
+CRadioButtonControl *CControlManager::CreateRadioButton(CWindowControl *parent, bool isGroupStart)
 {
     auto control = CMemoryPool<CRadioButtonControl>::GetInstance().New(isGroupStart);
     control->SetParentControl(parent);
     return control;
 }
 
-CComboBoxControl* CControlManager::CreateComboBox(CWindowControl* parent)
+CComboBoxControl *CControlManager::CreateComboBox(CWindowControl *parent)
 {
     auto control = CMemoryPool<CComboBoxControl>::GetInstance().New();
     control->SetParentControl(parent);
@@ -217,13 +218,12 @@ HINSTANCE CControlManager::GetHInstance()
     return _hInstance;
 }
 
-CControlManager& CControlManager::GetInstance()
+CControlManager &CControlManager::GetInstance()
 {
-    std::call_once(s_onceFlag, []
-    {
+    std::call_once(s_onceFlag, [] {
         s_controlManager = std::make_unique<jojogame::CControlManager>();
     });
 
     return *s_controlManager;
 }
-}
+} // namespace jojogame

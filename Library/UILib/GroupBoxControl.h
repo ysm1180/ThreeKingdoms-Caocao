@@ -2,17 +2,18 @@
 #include "WindowChildControl.h"
 #include "TextFont.h"
 
-namespace jojogame {
+namespace jojogame
+{
 class CGroupBoxControl : public CWindowChildControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CGroupBoxControl();
     virtual ~CGroupBoxControl();
 
     std::wstring GetText();
-    CTextFont* GetFont();
+    CTextFont *GetFont();
 
     void SetText(std::wstring text);
 
@@ -27,4 +28,4 @@ private:
 
     static WNDPROC s_originalProc;
 };
-}
+} // namespace jojogame

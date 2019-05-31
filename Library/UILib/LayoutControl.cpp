@@ -7,8 +7,9 @@
 #include "CommonLib/GameManager.h"
 #include "ControlManager.h"
 
-namespace jojogame {
-void CLayoutControl::RegisterFunctions(lua_State* L)
+namespace jojogame
+{
+void CLayoutControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CLayoutControl, "_Layout");
 
@@ -101,7 +102,7 @@ void CLayoutControl::SetX(int x, bool isRedraw)
         {
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int width = _size.cx;
                     int height = _size.cy;
@@ -125,7 +126,7 @@ void CLayoutControl::SetX(int x, bool isRedraw)
 
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int width = _size.cx;
                     int height = _size.cy;
@@ -162,7 +163,7 @@ void CLayoutControl::SetY(int y, bool isRedraw)
         {
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int width = _size.cx;
                     int height = _size.cy;
@@ -186,7 +187,7 @@ void CLayoutControl::SetY(int y, bool isRedraw)
 
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int width = _size.cx;
                     int height = _size.cy;
@@ -223,7 +224,7 @@ void CLayoutControl::SetWidth(int cx, bool isRedraw)
         {
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int width = _size.cx;
                     int height = _size.cy;
@@ -247,7 +248,7 @@ void CLayoutControl::SetWidth(int cx, bool isRedraw)
 
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int width = _size.cx;
                     int height = _size.cy;
@@ -282,7 +283,7 @@ void CLayoutControl::SetHeight(int cy, bool isRedraw)
     {
         if (!_parents.empty())
         {
-            for (auto& parent : _parents)
+            for (auto &parent : _parents)
             {
                 int width = _size.cx;
                 int height = _size.cy;
@@ -306,7 +307,7 @@ void CLayoutControl::SetHeight(int cy, bool isRedraw)
 
         if (!_parents.empty())
         {
-            for (auto& parent : _parents)
+            for (auto &parent : _parents)
             {
                 int width = _size.cx;
                 int height = _size.cy;
@@ -340,7 +341,7 @@ void CLayoutControl::SetRatioX(double ratio, bool isRedraw)
     {
         if (!_parents.empty())
         {
-            for (auto& parent : _parents)
+            for (auto &parent : _parents)
             {
                 int width = _size.cx;
                 int height = _size.cy;
@@ -364,7 +365,7 @@ void CLayoutControl::SetRatioX(double ratio, bool isRedraw)
 
         if (!_parents.empty())
         {
-            for (auto& parent : _parents)
+            for (auto &parent : _parents)
             {
                 int width = _size.cx;
                 int height = _size.cy;
@@ -398,7 +399,7 @@ void CLayoutControl::SetRatioY(double ratio, bool isRedraw)
     {
         if (!_parents.empty())
         {
-            for (auto& parent : _parents)
+            for (auto &parent : _parents)
             {
                 int width = _size.cx;
                 int height = _size.cy;
@@ -422,7 +423,7 @@ void CLayoutControl::SetRatioY(double ratio, bool isRedraw)
 
         if (!_parents.empty())
         {
-            for (auto& parent : _parents)
+            for (auto &parent : _parents)
             {
                 int width = _size.cx;
                 int height = _size.cy;
@@ -456,17 +457,17 @@ void CLayoutControl::SetHide(bool value)
     this->Refresh();
 }
 
-void CLayoutControl::AddParentWindow(CWindowControl* parent)
+void CLayoutControl::AddParentWindow(CWindowControl *parent)
 {
     _parents.push_back(parent);
 }
 
-void CLayoutControl::RemoveParentWIndow(CWindowControl* parent)
+void CLayoutControl::RemoveParentWIndow(CWindowControl *parent)
 {
     _parents.erase(std::remove(_parents.begin(), _parents.end(), parent), _parents.end());
 }
 
-int CLayoutControl::AddImage(CImageControl* image, int x, int y, bool isShow)
+int CLayoutControl::AddImage(CImageControl *image, int x, int y, bool isShow)
 {
     HDC imageDC = CreateCompatibleDC(_dc);
     HBITMAP oldBitmap = SelectBitmap(imageDC, image->GetImageHandle());
@@ -476,7 +477,7 @@ int CLayoutControl::AddImage(CImageControl* image, int x, int y, bool isShow)
     auto pixels = new BYTE[bitmapInfo.bmiHeader.biSizeImage];
     GetDIBits(imageDC, image->GetImageHandle(), 0, image->GetHeight(), pixels, &bitmapInfo, DIB_RGB_COLORS);
 
-    BITMAPINFOHEADER* bitmapInfoHeader = (BITMAPINFOHEADER *)&bitmapInfo;
+    BITMAPINFOHEADER *bitmapInfoHeader = (BITMAPINFOHEADER *)&bitmapInfo;
     HBITMAP newBitmap = CreateDIBitmap(imageDC, bitmapInfoHeader, CBM_INIT, pixels, &bitmapInfo,
                                        DIB_RGB_COLORS);
 
@@ -495,7 +496,7 @@ int CLayoutControl::AddImage(CImageControl* image, int x, int y, bool isShow)
         GetDIBits(mirrorDC, image->GetMirrorImageHandle(), 0, image->GetHeight(), mirrorPixels, &bitmapInfo,
                   DIB_RGB_COLORS);
 
-        BITMAPINFOHEADER* bitmapInfoHeader = (BITMAPINFOHEADER *)&bitmapInfo;
+        BITMAPINFOHEADER *bitmapInfoHeader = (BITMAPINFOHEADER *)&bitmapInfo;
         newMirrorBitmap = CreateDIBitmap(mirrorDC, bitmapInfoHeader, CBM_INIT, mirrorPixels, &bitmapInfo,
                                          DIB_RGB_COLORS);
 
@@ -522,7 +523,7 @@ int CLayoutControl::AddImage(CImageControl* image, int x, int y, bool isShow)
 
     if (!_parents.empty())
     {
-        for (auto& parent : _parents)
+        for (auto &parent : _parents)
         {
             int imageX = int(x * _ratioX) + _position.x;
             int imageY = int(y * _ratioY) + _position.y;
@@ -556,7 +557,7 @@ void CLayoutControl::DeleteImage(int index, bool isUpdate)
 
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int imageX = int(position.x * _ratioX) + _position.x;
                     int imageY = int(position.y * _ratioY) + _position.y;
@@ -597,7 +598,7 @@ void CLayoutControl::MoveImage(int index, int x, int y, bool isUpdate)
             {
                 if (!_parents.empty())
                 {
-                    for (auto& parent : _parents)
+                    for (auto &parent : _parents)
                     {
                         int originalImageX = int(position.x * _ratioX) + _position.x;
                         int originalImageY = int(position.y * _ratioY) + _position.y;
@@ -642,7 +643,7 @@ void CLayoutControl::HideImage(int index, bool isUpdate)
 
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int imageX = int(iter->position.x * _ratioX) + _position.x;
                     int imageY = int(iter->position.y * _ratioY) + _position.y;
@@ -680,7 +681,7 @@ void CLayoutControl::ShowImage(int index, bool isUpdate)
 
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int imageX = int(iter->position.x * _ratioX) + _position.x;
                     int imageY = int(iter->position.y * _ratioY) + _position.y;
@@ -703,7 +704,7 @@ void CLayoutControl::ShowImage(int index, bool isUpdate)
     }
 }
 
-int CLayoutControl::AddText(CGraphicText* text, int x, int y, bool isShow)
+int CLayoutControl::AddText(CGraphicText *text, int x, int y, bool isShow)
 {
     int index = _GetNewTextIndex();
     TextInformation textInformation;
@@ -717,7 +718,7 @@ int CLayoutControl::AddText(CGraphicText* text, int x, int y, bool isShow)
 
     if (!_parents.empty())
     {
-        for (auto& parent : _parents)
+        for (auto &parent : _parents)
         {
             int textX = int(x * _ratioX) + _position.x;
             int textY = int(y * _ratioY) + _position.y;
@@ -752,7 +753,7 @@ void CLayoutControl::DeleteText(int index, bool isUpdate)
 
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int textX = int(position.x * _ratioX) + _position.x;
                     int textY = int(position.y * _ratioY) + _position.y;
@@ -794,7 +795,7 @@ void CLayoutControl::MoveText(int index, int x, int y, bool isUpdate)
             {
                 if (!_parents.empty())
                 {
-                    for (auto& parent : _parents)
+                    for (auto &parent : _parents)
                     {
                         int originalTextX = int(position.x * _ratioX) + _position.x;
                         int originalTextY = int(position.y * _ratioY) + _position.y;
@@ -841,7 +842,7 @@ void CLayoutControl::HideText(int index, bool isUpdate)
 
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int textX = int(iter->position.x * _ratioX) + _position.x;
                     int textY = int(iter->position.y * _ratioY) + _position.y;
@@ -882,7 +883,7 @@ void CLayoutControl::ShowText(int index, bool isUpdate)
 
             if (!_parents.empty())
             {
-                for (auto& parent : _parents)
+                for (auto &parent : _parents)
                 {
                     int textX = int(iter->position.x * _ratioX) + _position.x;
                     int textY = int(iter->position.y * _ratioY) + _position.y;
@@ -1008,7 +1009,7 @@ void CLayoutControl::Draw(HDC destDC)
     }
 }
 
-void CLayoutControl::Draw(HDC destDC, RECT& clipingRect)
+void CLayoutControl::Draw(HDC destDC, RECT &clipingRect)
 {
     if (!_isHide)
     {
@@ -1157,7 +1158,7 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect)
     }
 }
 
-void CLayoutControl::Draw(HDC destDC, RECT& clipingRect, COLORREF mixedColor)
+void CLayoutControl::Draw(HDC destDC, RECT &clipingRect, COLORREF mixedColor)
 {
     if (!_isHide)
     {
@@ -1235,7 +1236,7 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect, COLORREF mixedColor)
                             pixels[(x + y * width) * bits + 2] = r;
                         }
                     }
-                    BITMAPINFOHEADER* bitmapInfoHeader = (BITMAPINFOHEADER *)&bitmapInfo;
+                    BITMAPINFOHEADER *bitmapInfoHeader = (BITMAPINFOHEADER *)&bitmapInfo;
                     HDC newDC = CreateCompatibleDC(nullptr);
                     HBITMAP newBitmap = CreateDIBitmap(imageDC, bitmapInfoHeader, CBM_INIT, pixels, &bitmapInfo,
                                                        DIB_RGB_COLORS);
@@ -1385,7 +1386,7 @@ void CLayoutControl::Draw(HDC destDC, RECT& clipingRect, COLORREF mixedColor)
                     continue;
                 }
 
-                text.text->Draw(destDC, POINT{ textX, textY });
+                text.text->Draw(destDC, POINT{textX, textY});
             }
         }
     }
@@ -1404,7 +1405,6 @@ void CLayoutControl::Erase()
     {
         tempTexts.push_back(text);
     }
-    
 
     _images.clear();
     _texts.clear();
@@ -1417,7 +1417,7 @@ void CLayoutControl::Erase()
         _reusingTextIndex.pop();
     }
 
-    for (auto& parent : _parents)
+    for (auto &parent : _parents)
     {
         for (ImageInformation image : tempImages)
         {
@@ -1455,7 +1455,7 @@ void CLayoutControl::Refresh()
 {
     if (!_parents.empty())
     {
-        for (auto& parent : _parents)
+        for (auto &parent : _parents)
         {
             for (ImageInformation image : _images)
             {
@@ -1524,4 +1524,4 @@ int CLayoutControl::_GetNewTextIndex()
     return index;
 }
 
-}
+} // namespace jojogame

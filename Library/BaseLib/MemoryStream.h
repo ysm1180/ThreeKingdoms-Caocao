@@ -3,15 +3,16 @@
 #include <streambuf>
 #include <iostream>
 
-namespace jojogame {
+namespace jojogame
+{
 
 class CMemoryBuffer : public std::basic_streambuf<char>
 {
 public:
-    CMemoryBuffer(const uint8_t* bytes, size_t len)
+    CMemoryBuffer(const uint8_t *bytes, size_t len)
     {
         _length = len;
-        setg((char*)bytes, (char*)bytes, (char*)bytes + len);
+        setg((char *)bytes, (char *)bytes, (char *)bytes + len);
     }
 
     size_t Length();
@@ -23,9 +24,8 @@ private:
 class CMemoryStream : public std::istream
 {
 public:
-    CMemoryStream(const uint8_t* p, size_t l) :
-        std::istream(&_buffer),
-        _buffer(p, l)
+    CMemoryStream(const uint8_t *p, size_t l) : std::istream(&_buffer),
+                                                _buffer(p, l)
     {
         rdbuf(&_buffer);
     }
@@ -36,4 +36,4 @@ private:
     CMemoryBuffer _buffer;
 };
 
-}
+} // namespace jojogame

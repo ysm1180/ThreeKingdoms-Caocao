@@ -14,7 +14,8 @@
 #include "BaseControl.h"
 #include "BaseLib/MemoryStream.h"
 
-extern "C" {
+extern "C"
+{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
@@ -26,7 +27,6 @@ extern "C" {
 
 #include <SDL/include/SDL.h>
 #include <SDL/include/SDL_thread.h>
-
 }
 
 #include <Windows.h>
@@ -38,7 +38,8 @@ extern "C" {
 #include <thread>
 #include <queue>
 
-namespace jojogame {
+namespace jojogame
+{
 struct AudioPacketQueue
 {
     AVPacketList *firstPacket, *lastPacket;
@@ -49,18 +50,18 @@ struct AudioPacketQueue
 
 struct AudioState
 {
-    AVFormatContext* formatContext;
+    AVFormatContext *formatContext;
 
-    AVCodecContext* audioCodecContext;
+    AVCodecContext *audioCodecContext;
     int audioStreamIndex;
-    AVStream* audioStream;
+    AVStream *audioStream;
     AudioPacketQueue audioQueue;
     uint8_t audioBuffer[(MAX_AUDIO_FRAME_SIZE * 3) / 2];
     unsigned int audioBufferSize;
     unsigned int audioBufferIndex;
     AVFrame audioFrame;
     AVPacket audioPacket;
-    uint8_t* audioPacketData;
+    uint8_t *audioPacketData;
     int audioPacketSize;
 
     bool playing;
@@ -74,7 +75,7 @@ struct AudioState
 class CAudioPlayerControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CAudioPlayerControl();
     virtual ~CAudioPlayerControl();
@@ -88,14 +89,14 @@ public:
     void Play(int playCount);
     void Stop();
 
-    static int Read(void* opaque, unsigned char* buf, int buf_size);
-    static int64_t Seek(void* opaque, int64_t offset, int whence);
+    static int Read(void *opaque, unsigned char *buf, int buf_size);
+    static int64_t Seek(void *opaque, int64_t offset, int whence);
 
 private:
     mutable AudioState _state{};
     CMemoryStream *_inputStream = nullptr;
-    std::thread* _audioThread = nullptr;
+    std::thread *_audioThread = nullptr;
     int _playCount = 1;
     mutable bool _stop = true;
 };
-}
+} // namespace jojogame

@@ -8,7 +8,8 @@
 #include <mutex>
 #include <memory>
 
-namespace jojogame {
+namespace jojogame
+{
 class CME5File;
 
 class CGameManager
@@ -33,13 +34,14 @@ public:
 
     void Delay(int time);
     void StopDelay();
-    
+
     void SetIdleEvent();
 
     CME5File *OpenFile(std::wstring path);
     void CloseFile(CME5File *file);
 
-    static CGameManager& GetInstance();
+    static CGameManager &GetInstance();
+
 private:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CGameManager> s_sharedGameManager;
@@ -48,4 +50,4 @@ private:
 
     bool _quit = false;
 };
-}
+} // namespace jojogame

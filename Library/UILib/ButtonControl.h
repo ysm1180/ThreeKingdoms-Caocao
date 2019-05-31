@@ -6,7 +6,8 @@
 #include <Windows.h>
 #include <Commctrl.h>
 
-namespace jojogame {
+namespace jojogame
+{
 class CWindowControl;
 
 struct ButtonStateColor
@@ -19,17 +20,17 @@ struct ButtonStateColor
 class CButtonControl : public CWindowChildControl
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CButtonControl();
     virtual ~CButtonControl();
 
     bool IsTransparentBackground() const;
-    CTextFont* GetFont();
+    CTextFont *GetFont();
     std::wstring GetText() const;
-    ButtonStateColor& GetBackgroundColor();
-    ButtonStateColor& GetBorderColor();
-    ButtonStateColor& GetTextColor();
+    ButtonStateColor &GetBackgroundColor();
+    ButtonStateColor &GetBorderColor();
+    ButtonStateColor &GetTextColor();
     COLORREF GetNormalBackgroundColor() const;
     COLORREF GetFocusedBackgroundColor() const;
     COLORREF GetPushedBackgroundColor() const;
@@ -43,7 +44,7 @@ public:
 
     void SetTransparentBackground(bool isTransparentBackground);
     void SetText(std::wstring text);
-    void SetParentWindow(CWindowControl* parent);
+    void SetParentWindow(CWindowControl *parent);
     void SetBackgroundColor(COLORREF color);
     void SetFocusedBackgroundColor(COLORREF color);
     void SetPushedBackgroundColor(COLORREF color);
@@ -73,4 +74,4 @@ protected:
 
     static WNDPROC s_originalProc;
 };
-}
+} // namespace jojogame

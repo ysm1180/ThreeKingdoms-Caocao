@@ -6,7 +6,8 @@
 #include <CommCtrl.h>
 #include <CommCtrl.h>
 
-namespace jojogame {
+namespace jojogame
+{
 WNDPROC CListViewControl::s_originalProc = nullptr;
 
 LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -18,7 +19,7 @@ LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     case WM_CREATE:
     {
         auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        void* lpParamCreate = createStruct->lpCreateParams;
+        void *lpParamCreate = createStruct->lpCreateParams;
         auto listView = reinterpret_cast<CListViewControl *>(lpParamCreate);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(listView));
 
@@ -154,13 +155,10 @@ LRESULT CListViewControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     }
     }
 
-
     return CallWindowProc(CListViewControl::GetOriginalProc(), hWnd, msg, wParam, lParam);
 }
 
-
-
-void CListViewColumn::RegisterFunctions(lua_State* L)
+void CListViewColumn::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CListViewColumn, "_ListViewColumn");
 
@@ -222,7 +220,7 @@ std::wstring CListViewColumn::GetText() const
     return _text;
 }
 
-void CListViewColumn::SetParentListView(CListViewControl* parent)
+void CListViewColumn::SetParentListView(CListViewControl *parent)
 {
     _parentListView = parent;
 }
@@ -265,7 +263,7 @@ void CListViewColumn::SetText(std::wstring text)
     }
 }
 
-void CListViewItem::RegisterFunctions(lua_State* L)
+void CListViewItem::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CListViewItem, "_ListViewItem");
 
@@ -306,7 +304,7 @@ std::wstring CListViewItem::GetText()
     return _text;
 }
 
-CTextFont* CListViewItem::GetFont()
+CTextFont *CListViewItem::GetFont()
 {
     return &_font;
 }
@@ -356,7 +354,7 @@ int CListViewItem::GetAlign()
     return _align;
 }
 
-void CListViewItem::SetParentListRow(CListViewRow* parent)
+void CListViewItem::SetParentListRow(CListViewRow *parent)
 {
     _parentListRow = parent;
 }
@@ -471,7 +469,7 @@ void CListViewColumn::SetWidth(int width)
     }
 }
 
-void CListViewRow::RegisterFunctions(lua_State* L)
+void CListViewRow::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CListViewRow, "_ListViewItemRow");
 
@@ -507,7 +505,7 @@ bool CListViewRow::IsEnabled()
     return _isEnabled;
 }
 
-CListViewControl* CListViewRow::GetParentListView()
+CListViewControl *CListViewRow::GetParentListView()
 {
     return _parentListView;
 }
@@ -517,7 +515,7 @@ int CListViewRow::GetActiveEvent()
     return _activeEvent;
 }
 
-CListViewItem* CListViewRow::GetItem(int subIndex)
+CListViewItem *CListViewRow::GetItem(int subIndex)
 {
     if (subIndex > _items.size() || subIndex < 1)
     {
@@ -545,14 +543,14 @@ void CListViewRow::SetEnabled(bool isEnabled)
     }
 }
 
-void CListViewRow::SetParentListView(CListViewControl* parent)
+void CListViewRow::SetParentListView(CListViewControl *parent)
 {
     _parentListView = parent;
 }
 
 void CListViewRow::SetNormalBackgroundColor(COLORREF color)
 {
-    for (auto& item : _items)
+    for (auto &item : _items)
     {
         item->SetNormalBackgroundColor(color);
     }
@@ -560,7 +558,7 @@ void CListViewRow::SetNormalBackgroundColor(COLORREF color)
 
 void CListViewRow::SetFocusedBackgroundColor(COLORREF color)
 {
-    for (auto& item : _items)
+    for (auto &item : _items)
     {
         item->SetFocusedBackgroundColor(color);
     }
@@ -568,7 +566,7 @@ void CListViewRow::SetFocusedBackgroundColor(COLORREF color)
 
 void CListViewRow::SetNormalTextColor(COLORREF color)
 {
-    for (auto& item : _items)
+    for (auto &item : _items)
     {
         item->SetNormalTextColor(color);
     }
@@ -576,7 +574,7 @@ void CListViewRow::SetNormalTextColor(COLORREF color)
 
 void CListViewRow::SetFocusedTextColor(COLORREF color)
 {
-    for (auto& item : _items)
+    for (auto &item : _items)
     {
         item->SetFocusedTextColor(color);
     }
@@ -594,7 +592,7 @@ void CListViewRow::SetActiveEvent()
     lua_pop(l, 1);
 }
 
-void CListViewRow::SetItem(int subIndex, CListViewItem* item)
+void CListViewRow::SetItem(int subIndex, CListViewItem *item)
 {
     if (subIndex > _items.size() || subIndex < 1)
     {
@@ -609,14 +607,14 @@ void CListViewRow::SetRowIndex(int index)
     _rowIndex = index;
 }
 
-void CListViewRow::AddItem(CListViewItem* item)
+void CListViewRow::AddItem(CListViewItem *item)
 {
     item->SetParentListRow(this);
     item->SetItemIndex(_items.size());
     _items.push_back(item);
 }
 
-void CListViewControl::RegisterFunctions(lua_State* L)
+void CListViewControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN_CHILD(CListViewControl, "_ListView", CWindowChildControl);
 
@@ -692,7 +690,7 @@ bool CListViewControl::IsTransparentBackground() const
     return _isTransparentBackground;
 }
 
-CListViewColumn* CListViewControl::GetColumn(int columnIndex)
+CListViewColumn *CListViewControl::GetColumn(int columnIndex)
 {
     if (columnIndex > _columns.size() || columnIndex < 1)
     {
@@ -704,7 +702,7 @@ CListViewColumn* CListViewControl::GetColumn(int columnIndex)
     }
 }
 
-CListViewRow* CListViewControl::GetRow(int rowIndex)
+CListViewRow *CListViewControl::GetRow(int rowIndex)
 {
     if (rowIndex > _rows.size() || rowIndex < 1)
     {
@@ -842,7 +840,7 @@ void CListViewControl::SetTransparentBackground(bool isTransparentBackground)
     }
 }
 
-void CListViewControl::SetParentWindow(CWindowControl* parent)
+void CListViewControl::SetParentWindow(CWindowControl *parent)
 {
     if (parent)
     {
@@ -870,7 +868,7 @@ void CListViewControl::SetRowHeight(int rowHeight)
     }
 }
 
-void CListViewControl::AppendColumn(CListViewColumn* column)
+void CListViewControl::AppendColumn(CListViewColumn *column)
 {
     int index;
 
@@ -881,7 +879,8 @@ void CListViewControl::AppendColumn(CListViewColumn* column)
         if (column->GetIndex() == -1)
         {
             index = _columns.size();
-        } else
+        }
+        else
         {
             index = column->GetIndex();
         }
@@ -903,7 +902,7 @@ void CListViewControl::AppendColumn(CListViewColumn* column)
     }
 }
 
-void CListViewControl::AddColumn(CListViewColumn* column)
+void CListViewControl::AddColumn(CListViewColumn *column)
 {
     const int index = _columns.size();
 
@@ -914,7 +913,7 @@ void CListViewControl::AddColumn(CListViewColumn* column)
     _columns.push_back(column);
 }
 
-void CListViewControl::AppendRow(CListViewRow* row)
+void CListViewControl::AppendRow(CListViewRow *row)
 {
     if (_hWnd != nullptr)
     {
@@ -936,7 +935,8 @@ void CListViewControl::AppendRow(CListViewRow* row)
             if (row->GetRowIndex() == -1)
             {
                 itemIndex = _rows.size();
-            } else
+            }
+            else
             {
                 itemIndex = row->GetRowIndex();
             }
@@ -969,7 +969,7 @@ void CListViewControl::AppendRow(CListViewRow* row)
     }
 }
 
-void CListViewControl::AddRow(CListViewRow* row)
+void CListViewControl::AddRow(CListViewRow *row)
 {
     const int itemIndex = _rows.size();
 
@@ -983,14 +983,14 @@ void CListViewControl::AddRow(CListViewRow* row)
 bool CListViewControl::Create()
 {
     _hWnd = CreateWindow(L"jojo_listview",
-        L"",
-        _style,
-        _position.x, _position.y,
-        _size.cx, _size.cy,
-        _parentControl->GetHWnd(),
-        (HMENU)this,
-        CControlManager::GetInstance().GetHInstance(),
-        this);
+                         L"",
+                         _style,
+                         _position.x, _position.y,
+                         _size.cx, _size.cy,
+                         _parentControl->GetHWnd(),
+                         (HMENU)this,
+                         CControlManager::GetInstance().GetHInstance(),
+                         this);
 
     if (_hWnd != nullptr)
     {
@@ -1015,4 +1015,4 @@ WNDPROC CListViewControl::GetOriginalProc()
 {
     return s_originalProc;
 }
-}
+} // namespace jojogame

@@ -1,8 +1,9 @@
 #include "ME5File.h"
 #include "FileManager.h"
 
-namespace jojogame {
-void CME5File::RegisterFunctions(lua_State* L)
+namespace jojogame
+{
+void CME5File::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN(CME5File, "_Me5File");
 
@@ -16,7 +17,6 @@ void CME5File::RegisterFunctions(lua_State* L)
 
 CME5File::CME5File()
 {
-
 }
 
 CME5File::~CME5File()
@@ -118,7 +118,7 @@ std::string CME5File::GetGroupName(int groupIndex)
     _ReadByteArr(name, offset, length);
     name[length] = 0;
 
-    std::string str = std::string((char *) name);
+    std::string str = std::string((char *)name);
     delete name;
 
     return str;
@@ -147,7 +147,7 @@ std::string CME5File::GetItemName(int index)
     _ReadByteArr(name, offset, length);
     name[length] = 0;
 
-    std::string str = std::string((char *) name);
+    std::string str = std::string((char *)name);
     delete name;
 
     return str;
@@ -171,7 +171,7 @@ int CME5File::FindItemIndexByName(int groupIndex, std::string name)
             return i;
         }
     }
-    
+
     return -1;
 }
 
@@ -225,7 +225,6 @@ void CME5File::Close()
 
 void CME5File::Dispose()
 {
-
 }
 
-}
+} // namespace jojogame

@@ -5,7 +5,8 @@
 #include <memory>
 #include <mutex>
 
-namespace jojogame {
+namespace jojogame
+{
 class CFileManager
 {
 public:
@@ -20,11 +21,12 @@ public:
     std::wstring GetWorkingPath();
     std::wstring GetFilePath(std::wstring filePath);
 
-    static CFileManager& GetInstance();
+    static CFileManager &GetInstance();
+
 private:
     std::wstring _currentWorkingPath = L"script/";
 
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CFileManager> s_sharedFileManager;
 };
-}
+} // namespace jojogame

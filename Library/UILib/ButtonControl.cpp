@@ -3,7 +3,8 @@
 #include "ControlManager.h"
 #include "WindowControl.h"
 
-namespace jojogame {
+namespace jojogame
+{
 WNDPROC CButtonControl::s_originalProc = nullptr;
 
 LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
@@ -15,7 +16,7 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     case WM_CREATE:
     {
         auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-        void* lpParamCreate = createStruct->lpCreateParams;
+        void *lpParamCreate = createStruct->lpCreateParams;
         auto button = reinterpret_cast<CButtonControl *>(lpParamCreate);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(button));
 
@@ -147,7 +148,7 @@ LRESULT CALLBACK CButtonControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
     return CallWindowProc(CButtonControl::GetOriginalProc(), hWnd, iMessage, wParam, lParam);
 }
 
-void CButtonControl::RegisterFunctions(lua_State* L)
+void CButtonControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN_CHILD(CButtonControl, "_ButtonControl", CWindowChildControl);
 
@@ -211,7 +212,7 @@ bool CButtonControl::IsTransparentBackground() const
     return _isTransparentBackground;
 }
 
-CTextFont* CButtonControl::GetFont()
+CTextFont *CButtonControl::GetFont()
 {
     return &_font;
 }
@@ -221,17 +222,17 @@ std::wstring CButtonControl::GetText() const
     return _text;
 }
 
-ButtonStateColor& CButtonControl::GetBackgroundColor()
+ButtonStateColor &CButtonControl::GetBackgroundColor()
 {
     return _backgroundColor;
 }
 
-ButtonStateColor& CButtonControl::GetBorderColor()
+ButtonStateColor &CButtonControl::GetBorderColor()
 {
     return _borderColor;
 }
 
-ButtonStateColor& CButtonControl::GetTextColor()
+ButtonStateColor &CButtonControl::GetTextColor()
 {
     return _textColor;
 }
@@ -309,7 +310,7 @@ void CButtonControl::SetText(std::wstring text)
     }
 }
 
-void CButtonControl::SetParentWindow(CWindowControl* parent)
+void CButtonControl::SetParentWindow(CWindowControl *parent)
 {
     if (_parentControl != parent)
     {
@@ -401,16 +402,16 @@ bool CButtonControl::Create()
     if (_parentControl != nullptr)
     {
         _hWnd = CreateWindow(L"jojo_button",
-            _text.c_str(),
-            _style,
-            _position.x,
-            _position.y,
-            _size.cx,
-            _size.cy,
-            _parentControl->GetHWnd(),
-            (HMENU)this,
-            CControlManager::GetInstance().GetHInstance(),
-            (LPVOID)this);
+                             _text.c_str(),
+                             _style,
+                             _position.x,
+                             _position.y,
+                             _size.cx,
+                             _size.cy,
+                             _parentControl->GetHWnd(),
+                             (HMENU)this,
+                             CControlManager::GetInstance().GetHInstance(),
+                             (LPVOID)this);
         _font.ResetFont();
     }
 
@@ -432,4 +433,4 @@ WNDPROC CButtonControl::GetOriginalProc()
 {
     return s_originalProc;
 }
-}
+} // namespace jojogame

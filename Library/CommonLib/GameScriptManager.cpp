@@ -1,6 +1,7 @@
 #include "GameScriptManager.h"
 
-namespace jojogame {
+namespace jojogame
+{
 std::once_flag CGameScriptManager::s_onceFlag;
 std::unique_ptr<CGameScriptManager> CGameScriptManager::s_sharedGameScriptManager;
 
@@ -16,14 +17,13 @@ CGameScriptManager::~CGameScriptManager()
 {
 }
 
-CGameScriptManager& CGameScriptManager::GetInstance()
+CGameScriptManager &CGameScriptManager::GetInstance()
 {
     std::call_once(s_onceFlag,
-                   []
-    {
-        s_sharedGameScriptManager = std::make_unique<jojogame::CGameScriptManager>();
-    });
+                   [] {
+                       s_sharedGameScriptManager = std::make_unique<jojogame::CGameScriptManager>();
+                   });
 
     return *s_sharedGameScriptManager;
 }
-}
+} // namespace jojogame

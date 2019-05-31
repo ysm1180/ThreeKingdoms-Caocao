@@ -2,8 +2,9 @@
 #include "WindowControl.h"
 #include "ToolbarControl.h"
 
-namespace jojogame {
-void CWindowChildControl::RegisterFunctions(lua_State* L)
+namespace jojogame
+{
+void CWindowChildControl::RegisterFunctions(lua_State *L)
 {
     LUA_BEGIN_CHILD(CWindowChildControl, "_ChlidControl", CBaseControl);
 
@@ -15,7 +16,7 @@ void CWindowChildControl::RegisterFunctions(lua_State* L)
 
 int CWindowChildControl::GetLuaY() const
 {
-    auto window = dynamic_cast<CWindowControl*>(_parentControl);
+    auto window = dynamic_cast<CWindowControl *>(_parentControl);
     auto toolbar = window->GetToolbar();
     int toolbarHeight = 0;
     if (toolbar)
@@ -26,14 +27,14 @@ int CWindowChildControl::GetLuaY() const
     return _position.y - toolbarHeight;
 }
 
-CWindowControl* CWindowChildControl::GetParentWindow() const
+CWindowControl *CWindowChildControl::GetParentWindow() const
 {
-    return dynamic_cast<CWindowControl*>(_parentControl);
+    return dynamic_cast<CWindowControl *>(_parentControl);
 }
 
 void CWindowChildControl::SetLuaY(const int y)
 {
-    auto window = dynamic_cast<CWindowControl*>(_parentControl);
+    auto window = dynamic_cast<CWindowControl *>(_parentControl);
     auto toolbar = window->GetToolbar();
     int toolbarHeight = 0;
     if (toolbar)
@@ -60,4 +61,4 @@ void CWindowChildControl::SetLuaY(const int y)
         }
     }
 }
-}
+} // namespace jojogame

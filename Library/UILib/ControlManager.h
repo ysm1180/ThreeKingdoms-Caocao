@@ -7,7 +7,8 @@
 #include <memory>
 #include <mutex>
 
-namespace jojogame {
+namespace jojogame
+{
 class CWindowControl;
 class CMoviePlayerControl;
 class CButtonControl;
@@ -32,41 +33,42 @@ class CGraphicText;
 class CControlManager
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CControlManager();
     virtual ~CControlManager();
 
     void Init(HINSTANCE hInstance);
 
-    CWindowControl* CreateWindowForm(CWindowControl* parent);
-    CMoviePlayerControl* CreateMoviePlayer(CWindowControl* parent, std::wstring fileName);
-    CButtonControl* CreateButton(CWindowControl* parent);
-    CMenu* CreateMenu();
-    CMenuItem* CreateMenuItem();
-    CImageControl* CreateImage();
-    CToolbarControl* CreateToolbar();
-    CToolbarButton* CreateToolbarButton();
-    CLayoutControl* CreateLayout();
-    CListViewControl* CreateListView(CWindowControl* parent);
-    CListViewColumn* CreateListViewColumn();
-    CListViewRow* CreateListViewRow();
-    CListViewItem* CreateListViewItem();
-    CStaticControl* CreateStatic(CWindowControl* parent);
-    CGroupBoxControl* CreateGroupBox(CWindowControl* parent);
-    CCheckBoxControl* CreateCheckBox(CWindowControl* parent);
-    CRadioButtonControl* CreateRadioButton(CWindowControl* parent, bool isGroupStart);
-    CComboBoxControl* CreateComboBox(CWindowControl* parent);
-    CAudioPlayerControl* CreateAudioPlayer();
-    CGraphicText* CreateGraphicText();
+    CWindowControl *CreateWindowForm(CWindowControl *parent);
+    CMoviePlayerControl *CreateMoviePlayer(CWindowControl *parent, std::wstring fileName);
+    CButtonControl *CreateButton(CWindowControl *parent);
+    CMenu *CreateMenu();
+    CMenuItem *CreateMenuItem();
+    CImageControl *CreateImage();
+    CToolbarControl *CreateToolbar();
+    CToolbarButton *CreateToolbarButton();
+    CLayoutControl *CreateLayout();
+    CListViewControl *CreateListView(CWindowControl *parent);
+    CListViewColumn *CreateListViewColumn();
+    CListViewRow *CreateListViewRow();
+    CListViewItem *CreateListViewItem();
+    CStaticControl *CreateStatic(CWindowControl *parent);
+    CGroupBoxControl *CreateGroupBox(CWindowControl *parent);
+    CCheckBoxControl *CreateCheckBox(CWindowControl *parent);
+    CRadioButtonControl *CreateRadioButton(CWindowControl *parent, bool isGroupStart);
+    CComboBoxControl *CreateComboBox(CWindowControl *parent);
+    CAudioPlayerControl *CreateAudioPlayer();
+    CGraphicText *CreateGraphicText();
 
     HINSTANCE GetHInstance();
 
-    static CControlManager& GetInstance();
+    static CControlManager &GetInstance();
+
 protected:
     HINSTANCE _hInstance;
 
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CControlManager> s_controlManager;
 };
-}
+} // namespace jojogame

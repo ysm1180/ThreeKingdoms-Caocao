@@ -6,7 +6,8 @@
 #include <cstdio>
 #include <string>
 
-namespace jojogame {
+namespace jojogame
+{
 //4 Offset; 4 NameLength; 4 ItemSize;
 const int HEADER_SIZE = 12;
 //4 GroupNameLength; 4 StartIndex; 4 EndIndex;
@@ -17,7 +18,7 @@ const int GROUP_HEADER_START_OFFSET = 9;
 class CME5File
 {
 public:
-    static void RegisterFunctions(lua_State* L);
+    static void RegisterFunctions(lua_State *L);
 
     CME5File();
     ~CME5File();
@@ -54,4 +55,4 @@ private:
 
     FILE *_file = nullptr;
 };
-}
+} // namespace jojogame
