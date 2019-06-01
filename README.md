@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/k88eej9dd9b2j9hc/branch/master?svg=true)](https://ci.appveyor.com/project/ysm1180/newjojogame/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/qyv85rx61q88rf7o?svg=true)](https://ci.appveyor.com/project/ysm1180/threekingdoms-caocao)
 
 # 삼국지 조조전 리뉴얼
 
@@ -10,7 +10,7 @@ Visual studio 2017
 ## Getting Started
 First, clone using `git`:
 ```
-git clone https://github.com/ysm1180/NewJojoGame.git
+git clone https://github.com/ysm1180/ThreeKingdoms-Caocao.git
 ```
 
 Then, open jojogame.sin with `visual studio 2017`.
