@@ -118,7 +118,7 @@ void CLayoutControl::SetX(int x, bool isRedraw)
                     RECT rect;
                     SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                             _position.y + int(height * _ratioY));
-                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+                    _refreshRect.push_back(rect);
                 }
             }
 
@@ -142,9 +142,7 @@ void CLayoutControl::SetX(int x, bool isRedraw)
                     RECT rect;
                     SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                             _position.y + int(height * _ratioY));
-                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
-
-                    UpdateWindow(parent->GetHWnd());
+                    _refreshRect.push_back(rect);
                 }
             }
         }
@@ -179,7 +177,7 @@ void CLayoutControl::SetY(int y, bool isRedraw)
                     RECT rect;
                     SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                             _position.y + int(height * _ratioY));
-                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+                    _refreshRect.push_back(rect);
                 }
             }
 
@@ -203,9 +201,7 @@ void CLayoutControl::SetY(int y, bool isRedraw)
                     RECT rect;
                     SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                             _position.y + int(height * _ratioY));
-                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
-
-                    UpdateWindow(parent->GetHWnd());
+                    _refreshRect.push_back(rect);
                 }
             }
         }
@@ -240,7 +236,7 @@ void CLayoutControl::SetWidth(int cx, bool isRedraw)
                     RECT rect;
                     SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                             _position.y + int(height * _ratioY));
-                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+                    _refreshRect.push_back(rect);
                 }
             }
 
@@ -264,9 +260,7 @@ void CLayoutControl::SetWidth(int cx, bool isRedraw)
                     RECT rect;
                     SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                             _position.y + int(height * _ratioY));
-                    InvalidateRect(parent->GetHWnd(), &rect, TRUE);
-
-                    UpdateWindow(parent->GetHWnd());
+                    _refreshRect.push_back(rect);
                 }
             }
         }
@@ -299,7 +293,7 @@ void CLayoutControl::SetHeight(int cy, bool isRedraw)
                 RECT rect;
                 SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                         _position.y + int(height * _ratioY));
-                InvalidateRect(parent->GetHWnd(), &rect, TRUE);
+                _refreshRect.push_back(rect);
             }
         }
 
@@ -323,9 +317,7 @@ void CLayoutControl::SetHeight(int cy, bool isRedraw)
                 RECT rect;
                 SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                         _position.y + int(height * _ratioY));
-                InvalidateRect(parent->GetHWnd(), &rect, TRUE);
-
-                UpdateWindow(parent->GetHWnd());
+                _refreshRect.push_back(rect);
             }
         }
     }
@@ -357,7 +349,7 @@ void CLayoutControl::SetRatioX(double ratio, bool isRedraw)
                 RECT rect;
                 SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                         _position.y + int(height * _ratioY));
-                InvalidateRect(parent->GetHWnd(), &rect, FALSE);
+                _refreshRect.push_back(rect);
             }
         }
 
@@ -381,9 +373,7 @@ void CLayoutControl::SetRatioX(double ratio, bool isRedraw)
                 RECT rect;
                 SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                         _position.y + int(height * _ratioY));
-                InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-
-                UpdateWindow(parent->GetHWnd());
+                _refreshRect.push_back(rect);
             }
         }
     }
@@ -415,7 +405,7 @@ void CLayoutControl::SetRatioY(double ratio, bool isRedraw)
                 RECT rect;
                 SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                         _position.y + int(height * _ratioY));
-                InvalidateRect(parent->GetHWnd(), &rect, FALSE);
+                _refreshRect.push_back(rect);
             }
         }
 
@@ -439,9 +429,7 @@ void CLayoutControl::SetRatioY(double ratio, bool isRedraw)
                 RECT rect;
                 SetRect(&rect, _position.x, _position.y, _position.x + int(width * _ratioX),
                         _position.y + int(height * _ratioY));
-                InvalidateRect(parent->GetHWnd(), &rect, FALSE);
-
-                UpdateWindow(parent->GetHWnd());
+                _refreshRect.push_back(rect);
             }
         }
     }
