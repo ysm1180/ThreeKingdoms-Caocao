@@ -64,19 +64,19 @@ void CLuaConsole::AppendOutput(std::wstring msg)
     if (newLen > OUTPUT_MAX_LENGTH)
     {
         SendMessage(output, EM_SETSEL, 0, appendLen);
-        SendMessage(output, EM_REPLACESEL, 0, (LPARAM) "");
+        SendMessage(output, EM_REPLACESEL, 0, (LPARAM)"");
     }
 
     SendMessage(output, EM_SETSEL, 0, -1);
     SendMessage(output, EM_SETSEL, -1, -1);
-    SendMessage(output, EM_REPLACESEL, 0, (LPARAM) "\n");
+    SendMessage(output, EM_REPLACESEL, 0, reinterpret_cast<LPARAM>((TCHAR*)L"\r\n"));
 
     SendMessage(output, EM_SETSEL, 0, -1);
     SendMessage(output, EM_SETSEL, -1, -1);
     SendMessage(output, EM_REPLACESEL, 0, (LPARAM)msg.c_str());
 
     OutputDebugString(msg.c_str());
-    OutputDebugString(L"\n");
+    OutputDebugString(L"\r\n");
 }
 
 void CLuaConsole::Create(HINSTANCE hInstance)
