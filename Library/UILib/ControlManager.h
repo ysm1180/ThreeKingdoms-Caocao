@@ -30,6 +30,7 @@ class CRadioButtonControl;
 class CComboBoxControl;
 class CAudioPlayerControl;
 class CGraphicText;
+class CGraphicRect;
 
 class CControlManager
 {
@@ -61,6 +62,7 @@ public:
     CComboBoxControl *CreateComboBox(CWindowControl *parent);
     CAudioPlayerControl *CreateAudioPlayer();
     CGraphicText *CreateGraphicText();
+    CGraphicRect *CreateGraphicRect();
 
     std::vector<CLayoutControl *> GetLayouts();
     HINSTANCE GetHInstance();
