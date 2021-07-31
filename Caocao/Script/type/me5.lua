@@ -1,0 +1,3 @@
+---@class Me5Item
+---@field Group integer | string @ 그룹 idx or 이름
+---@field Item integer | string @ 그룹 내 아이템 idx or 이름

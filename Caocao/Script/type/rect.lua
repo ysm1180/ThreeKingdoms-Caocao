@@ -1,0 +1,5 @@
+---@class Rect
+---@field Left integer @왼쪽 상단 X 좌표
+---@field Top integer @왼쪽 상단 Y 좌표
+---@field Right integer @오른쪽 하단 X 좌표
+---@field Bottom integer @오른쪽 하단 Y 좌표
