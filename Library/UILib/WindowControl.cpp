@@ -11,7 +11,7 @@
 #include "ListviewControl.h"
 #include "StaticControl.h"
 #include "GroupBoxControl.h"
-#include "CheckBoxControl.h"
+#include "CheckboxControl.h"
 #include "RadioButtonControl.h"
 
 #include <Uxtheme.h>
@@ -683,7 +683,7 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         }
         else if (control->GetType() == L"checkbox")
         {
-            auto checkBox = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
+            auto checkBox = reinterpret_cast<CCheckboxControl *>(GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
 
             RECT rect;
             GetClientRect(checkBox->GetHWnd(), &rect);

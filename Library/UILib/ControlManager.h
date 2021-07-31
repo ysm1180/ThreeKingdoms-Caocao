@@ -25,7 +25,7 @@ class CListViewRow;
 class CListViewItem;
 class CStaticControl;
 class CGroupBoxControl;
-class CCheckBoxControl;
+class CCheckboxControl;
 class CRadioButtonControl;
 class CComboBoxControl;
 class CAudioPlayerControl;
@@ -56,7 +56,7 @@ public:
     CListViewItem *CreateListViewItem();
     CStaticControl *CreateStatic(CWindowControl *parent);
     CGroupBoxControl *CreateGroupBox(CWindowControl *parent);
-    CCheckBoxControl *CreateCheckBox(CWindowControl *parent);
+    CCheckboxControl *CreateCheckbox(CWindowControl *parent);
     CRadioButtonControl *CreateRadioButton(CWindowControl *parent, bool isGroupStart);
     CComboBoxControl *CreateComboBox(CWindowControl *parent);
     CAudioPlayerControl *CreateAudioPlayer();

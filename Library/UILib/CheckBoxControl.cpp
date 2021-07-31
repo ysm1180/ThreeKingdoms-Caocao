@@ -1,11 +1,11 @@
-﻿#include "CheckBoxControl.h"
+﻿#include "CheckboxControl.h"
 #include "ControlManager.h"
 
 namespace three_kingdoms
 {
-WNDPROC CCheckBoxControl::s_originalProc = nullptr;
+WNDPROC CCheckboxControl::s_originalProc = nullptr;
 
-LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CCheckboxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     TRACKMOUSEEVENT trackMouseEvent;
 
@@ -15,7 +15,7 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
     {
         auto createStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
         void *lpParamCreate = createStruct->lpCreateParams;
-        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(lpParamCreate);
+        auto checkBoxControl = reinterpret_cast<CCheckboxControl *>(lpParamCreate);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(checkBoxControl));
 
         auto createEvent = checkBoxControl->GetCreateEvent();
@@ -31,7 +31,7 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_LBUTTONUP:
     {
-        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto checkBoxControl = reinterpret_cast<CCheckboxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseLButtonUpEvent = checkBoxControl->GetMouseLButtonUpEvent();
         if (mouseLButtonUpEvent != LUA_NOREF)
         {
@@ -51,7 +51,7 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_LBUTTONDOWN:
     {
-        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto checkBoxControl = reinterpret_cast<CCheckboxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseLButtonUpEvent = checkBoxControl->GetMouseLButtonDownEvent();
 
         checkBoxControl->_isPressed = true;
@@ -73,7 +73,7 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_MOUSEMOVE:
     {
-        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto checkBoxControl = reinterpret_cast<CCheckboxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseMoveEvent = checkBoxControl->GetMouseMoveEvent();
         if (mouseMoveEvent != LUA_NOREF)
         {
@@ -97,7 +97,7 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_MOUSEHOVER:
     {
-        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto checkBoxControl = reinterpret_cast<CCheckboxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseHoverEvent = checkBoxControl->GetMouseEnterEvent();
         if (mouseHoverEvent != LUA_NOREF)
         {
@@ -119,7 +119,7 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_MOUSELEAVE:
     {
-        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto checkBoxControl = reinterpret_cast<CCheckboxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto mouseLeaveEvent = checkBoxControl->GetMouseLeaveEvent();
         if (mouseLeaveEvent != LUA_NOREF)
         {
@@ -137,7 +137,7 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
     case WM_DESTROY:
     {
-        auto checkBoxControl = reinterpret_cast<CCheckBoxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        auto checkBoxControl = reinterpret_cast<CCheckboxControl *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         auto destroyEvent = checkBoxControl->GetDestroyEvent();
 
         if (destroyEvent != LUA_NOREF)
@@ -147,12 +147,12 @@ LRESULT CCheckBoxControl::OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
         break;
     }
     }
-    return CallWindowProc(CCheckBoxControl::GetOriginalProc(), hWnd, msg, wParam, lParam);
+    return CallWindowProc(CCheckboxControl::GetOriginalProc(), hWnd, msg, wParam, lParam);
 }
 
-void CCheckBoxControl::RegisterFunctions(lua_State *L)
+void CCheckboxControl::RegisterFunctions(lua_State *L)
 {
-    LUA_BEGIN_CHILD(CCheckBoxControl, "_CheckBoxControl", CWindowChildControl);
+    LUA_BEGIN_CHILD(CCheckboxControl, "_CheckboxControl", CWindowChildControl);
 
     LUA_METHOD(IsChecked);
     LUA_METHOD(GetText);
@@ -167,23 +167,23 @@ void CCheckBoxControl::RegisterFunctions(lua_State *L)
     GetClassInfo(NULL, TEXT("Button"), &wndClass);
     s_originalProc = wndClass.lpfnWndProc;
     wndClass.hInstance = CControlManager::GetInstance().GetHInstance();
-    wndClass.lpfnWndProc = (WNDPROC)CCheckBoxControl::OnControlProc;
+    wndClass.lpfnWndProc = (WNDPROC)CCheckboxControl::OnControlProc;
     wndClass.lpszClassName = L"jojo_check";
     RegisterClass(&wndClass);
 }
 
-CCheckBoxControl::CCheckBoxControl()
+CCheckboxControl::CCheckboxControl()
     : _font(this)
 {
     _style = WS_TABSTOP | WS_CHILD | BS_CHECKBOX | BS_AUTOCHECKBOX;
     _type = L"checkbox";
 }
 
-CCheckBoxControl::~CCheckBoxControl()
+CCheckboxControl::~CCheckboxControl()
 {
 }
 
-bool CCheckBoxControl::IsChecked()
+bool CCheckboxControl::IsChecked()
 {
     if (_hWnd != nullptr)
     {
@@ -195,22 +195,22 @@ bool CCheckBoxControl::IsChecked()
     }
 }
 
-std::wstring CCheckBoxControl::GetText()
+std::wstring CCheckboxControl::GetText()
 {
     return _text;
 }
 
-CTextFont *CCheckBoxControl::GetFont()
+CTextFont *CCheckboxControl::GetFont()
 {
     return &_font;
 }
 
-HTHEME CCheckBoxControl::GetTheme()
+HTHEME CCheckboxControl::GetTheme()
 {
     return _theme;
 }
 
-void CCheckBoxControl::SetText(std::wstring text)
+void CCheckboxControl::SetText(std::wstring text)
 {
     if (_text != text)
     {
@@ -223,7 +223,7 @@ void CCheckBoxControl::SetText(std::wstring text)
     }
 }
 
-void CCheckBoxControl::SetChecked(bool checked)
+void CCheckboxControl::SetChecked(bool checked)
 {
     _isChecked = checked;
     if (_hWnd != nullptr)
@@ -239,7 +239,7 @@ void CCheckBoxControl::SetChecked(bool checked)
     }
 }
 
-bool CCheckBoxControl::Create()
+bool CCheckboxControl::Create()
 {
     if (_parentControl != nullptr)
     {
@@ -270,7 +270,7 @@ bool CCheckBoxControl::Create()
     return _hWnd != nullptr;
 }
 
-WNDPROC CCheckBoxControl::GetOriginalProc()
+WNDPROC CCheckboxControl::GetOriginalProc()
 {
     return s_originalProc;
 }

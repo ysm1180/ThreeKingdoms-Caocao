@@ -5,13 +5,13 @@
 
 namespace three_kingdoms
 {
-class CCheckBoxControl : public CWindowChildControl
+class CCheckboxControl : public CWindowChildControl
 {
 public:
     static void RegisterFunctions(lua_State *L);
 
-    CCheckBoxControl();
-    virtual ~CCheckBoxControl();
+    CCheckboxControl();
+    virtual ~CCheckboxControl();
 
     bool IsChecked();
     std::wstring GetText();

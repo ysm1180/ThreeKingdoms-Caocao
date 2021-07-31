@@ -23,7 +23,7 @@
     <ClCompile Include="ButtonControl.cpp" />
     <ClCompile Include="WindowChildControl.cpp" />
     <ClCompile Include="GraphicText.cpp" />
-    <ClCompile Include="CheckBoxControl.cpp" />
+    <ClCompile Include="CheckboxControl.cpp" />
     <ClCompile Include="ComboBoxControl.cpp" />
     <ClCompile Include="ControlManager.cpp" />
     <ClCompile Include="GroupBoxControl.cpp" />
@@ -46,7 +46,7 @@
     <ClInclude Include="ButtonControl.h" />
     <ClInclude Include="WindowChildControl.h" />
     <ClInclude Include="GraphicText.h" />
-    <ClInclude Include="CheckBoxControl.h" />
+    <ClInclude Include="CheckboxControl.h" />
     <ClInclude Include="ComboBoxControl.h" />
     <ClInclude Include="ControlManager.h" />
     <ClInclude Include="GroupBoxControl.h" />

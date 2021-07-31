@@ -15,7 +15,7 @@
 #include "ListviewControl.h"
 #include "StaticControl.h"
 #include "GroupBoxControl.h"
-#include "CheckBoxControl.h"
+#include "CheckboxControl.h"
 #include "RadioButtonControl.h"
 #include "ComboBoxControl.h"
 #include "AudioPlayer.h"
@@ -45,7 +45,7 @@ void CControlManager::RegisterFunctions(lua_State *L)
     LUA_METHOD(CreateListViewItem);
     LUA_METHOD(CreateStatic);
     LUA_METHOD(CreateGroupBox);
-    LUA_METHOD(CreateCheckBox);
+    LUA_METHOD(CreateCheckbox);
     LUA_METHOD(CreateRadioButton);
     LUA_METHOD(CreateComboBox);
     LUA_METHOD(CreateAudioPlayer);
@@ -83,7 +83,7 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CListViewItem>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CStaticControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CGroupBoxControl>();
-    CLuaTinker::GetLuaTinker().RegisterClassToLua<CCheckBoxControl>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CCheckboxControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CRadioButtonControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CComboBoxControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CAudioPlayerControl>();
@@ -194,9 +194,9 @@ CGroupBoxControl *CControlManager::CreateGroupBox(CWindowControl *parent)
     return control;
 }
 
-CCheckBoxControl *CControlManager::CreateCheckBox(CWindowControl *parent)
+CCheckboxControl *CControlManager::CreateCheckbox(CWindowControl *parent)
 {
-    auto control = CMemoryPool<CCheckBoxControl>::GetInstance().New();
+    auto control = CMemoryPool<CCheckboxControl>::GetInstance().New();
     control->SetParentControl(parent);
     return control;
 }

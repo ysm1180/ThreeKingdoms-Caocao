@@ -16,7 +16,7 @@
     <ClCompile Include="ListviewControl.cpp" />
     <ClCompile Include="StaticControl.cpp" />
     <ClCompile Include="GroupBoxControl.cpp" />
-    <ClCompile Include="CheckBoxControl.cpp" />
+    <ClCompile Include="CheckboxControl.cpp" />
     <ClCompile Include="RadioButtonControl.cpp" />
     <ClCompile Include="ComboBoxControl.cpp" />
     <ClCompile Include="AudioPlayer.cpp" />
@@ -39,7 +39,7 @@
     <ClInclude Include="ListviewControl.h" />
     <ClInclude Include="StaticControl.h" />
     <ClInclude Include="GroupBoxControl.h" />
-    <ClInclude Include="CheckBoxControl.h" />
+    <ClInclude Include="CheckboxControl.h" />
     <ClInclude Include="RadioButtonControl.h" />
     <ClInclude Include="ComboBoxControl.h" />
     <ClInclude Include="AudioPlayer.h" />
