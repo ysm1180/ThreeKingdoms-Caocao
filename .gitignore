@@ -288,4 +288,8 @@ __pycache__/
 .vscode/
 
 cmake-build-debug/
-**/Script*
+
+# Script files
+*.me5
+*.sav
+*.AVI
