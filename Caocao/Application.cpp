@@ -1,4 +1,8 @@
+#include <ole2.h>
+#include <gdiplus.h>
 #include <chrono>
+
+#pragma comment(lib, "gdiplus.lib")
 
 #include "Application.h"
 #include "LuaConsole.h"
@@ -61,6 +65,13 @@ int Application::Run()
         return 1;
     }
 
+    ULONG_PTR gpToken;
+    Gdiplus::GdiplusStartupInput gpsi;
+    if (Gdiplus::GdiplusStartup(&gpToken, &gpsi, nullptr) != Gdiplus::Ok)
+    {
+        return 1;
+    }
+
     _controlManager = &CControlManager::GetInstance();
     _gameManager = &CGameManager::GetInstance();
     _fileManager = &CFileManager::GetInstance();
@@ -118,6 +129,8 @@ int Application::Run()
     _gameManager->SetQuit(true);
     CMemoryPoolManager::GetInstance().DestroyAllMemoryPool();
     SDL_Quit();
+
+    Gdiplus::GdiplusShutdown(gpToken);
 
     return (int)message.wParam;
 }

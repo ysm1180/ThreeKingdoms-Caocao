@@ -11,6 +11,7 @@ namespace three_kingdoms
 class CWindowControl;
 class CImageControl;
 class CGraphicText;
+class CGraphicRect;
 
 struct ImageInformation
 {
@@ -29,6 +30,15 @@ struct TextInformation
 {
     int index;
     CGraphicText *text;
+    POINT position;
+    bool isHide;
+    bool isRefresh;
+};
+
+struct RectInformation
+{
+    int index;
+    CGraphicRect *rect;
     POINT position;
     bool isHide;
     bool isRefresh;
@@ -71,6 +81,12 @@ public:
     void HideText(int index, bool isUpdate);
     void ShowText(int index, bool isUpdate);
 
+    int AddRect(CGraphicRect *rect, int x, int y, bool isShow);
+    void DeleteRect(int index, bool isUpdate);
+    void MoveRect(int index, int x, int y, bool isUpdate);
+    void HideRect(int index, bool isUpdate);
+    void ShowRect(int index, bool isUpdate);
+
     void Draw(HDC destDC);
     void Draw(HDC destDC, RECT &rect);
     void Draw(HDC destDC, RECT &rect, COLORREF mixedColor);
@@ -81,14 +97,17 @@ public:
 private:
     int _GetNewImageIndex();
     int _GetNewTextIndex();
+    int _GetNewRectIndex();
 
     HDC _dc;
     std::vector<CWindowControl *> _parents;
     std::vector<ImageInformation> _images;
     std::vector<TextInformation> _texts;
+    std::vector<RectInformation> _rects;
 
     std::queue<int> _reusingImageIndex;
     std::queue<int> _reusingTextIndex;
+    std::queue<int> _reusingRectIndex;
 
     std::vector<RECT> _refreshRect;
 

@@ -21,6 +21,7 @@
     <ClCompile Include="ComboBoxControl.cpp" />
     <ClCompile Include="AudioPlayer.cpp" />
     <ClCompile Include="GraphicText.cpp" />
+    <ClCompile Include="GraphicRect.cpp" />
     <ClCompile Include="WindowChildControl.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -44,6 +45,7 @@
     <ClInclude Include="ComboBoxControl.h" />
     <ClInclude Include="AudioPlayer.h" />
     <ClInclude Include="GraphicText.h" />
+    <ClInclude Include="GraphicRect.h" />
     <ClInclude Include="WindowChildControl.h" />
   </ItemGroup>
 </Project>
