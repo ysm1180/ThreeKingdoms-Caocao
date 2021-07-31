@@ -288,4 +288,4 @@ __pycache__/
 .vscode/
 
 cmake-build-debug/
-/jojogame/Script
+**/Script*
