@@ -6,7 +6,7 @@
 #include <vector>
 #include <CommCtrl.h>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CWindowControl;
 class CListViewControl;

@@ -1,7 +1,7 @@
 ﻿#include "ComboBoxControl.h"
 #include "ControlManager.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 WNDPROC CComboBoxControl::s_originalProc = nullptr;
 

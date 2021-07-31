@@ -262,7 +262,7 @@ void lua_tinker::print_error(lua_State *L, const char *fmt, ...)
         const auto len = MultiByteToWideChar(CP_UTF8, 0, text, -1, nullptr, 0);
         std::wstring unicode(len, L'\0');
         MultiByteToWideChar(CP_UTF8, 0, text, -1, &unicode[0], len);
-        jojogame::CConsoleOutput::OutputConsoles(unicode);
+        three_kingdoms::CConsoleOutput::OutputConsoles(unicode);
         // printf("%s\n", text);
         lua_pop(L, 1);
     }
@@ -447,7 +447,7 @@ lua_tinker::table lua_tinker::read(lua_State *L, int index)
 }
 
 template<>
-jojogame::CWindowControl *lua_tinker::read(lua_State *L, int index)
+three_kingdoms::CWindowControl *lua_tinker::read(lua_State *L, int index)
 {
     if (lua_isnil(L, index))
     {
@@ -455,11 +455,11 @@ jojogame::CWindowControl *lua_tinker::read(lua_State *L, int index)
     }
 
     auto value = (user *)lua_touserdata(L, index);
-    return (jojogame::CWindowControl *) value->m_p;
+    return (three_kingdoms::CWindowControl *) value->m_p;
 }
 
 template<>
-jojogame::CMenu *lua_tinker::read(lua_State *L, int index)
+three_kingdoms::CMenu *lua_tinker::read(lua_State *L, int index)
 {
     if (lua_isnil(L, index))
     {
@@ -467,11 +467,11 @@ jojogame::CMenu *lua_tinker::read(lua_State *L, int index)
     }
 
     auto value = (user *)lua_touserdata(L, index);
-    return (jojogame::CMenu *) value->m_p;
+    return (three_kingdoms::CMenu *) value->m_p;
 }
 
 template<>
-jojogame::CTextFont *lua_tinker::read(lua_State *L, int index)
+three_kingdoms::CTextFont *lua_tinker::read(lua_State *L, int index)
 {
     if (lua_isnil(L, index))
     {
@@ -479,11 +479,11 @@ jojogame::CTextFont *lua_tinker::read(lua_State *L, int index)
     }
 
     auto value = (user *)lua_touserdata(L, index);
-    return (jojogame::CTextFont *) value->m_p;
+    return (three_kingdoms::CTextFont *) value->m_p;
 }
 
 template <>
-::jojogame::CListViewColumn* lua_tinker::read(lua_State* L, int index)
+::three_kingdoms::CListViewColumn* lua_tinker::read(lua_State* L, int index)
 {
     if (lua_isnil(L, index))
     {
@@ -491,11 +491,11 @@ template <>
     }
 
     auto value = (user *)lua_touserdata(L, index);
-    return (jojogame::CListViewColumn *) value->m_p;
+    return (three_kingdoms::CListViewColumn *) value->m_p;
 }
 
 template <>
-::jojogame::CListViewRow* lua_tinker::read(lua_State* L, int index)
+::three_kingdoms::CListViewRow* lua_tinker::read(lua_State* L, int index)
 {
     if (lua_isnil(L, index))
     {
@@ -503,11 +503,11 @@ template <>
     }
 
     auto value = (user *)lua_touserdata(L, index);
-    return (jojogame::CListViewRow *) value->m_p;
+    return (three_kingdoms::CListViewRow *) value->m_p;
 }
 
 template <>
-::jojogame::CME5File* lua_tinker::read<jojogame::CME5File*>(lua_State* L, int index)
+::three_kingdoms::CME5File* lua_tinker::read<three_kingdoms::CME5File*>(lua_State* L, int index)
 {
     if (lua_isnil(L, index))
     {
@@ -515,11 +515,11 @@ template <>
     }
 
     auto value = (user *)lua_touserdata(L, index);
-    return (jojogame::CME5File *) value->m_p;
+    return (three_kingdoms::CME5File *) value->m_p;
 }
 
 template <>
-::jojogame::CFile* lua_tinker::read<jojogame::CFile*>(lua_State* L, int index)
+::three_kingdoms::CFile* lua_tinker::read<three_kingdoms::CFile*>(lua_State* L, int index)
 {
     if (lua_isnil(L, index))
     {
@@ -527,7 +527,7 @@ template <>
     }
 
     auto value = (user *)lua_touserdata(L, index);
-    return (jojogame::CFile *) value->m_p;
+    return (three_kingdoms::CFile *) value->m_p;
 }
 
 /*---------------------------------------------------------------------------*/

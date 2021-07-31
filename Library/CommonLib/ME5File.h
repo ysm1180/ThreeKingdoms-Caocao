@@ -6,7 +6,7 @@
 #include <cstdio>
 #include <string>
 
-namespace jojogame
+namespace three_kingdoms
 {
 //4 Offset; 4 NameLength; 4 ItemSize;
 const int HEADER_SIZE = 12;

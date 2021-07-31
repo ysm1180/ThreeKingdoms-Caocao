@@ -17,7 +17,7 @@
 #include <memory>
 #include <mutex>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CLuaTinker
 {

@@ -11,6 +11,6 @@
     <ClInclude Include="LuaConsole.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="jojogame.rc" />
+    <ResourceCompile Include="caocao.rc" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 #include "ME5File.h"
 #include "FileManager.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 void CME5File::RegisterFunctions(lua_State *L)
 {

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "TextFont.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CGraphicText
 {

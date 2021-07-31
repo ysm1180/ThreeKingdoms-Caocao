@@ -1,7 +1,7 @@
 ﻿#include "CheckBoxControl.h"
 #include "ControlManager.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 WNDPROC CCheckBoxControl::s_originalProc = nullptr;
 

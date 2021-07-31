@@ -2,7 +2,7 @@
 #include "WindowControl.h"
 #include "ToolbarControl.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 void CWindowChildControl::RegisterFunctions(lua_State *L)
 {

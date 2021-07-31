@@ -4,7 +4,7 @@
 
 #include <Windows.h>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CImageControl
 {

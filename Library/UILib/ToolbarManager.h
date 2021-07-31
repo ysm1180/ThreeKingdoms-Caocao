@@ -5,7 +5,7 @@
 #include <map>
 #include <queue>
 
-namespace jojogame
+namespace three_kingdoms
 {
 enum class TOOLBAR_INDEX
 {

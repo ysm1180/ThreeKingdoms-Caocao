@@ -6,7 +6,7 @@
 #include <Windows.h>
 #include <vector>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CWindowControl;
 class CMenu;

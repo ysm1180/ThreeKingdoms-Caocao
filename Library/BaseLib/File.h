@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CFile
 {

@@ -6,7 +6,7 @@
 
 #include <Shlwapi.h>
 
-namespace jojogame
+namespace three_kingdoms
 {
 std::once_flag CLuaTinker::s_onceFlag;
 std::unique_ptr<CLuaTinker> CLuaTinker::s_luaTinker;
@@ -112,7 +112,7 @@ CLuaTinker &CLuaTinker::GetLuaTinker()
 {
     std::call_once(s_onceFlag,
                    [] {
-                       s_luaTinker = std::make_unique<jojogame::CLuaTinker>();
+                       s_luaTinker = std::make_unique<three_kingdoms::CLuaTinker>();
                    });
 
     return *s_luaTinker;

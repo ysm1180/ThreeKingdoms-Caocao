@@ -8,7 +8,7 @@
 #include "BaseLib/ConsoleOutput.h"
 #include "CommonLib/FileManager.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 void CMoviePlayerControl::RegisterFunctions(lua_State *L)
 {

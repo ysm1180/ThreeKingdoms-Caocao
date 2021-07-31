@@ -1,6 +1,6 @@
 ﻿#include "File.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 CFile::CFile()
 {

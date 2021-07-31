@@ -1,6 +1,6 @@
 #include "MemoryPool.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 CMemoryPoolBase::CMemoryPoolBase()
 {
@@ -40,7 +40,7 @@ void CMemoryPoolManager::DestroyAllMemoryPool()
 CMemoryPoolManager &CMemoryPoolManager::GetInstance()
 {
     std::call_once(s_onceFlag, [] {
-        s_sharedMemoryPoolManager = std::make_unique<jojogame::CMemoryPoolManager>();
+        s_sharedMemoryPoolManager = std::make_unique<three_kingdoms::CMemoryPoolManager>();
     });
 
     return *s_sharedMemoryPoolManager;

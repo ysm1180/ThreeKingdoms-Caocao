@@ -5,7 +5,7 @@
 #include <atomic>
 #include <future>
 
-namespace jojogame
+namespace three_kingdoms
 {
 std::once_flag CGameManager::s_onceFlag;
 std::unique_ptr<CGameManager> CGameManager::s_sharedGameManager;
@@ -38,7 +38,7 @@ CGameManager &CGameManager::GetInstance()
 {
     std::call_once(s_onceFlag,
                    [] {
-                       s_sharedGameManager = std::make_unique<jojogame::CGameManager>();
+                       s_sharedGameManager = std::make_unique<three_kingdoms::CGameManager>();
                    });
 
     return *s_sharedGameManager;

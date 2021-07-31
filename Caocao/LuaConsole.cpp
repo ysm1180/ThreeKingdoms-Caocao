@@ -1,7 +1,7 @@
 #include "LuaConsole.h"
 #include "resource.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 std::once_flag CLuaConsole::s_onceFlag;
 std::unique_ptr<CLuaConsole> CLuaConsole::s_sharedLuaConsole;
@@ -88,7 +88,7 @@ void CLuaConsole::Create(HINSTANCE hInstance)
 CLuaConsole &CLuaConsole::GetInstance()
 {
     std::call_once(s_onceFlag, [] {
-        s_sharedLuaConsole = std::make_unique<jojogame::CLuaConsole>();
+        s_sharedLuaConsole = std::make_unique<three_kingdoms::CLuaConsole>();
     });
 
     return *s_sharedLuaConsole;

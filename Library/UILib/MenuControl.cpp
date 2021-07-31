@@ -4,7 +4,7 @@
 #include "BaseLib/ConsoleOutput.h"
 #include "WindowControl.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 void CMenuItem::RegisterFunctions(lua_State *L)
 {

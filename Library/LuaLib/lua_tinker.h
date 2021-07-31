@@ -20,7 +20,7 @@ extern "C" {
 #include <new>
 #include <string>
 
-namespace jojogame {
+namespace three_kingdoms {
 class CWindowControl;
 class CMenu;
 class CTextFont;
@@ -575,19 +575,19 @@ unsigned long long read(lua_State* L, int index);
 template <>
 table read(lua_State* L, int index);
 template <>
-::jojogame::CWindowControl* read(lua_State* L, int index);
+::three_kingdoms::CWindowControl* read(lua_State* L, int index);
 template <>
-::jojogame::CMenu* read(lua_State* L, int index);
+::three_kingdoms::CMenu* read(lua_State* L, int index);
 template <>
-::jojogame::CTextFont* read(lua_State* L, int index);
+::three_kingdoms::CTextFont* read(lua_State* L, int index);
 template <>
-::jojogame::CListViewColumn* read(lua_State* L, int index);
+::three_kingdoms::CListViewColumn* read(lua_State* L, int index);
 template <>
-::jojogame::CListViewRow* read(lua_State* L, int index);
+::three_kingdoms::CListViewRow* read(lua_State* L, int index);
 template <>
-::jojogame::CFile* read(lua_State* L, int index);
+::three_kingdoms::CFile* read(lua_State* L, int index);
 template <>
-::jojogame::CME5File* read(lua_State* L, int index);
+::three_kingdoms::CME5File* read(lua_State* L, int index);
 
 // push a value to lua stack
 template <typename T>

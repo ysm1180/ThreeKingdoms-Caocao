@@ -6,7 +6,7 @@
 #include <CommCtrl.h>
 #include <CommCtrl.h>
 
-namespace jojogame
+namespace three_kingdoms
 {
 WNDPROC CListViewControl::s_originalProc = nullptr;
 

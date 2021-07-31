@@ -1,7 +1,7 @@
 ﻿#include "GroupBoxControl.h"
 #include "ControlManager.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 WNDPROC CGroupBoxControl::s_originalProc = nullptr;
 

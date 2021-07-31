@@ -3,7 +3,7 @@
 #include <streambuf>
 #include <iostream>
 
-namespace jojogame
+namespace three_kingdoms
 {
 
 class CMemoryBuffer : public std::basic_streambuf<char>

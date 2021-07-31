@@ -13,7 +13,7 @@ extern "C"
 #include <iterator>
 #include <vector>
 
-namespace jojogame
+namespace three_kingdoms
 {
 static void init_source(j_decompress_ptr cinfo)
 {

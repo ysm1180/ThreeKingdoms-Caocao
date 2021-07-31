@@ -1,6 +1,6 @@
 #include "Color.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 void RgbToHsv(const unsigned char r, const unsigned char g, const unsigned char b, double &h, double &s, double &v)
 {

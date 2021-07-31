@@ -2,7 +2,7 @@
 
 #include "ToolbarControl.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 std::once_flag CToolbarManager::s_onceFlag;
 std::unique_ptr<CToolbarManager> CToolbarManager::s_sharedToolbarManager;
@@ -18,7 +18,7 @@ CToolbarManager::~CToolbarManager()
 CToolbarManager &CToolbarManager::GetInstance()
 {
     std::call_once(s_onceFlag, [] {
-        s_sharedToolbarManager = std::make_unique<jojogame::CToolbarManager>();
+        s_sharedToolbarManager = std::make_unique<three_kingdoms::CToolbarManager>();
     });
 
     return *s_sharedToolbarManager;

@@ -40,7 +40,7 @@ extern "C"
 #include <thread>
 #include <queue>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CWindowControl;
 

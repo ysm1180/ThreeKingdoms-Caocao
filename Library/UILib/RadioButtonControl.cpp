@@ -1,7 +1,7 @@
 ﻿#include "RadioButtonControl.h"
 #include "ControlManager.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 WNDPROC CRadioButtonControl::s_originalProc = nullptr;
 

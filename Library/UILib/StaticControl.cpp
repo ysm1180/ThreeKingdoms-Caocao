@@ -2,7 +2,7 @@
 #include "ControlManager.h"
 #include <vector>
 
-namespace jojogame
+namespace three_kingdoms
 {
 WNDPROC CStaticControl::s_originalProc = nullptr;
 

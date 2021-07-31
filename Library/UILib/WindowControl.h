@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CMoviePlayer;
 class CMenu;

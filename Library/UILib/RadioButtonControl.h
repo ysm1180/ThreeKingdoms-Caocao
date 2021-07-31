@@ -4,7 +4,7 @@
 #include "TextFont.h"
 #include <Uxtheme.h>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CRadioButtonControl : public CWindowChildControl
 {

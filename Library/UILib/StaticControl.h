@@ -5,7 +5,7 @@
 
 #include "LuaLib/LuaTinker.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CStaticControl : public CWindowChildControl
 {

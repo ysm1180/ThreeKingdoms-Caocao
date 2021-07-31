@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseControl.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CWindowControl;
 

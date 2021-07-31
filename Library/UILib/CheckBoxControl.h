@@ -3,7 +3,7 @@
 #include "TextFont.h"
 #include <Uxtheme.h>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CCheckBoxControl : public CWindowChildControl
 {

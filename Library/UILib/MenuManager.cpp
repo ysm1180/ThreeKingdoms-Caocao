@@ -2,7 +2,7 @@
 
 #include "MenuControl.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 std::once_flag CMenuManager::s_onceFlag;
 std::unique_ptr<CMenuManager> CMenuManager::s_sharedMenuManager;
@@ -23,7 +23,7 @@ CMenuManager &CMenuManager::GetInstance()
 {
     std::call_once(s_onceFlag,
                    [] {
-                       s_sharedMenuManager = std::make_unique<jojogame::CMenuManager>();
+                       s_sharedMenuManager = std::make_unique<three_kingdoms::CMenuManager>();
                    });
 
     return *s_sharedMenuManager;

@@ -5,7 +5,7 @@
 #include <Windows.h>
 #include <string>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CBaseControl;
 

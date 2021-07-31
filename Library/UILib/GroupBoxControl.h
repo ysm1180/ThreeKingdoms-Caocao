@@ -2,7 +2,7 @@
 #include "WindowChildControl.h"
 #include "TextFont.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CGroupBoxControl : public CWindowChildControl
 {

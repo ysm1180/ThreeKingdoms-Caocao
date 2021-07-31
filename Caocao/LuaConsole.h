@@ -10,7 +10,7 @@
 
 #include <Windows.h>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CLuaConsole : public CConsoleOutput
 {

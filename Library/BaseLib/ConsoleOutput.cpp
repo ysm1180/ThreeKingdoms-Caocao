@@ -1,6 +1,6 @@
 #include "ConsoleOutput.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 std::vector<CConsoleOutput *> CConsoleOutput::_consoles;
 

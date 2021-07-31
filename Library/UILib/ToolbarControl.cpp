@@ -5,7 +5,7 @@
 #include "ImageControl.h"
 #include "ToolbarManager.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 void CToolbarControl::RegisterFunctions(lua_State *L)
 {

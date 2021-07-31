@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31515.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BaseLib", "Library\BaseLib\BaseLib.vcxproj", "{3D880581-1970-47A7-AC2B-29F4CD082CFD}"
 EndProject
@@ -17,7 +17,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UILib", "Library\UILib\UILi
 		{B37527A7-9844-4E0A-BC1B-060D54F98751} = {B37527A7-9844-4E0A-BC1B-060D54F98751}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jojogame", "jojogame\jojogame.vcxproj", "{0C8D791E-6B7F-493B-9EAA-9D486A63076B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Caocao", "Caocao\caocao.vcxproj", "{0C8D791E-6B7F-493B-9EAA-9D486A63076B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

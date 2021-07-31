@@ -8,7 +8,7 @@
 #include <mutex>
 #include <memory>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CME5File;
 

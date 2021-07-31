@@ -1,7 +1,7 @@
 #include "TextFont.h"
 #include "BaseControl.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 void CTextFont::RegisterFunctions(lua_State *L)
 {

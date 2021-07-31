@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CWindowControl;
 class CImageControl;

@@ -17,7 +17,7 @@
 #include <Uxtheme.h>
 #include <Vsstyle.h>
 
-namespace jojogame
+namespace three_kingdoms
 {
 LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {

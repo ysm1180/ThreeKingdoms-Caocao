@@ -14,7 +14,7 @@
 
 using namespace std::chrono_literals;
 
-namespace jojogame
+namespace three_kingdoms
 {
 Application *Application::s_sharedApplication = nullptr;
 

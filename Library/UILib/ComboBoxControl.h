@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CComboBoxControl : public CWindowChildControl
 {

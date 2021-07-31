@@ -7,7 +7,7 @@
 #include "CommonLib/GameManager.h"
 #include "ControlManager.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 void CLayoutControl::RegisterFunctions(lua_State *L)
 {

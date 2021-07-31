@@ -8,7 +8,7 @@
 #include <memory>
 #include <mutex>
 
-namespace jojogame
+namespace three_kingdoms
 {
 enum MENU_INDEX
 {

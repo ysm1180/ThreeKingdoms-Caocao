@@ -1,6 +1,6 @@
 ﻿#include "MemoryStream.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 size_t CMemoryBuffer::Length()
 {

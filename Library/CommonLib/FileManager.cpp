@@ -1,7 +1,7 @@
 ﻿#include "FileManager.h"
 #include "BaseLib/MemoryPool.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 std::once_flag CFileManager::s_onceFlag;
 std::unique_ptr<CFileManager> CFileManager::s_sharedFileManager;
@@ -64,7 +64,7 @@ CFileManager &CFileManager::GetInstance()
 {
     std::call_once(s_onceFlag,
                    [] {
-                       s_sharedFileManager = std::make_unique<jojogame::CFileManager>();
+                       s_sharedFileManager = std::make_unique<three_kingdoms::CFileManager>();
                    });
 
     return *s_sharedFileManager;

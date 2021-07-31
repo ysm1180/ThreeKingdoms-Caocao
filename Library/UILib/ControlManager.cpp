@@ -21,7 +21,7 @@
 #include "AudioPlayer.h"
 #include "GraphicText.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 std::once_flag CControlManager::s_onceFlag;
 std::unique_ptr<CControlManager> CControlManager::s_controlManager;
@@ -228,7 +228,7 @@ HINSTANCE CControlManager::GetHInstance()
 CControlManager &CControlManager::GetInstance()
 {
     std::call_once(s_onceFlag, [] {
-        s_controlManager = std::make_unique<jojogame::CControlManager>();
+        s_controlManager = std::make_unique<three_kingdoms::CControlManager>();
     });
 
     return *s_controlManager;

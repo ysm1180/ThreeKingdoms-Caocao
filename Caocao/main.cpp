@@ -11,7 +11,7 @@
 #define new new(_CLIENT_BLOCK, __FILE__, __LINE__)
 #endif
 
-using namespace jojogame;
+using namespace three_kingdoms;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {

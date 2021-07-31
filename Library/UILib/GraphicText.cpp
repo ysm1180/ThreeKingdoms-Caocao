@@ -1,7 +1,7 @@
 ﻿#include "GraphicText.h"
 #include <windowsx.h>
 
-namespace jojogame
+namespace three_kingdoms
 {
 void CGraphicText::RegisterFunctions(lua_State *L)
 {

@@ -8,7 +8,7 @@ extern "C"
 #include <SDL/include/SDL.h>
 }
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CControlManager;
 class CGameManager;
