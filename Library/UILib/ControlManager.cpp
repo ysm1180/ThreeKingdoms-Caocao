@@ -20,6 +20,7 @@
 #include "ComboBoxControl.h"
 #include "AudioPlayer.h"
 #include "GraphicText.h"
+#include "GraphicRect.h"
 
 namespace three_kingdoms
 {
@@ -50,6 +51,7 @@ void CControlManager::RegisterFunctions(lua_State *L)
     LUA_METHOD(CreateComboBox);
     LUA_METHOD(CreateAudioPlayer);
     LUA_METHOD(CreateGraphicText);
+    LUA_METHOD(CreateGraphicRect);
 }
 
 CControlManager::CControlManager()
@@ -88,6 +90,7 @@ void CControlManager::Init(HINSTANCE hInstance)
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CComboBoxControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CAudioPlayerControl>();
     CLuaTinker::GetLuaTinker().RegisterClassToLua<CGraphicText>();
+    CLuaTinker::GetLuaTinker().RegisterClassToLua<CGraphicRect>();
 }
 
 CWindowControl *CControlManager::CreateWindowForm(CWindowControl *parent)
@@ -106,6 +109,12 @@ CAudioPlayerControl *CControlManager::CreateAudioPlayer()
 CGraphicText *CControlManager::CreateGraphicText()
 {
     auto control = CMemoryPool<CGraphicText>::GetInstance().New();
+    return control;
+}
+
+CGraphicRect *CControlManager::CreateGraphicRect()
+{
+    auto control = CMemoryPool<CGraphicRect>::GetInstance().New();
     return control;
 }
 
@@ -215,7 +224,7 @@ CComboBoxControl *CControlManager::CreateComboBox(CWindowControl *parent)
     return control;
 }
 
-std::vector<CLayoutControl*> CControlManager::GetLayouts()
+std::vector<CLayoutControl *> CControlManager::GetLayouts()
 {
     return _layouts;
 }

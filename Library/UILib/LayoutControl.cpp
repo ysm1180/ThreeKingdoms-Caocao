@@ -1,8 +1,14 @@
+#include <ole2.h>
+#include <gdiplus.h>
+
+#pragma comment(lib, "gdiplus.lib")
+
 #include "LayoutControl.h"
 
 #include "WindowControl.h"
 #include "ImageControl.h"
 #include "GraphicText.h"
+#include "GraphicRect.h"
 #include "BaseLib/Color.h"
 #include "CommonLib/GameManager.h"
 #include "ControlManager.h"
@@ -813,6 +819,22 @@ void CLayoutControl::Draw(HDC destDC)
                 text.text->Draw(destDC, POINT{textX, textY});
             }
         }
+
+        for (RectInformation rect : _rects)
+        {
+            if (!rect.isHide)
+            {
+                Gdiplus::Graphics *graphics = Gdiplus::Graphics::FromHDC(destDC);
+                int r = GetRValue(rect.rect->GetColor());
+                int g = GetGValue(rect.rect->GetColor());
+                int b = GetBValue(rect.rect->GetColor());
+                Gdiplus::Color color((int)(rect.rect->GetOpacity() * 255), r, g, b);
+
+                Gdiplus::Rect rectangle(rect.position.x, rect.position.y, rect.position.x + rect.rect->GetWidth(), rect.position.y + rect.rect->GetHeight());
+                Gdiplus::SolidBrush solidBrush(color);
+                graphics->FillRectangle(&solidBrush, rectangle);
+            }
+        }
     }
 }
 
@@ -960,6 +982,22 @@ void CLayoutControl::Draw(HDC destDC, RECT &clipingRect)
                 }
 
                 text.text->Draw(destDC, POINT{textX, textY});
+            }
+        }
+
+        for (RectInformation rect : _rects)
+        {
+            if (!rect.isHide)
+            {
+                Gdiplus::Graphics *graphics = Gdiplus::Graphics::FromHDC(destDC);
+                int r = GetRValue(rect.rect->GetColor());
+                int g = GetGValue(rect.rect->GetColor());
+                int b = GetBValue(rect.rect->GetColor());
+                Gdiplus::Color color((int)(rect.rect->GetOpacity() * 255), r, g, b);
+
+                Gdiplus::Rect rectangle(rect.position.x, rect.position.y, rect.position.x + rect.rect->GetWidth(), rect.position.y + rect.rect->GetHeight());
+                Gdiplus::SolidBrush solidBrush(color);
+                graphics->FillRectangle(&solidBrush, rectangle);
             }
         }
     }
@@ -1196,6 +1234,22 @@ void CLayoutControl::Draw(HDC destDC, RECT &clipingRect, COLORREF mixedColor)
                 text.text->Draw(destDC, POINT{textX, textY});
             }
         }
+
+        for (RectInformation rect : _rects)
+        {
+            if (!rect.isHide)
+            {
+                Gdiplus::Graphics *graphics = Gdiplus::Graphics::FromHDC(destDC);
+                int r = GetRValue(rect.rect->GetColor());
+                int g = GetGValue(rect.rect->GetColor());
+                int b = GetBValue(rect.rect->GetColor());
+                Gdiplus::Color color((int)(rect.rect->GetOpacity() * 255), r, g, b);
+
+                Gdiplus::Rect rectangle(rect.position.x, rect.position.y, rect.position.x + rect.rect->GetWidth(), rect.position.y + rect.rect->GetHeight());
+                Gdiplus::SolidBrush solidBrush(color);
+                graphics->FillRectangle(&solidBrush, rectangle);
+            }
+        }
     }
 }
 
@@ -1258,6 +1312,104 @@ void CLayoutControl::Erase()
     }
 }
 
+int CLayoutControl::AddRect(CGraphicRect *graphicRect, int x, int y, bool isShow)
+{
+    int index = _GetNewRectIndex();
+    RectInformation rectInformation;
+    rectInformation.index = index;
+    rectInformation.rect = graphicRect;
+    rectInformation.position.x = x;
+    rectInformation.position.y = y;
+    rectInformation.isHide = !isShow;
+    rectInformation.isRefresh = true;
+
+    _rects.push_back(rectInformation);
+
+    return index;
+}
+
+void CLayoutControl::DeleteRect(int index, bool isUpdate)
+{
+    auto iter = std::begin(_rects);
+
+    while (iter != std::end(_rects))
+    {
+        if (iter->index == index)
+        {
+            auto position = iter->position;
+            auto graphicRect = iter->rect;
+
+            _reusingTextIndex.push(iter->index);
+            iter = _rects.erase(iter);
+
+            int rectX = int(position.x * _ratioX) + _position.x;
+            int rectY = int(position.y * _ratioY) + _position.y;
+            RECT rect;
+            SetRect(&rect, rectX, rectY, rectX + int(graphicRect->GetWidth() * _ratioX),
+                    rectY + int(graphicRect->GetHeight() * _ratioY));
+            _refreshRect.push_back(rect);
+            break;
+        }
+        ++iter;
+    }
+}
+
+void CLayoutControl::MoveRect(int index, int x, int y, bool isUpdate)
+{
+    auto iter = std::begin(_rects);
+
+    while (iter != std::end(_rects))
+    {
+        if (iter->index == index)
+        {
+            int rectX = int(iter->position.x * _ratioX) + _position.x;
+            int rectY = int(iter->position.y * _ratioY) + _position.y;
+            RECT rect;
+            SetRect(&rect, rectX, rectY, rectX + int(iter->rect->GetWidth() * _ratioX),
+                    rectY + int(iter->rect->GetHeight() * _ratioY));
+            _refreshRect.push_back(rect);
+
+            iter->position.x = x;
+            iter->position.y = y;
+            iter->isRefresh = true;
+            break;
+        }
+        ++iter;
+    }
+}
+
+void CLayoutControl::HideRect(int index, bool isUpdate)
+{
+    auto iter = std::begin(_rects);
+
+    while (iter != std::end(_rects))
+    {
+        if (iter->index == index)
+        {
+            iter->isHide = true;
+            iter->isRefresh = true;
+            break;
+        }
+        ++iter;
+    }
+}
+
+void CLayoutControl::ShowRect(int index, bool isUpdate)
+{
+    auto iter = std::begin(_rects);
+
+    while (iter != std::end(_rects))
+    {
+        if (iter->index == index)
+        {
+            iter->isHide = false;
+            iter->isRefresh = true;
+            break;
+        }
+        ++iter;
+    }
+}
+
 void CLayoutControl::Refresh()
 {
     bool update = false;
@@ -1314,6 +1466,25 @@ void CLayoutControl::Refresh()
                     update = true;
                 }
             }
+
+            for (RectInformation &rect : _rects)
+            {
+                if (rect.isRefresh)
+                {
+                    int rectX = int(rect.position.x * _ratioX) + _position.x;
+                    int rectY = int(rect.position.y * _ratioY) + _position.y;
+
+                    RECT rc;
+                    SetRect(&rc, rectX, rectY, rectX + int(rect.rect->GetWidth() * _ratioX),
+                            rectY + int(rect.rect->GetHeight() * _ratioY));
+                    InvalidateRect(parent->GetHWnd(), &rc, FALSE);
+
+                    rect.isRefresh = false;
+
+                    update = true;
+                }
+            }
+
             ReleaseDC(parent->GetHWnd(), hdc);
 
             if (update)
@@ -1358,4 +1529,20 @@ int CLayoutControl::_GetNewTextIndex()
     return index;
 }
 
+int CLayoutControl::_GetNewRectIndex()
+{
+    int index;
+
+    if (_reusingRectIndex.empty())
+    {
+        index = _rects.size();
+    }
+    else
+    {
+        index = _reusingRectIndex.front();
+        _reusingRectIndex.pop();
+    }
+
+    return index;
+}
 } // namespace jojogame
