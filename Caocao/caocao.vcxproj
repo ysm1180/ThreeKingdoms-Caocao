@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{0C8D791E-6B7F-493B-9EAA-9D486A63076B}</ProjectGuid>
-    <RootNamespace>jojogame</RootNamespace>
+    <RootNamespace>three_kingdoms</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>Caocao</ProjectName>
   </PropertyGroup>
