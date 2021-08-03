@@ -74,4 +74,4 @@ namespace three_kingdoms
 
 		static WNDPROC s_originalProc;
 	};
-} // namespace jojogame
+} // namespace three_kingdoms

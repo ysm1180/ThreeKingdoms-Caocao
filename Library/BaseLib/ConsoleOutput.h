@@ -20,4 +20,4 @@ public:
 private:
     static std::vector<CConsoleOutput *> _consoles;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

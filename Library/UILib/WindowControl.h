@@ -102,4 +102,4 @@ private:
     CMenu *_menu = nullptr;
     CToolbarControl *_toolbar = nullptr;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

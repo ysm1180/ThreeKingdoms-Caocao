@@ -25,4 +25,4 @@ private:
 
     char *_data = nullptr;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

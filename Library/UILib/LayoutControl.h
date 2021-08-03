@@ -117,4 +117,4 @@ private:
     double _ratioY = 1.0;
     bool _isHide = false;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

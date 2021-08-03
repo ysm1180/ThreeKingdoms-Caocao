@@ -144,4 +144,4 @@ void CTextFont::ResetFont()
         }
     }
 }
-} // namespace jojogame
+} // namespace three_kingdoms

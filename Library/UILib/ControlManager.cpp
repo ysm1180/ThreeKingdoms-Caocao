@@ -242,4 +242,4 @@ CControlManager &CControlManager::GetInstance()
 
     return *s_controlManager;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

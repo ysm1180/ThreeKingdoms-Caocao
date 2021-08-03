@@ -434,4 +434,4 @@ namespace three_kingdoms
 	{
 		return s_originalProc;
 	}
-} // namespace jojogame
+} // namespace three_kingdoms

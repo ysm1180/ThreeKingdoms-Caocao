@@ -27,4 +27,4 @@ private:
     COLORREF _textColor = RGB(0, 0, 0);
     CTextFont _font;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

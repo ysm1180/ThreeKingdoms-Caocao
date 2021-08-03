@@ -85,4 +85,4 @@ void CGraphicText::Draw(HDC hdc, POINT position)
     SelectFont(hdc, originalFont);
 }
 
-} // namespace jojogame
+} // namespace three_kingdoms

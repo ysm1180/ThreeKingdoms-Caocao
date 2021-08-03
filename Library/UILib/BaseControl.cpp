@@ -440,4 +440,4 @@ namespace three_kingdoms
 			ShowWindow(_hWnd, FALSE);
 		}
 	}
-} // namespace jojogame
+} // namespace three_kingdoms

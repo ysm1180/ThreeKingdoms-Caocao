@@ -159,4 +159,4 @@ private:
 
     CWindowControl *_parent = nullptr;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

@@ -71,4 +71,4 @@ void CFile::Write(char *in, int position, int length)
     }
     memcpy(_data + position, in, length);
 }
-} // namespace jojogame
+} // namespace three_kingdoms

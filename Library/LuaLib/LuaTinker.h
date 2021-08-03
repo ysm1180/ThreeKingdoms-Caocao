@@ -165,4 +165,4 @@ protected:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CLuaTinker> s_luaTinker;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

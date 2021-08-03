@@ -110,4 +110,4 @@ void CLuaConsole::SetDebugFlag(bool flag)
         }
     }
 }
-} // namespace jojogame
+} // namespace three_kingdoms

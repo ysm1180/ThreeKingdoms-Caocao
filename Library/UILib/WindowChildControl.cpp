@@ -61,4 +61,4 @@ void CWindowChildControl::SetLuaY(const int y)
         }
     }
 }
-} // namespace jojogame
+} // namespace three_kingdoms

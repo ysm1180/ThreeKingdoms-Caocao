@@ -600,4 +600,4 @@ void CImageControl::ResetClipingRect()
     _clipingRect.bottom = _size.cy;
 }
 
-} // namespace jojogame
+} // namespace three_kingdoms

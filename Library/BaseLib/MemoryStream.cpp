@@ -11,4 +11,4 @@ int CMemoryStream::Size()
 {
     return _buffer.Length();
 }
-} // namespace jojogame
+} // namespace three_kingdoms

@@ -24,4 +24,4 @@ void CConsoleOutput::OutputConsoles(std::wstring msg)
         console->Output(msg);
     }
 }
-} // namespace jojogame
+} // namespace three_kingdoms

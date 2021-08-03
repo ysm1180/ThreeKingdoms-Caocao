@@ -36,4 +36,4 @@ private:
     CMemoryBuffer _buffer;
 };
 
-} // namespace jojogame
+} // namespace three_kingdoms

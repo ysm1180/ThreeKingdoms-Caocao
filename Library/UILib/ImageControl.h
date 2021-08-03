@@ -54,4 +54,4 @@ private:
 
     bool _isDisplayMirror = false;
 };
-}; // namespace jojogame
+}; // namespace three_kingdoms

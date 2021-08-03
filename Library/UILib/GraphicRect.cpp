@@ -1,6 +1,6 @@
 ﻿#include "GraphicRect.h"
 
-namespace jojogame
+namespace three_kingdoms
 {
 
 void CGraphicRect::RegisterFunctions(lua_State *L)
@@ -65,4 +65,4 @@ void CGraphicRect::SetOpacity(double opacity)
 {
     _opacity = opacity;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

@@ -35,4 +35,4 @@ private:
 
     static WNDPROC s_originalProc;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

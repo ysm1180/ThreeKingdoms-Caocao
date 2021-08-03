@@ -343,4 +343,4 @@ bool CMenu::DeleteMeuItemByPosition(int position)
     return result != 0;
 }
 
-} // namespace jojogame
+} // namespace three_kingdoms

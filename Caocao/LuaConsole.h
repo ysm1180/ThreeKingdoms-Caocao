@@ -35,4 +35,4 @@ private:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CLuaConsole> s_sharedLuaConsole;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

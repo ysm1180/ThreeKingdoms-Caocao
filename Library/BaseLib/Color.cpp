@@ -93,4 +93,4 @@ void HsvToRgb(const double h, const double s, const double v, unsigned char &r, 
     g = static_cast<unsigned char>(resultG * 255); // dst_r : 0-255
     b = static_cast<unsigned char>(resultB * 255); // dst_r : 0-255
 }
-} // namespace jojogame
+} // namespace three_kingdoms

@@ -1650,4 +1650,4 @@ void CWindowControl::SetDialogResult(const int value) const
 {
     *_dialogResult = value;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

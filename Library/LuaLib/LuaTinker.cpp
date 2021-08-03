@@ -117,4 +117,4 @@ CLuaTinker &CLuaTinker::GetLuaTinker()
 
     return *s_luaTinker;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

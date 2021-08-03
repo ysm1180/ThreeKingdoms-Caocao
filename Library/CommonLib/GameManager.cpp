@@ -152,4 +152,4 @@ void CGameManager::CloseFile(CME5File *file)
 {
     CMemoryPool<CME5File>::GetInstance().Delete(file);
 }
-} // namespace jojogame
+} // namespace three_kingdoms

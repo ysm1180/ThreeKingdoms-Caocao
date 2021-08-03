@@ -134,4 +134,4 @@ int Application::Run()
 
     return (int)message.wParam;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

@@ -1545,4 +1545,4 @@ int CLayoutControl::_GetNewRectIndex()
 
     return index;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

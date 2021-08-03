@@ -98,4 +98,4 @@ namespace three_kingdoms
 
 		std::wstring _type = L"";
 	};
-} // namespace jojogame
+} // namespace three_kingdoms

@@ -69,4 +69,4 @@ CFileManager &CFileManager::GetInstance()
 
     return *s_sharedFileManager;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

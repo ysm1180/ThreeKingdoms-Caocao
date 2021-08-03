@@ -99,4 +99,4 @@ namespace three_kingdoms
 		int _playCount = 1;
 		mutable bool _stop = true;
 	};
-} // namespace jojogame
+} // namespace three_kingdoms

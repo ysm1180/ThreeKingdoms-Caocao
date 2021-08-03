@@ -338,4 +338,4 @@ void CToolbarButton::SetParentToolbar(CToolbarControl *parent)
 {
     _parent = parent;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

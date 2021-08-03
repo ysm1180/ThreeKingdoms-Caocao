@@ -45,4 +45,4 @@ CMemoryPoolManager &CMemoryPoolManager::GetInstance()
 
     return *s_sharedMemoryPoolManager;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

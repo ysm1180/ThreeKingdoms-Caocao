@@ -76,4 +76,4 @@ void CToolbarManager::DeleteToolbarButton(CToolbarButton *button)
     _reusingIndexStorage.push(button->GetIndex());
     _toolbarButtonStorage.erase(button->GetIndex());
 }
-} // namespace jojogame
+} // namespace three_kingdoms

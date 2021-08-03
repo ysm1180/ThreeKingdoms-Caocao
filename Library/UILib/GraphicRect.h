@@ -4,7 +4,7 @@
 
 #include <windows.h>
 
-namespace jojogame
+namespace three_kingdoms
 {
 class CGraphicRect
 {
@@ -30,4 +30,4 @@ private:
     double _opacity = 1.0;
 };
 
-} // namespace jojogame
+} // namespace three_kingdoms

@@ -1014,4 +1014,4 @@ void CMoviePlayerControl::SetHeight(int height)
 {
     _size.cy = height;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

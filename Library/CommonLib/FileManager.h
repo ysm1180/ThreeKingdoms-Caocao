@@ -29,4 +29,4 @@ private:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CFileManager> s_sharedFileManager;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

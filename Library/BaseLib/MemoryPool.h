@@ -224,4 +224,4 @@ private:
     std::list<T *> _unusingPool;
     size_t _limit = 65535;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

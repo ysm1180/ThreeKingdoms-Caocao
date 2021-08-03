@@ -37,4 +37,4 @@ protected:
 
     static Application *s_sharedApplication;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

@@ -227,4 +227,4 @@ void CME5File::Dispose()
 {
 }
 
-} // namespace jojogame
+} // namespace three_kingdoms

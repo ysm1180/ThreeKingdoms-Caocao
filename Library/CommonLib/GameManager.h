@@ -50,4 +50,4 @@ private:
 
     bool _quit = false;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

@@ -77,4 +77,4 @@ protected:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CControlManager> s_controlManager;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

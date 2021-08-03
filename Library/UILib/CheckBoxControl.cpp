@@ -274,4 +274,4 @@ WNDPROC CCheckboxControl::GetOriginalProc()
 {
     return s_originalProc;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

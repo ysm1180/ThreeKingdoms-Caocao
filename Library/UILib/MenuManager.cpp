@@ -89,4 +89,4 @@ int CMenuManager::_GetNewIndex()
     _reusingIndexStorage.pop();
     return result;
 }
-} // namespace jojogame
+} // namespace three_kingdoms

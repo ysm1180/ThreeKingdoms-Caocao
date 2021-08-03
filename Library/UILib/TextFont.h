@@ -44,4 +44,4 @@ protected:
     int _fontSize = 10;
     std::wstring _fontName;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

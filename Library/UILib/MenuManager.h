@@ -45,4 +45,4 @@ private:
     static std::once_flag s_onceFlag;
     static std::unique_ptr<CMenuManager> s_sharedMenuManager;
 };
-} // namespace jojogame
+} // namespace three_kingdoms

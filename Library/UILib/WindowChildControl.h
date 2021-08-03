@@ -15,4 +15,4 @@ public:
 
     void SetLuaY(int y);
 };
-} // namespace jojogame
+} // namespace three_kingdoms
