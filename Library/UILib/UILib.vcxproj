@@ -131,19 +131,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>..\ffmpeg\x86\lib;..\libjpeg\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\ffmpeg\x86\lib;..\libjpeg\x86\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>..\ffmpeg\x64\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\ffmpeg\x64\lib;..\libjpeg\x64\lib;$(LibraryPath);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>..\ffmpeg\x86\lib;..\libjpeg\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\ffmpeg\x86\lib;..\libjpeg\x86\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>..\ffmpeg\x64\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\ffmpeg\x64\lib;..\libjpeg\x64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -153,7 +153,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\;..\ffmpeg\x86\include\;..\libjpeg\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\;..\ffmpeg\x86\include\;..\libjpeg\x86\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -168,12 +168,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\;..\ffmpeg\x64\include\;..\jpeg-6b\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\;..\ffmpeg\x64\include\;..\libjpeg\x64\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>swresample.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -185,7 +188,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\;..\ffmpeg\x86\include\;..\libjpeg\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\;..\ffmpeg\x86\include\;..\libjpeg\x86\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -204,7 +207,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\;..\ffmpeg\x64\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\;..\ffmpeg\x64\include\;..\libjpeg\x64\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -37,12 +37,13 @@ extern "C"
 #include <chrono>
 #include <thread>
 #include <queue>
+#include <list>
 
 namespace three_kingdoms
 {
 	struct AudioPacketQueue
 	{
-		AVPacketList* firstPacket, * lastPacket;
+		std::list<AVPacket> list;
 		int size;
 		std::mutex mutex;
 		std::condition_variable cond;

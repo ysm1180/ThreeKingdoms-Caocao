@@ -59,7 +59,9 @@ int Application::Run()
     CLuaConsole &luaConsole = CLuaConsole::GetInstance();
     bool debug = false;
 
+#ifndef __WIN64
     av_register_all();
+#endif
     if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0)
     {
         return 1;

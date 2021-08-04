@@ -72,36 +72,20 @@ void CMoviePlayerControl::SetEndEvent()
 void InitPacketQueue(PacketQueue *queue)
 {
     queue->size = 0;
-    queue->firstPacket = nullptr;
-    queue->lastPacket = nullptr;
+    queue->list.clear();
 }
 
 int PutPacketQueue(PacketQueue *queue, AVPacket *packet)
 {
-    AVPacketList *packetList = (AVPacketList *)av_malloc(sizeof(AVPacketList));
-    if (!packetList)
+    AVPacket clonePacket{ 0 };
+    if (av_packet_ref(&clonePacket, packet) < 0)
     {
         return AVERROR(ENOMEM);
     }
-
-    av_init_packet(&packetList->pkt);
-    if (av_packet_ref(&packetList->pkt, packet) < 0)
-    {
-        return AVERROR(ENOMEM);
-    }
-    packetList->next = nullptr;
 
     std::unique_lock<std::mutex> lock(queue->mutex);
-    if (!queue->lastPacket)
-    {
-        queue->firstPacket = packetList;
-    }
-    else
-    {
-        queue->lastPacket->next = packetList;
-    }
-    queue->lastPacket = packetList;
-    queue->size += packetList->pkt.size;
+    queue->list.push_back(clonePacket);
+    queue->size += clonePacket.size;
     queue->cond.notify_one();
     lock.unlock();
 
@@ -110,7 +94,6 @@ int PutPacketQueue(PacketQueue *queue, AVPacket *packet)
 
 static int GetPacketQueue(VideoState *videoState, PacketQueue *queue, AVPacket *packet, int block)
 {
-    AVPacketList *packetList;
     int result;
 
     std::unique_lock<std::mutex> lock(queue->mutex);
@@ -122,17 +105,12 @@ static int GetPacketQueue(VideoState *videoState, PacketQueue *queue, AVPacket *
             break;
         }
 
-        packetList = queue->firstPacket;
-        if (packetList)
+        if (!queue->list.empty())
         {
-            queue->firstPacket = packetList->next;
-            if (!queue->firstPacket)
-            {
-                queue->lastPacket = nullptr;
-            }
-            queue->size -= packetList->pkt.size;
-            *packet = packetList->pkt;
-            av_free(packetList);
+            AVPacket clonePacket = queue->list.front();
+            queue->list.pop_front();
+            queue->size -= clonePacket.size;
+            *packet = clonePacket;
             result = 1;
             break;
         }
@@ -696,13 +674,13 @@ bool CMoviePlayerControl::Create()
         return false;
     }
 
-    AVCodec *videoCodec = avcodec_find_decoder(videoCodecParameters->codec_id);
+    const AVCodec *videoCodec = avcodec_find_decoder(videoCodecParameters->codec_id);
     if (videoCodec == nullptr)
     {
         CConsoleOutput::OutputConsoles(L"Cannot find video decoder");
         return false;
     }
-    AVCodec *audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
+    const AVCodec *audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
     if (audioCodec == nullptr)
     {
         CConsoleOutput::OutputConsoles(L"Cannot find audio decoder");

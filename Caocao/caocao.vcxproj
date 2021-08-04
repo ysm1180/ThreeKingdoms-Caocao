@@ -72,13 +72,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>..\Library\libjpeg\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;..\Library\ffmpeg\x86\lib</LibraryPath>
+    <LibraryPath>..\Library\libjpeg\x86\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;..\Library\ffmpeg\x86\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>..\Library\ffmpeg\x64\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\Library\libjpeg\x64\lib;..\Library\ffmpeg\x64\lib;$(LibraryPath);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>..\Library\libjpeg\lib;..\Library\ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\Library\libjpeg\x86\lib;..\Library\ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LibraryPath>..\Library\libjpeg\x64\lib;..\Library\ffmpeg\x64\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -86,7 +89,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Library\;..\Library\ffmpeg\x86\include;..\Library\libjpeg\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Library\;..\Library\ffmpeg\x86\include;..\Library\libjpeg\x86\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\Library\libjpeg\lib;..\Library\ffmpeg\x86\lib;..\Library\SDL\lib\x86</AdditionalLibraryDirectories>
@@ -102,7 +105,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Library\;..\Library\ffmpeg\x64\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Library\;..\Library\ffmpeg\x64\include;..\Library\libjpeg\x64\include;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>__WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\Library\ffmpeg\x64\lib;..\Library\SDL\lib\x64</AdditionalLibraryDirectories>
@@ -117,7 +121,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Library\libjpeg\include;..\Library\;..\Library\ffmpeg\x86\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Library\libjpeg\x86\include;..\Library\;..\Library\ffmpeg\x86\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -135,7 +139,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Library\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Library\;..\Library\ffmpeg\x64\include;..\Library\libjpeg\x64\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

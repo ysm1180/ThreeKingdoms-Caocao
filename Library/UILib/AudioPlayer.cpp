@@ -11,13 +11,11 @@ namespace three_kingdoms
 	void InitPacketAudioQueue(AudioPacketQueue* queue)
 	{
 		queue->size = 0;
-		queue->firstPacket = nullptr;
-		queue->lastPacket = nullptr;
+		queue->list.clear();
 	}
 
-	static int GetPacketAudioQueue(AudioState* audioState, AudioPacketQueue* queue, AVPacket* packet, int block)
+	static int GetPacketAudioQueue(AudioState* audioState, AudioPacketQueue* queue, AVPacket* packet)
 	{
-		AVPacketList* packetList;
 		int result;
 
 		std::unique_lock<std::mutex> lock(queue->mutex);
@@ -29,23 +27,13 @@ namespace three_kingdoms
 				break;
 			}
 
-			packetList = queue->firstPacket;
-			if (packetList)
+			if (!queue->list.empty())
 			{
-				queue->firstPacket = packetList->next;
-				if (!queue->firstPacket)
-				{
-					queue->lastPacket = nullptr;
-				}
-				queue->size -= packetList->pkt.size;
-				*packet = packetList->pkt;
-				av_free(packetList);
+				AVPacket tmpPacket = queue->list.front();
+				queue->list.pop_front();
+				queue->size -= tmpPacket.size;
+				*packet = tmpPacket;
 				result = 1;
-				break;
-			}
-			if (!block)
-			{
-				result = 0;
 				break;
 			}
 			if (audioState->finishQueue)
@@ -63,30 +51,15 @@ namespace three_kingdoms
 
 	int PutPacketAudioQueue(AudioPacketQueue* queue, AVPacket* packet)
 	{
-		AVPacketList* packetList = (AVPacketList*)av_malloc(sizeof(AVPacketList));
-		if (!packetList)
+		AVPacket clonePacket{ 0 };
+		if (av_packet_ref(&clonePacket, packet) < 0)
 		{
 			return AVERROR(ENOMEM);
 		}
-
-		av_init_packet(&packetList->pkt);
-		if (av_packet_ref(&packetList->pkt, packet) < 0)
-		{
-			return AVERROR(ENOMEM);
-		}
-		packetList->next = nullptr;
 
 		std::unique_lock<std::mutex> lock(queue->mutex);
-		if (!queue->lastPacket)
-		{
-			queue->firstPacket = packetList;
-		}
-		else
-		{
-			queue->lastPacket->next = packetList;
-		}
-		queue->lastPacket = packetList;
-		queue->size += packetList->pkt.size;
+		queue->list.push_back(clonePacket);
+		queue->size += clonePacket.size;
 		queue->cond.notify_one();
 		lock.unlock();
 
@@ -116,7 +89,7 @@ namespace three_kingdoms
 		if (!swr_ctx)
 		{
 			printf("swr_alloc error\n");
-			return -1;
+			return AVERROR(ENOMEM);
 		}
 
 		in_channel_layout = (audio_decode_ctx->channels ==
@@ -279,7 +252,7 @@ namespace three_kingdoms
 				av_packet_unref(packet);
 			}
 
-			if (GetPacketAudioQueue(audioState, &audioState->audioQueue, packet, 1) < 0)
+			if (GetPacketAudioQueue(audioState, &audioState->audioQueue, packet) < 0)
 			{
 				return -1;
 			}
@@ -412,7 +385,7 @@ namespace three_kingdoms
 		// Find video stream
 		for (unsigned int i = 0; i < _state.formatContext->nb_streams; i++)
 		{
-			if (_state.formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&
+			if (_state.formatContext->streams[i]->codecpar->codec_type == AVMediaType::AVMEDIA_TYPE_AUDIO &&
 				audioCodecParameters == nullptr)
 			{
 				audioCodecParameters = _state.formatContext->streams[i]->codecpar;
@@ -426,7 +399,7 @@ namespace three_kingdoms
 			return false;
 		}
 
-		AVCodec* audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
+		const AVCodec* audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
 		if (audioCodec == nullptr)
 		{
 			CConsoleOutput::OutputConsoles(L"Cannot find audio decoder");
@@ -494,7 +467,7 @@ namespace three_kingdoms
 			return false;
 		}
 
-		AVCodec* audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
+		const AVCodec* audioCodec = avcodec_find_decoder(audioCodecParameters->codec_id);
 		if (audioCodec == nullptr)
 		{
 			CConsoleOutput::OutputConsoles(L"Cannot find audio decoder");
@@ -580,8 +553,7 @@ namespace three_kingdoms
 
 		SDL_PauseAudio(0);
 
-		AVPacket packet{};
-		av_init_packet(&packet);
+		AVPacket* packet = av_packet_alloc();
 		avcodec_flush_buffers(audioState->audioCodecContext);
 		av_seek_frame(audioState->formatContext, audioState->audioStreamIndex, 0, 0);
 		for (;;)
@@ -598,7 +570,7 @@ namespace three_kingdoms
 				continue;
 			}
 
-			if (av_read_frame(audioState->formatContext, &packet) < 0)
+			if (av_read_frame(audioState->formatContext, packet) < 0)
 			{
 				if (audioState->formatContext->pb->error == 0)
 				{
@@ -610,19 +582,21 @@ namespace three_kingdoms
 				break;
 			}
 
-			if (packet.stream_index == audioState->audioStreamIndex)
+			if (packet->stream_index == audioState->audioStreamIndex)
 			{
-				PutPacketAudioQueue(&audioState->audioQueue, &packet);
-				if (packet.pts != int64_t(AV_NOPTS_VALUE) && packet.pts > audioState->maxPts)
+				PutPacketAudioQueue(&audioState->audioQueue, packet);
+				if (packet->pts != int64_t(AV_NOPTS_VALUE) && packet->pts > audioState->maxPts)
 				{
-					audioState->maxPts = packet.pts;
-				}
+					audioState->maxPts = packet->pts;
 			}
 			else
 			{
-				av_packet_unref(&packet);
+					av_packet_unref(packet);
+				}
 			}
 		}
+
+		av_packet_free(&packet);
 
 		return true;
 	}
