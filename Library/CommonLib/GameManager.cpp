@@ -80,12 +80,7 @@ COLORREF CGameManager::Color(int r, int g, int b)
 
 void CGameManager::Quit()
 {
-    PostQuitMessage(0);
-}
-
-void CGameManager::SetQuit(bool value)
-{
-    _quit = value;
+    _quit = true;
 }
 
 void CGameManager::Delay(int time)

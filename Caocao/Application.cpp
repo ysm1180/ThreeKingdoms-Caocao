@@ -101,7 +101,7 @@ int Application::Run()
     std::chrono::nanoseconds lag(0ns);
     auto time_start = clock::now();
 
-    while (WM_QUIT != message.message)
+    while (!_gameManager->IsQuit())
     {
         auto delta_time = clock::now() - time_start;
         time_start = clock::now();
@@ -128,7 +128,6 @@ int Application::Run()
         Render();
     }
 
-    _gameManager->SetQuit(true);
     CMemoryPoolManager::GetInstance().DestroyAllMemoryPool();
     SDL_Quit();
 

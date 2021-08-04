@@ -30,7 +30,6 @@ public:
     COLORREF Color(int r, int g, int b);
 
     void Quit();
-    void SetQuit(bool value);
 
     void Delay(int time);
     void StopDelay();
