@@ -4,25 +4,23 @@
 
 #include <string>
 
-namespace three_kingdoms
-{
-class CFile
-{
-public:
-    CFile();
-    ~CFile();
+namespace three_kingdoms {
+class CFile {
+ public:
+  CFile();
+  ~CFile();
 
-    bool Open(std::wstring filePath, std::wstring fileMode = L"rb+");
-    void Close();
+  bool Open(std::wstring filePath, std::wstring fileMode = L"rb+");
+  void Close();
 
-    const char *GetData();
-    int GetSize();
-    void Write(char *in, int position, int length);
+  const char *GetData();
+  int GetSize();
+  void Write(char *in, int position, int length);
 
-private:
-    FILE *_file = nullptr;
-    int _size = 0;
+ private:
+  FILE *_file = nullptr;
+  int _size = 0;
 
-    char *_data = nullptr;
+  char *_data = nullptr;
 };
-} // namespace three_kingdoms
+}  // namespace three_kingdoms

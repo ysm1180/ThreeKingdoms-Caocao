@@ -1,38 +1,38 @@
 ﻿#pragma once
 
-#include "WindowChildControl.h"
-#include "TextFont.h"
 #include <Uxtheme.h>
 
-namespace three_kingdoms
-{
-class CRadioButtonControl : public CWindowChildControl
-{
-public:
-    static void RegisterFunctions(lua_State *L);
+#include "TextFont.h"
+#include "WindowChildControl.h"
 
-    explicit CRadioButtonControl(bool isGroupStart);
-    virtual ~CRadioButtonControl();
+namespace three_kingdoms {
+class CRadioButtonControl : public CWindowChildControl {
+ public:
+  static void RegisterFunctions(lua_State *L);
 
-    bool IsChecked();
-    std::wstring GetText();
-    CTextFont *GetFont();
-    HTHEME GetTheme();
+  explicit CRadioButtonControl(bool isGroupStart);
+  virtual ~CRadioButtonControl();
 
-    void SetText(std::wstring text);
-    void SetChecked(bool checked);
+  bool IsChecked();
+  std::wstring GetText();
+  CTextFont *GetFont();
+  HTHEME GetTheme();
 
-    bool Create() override;
+  void SetText(std::wstring text);
+  void SetChecked(bool checked);
 
-    static WNDPROC GetOriginalProc();
-    static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  bool Create() override;
 
-private:
-    CTextFont _font;
-    std::wstring _text;
-    HTHEME _theme;
-    bool _isChecked = false;
+  static WNDPROC GetOriginalProc();
+  static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam,
+                                        LPARAM lParam);
 
-    static WNDPROC s_originalProc;
+ private:
+  CTextFont _font;
+  std::wstring _text;
+  HTHEME _theme;
+  bool _isChecked = false;
+
+  static WNDPROC s_originalProc;
 };
-} // namespace three_kingdoms
+}  // namespace three_kingdoms

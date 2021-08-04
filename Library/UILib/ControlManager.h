@@ -1,15 +1,15 @@
 #pragma once
 
-#include "LuaLib\LuaTinker.h"
-
 #include <Windows.h>
 #include <windowsx.h>
+
 #include <memory>
 #include <mutex>
 #include <vector>
 
-namespace three_kingdoms
-{
+#include "LuaLib\LuaTinker.h"
+
+namespace three_kingdoms {
 class CWindowControl;
 class CMoviePlayerControl;
 class CButtonControl;
@@ -32,49 +32,50 @@ class CAudioPlayerControl;
 class CGraphicText;
 class CGraphicRect;
 
-class CControlManager
-{
-public:
-    static void RegisterFunctions(lua_State *L);
+class CControlManager {
+ public:
+  static void RegisterFunctions(lua_State *L);
 
-    CControlManager();
-    virtual ~CControlManager();
+  CControlManager();
+  virtual ~CControlManager();
 
-    void Init(HINSTANCE hInstance);
+  void Init(HINSTANCE hInstance);
 
-    CWindowControl *CreateWindowForm(CWindowControl *parent);
-    CMoviePlayerControl *CreateMoviePlayer(CWindowControl *parent, std::wstring fileName);
-    CButtonControl *CreateButton(CWindowControl *parent);
-    CMenu *CreateMenu();
-    CMenuItem *CreateMenuItem();
-    CImageControl *CreateImage();
-    CToolbarControl *CreateToolbar();
-    CToolbarButton *CreateToolbarButton();
-    CLayoutControl *CreateLayout();
-    CListViewControl *CreateListView(CWindowControl *parent);
-    CListViewColumn *CreateListViewColumn();
-    CListViewRow *CreateListViewRow();
-    CListViewItem *CreateListViewItem();
-    CStaticControl *CreateStatic(CWindowControl *parent);
-    CGroupBoxControl *CreateGroupBox(CWindowControl *parent);
-    CCheckboxControl *CreateCheckbox(CWindowControl *parent);
-    CRadioButtonControl *CreateRadioButton(CWindowControl *parent, bool isGroupStart);
-    CComboBoxControl *CreateComboBox(CWindowControl *parent);
-    CAudioPlayerControl *CreateAudioPlayer();
-    CGraphicText *CreateGraphicText();
-    CGraphicRect *CreateGraphicRect();
+  CWindowControl *CreateWindowForm(CWindowControl *parent);
+  CMoviePlayerControl *CreateMoviePlayer(CWindowControl *parent,
+                                         std::wstring fileName);
+  CButtonControl *CreateButton(CWindowControl *parent);
+  CMenu *CreateMenu();
+  CMenuItem *CreateMenuItem();
+  CImageControl *CreateImage();
+  CToolbarControl *CreateToolbar();
+  CToolbarButton *CreateToolbarButton();
+  CLayoutControl *CreateLayout();
+  CListViewControl *CreateListView(CWindowControl *parent);
+  CListViewColumn *CreateListViewColumn();
+  CListViewRow *CreateListViewRow();
+  CListViewItem *CreateListViewItem();
+  CStaticControl *CreateStatic(CWindowControl *parent);
+  CGroupBoxControl *CreateGroupBox(CWindowControl *parent);
+  CCheckboxControl *CreateCheckbox(CWindowControl *parent);
+  CRadioButtonControl *CreateRadioButton(CWindowControl *parent,
+                                         bool isGroupStart);
+  CComboBoxControl *CreateComboBox(CWindowControl *parent);
+  CAudioPlayerControl *CreateAudioPlayer();
+  CGraphicText *CreateGraphicText();
+  CGraphicRect *CreateGraphicRect();
 
-    std::vector<CLayoutControl *> GetLayouts();
-    HINSTANCE GetHInstance();
+  std::vector<CLayoutControl *> GetLayouts();
+  HINSTANCE GetHInstance();
 
-    static CControlManager &GetInstance();
+  static CControlManager &GetInstance();
 
-protected:
-    HINSTANCE _hInstance;
+ protected:
+  HINSTANCE _hInstance;
 
-    std::vector<CLayoutControl *> _layouts;
+  std::vector<CLayoutControl *> _layouts;
 
-    static std::once_flag s_onceFlag;
-    static std::unique_ptr<CControlManager> s_controlManager;
+  static std::once_flag s_onceFlag;
+  static std::unique_ptr<CControlManager> s_controlManager;
 };
-} // namespace three_kingdoms
+}  // namespace three_kingdoms

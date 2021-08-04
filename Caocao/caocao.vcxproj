@@ -111,6 +111,7 @@
     <Link>
       <AdditionalLibraryDirectories>..\Library\ffmpeg\x64\lib;..\Library\SDL\lib\x64</AdditionalLibraryDirectories>
       <AdditionalDependencies>UxTheme.lib;avcodec.lib;avformat.lib;swscale.lib;avutil.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
