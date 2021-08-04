@@ -1,11 +1,11 @@
 #pragma once
 
+#include <vector>
+
 #include "TextFont.h"
 #include "WindowChildControl.h"
 
 #include <CommCtrl.h>
-
-#include <vector>
 
 namespace three_kingdoms {
 class CWindowControl;

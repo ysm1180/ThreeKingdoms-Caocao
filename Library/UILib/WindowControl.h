@@ -1,13 +1,13 @@
 #pragma once
 
-#include "BaseControl.h"
-#include "LuaLib\LuaTinker.h"
-
 #include <Windows.h>
 #include <windowsx.h>
 
 #include <string>
 #include <vector>
+
+#include "BaseControl.h"
+#include "LuaLib\LuaTinker.h"
 
 namespace three_kingdoms {
 class CMoviePlayer;
