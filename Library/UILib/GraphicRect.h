@@ -1,33 +1,30 @@
 ﻿#pragma once
 
-#include "LuaLib\LuaTinker.h"
-
 #include <windows.h>
 
-namespace three_kingdoms
-{
-class CGraphicRect
-{
-public:
-    static void RegisterFunctions(lua_State *L);
+#include "LuaLib\LuaTinker.h"
 
-    CGraphicRect();
-    virtual ~CGraphicRect();
+namespace three_kingdoms {
+class CGraphicRect {
+ public:
+  static void RegisterFunctions(lua_State *L);
 
-    COLORREF GetColor();
-    int GetWidth();
-    int GetHeight();
-    double GetOpacity();
+  CGraphicRect();
+  virtual ~CGraphicRect();
 
-    void SetColor(COLORREF color);
-    void SetWidth(int width);
-    void SetHeight(int height);
-    void SetOpacity(double opacity);
+  COLORREF GetColor();
+  int GetWidth();
+  int GetHeight();
+  double GetOpacity();
 
-private:
-    COLORREF _color = 0;
-    SIZE _size{0, 0};
-    double _opacity = 1.0;
+  void SetColor(COLORREF color);
+  void SetWidth(int width);
+  void SetHeight(int height);
+  void SetOpacity(double opacity);
+
+ private:
+  COLORREF _color = 0;
+  SIZE _size{0, 0};
+  double _opacity = 1.0;
 };
-
-} // namespace three_kingdoms
+}  // namespace three_kingdoms

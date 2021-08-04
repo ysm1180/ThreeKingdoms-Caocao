@@ -334,8 +334,8 @@ LRESULT CALLBACK CWindowControl::OnControlProc(HWND hWnd, UINT iMessage, WPARAM 
         }
         else if (item->CtlType == ODT_LISTVIEW)
         {
-            CListViewControl *listView = (CListViewControl *)item->CtlID;
-            item->itemHeight = listView->GetRowHeight();
+          CListViewItem *listView = (CListViewItem *)item->CtlID;
+            item->itemHeight = 19;
         }
         break;
     }

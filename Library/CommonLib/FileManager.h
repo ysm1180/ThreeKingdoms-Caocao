@@ -1,32 +1,30 @@
 ﻿#pragma once
-#include "BaseLib/File.h"
-#include "LuaLib/LuaTinker.h"
-
 #include <memory>
 #include <mutex>
 
-namespace three_kingdoms
-{
-class CFileManager
-{
-public:
-    static void RegisterFunctions(lua_State *L);
+#include "BaseLib/File.h"
+#include "LuaLib/LuaTinker.h"
 
-    CFile *LoadFile(std::wstring path);
-    char ReadByte(CFile *file, int position);
-    void WriteByte(CFile *file, int position, char byte);
-    void CloseFile(CFile *file);
-    void SetWorkingPath(std::wstring dir);
+namespace three_kingdoms {
+class CFileManager {
+ public:
+  static void RegisterFunctions(lua_State *L);
 
-    std::wstring GetWorkingPath();
-    std::wstring GetFilePath(std::wstring filePath);
+  CFile *LoadFile(std::wstring path);
+  char ReadByte(CFile *file, int position);
+  void WriteByte(CFile *file, int position, char byte);
+  void CloseFile(CFile *file);
+  void SetWorkingPath(std::wstring dir);
 
-    static CFileManager &GetInstance();
+  std::wstring GetWorkingPath();
+  std::wstring GetFilePath(std::wstring filePath);
 
-private:
-    std::wstring _currentWorkingPath = L"script/";
+  static CFileManager &GetInstance();
 
-    static std::once_flag s_onceFlag;
-    static std::unique_ptr<CFileManager> s_sharedFileManager;
+ private:
+  std::wstring _currentWorkingPath = L"script/";
+
+  static std::once_flag s_onceFlag;
+  static std::unique_ptr<CFileManager> s_sharedFileManager;
 };
-} // namespace three_kingdoms
+}  // namespace three_kingdoms

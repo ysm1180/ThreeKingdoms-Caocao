@@ -1,30 +1,29 @@
 ﻿#pragma once
-#include "WindowChildControl.h"
-#include "TextFont.h"
-
 #include <vector>
 
-namespace three_kingdoms
-{
-class CComboBoxControl : public CWindowChildControl
-{
-public:
-    static void RegisterFunctions(lua_State *L);
+#include "TextFont.h"
+#include "WindowChildControl.h"
 
-    CComboBoxControl();
-    virtual ~CComboBoxControl();
+namespace three_kingdoms {
+class CComboBoxControl : public CWindowChildControl {
+ public:
+  static void RegisterFunctions(lua_State *L);
 
-    void AddItem(std::wstring item);
+  CComboBoxControl();
+  virtual ~CComboBoxControl();
 
-    bool Create() override;
+  void AddItem(std::wstring item);
 
-    static WNDPROC GetOriginalProc();
-    static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  bool Create() override;
 
-private:
-    CTextFont _font;
-    std::vector<std::wstring> _items;
+  static WNDPROC GetOriginalProc();
+  static LRESULT CALLBACK OnControlProc(HWND hWnd, UINT msg, WPARAM wParam,
+                                        LPARAM lParam);
 
-    static WNDPROC s_originalProc;
+ private:
+  CTextFont _font;
+  std::vector<std::wstring> _items;
+
+  static WNDPROC s_originalProc;
 };
-} // namespace three_kingdoms
+}  // namespace three_kingdoms

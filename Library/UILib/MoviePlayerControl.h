@@ -18,146 +18,141 @@
 
 #include "BaseControl.h"
 
-extern "C"
-{
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#include <libavutil/time.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/pixfmt.h>
-
+extern "C" {
 #include <SDL/include/SDL.h>
 #include <SDL/include/SDL_thread.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavutil/imgutils.h>
+#include <libavutil/pixfmt.h>
+#include <libavutil/time.h>
+#include <libswscale/swscale.h>
 }
 
 #include <Windows.h>
 
-#include <string>
-#include <sstream>
-#include <mutex>
 #include <chrono>
-#include <thread>
-#include <queue>
 #include <list>
+#include <mutex>
+#include <queue>
+#include <sstream>
+#include <string>
+#include <thread>
 
-namespace three_kingdoms
-{
+namespace three_kingdoms {
 class CWindowControl;
 
-enum class SyncType
-{
-    AudioMaster = 0,
-    VideoMaster = 1,
+enum class SyncType {
+  AudioMaster = 0,
+  VideoMaster = 1,
 };
 
-struct PacketQueue
-{
-    std::list<AVPacket> list;
-    int size;
-    std::mutex mutex;
-    std::condition_variable cond;
+struct PacketQueue {
+  std::list<AVPacket> list;
+  int size;
+  std::mutex mutex;
+  std::condition_variable cond;
 };
 
-struct VideoFrame
-{
-    HDC dc;
-    HBITMAP newBitmap, oldBitmap;
-    uint8_t *buffer;
-    int width, height;
-    double pts;
+struct VideoFrame {
+  HDC dc;
+  HBITMAP newBitmap, oldBitmap;
+  uint8_t *buffer;
+  int width, height;
+  double pts;
 };
 
-struct VideoState
-{
-    HWND parentControlHWnd;
+struct VideoState {
+  HWND parentControlHWnd;
 
-    SyncType syncType;
+  SyncType syncType;
 
-    AVFormatContext *formatContext;
+  AVFormatContext *formatContext;
 
-    AVCodecContext *videoCodecContext;
-    int videoStreamIndex;
-    AVStream *videoStream;
-    PacketQueue videoQueue;
+  AVCodecContext *videoCodecContext;
+  int videoStreamIndex;
+  AVStream *videoStream;
+  PacketQueue videoQueue;
 
-    AVCodecContext *audioCodecContext;
-    int audioStreamIndex;
-    AVStream *audioStream;
-    PacketQueue audioQueue;
-    uint8_t audioBuffer[(MAX_AUDIO_FRAME_SIZE * 3) / 2];
-    unsigned int audioBufferSize;
-    unsigned int audioBufferIndex;
-    AVFrame audioFrame;
-    AVPacket audioPacket;
-    uint8_t *audioPacketData;
-    int audioPacketSize;
-    double audioDiffCum; /* used for AV difference average computation */
-    double audioDiffAvgCoef;
-    double audioDiffThreshold;
-    int audioDiffAvgCount;
+  AVCodecContext *audioCodecContext;
+  int audioStreamIndex;
+  AVStream *audioStream;
+  PacketQueue audioQueue;
+  uint8_t audioBuffer[(MAX_AUDIO_FRAME_SIZE * 3) / 2];
+  unsigned int audioBufferSize;
+  unsigned int audioBufferIndex;
+  AVFrame audioFrame;
+  AVPacket audioPacket;
+  uint8_t *audioPacketData;
+  int audioPacketSize;
+  double audioDiffCum; /* used for AV difference average computation */
+  double audioDiffAvgCoef;
+  double audioDiffThreshold;
+  int audioDiffAvgCount;
 
-    double audioClock;
-    int audioHwBufferSize;
-    double frameTimer;
-    double frameLastPts;
-    double frameLastDelay;
-    double videoClock;      ///<pts of last decoded frame / predicted pts of next decoded frame
-    double videoCurrentPts; ///<current displayed pts (different from video_clock if frame fifos are used)
-    int64_t videoCurrentPtsTime;
-    ///<time (av_gettime) at which we updated video_current_pts - used to have running video pts
+  double audioClock;
+  int audioHwBufferSize;
+  double frameTimer;
+  double frameLastPts;
+  double frameLastDelay;
+  double videoClock;  ///< pts of last decoded frame / predicted pts of next
+                      ///< decoded frame
+  double videoCurrentPts;  ///< current displayed pts (different from
+                           ///< video_clock if frame fifos are used)
+  int64_t videoCurrentPtsTime;
+  ///< time (av_gettime) at which we updated video_current_pts - used to have
+  ///< running video pts
 
-    SwsContext *swsContext;
+  SwsContext *swsContext;
 
-    VideoFrame frameQueue[VIDEO_FRAME_QUEUE_SIZE];
-    int frameQueueSize, frameQueueRearIndex, frameQueueWIndex;
-    std::mutex frameQueueMutex;
-    std::condition_variable frameQueueCond;
+  VideoFrame frameQueue[VIDEO_FRAME_QUEUE_SIZE];
+  int frameQueueSize, frameQueueRearIndex, frameQueueWIndex;
+  std::mutex frameQueueMutex;
+  std::condition_variable frameQueueCond;
 
-    std::mutex screenMutex;
+  std::mutex screenMutex;
 
-    std::wstring fileName;
+  std::wstring fileName;
 
-    bool playing;
-    bool finishQueue;
-    POINT position;
+  bool playing;
+  bool finishQueue;
+  POINT position;
 
-    std::queue<int> eventQueue;
+  std::queue<int> eventQueue;
 };
 
-class CMoviePlayerControl
-{
-public:
-    static void RegisterFunctions(lua_State *L);
+class CMoviePlayerControl {
+ public:
+  static void RegisterFunctions(lua_State *L);
 
-    CMoviePlayerControl(CWindowControl *parent, std::wstring fileName);
-    virtual ~CMoviePlayerControl();
+  CMoviePlayerControl(CWindowControl *parent, std::wstring fileName);
+  virtual ~CMoviePlayerControl();
 
-    int GetX();
-    int GetLuaY();
-    int GetY();
-    int GetWidth();
-    int GetHeight();
-    bool IsPlaying();
+  int GetX();
+  int GetLuaY();
+  int GetY();
+  int GetWidth();
+  int GetHeight();
+  bool IsPlaying();
 
-    void SetX(int x);
-    void SetLuaY(int y);
-    void SetY(int y);
-    void SetWidth(int width);
-    void SetHeight(int height);
-    void SetEndEvent();
+  void SetX(int x);
+  void SetLuaY(int y);
+  void SetY(int y);
+  void SetWidth(int width);
+  void SetHeight(int height);
+  void SetEndEvent();
 
-    bool Create();
-    void Destroy();
+  bool Create();
+  void Destroy();
 
-    void Play();
-    void Stop();
+  void Play();
+  void Stop();
 
-private:
-    VideoState _state{};
-    int _endEvent = LUA_NOREF;
-    SIZE _size;
+ private:
+  VideoState _state{};
+  int _endEvent = LUA_NOREF;
+  SIZE _size;
 
-    CWindowControl *_parent = nullptr;
+  CWindowControl *_parent = nullptr;
 };
-} // namespace three_kingdoms
+}  // namespace three_kingdoms

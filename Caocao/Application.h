@@ -2,21 +2,18 @@
 
 #include <Windows.h>
 
-extern "C"
-{
-#include <libavformat/avformat.h>
+extern "C" {
 #include <SDL/include/SDL.h>
+#include <libavformat/avformat.h>
 }
 
-namespace three_kingdoms
-{
+namespace three_kingdoms {
 class CControlManager;
 class CGameManager;
 class CGameScriptManager;
 class CFileManager;
 
-class Application
-{
+class Application {
 public:
     explicit Application(HINSTANCE hInstance);
     virtual ~Application();
@@ -27,14 +24,14 @@ public:
 
     virtual int Run();
 
-    static Application &GetInstance();
+    static Application& GetInstance();
 
 protected:
     HINSTANCE _hInstance;
-    CControlManager *_controlManager;
-    CGameManager *_gameManager;
-    CFileManager *_fileManager;
+    CControlManager* _controlManager;
+    CGameManager* _gameManager;
+    CFileManager* _fileManager;
 
-    static Application *s_sharedApplication;
+    static Application* s_sharedApplication;
 };
 } // namespace three_kingdoms

@@ -1,47 +1,46 @@
 #pragma once
 
-#include "LuaLib/LuaTinker.h"
-
 #include <Windows.h>
+
 #include <string>
 
-namespace three_kingdoms
-{
+#include "LuaLib/LuaTinker.h"
+
+namespace three_kingdoms {
 class CBaseControl;
 
-class CTextFont
-{
-public:
-    static void RegisterFunctions(lua_State *L);
+class CTextFont {
+ public:
+  static void RegisterFunctions(lua_State *L);
 
-    CTextFont();
-    CTextFont(CBaseControl *control);
-    virtual ~CTextFont();
+  CTextFont();
+  CTextFont(CBaseControl *control);
+  virtual ~CTextFont();
 
-    HFONT GetHFont() const;
+  HFONT GetHFont() const;
 
-    bool IsBold() const;
-    bool IsItalic() const;
-    bool IsUnderline() const;
-    int GetFontSize() const;
-    std::wstring GetFontName() const;
+  bool IsBold() const;
+  bool IsItalic() const;
+  bool IsUnderline() const;
+  int GetFontSize() const;
+  std::wstring GetFontName() const;
 
-    void SetBold(bool isBold);
-    void SetItalic(bool isItalic);
-    void SetUnderline(bool isUnderline);
-    void SetFontSize(int fontSize);
-    void SetFontName(std::wstring fontName);
+  void SetBold(bool isBold);
+  void SetItalic(bool isItalic);
+  void SetUnderline(bool isUnderline);
+  void SetFontSize(int fontSize);
+  void SetFontName(std::wstring fontName);
 
-    void ResetFont();
+  void ResetFont();
 
-protected:
-    CBaseControl *_control = nullptr;
+ protected:
+  CBaseControl *_control = nullptr;
 
-    HFONT _font = nullptr;
-    bool _isBold = false;
-    bool _isItalic = false;
-    bool _isUnderline = false;
-    int _fontSize = 10;
-    std::wstring _fontName;
+  HFONT _font = nullptr;
+  bool _isBold = false;
+  bool _isItalic = false;
+  bool _isUnderline = false;
+  int _fontSize = 10;
+  std::wstring _fontName;
 };
-} // namespace three_kingdoms
+}  // namespace three_kingdoms

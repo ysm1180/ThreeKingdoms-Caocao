@@ -1,57 +1,58 @@
 #pragma once
 
-#include "LuaLib\LuaTinker.h"
-
 #include <Windows.h>
 
-namespace three_kingdoms
-{
-class CImageControl
-{
-public:
-    static void RegisterFunctions(lua_State *L);
+#include "LuaLib\LuaTinker.h"
 
-    CImageControl();
-    ~CImageControl();
+namespace three_kingdoms {
+class CImageControl {
+ public:
+  static void RegisterFunctions(lua_State *L);
 
-    void ReadJpeg(BYTE *src, int size, COLORREF maskColor, double brightness, bool mirror);
+  CImageControl();
+  ~CImageControl();
 
-    void ReadPng(BYTE *src, int size, COLORREF maskColor, double brightness, bool mirror);
+  void ReadJpeg(BYTE *src, int size, COLORREF maskColor, double brightness,
+                bool mirror);
 
-    int GetClipingTop();
-    int GetClipingLeft();
-    int GetClipingWidth();
-    int GetClipingHeight();
-    int GetWidth();
-    int GetHeight();
-    HBITMAP GetImageHandle();
-    HBITMAP GetMirrorImageHandle();
-    HBITMAP GetMaskImageHandle();
-    HBITMAP GetMaskMirrorImageHandle();
-    BITMAPINFO GetBitmapInfo();
-    COLORREF GetMaskColor();
-    bool IsDisplayMirror();
+  void ReadPng(BYTE *src, int size, COLORREF maskColor, double brightness,
+               bool mirror);
 
-    void SetDisplayMirror(bool value);
+  int GetClipingTop();
+  int GetClipingLeft();
+  int GetClipingWidth();
+  int GetClipingHeight();
+  int GetWidth();
+  int GetHeight();
+  HBITMAP GetImageHandle();
+  HBITMAP GetMirrorImageHandle();
+  HBITMAP GetMaskImageHandle();
+  HBITMAP GetMaskMirrorImageHandle();
+  BITMAPINFO GetBitmapInfo();
+  COLORREF GetMaskColor();
+  bool IsDisplayMirror();
 
-    void SetClipingRect(int left, int top, int right, int bottom);
-    void ResetClipingRect();
+  void SetDisplayMirror(bool value);
 
-    void LoadImageFromMe5FileByIndex(std::wstring filePath, int groupIndex, int subIndex, COLORREF maskColor,
-                                     double brightness = 1, bool mirror = false);
+  void SetClipingRect(int left, int top, int right, int bottom);
+  void ResetClipingRect();
 
-private:
-    SIZE _size;
-    HBITMAP _image = nullptr;
-    HBITMAP _maskImage = nullptr;
-    HBITMAP _mirrorImage = nullptr;
-    HBITMAP _maskMirrorImage = nullptr;
+  void LoadImageFromMe5FileByIndex(std::wstring filePath, int groupIndex,
+                                   int subIndex, COLORREF maskColor,
+                                   double brightness = 1, bool mirror = false);
 
-    BITMAPINFO _info;
+ private:
+  SIZE _size;
+  HBITMAP _image = nullptr;
+  HBITMAP _maskImage = nullptr;
+  HBITMAP _mirrorImage = nullptr;
+  HBITMAP _maskMirrorImage = nullptr;
 
-    RECT _clipingRect;
-    COLORREF _maskColor;
+  BITMAPINFO _info;
 
-    bool _isDisplayMirror = false;
+  RECT _clipingRect;
+  COLORREF _maskColor;
+
+  bool _isDisplayMirror = false;
 };
-}; // namespace three_kingdoms
+};  // namespace three_kingdoms
