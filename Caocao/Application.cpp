@@ -1,19 +1,19 @@
 #pragma comment(lib, "gdiplus.lib")
 
-#include "Application.h"
+#include "application.h"
 
 #include <gdiplus.h>
 #include <ole2.h>
 
-#include "BaseLib/MemoryPool.h"
-#include "CommonLib/FileManager.h"
-#include "CommonLib/GameManager.h"
-#include "CommonLib/ME5File.h"
-#include "LuaConsole.h"
-#include "LuaLib/LuaTinker.h"
-#include "UILib/ControlManager.h"
-#include "UILib/LayoutControl.h"
-#include "UILib/WindowControl.h"
+#include "BaseLib/memory_pool.h"
+#include "CommonLib/file_manager.h"
+#include "CommonLib/game_manager.h"
+#include "CommonLib/me5_file.h"
+#include "lua_console.h"
+#include "LuaLib/lua_tinker_helper.h"
+#include "UILib/control_manager.h"
+#include "UILib/layout.h"
+#include "UILib/window.h"
 
 using namespace std::chrono_literals;
 
@@ -40,14 +40,14 @@ void Application::Render() {
 
 int Application::Run() {
   MSG message{};
-  CLuaTinker& luaTinker = CLuaTinker::GetLuaTinker();
-  CLuaConsole& luaConsole = CLuaConsole::GetInstance();
+  LuaTinkerHelper& luaTinker = LuaTinkerHelper::GetLuaTinker();
+  LuaConsole& luaConsole = LuaConsole::GetInstance();
   bool debug = false;
 
 #ifndef __WIN64
   av_register_all();
 #endif
-  if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0) {
+  if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
     return 1;
   }
 
@@ -73,8 +73,8 @@ int Application::Run() {
   luaTinker.RegisterVariable("gameManager", _gameManager);
   luaTinker.RegisterVariable("fileManager", _fileManager);
 
-  luaTinker.RegisterFunction("OUTPUT", &CConsoleOutput::OutputConsoles);
-  luaTinker.RegisterFunction("DEBUG", &CLuaConsole::SetDebugFlag);
+  luaTinker.RegisterFunction("OUTPUT", &Console::OutputConsoles);
+  luaTinker.RegisterFunction("DEBUG", &LuaConsole::SetDebugFlag);
 
   luaTinker.Run("./Script/main.lua");
 
@@ -100,14 +100,14 @@ int Application::Run() {
 
       auto updateEvent = _gameManager->GetUpdateEvent();
       if (updateEvent != LUA_NOREF) {
-        CLuaTinker::GetLuaTinker().Call(updateEvent);
+        LuaTinkerHelper::GetLuaTinker().Call(updateEvent);
       }
     }
 
     Render();
   }
 
-  CMemoryPoolManager::GetInstance().DestroyAllMemoryPool();
+  MemoryPoolManager::GetInstance().DestroyAllMemoryPool();
   SDL_Quit();
 
   Gdiplus::GdiplusShutdown(gpToken);

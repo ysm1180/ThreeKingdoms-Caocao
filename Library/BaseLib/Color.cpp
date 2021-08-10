@@ -1,4 +1,4 @@
-#include "Color.h"
+#include "color.h"
 
 namespace three_kingdoms {
 void RgbToHsv(const unsigned char r, const unsigned char g,

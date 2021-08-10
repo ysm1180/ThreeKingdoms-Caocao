@@ -2,13 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="LuaConsole.cpp" />
+    <ClCompile Include="application.cpp" />
+    <ClCompile Include="lua_console.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="LuaConsole.h" />
+    <ClInclude Include="lua_console.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="caocao.rc" />

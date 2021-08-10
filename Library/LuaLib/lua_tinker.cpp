@@ -13,7 +13,7 @@
 #include <iostream>
 #include <iterator>
 
-#include "BaseLib\ConsoleOutput.h"
+#include "BaseLib\console.h"
 
 /*---------------------------------------------------------------------------*/
 /* init                                                                      */
@@ -237,7 +237,7 @@ void lua_tinker::print_error(lua_State *L, const char *fmt, ...) {
     const auto len = MultiByteToWideChar(CP_UTF8, 0, text, -1, nullptr, 0);
     std::wstring unicode(len, L'\0');
     MultiByteToWideChar(CP_UTF8, 0, text, -1, &unicode[0], len);
-    three_kingdoms::CConsoleOutput::OutputConsoles(unicode);
+    three_kingdoms::Console::OutputConsoles(unicode);
     // printf("%s\n", text);
     lua_pop(L, 1);
   }
@@ -460,14 +460,14 @@ template <>
 }
 
 template <>
-::three_kingdoms::CFile *lua_tinker::read<three_kingdoms::CFile *>(lua_State *L,
+::three_kingdoms::BinaryFile *lua_tinker::read<three_kingdoms::BinaryFile *>(lua_State *L,
                                                                    int index) {
   if (lua_isnil(L, index)) {
     return nullptr;
   }
 
   auto value = (user *)lua_touserdata(L, index);
-  return (three_kingdoms::CFile *)value->m_p;
+  return (three_kingdoms::BinaryFile *)value->m_p;
 }
 
 /*---------------------------------------------------------------------------*/

@@ -19,52 +19,52 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BaseControl.cpp" />
-    <ClCompile Include="ButtonControl.cpp" />
-    <ClCompile Include="GraphicRect.cpp" />
-    <ClCompile Include="WindowChildControl.cpp" />
-    <ClCompile Include="GraphicText.cpp" />
-    <ClCompile Include="CheckboxControl.cpp" />
-    <ClCompile Include="ComboBoxControl.cpp" />
-    <ClCompile Include="ControlManager.cpp" />
-    <ClCompile Include="GroupBoxControl.cpp" />
-    <ClCompile Include="AudioPlayer.cpp" />
-    <ClCompile Include="RadioButtonControl.cpp" />
-    <ClCompile Include="StaticControl.cpp" />
-    <ClCompile Include="ImageControl.cpp" />
-    <ClCompile Include="LayoutControl.cpp" />
-    <ClCompile Include="ListviewControl.cpp" />
-    <ClCompile Include="MenuControl.cpp" />
-    <ClCompile Include="MenuManager.cpp" />
-    <ClCompile Include="MoviePlayerControl.cpp" />
-    <ClCompile Include="TextFont.cpp" />
-    <ClCompile Include="ToolbarControl.cpp" />
-    <ClCompile Include="ToolbarManager.cpp" />
-    <ClCompile Include="WindowControl.cpp" />
+    <ClCompile Include="base_control.cpp" />
+    <ClCompile Include="button.cpp" />
+    <ClCompile Include="graphic_rect.cpp" />
+    <ClCompile Include="child_control.cpp" />
+    <ClCompile Include="graphic_text.cpp" />
+    <ClCompile Include="checkbox.cpp" />
+    <ClCompile Include="combobox.cpp" />
+    <ClCompile Include="control_manager.cpp" />
+    <ClCompile Include="groupbox.cpp" />
+    <ClCompile Include="audio_player.cpp" />
+    <ClCompile Include="radio.cpp" />
+    <ClCompile Include="static.cpp" />
+    <ClCompile Include="image.cpp" />
+    <ClCompile Include="layout.cpp" />
+    <ClCompile Include="listview.cpp" />
+    <ClCompile Include="menu.cpp" />
+    <ClCompile Include="menu_manager.cpp" />
+    <ClCompile Include="movie_player.cpp" />
+    <ClCompile Include="text_font.cpp" />
+    <ClCompile Include="toolbar.cpp" />
+    <ClCompile Include="toolbar_manager.cpp" />
+    <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseControl.h" />
-    <ClInclude Include="ButtonControl.h" />
-    <ClInclude Include="GraphicRect.h" />
-    <ClInclude Include="WindowChildControl.h" />
-    <ClInclude Include="GraphicText.h" />
-    <ClInclude Include="CheckboxControl.h" />
-    <ClInclude Include="ComboBoxControl.h" />
-    <ClInclude Include="ControlManager.h" />
-    <ClInclude Include="GroupBoxControl.h" />
-    <ClInclude Include="AudioPlayer.h" />
-    <ClInclude Include="RadioButtonControl.h" />
-    <ClInclude Include="StaticControl.h" />
-    <ClInclude Include="ImageControl.h" />
-    <ClInclude Include="LayoutControl.h" />
-    <ClInclude Include="ListviewControl.h" />
-    <ClInclude Include="MenuControl.h" />
-    <ClInclude Include="MenuManager.h" />
-    <ClInclude Include="MoviePlayerControl.h" />
-    <ClInclude Include="TextFont.h" />
-    <ClInclude Include="ToolbarControl.h" />
-    <ClInclude Include="ToolbarManager.h" />
-    <ClInclude Include="WindowControl.h" />
+    <ClInclude Include="base_control.h" />
+    <ClInclude Include="button.h" />
+    <ClInclude Include="graphic_rect.h" />
+    <ClInclude Include="child_control.h" />
+    <ClInclude Include="graphic_text.h" />
+    <ClInclude Include="checkbox.h" />
+    <ClInclude Include="combobox.h" />
+    <ClInclude Include="control_manager.h" />
+    <ClInclude Include="groupbox.h" />
+    <ClInclude Include="audio_player.h" />
+    <ClInclude Include="radio.h" />
+    <ClInclude Include="static.h" />
+    <ClInclude Include="image.h" />
+    <ClInclude Include="layout.h" />
+    <ClInclude Include="listview.h" />
+    <ClInclude Include="menu.h" />
+    <ClInclude Include="menu_manager.h" />
+    <ClInclude Include="movie_player.h" />
+    <ClInclude Include="text_font.h" />
+    <ClInclude Include="toolbar.h" />
+    <ClInclude Include="toolbar_manager.h" />
+    <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BaseLib\BaseLib.vcxproj">
@@ -153,7 +153,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\;..\ffmpeg\x86\include\;..\libjpeg\x86\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\SDL\include\;..\;..\ffmpeg\x86\include\;..\libjpeg\x86\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -168,7 +168,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\;..\ffmpeg\x64\include\;..\libjpeg\x64\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\;..\ffmpeg\x64\include\;..\SDL\include\;..\libjpeg\x64\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

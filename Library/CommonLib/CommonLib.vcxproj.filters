@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="game_manager.cpp" />
     <ClCompile Include="lodepng.cpp" />
-    <ClCompile Include="ME5File.cpp" />
-    <ClCompile Include="FileManager.cpp" />
+    <ClCompile Include="me5_file.cpp" />
+    <ClCompile Include="file_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameManager.h" />
+    <ClInclude Include="game_manager.h" />
     <ClInclude Include="lodepng.h" />
-    <ClInclude Include="ME5File.h" />
-    <ClInclude Include="FileManager.h" />
+    <ClInclude Include="me5_file.h" />
+    <ClInclude Include="file_manager.h" />
   </ItemGroup>
 </Project>

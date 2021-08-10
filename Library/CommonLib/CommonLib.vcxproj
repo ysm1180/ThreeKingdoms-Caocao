@@ -19,16 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FileManager.cpp" />
-    <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="file_manager.cpp" />
+    <ClCompile Include="game_manager.cpp" />
     <ClCompile Include="lodepng.cpp" />
-    <ClCompile Include="ME5File.cpp" />
+    <ClCompile Include="me5_file.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FileManager.h" />
-    <ClInclude Include="GameManager.h" />
+    <ClInclude Include="file_manager.h" />
+    <ClInclude Include="game_manager.h" />
     <ClInclude Include="lodepng.h" />
-    <ClInclude Include="ME5File.h" />
+    <ClInclude Include="me5_file.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

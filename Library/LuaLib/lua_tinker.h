@@ -26,7 +26,7 @@ class CMenu;
 class CTextFont;
 class CListViewColumn;
 class CListViewRow;
-class CFile;
+class BinaryFile;
 class CME5File;
 }  // namespace three_kingdoms
 
@@ -482,7 +482,7 @@ template <>
 template <>
 ::three_kingdoms::CListViewRow* read(lua_State* L, int index);
 template <>
-::three_kingdoms::CFile* read(lua_State* L, int index);
+::three_kingdoms::BinaryFile* read(lua_State* L, int index);
 template <>
 ::three_kingdoms::CME5File* read(lua_State* L, int index);
 
