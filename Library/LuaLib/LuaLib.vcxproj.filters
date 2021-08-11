@@ -1,8 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="LuaTinker.h" />
-    <ClInclude Include="lua_tinker.h" />
     <ClInclude Include="lapi.h">
       <Filter>Lua</Filter>
     </ClInclude>
@@ -81,10 +79,14 @@
     <ClInclude Include="lzio.h">
       <Filter>Lua</Filter>
     </ClInclude>
+    <ClInclude Include="lua_tinker.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_tinker_helper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LuaTinker.cpp" />
-    <ClCompile Include="lua_tinker.cpp" />
     <ClCompile Include="lapi.c">
       <Filter>Lua</Filter>
     </ClCompile>
@@ -190,10 +192,24 @@
     <ClCompile Include="lzio.c">
       <Filter>Lua</Filter>
     </ClCompile>
+    <ClCompile Include="lua_tinker.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_tinker_helper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Lua">
       <UniqueIdentifier>{021130eb-8392-4fc9-985d-291365615072}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{388cce44-1559-4837-ab46-354c5cce9884}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{0b7f75c4-8f6f-4f98-90ad-dfc3d568d8ce}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
   </ItemGroup>
 </Project>

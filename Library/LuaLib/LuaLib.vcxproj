@@ -42,7 +42,7 @@
     <ClInclude Include="lua.hpp" />
     <ClInclude Include="luaconf.h" />
     <ClInclude Include="lualib.h" />
-    <ClInclude Include="LuaTinker.h" />
+    <ClInclude Include="lua_tinker_helper.h" />
     <ClInclude Include="lua_tinker.h" />
     <ClInclude Include="lundump.h" />
     <ClInclude Include="lvm.h" />
@@ -80,7 +80,7 @@
     <ClCompile Include="ltm.c" />
     <ClCompile Include="lua.c" />
     <ClCompile Include="luac.c" />
-    <ClCompile Include="LuaTinker.cpp" />
+    <ClCompile Include="lua_tinker_helper.cpp" />
     <ClCompile Include="lua_tinker.cpp" />
     <ClCompile Include="lundump.c" />
     <ClCompile Include="lutf8lib.c" />
