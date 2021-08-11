@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/qyv85rx61q88rf7o?svg=true)](https://ci.appveyor.com/project/ysm1180/threekingdoms-caocao)
+[![Build status](https://ci.appveyor.com/api/projects/status/afeb61vd1tpqmt1m/branch/main?svg=true)](https://ci.appveyor.com/project/ysm1180/threekingdoms-caocao/branch/main)
 
 # ThreeKingdoms-Caocao Renewal
 
